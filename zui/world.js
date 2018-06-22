@@ -342,24 +342,10 @@ ZUI.world = function () {
             // Header: color, text, icon
 
             showHeader: false,
-            showHeaderText: false,
-            showHeaderIcon: false,
-
-            headerText: null,
-            headerTextCenterHorizontally: true,
-            headerTextCenterVertically: true,
-            headerTextCutOffTextWhenNoMoreRoom: true,
-            headerTextWrapTextWhenNoMoreRoom: true,
-
-            headerIconColor: null,
-            headerIconBorderColor: null,
-            headerIconShape: null,
 
             hasFixedHeaderHeight: false,
             headerHeight: null,
             normalizedHeaderHeight: null,
-            containerHeaderColor: {r: 200, g: 200, b: 200, a: 0.15},
-            containerHeaderBorderColor: { r: 100, g: 100, b: 100, a: 0.2 },
 
             // Positioning, sizing, padding, aspect ratio, children-layout, connections in/out
 
