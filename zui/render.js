@@ -20,7 +20,7 @@ ZUI.render = function () {
 
     var my = {}
 
-    my.characterWidths = {}   // FIXME: this should be removed!
+    // my.characterWidths = {}   // FIXME: this should be removed!
 
     my.getCanvasRGBAColor = function (color, opacity) {
         return "rgba(" + color.r + "," + color.g + "," + color.b + "," + color.a * opacity + ")"
@@ -335,6 +335,7 @@ ZUI.render = function () {
         }
     }
 
+    /*
     my.measureTextWidth = function (camera, text, fontHeight, baseFont) {
         // FIXME: we can't use this here right now! (since it might be pipelined) var context2d = camera.context2d
         var context2d = ZUI.canvas.context2d
@@ -373,6 +374,7 @@ ZUI.render = function () {
 
         return textWidth
     }
+    */
 
     my.drawText = function (camera, text, x, y, fontHeight, fontColor, baseFont, opacity) {
         var context2d = camera.context2d
@@ -400,6 +402,7 @@ ZUI.render = function () {
 
     }
 
+    /*
     my.drawTextInRect = function (camera, text, x, y, width, height, centerHorizontally, centerVertically, fontHeight, fontColor, baseFont, opacity, cutOffTextWhenNoMoreRoom, wrapTextWhenNoMoreRoom) {
 
         // Note: DEBUG my.fillAndDrawRect(camera, x, y, width, height, null, {r: 200, g:0, b:0, a:1.0}, 1)
@@ -454,15 +457,13 @@ ZUI.render = function () {
                 // FIXME: this might be slow (the function measureTextWidth expect a string of characters, not one character)
                 var characterWidth = my.measureTextWidth(camera, character, fontHeight, baseFont)
 
-                /*
                 // FIXME: do we still want to do this? (see the '...'-code below)
 
                 // If this is the first and last line (only one line available) and the width of the text is going to be more than half of the available width, we dont show the text at all
-                if (isLastLine && isFirstLine && ((textLineWidth + characterWidth) / 2) > width) {
-                    drawText = false
-                    break
-                }
-                */
+                // if (isLastLine && isFirstLine && ((textLineWidth + characterWidth) / 2) > width) {
+                //     drawText = false
+                //     break
+                // }
 
                 // For word wrapping we need to remember the part of the line until the latest whitespace (or newline)
                 if (character === ' ' || character === "\n") {
@@ -553,6 +554,7 @@ ZUI.render = function () {
         }
 
     }
+    */
 
     my.drawTextPx = function (camera, textToWrite, textColor, leftTextPx, topTextPx, maxTextWidthPx, lineHeightPx) {
         var context2d = camera.context2d
