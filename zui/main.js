@@ -50,14 +50,6 @@ ZUI.main = function () {
     my.fineMouseScrolling = false
     my.showGrid = false
 
-    my.showDetailCamera = false
-    my.stopShowingDetailCamera = false
-    my.detailCameraPercentageOpened = 0.0
-
-    my.showBottomCamera = false
-    my.stopShowingBottomCamera = false
-    my.detailBottomPercentageOpened = 0.0
-
     my.showSideBar = false
     my.showOverviewCamera = false
     my.showGraph = false
@@ -72,9 +64,6 @@ ZUI.main = function () {
 
     my.mainCamera = null
     my.overviewCamera = null
-    my.detailCamera = null
-    // my.detailCameraWorld = null // FIXME: dirty HACK!
-    my.bottomCamera = null
 
     my.containerUpdatesPerMinute = {}
     my.lastUpdateOnMinute = null
@@ -137,8 +126,6 @@ ZUI.main = function () {
         // FIXME: hardcoded to have only one world!
 
         var mainWorld = my.worlds.main
-        var detailWorld = my.worlds.detail
-        var bottomWorld = my.worlds.bottom
 
         /*
         for (var worldIdentifier in my.worlds) {
@@ -166,8 +153,6 @@ ZUI.main = function () {
             }
         }
 
-        var bottomCameraRectanglePx= null
-        var detailCameraRectanglePx = null
         var sideBarRectanglePx = null
         var containerInfoRectanglePx = null
         var overviewCameraRectanglePx = null
@@ -176,66 +161,6 @@ ZUI.main = function () {
         var containerInfoCamera = {}
         var graphCamera = {}
         var logCamera = {}
-
-        if (my.showBottomCamera) {
-            if (my.stopShowingBottomCamera) {
-                if (my.bottomCameraPercentageOpened < 0.02) {
-                    my.bottomCameraPercentageOpened = 0.0
-                    my.showBottomCamera = false
-                    my.stopShowingBottomCamera = false
-                }
-                else {
-                    my.bottomCameraPercentageOpened = my.bottomCameraPercentageOpened * 0.5
-                }
-            }
-            else {
-                if (my.bottomCameraPercentageOpened > 0.98) {
-                    my.bottomCameraPercentageOpened = 1.0
-                }
-                else {
-                    my.bottomCameraPercentageOpened = 1.0 - (1.0 - my.bottomCameraPercentageOpened) * 0.5
-                }
-            }
-
-            var relativeSizeOfBottomCamera = 0.70 * my.bottomCameraPercentageOpened
-
-            var bottomAndZuiRectangles = ZUI.canvas.splitRectanglePxVerticallyUsingPercentage(zuiRectanglePx, 1 - relativeSizeOfBottomCamera)
-
-            bottomCameraRectanglePx = bottomAndZuiRectangles.bottomRectanglePx
-            zuiRectanglePx = bottomAndZuiRectangles.topRectanglePx
-
-            // TODO: add width/height/left/top Px to camera
-        }
-
-        if (my.showDetailCamera) {
-            if (my.stopShowingDetailCamera) {
-                if (my.detailCameraPercentageOpened < 0.02) {
-                    my.detailCameraPercentageOpened = 0.0
-                    my.showDetailCamera = false
-                    my.stopShowingDetailCamera = false
-                }
-                else {
-                    my.detailCameraPercentageOpened = my.detailCameraPercentageOpened * 0.5
-                }
-            }
-            else {
-                if (my.detailCameraPercentageOpened > 0.98) {
-                    my.detailCameraPercentageOpened = 1.0
-                }
-                else {
-                    my.detailCameraPercentageOpened = 1.0 - (1.0 - my.detailCameraPercentageOpened) * 0.5
-                }
-            }
-
-            var relativeSizeOfDetailCamera = 0.40 * my.detailCameraPercentageOpened
-
-            var detailAndZuiRectangles = ZUI.canvas.splitRectanglePxHorizontallyUsingPercentage(zuiRectanglePx, relativeSizeOfDetailCamera)
-
-            detailCameraRectanglePx = detailAndZuiRectangles.leftRectanglePx
-            zuiRectanglePx = detailAndZuiRectangles.rightRectanglePx
-
-            // TODO: add width/height/left/top Px to camera
-        }
 
         if (my.showSideBar) {
 
@@ -352,42 +277,6 @@ ZUI.main = function () {
 
                     ZUI.camera.processInputForCamera(my.mainCamera, ZUI.input)
 
-                    // FIXME: we should FIRST process the input for ALL CAMERAS! Then we should do logic/change the state of our camera's/worlds and THEN draw the camera's!
-                    // FIXME: we should FIRST process the input for ALL CAMERAS! Then we should do logic/change the state of our camera's/worlds and THEN draw the camera's!
-                    // FIXME: we should FIRST process the input for ALL CAMERAS! Then we should do logic/change the state of our camera's/worlds and THEN draw the camera's!
-
-                    if (my.mainCamera.sliceContainerWasDoubleClicked) {
-                        var doubleClickedSliceContainer = my.mainCamera.doubleClickedSliceContainer
-
-                        if (doubleClickedSliceContainer.worldContainer.containerProperties.showDetailCameraWhenDoubleClicked) {
-                            // FIXME: how to unset?
-                            my.showDetailCamera = true
-                            my.detailCameraPercentageOpened = 0.0
-                            // FIXME: implement a resetCamera-function!
-                            my.detailCamera = null
-
-                            detailWorld.initData = {
-                                'sliceContainer': doubleClickedSliceContainer,  // FIXME: this should be deprecated!
-                                'containerData': doubleClickedSliceContainer.worldContainer.containerData
-                            }
-
-                            detailWorld.mustReloadWorld = true
-
-                            if (my.showBottomCamera) {
-                                my.stopShowingBottomCamera = true
-                            }
-                        }
-                        else {
-                            if (my.showDetailCamera) {
-                                my.stopShowingDetailCamera = true
-                            }
-                            if (my.showBottomCamera) {
-                                my.stopShowingBottomCamera = true
-                            }
-                        }
-                    }
-
-                    // TODO: notice that this is overruled by the detailCamera!
                     if (my.mainCamera.selectedSliceContainer != null) {
                         // FIXME: this assumes containerData.label is always present!
                         ZUI.input.textToCopyFrom = my.mainCamera.selectedSliceContainer.worldContainer.containerData.label
@@ -415,183 +304,6 @@ ZUI.main = function () {
                 }
 
                 ZUI.canvas.context2d.restore()
-            }
-
-            // Detail Camera
-            if (my.showDetailCamera) {
-
-                if (my.detailCamera == null && detailWorld != null) {
-                    my.detailCamera = ZUI.camera.createNewCamera(detailWorld, {x: 0, y: 0}, 1000/350, 1)
-                    if (my.usePipelinedContext) {
-                        my.detailCamera.context2d = ZUI.canvas.pipelinedContext2d
-                    }
-                    else {
-                        my.detailCamera.context2d = ZUI.canvas.context2d
-                    }
-                    my.detailCamera.attachRootContainerToSideOfCamera = 'top'
-                    my.detailCamera.zoomingIsEnabled = false
-                    my.detailCamera.mouseScrollBehaviour = 'pan-vertical'
-                    my.detailCamera.horizontalPanningIsEnabled = false
-                    my.detailCamera.verticalPanningIsEnabled = true
-                }
-                else {
-                    // FIXME: if there is not world, dont draw?
-                }
-
-                // FIXME: right now the detailCameraRectanglePx is determined BEFORE the detailCamera is turned on DYNAMICALLY! We should determine the size and postion of detailCamera AFTER turning it on (we do now effectively on the next frame)
-                if (detailCameraRectanglePx != null) {
-                    my.detailCamera.pixelSize = detailCameraRectanglePx.pixelSize
-                    my.detailCamera.pixelPosition = detailCameraRectanglePx.pixelPosition
-
-                    ZUI.canvas.context2d.save()
-                    ZUI.canvas.clipCameraRectangle(my.detailCamera)
-
-                    if (my.detailCamera.hasOwnProperty('rootWorldSliceContainer')) {
-                        ZUI.camera.processInputForCamera(my.detailCamera, ZUI.input)
-
-                        if (my.detailCamera.sliceContainerWasDoubleClicked) {
-                            var doubleClickedDetailSliceContainer = my.detailCamera.doubleClickedSliceContainer
-
-                            if (doubleClickedDetailSliceContainer.worldContainer.containerProperties.showBottomCameraWhenDoubleClicked) {
-                                // FIXME: how to unset?
-                                my.showBottomCamera = true
-                                my.bottomCameraPercentageOpened = 0.0
-                                // FIXME: implement a resetCamera-function!
-                                my.bottomCamera = null
-
-                                bottomWorld.initData = {
-                                    'sliceContainer': doubleClickedDetailSliceContainer,  // FIXME: this should be deprecated!
-                                    'containerData': doubleClickedDetailSliceContainer.worldContainer.containerData
-                                }
-                                bottomWorld.mustReloadWorld = true
-                            }
-                            else {
-                                if (my.showBottomCamera) {
-                                    my.stopShowingBottomCamera = true
-                                }
-                            }
-                        }
-
-                        // TODO: notice that this overrules the textToCopyFrom set by the mainCamera!
-                        if (my.detailCamera.selectedSliceContainer != null) {
-                            // FIXME: this assumes containerData.label is always present!
-                            ZUI.input.textToCopyFrom = my.detailCamera.selectedSliceContainer.worldContainer.containerData.label
-                        }
-                        else {
-                            ZUI.input.textToCopyFrom = null
-                        }
-                    }
-                    if (my.usePipelinedContext) {
-                        ZUI.canvas.pipelinedContext2d.reset()
-                    }
-                    ZUI.camera.drawContainerAndConnectionsOnCamera(my.detailCamera, my.doDrawGuides)
-                    if (my.usePipelinedContext) {
-                        ZUI.canvas.pipelinedContext2d.executeCommands()
-                        ZUI.canvas.pipelinedContext2d.reset()
-                    }
-
-                    ZUI.canvas.context2d.restore()
-
-                    ZUI.canvas.drawShadowNextToRectanglePx(my.detailCamera.pixelPosition, my.detailCamera.pixelSize, 'right', 10, 0.08)
-                }
-
-            }
-
-            if (my.showBottomCamera && bottomWorld != null) {
-                if (my.bottomCamera == null) {
-                    my.bottomCamera = ZUI.camera.createNewCamera(bottomWorld, {x: 0, y: 0}, 4 / 1, 1 / 1)
-                    if (my.usePipelinedContext) {
-                        my.bottomCamera.context2d = ZUI.canvas.pipelinedContext2d
-                    }
-                    else {
-                        my.bottomCamera.context2d = ZUI.canvas.context2d
-                    }
-
-                    // ZUI.camera.setCameraPositionUsingCookie(my.bottomCamera, 'cameraPos')
-                }
-                else {
-                    // FIXME: if there is not world, dont draw?
-                }
-                // ZUI.camera.storeCameraPositionInCookie(my.bottomCamera, 'cameraPos')
-
-                // FIXME: right now the bottomCameraRectanglePx is determined BEFORE the bottomCamera is turned on DYNAMICALLY! We should determine the size and postion of bottomCamera AFTER turning it on (we do now effectively on the next frame)
-                if (bottomCameraRectanglePx != null) {
-
-                    my.bottomCamera.pixelSize = bottomCameraRectanglePx.pixelSize
-                    my.bottomCamera.pixelPosition = bottomCameraRectanglePx.pixelPosition
-
-                    ZUI.canvas.context2d.save()
-                    ZUI.canvas.clipCameraRectangle(my.bottomCamera)
-
-                    if (my.bottomCamera.hasOwnProperty('rootWorldSliceContainer')) {
-
-                        /*
-                         if (bottomWorld.editModeToggleable) {
-                         if (ZUI.input.ctrlKeyIsDown) {
-                         bottomWorld.editMode = true
-                         }
-                         else {
-                         bottomWorld.editMode = false
-                         }
-                         }
-                         */
-
-                        ZUI.camera.processInputForCamera(my.bottomCamera, ZUI.input)
-
-                        // FIXME: we should FIRST process the input for ALL CAMERAS! Then we should do logic/change the state of our camera's/worlds and THEN draw the camera's!
-                        // FIXME: we should FIRST process the input for ALL CAMERAS! Then we should do logic/change the state of our camera's/worlds and THEN draw the camera's!
-                        // FIXME: we should FIRST process the input for ALL CAMERAS! Then we should do logic/change the state of our camera's/worlds and THEN draw the camera's!
-
-                        // TODO: notice that this is overruled by the detailCamera!
-                        if (my.bottomCamera.selectedSliceContainer != null) {
-                            // FIXME: this assumes containerData.label is always present!
-                            ZUI.input.textToCopyFrom = my.bottomCamera.selectedSliceContainer.worldContainer.containerData.label
-
-                            // FIXME: temporary feature
-                            if (ZUI.input.textHasComeFromClipboard) {
-                                ZUI.log(ZUI.input.textComingFromClipboard)
-                            }
-                        }
-                        else {
-                            ZUI.input.textToCopyFrom = null
-                        }
-
-                    }
-
-                    if (my.usePipelinedContext) {
-                        ZUI.canvas.pipelinedContext2d.reset()
-                    }
-                    ZUI.camera.drawContainerAndConnectionsOnCamera(my.bottomCamera, my.doDrawGuides)
-                    if (my.usePipelinedContext) {
-                        ZUI.canvas.pipelinedContext2d.executeCommands()
-                        ZUI.canvas.pipelinedContext2d.reset()
-                    }
-
-                    // FIXME: UGLY HACK: we reset bottomWorld.initialContainerIdentifierToCenterOn to null to prevent this from always happening. It SHOUDL happen after the first camera-filling-with-slice-containers. We need some kind of mark for that
-/*
-                    // FIXME: maybe we should do this inside createNewCamera? Or should this also be optional per camera? (since initialContainerIdentifierToCenterOn is not a world-setting!)
-                    if (bottomWorld.initialContainerIdentifierToCenterOn != null) {
-                        var sliceContainerToCenterOn = my.bottomCamera.sliceContainersByIdentifier[bottomWorld.initialContainerIdentifierToCenterOn]
-
-                        bottomWorld.initialContainerIdentifierToCenterOn = null
-
-                        console.log('centering on ' + bottomWorld.initialContainerIdentifierToCenterOn)
-                        ZUI.camera.centerCameraOnSliceContainer(my.bottomCamera, sliceContainerToCenterOn)
-                    }
-                    */
-
-                    ZUI.canvas.context2d.restore()
-
-                    // ZUI.canvas.drawShadowNextToRectanglePx(my.bottomCamera.pixelPosition, my.bottomCamera.pixelSize, 'top', 10, 0.08)
-
-                    // FIXME: hardcoded horizontal line
-                    ZUI.canvas.context2d.beginPath()
-                    ZUI.canvas.context2d.lineWidth = "1"
-                    ZUI.canvas.context2d.strokeStyle = "rgba(150, 150, 150, 0.3)"
-                    ZUI.canvas.context2d.rect(my.bottomCamera.pixelPosition.leftPx, my.bottomCamera.pixelPosition.topPx, my.bottomCamera.pixelSize.widthPx, 1)
-                    ZUI.canvas.context2d.stroke()
-
-                }
             }
 
             if (my.showSideBar) {
