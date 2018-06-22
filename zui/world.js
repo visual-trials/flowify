@@ -339,14 +339,6 @@ ZUI.world = function () {
             containerIconBorderColor: null,
             containerIconShape: null,
 
-            // Header: color, text, icon
-
-            showHeader: false,
-
-            hasFixedHeaderHeight: false,
-            headerHeight: null,
-            normalizedHeaderHeight: null,
-
             // Positioning, sizing, padding, aspect ratio, children-layout, connections in/out
 
             minWidth: 0,
@@ -380,7 +372,7 @@ ZUI.world = function () {
             normalizedRelativePositionPointsTo: "left-bottom",
 
             // FIXME: connectOutgoingTo/connectIncomingTo should be an attribute of a CONNECTION-SIDE not (only) of a container!?!?
-            // Options: left, right, header-left, header-right, all-directions, 4-directions
+            // Options: left, right, all-directions, 4-directions
             connectIncomingTo: "left",
             connectOutgoingTo: "right",
 
@@ -1280,27 +1272,6 @@ ZUI.world = function () {
 
     }
 
-    // TODO: make this a method of the container-prototype!
-    my.getContainerHeaderHeight = function (sliceContainer) {
-
-        var containerProperties = sliceContainer.worldContainer.containerProperties
-
-        var headerHeight = 0
-        if (containerProperties.showHeader) {
-            if (containerProperties.hasFixedHeaderHeight) {
-                headerHeight = containerProperties.headerHeight
-                if (headerHeight > sliceContainer.size.height) {
-                    headerHeight = sliceContainer.size.height
-                }
-            }
-            else {
-                headerHeight = sliceContainer.size.height * (containerProperties.normalizedHeaderHeight / sliceContainer.size.normalizedHeight)
-            }
-        }
-
-        return headerHeight
-    }
-
     my.getContainerAttachmentPointByAngle = function (sliceContainer, angle) {
 
         var containerProperties = sliceContainer.worldContainer.containerProperties
@@ -1547,8 +1518,6 @@ ZUI.world = function () {
 
                 sliceConnection.opacity = opacityConnection
 
-                // TODO: what if connection to header? Use it's rectangle instead of the whole container's rectangle?
-
                 var fromAbsolutePosition = {}
                 fromAbsolutePosition.x = fromSliceContainer.newLayout.absolutePosition.x
                 fromAbsolutePosition.y = fromSliceContainer.newLayout.absolutePosition.y
@@ -1575,18 +1544,7 @@ ZUI.world = function () {
                 var angleBetweenCenterOfContainers = Math.atan2(deltaY, deltaX)
 
                 var fromDefaultAttachementY = fromCenterY
-                // TODO: also check if we have to connect to the header or not
-                if (fromContainerProperties.showHeader) {
-                    var fromHeaderHeight = my.getContainerHeaderHeight(fromSliceContainer)
-                    fromDefaultAttachementY = fromCenterY + (fromAbsoluteSize.height / 2 - fromHeaderHeight / 2)
-                }
-
                 var toDefaultAttachementY = toCenterY
-                // TODO: also check if we have to connect to the header or not
-                if (toContainerProperties.showHeader) {
-                    var toHeaderHeight = my.getContainerHeaderHeight(toSliceContainer)
-                    toDefaultAttachementY = toCenterY + (toAbsoluteSize.height / 2 - toHeaderHeight / 2)
-                }
 
                 // TODO: snap angle according to from- and to- container-settings
                 // Note: since the might be limited attachmentpoints on the containers,
@@ -1640,7 +1598,7 @@ ZUI.world = function () {
                     }
                 }
                 else {
-                    // TODO: now defaulting to header-left-to-right, better to default to all-directions?
+                    // TODO: now defaulting to left-to-right, better to default to all-directions?
                     fromAttachAngle = 0
                     fromAttachmentPoint.x = fromCenterX + fromAbsoluteSize.width / 2
                     fromAttachmentPoint.y = fromDefaultAttachementY
@@ -1677,7 +1635,7 @@ ZUI.world = function () {
                     }
                 }
                 else {
-                    // TODO: now defaulting to header-left-to-right, better to default to all-directions?
+                    // TODO: now defaulting to left-to-right, better to default to all-directions?
                     toAttachAngle = Math.PI
                     toAttachmentPoint.x = toCenterX - toAbsoluteSize.width / 2
                     toAttachmentPoint.y = toDefaultAttachementY
