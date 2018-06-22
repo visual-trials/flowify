@@ -50,8 +50,8 @@ ZUI.main = function () {
     my.fineMouseScrolling = false
     my.showGrid = false
 
-    my.showSideBar = false
-    my.showOverviewCamera = false
+    my.showSideBar = true
+    my.showOverviewCamera = true
     my.showGraph = false
     my.showLog = true
     my.doDrawGuides = false
@@ -332,7 +332,7 @@ ZUI.main = function () {
                     // Overview camera
 
                     if (my.overviewCamera == null) {
-                        my.overviewCamera = ZUI.camera.createNewCamera(mainWorld, {x: 0, y: 0}, 1 / 2.5, 1 / 1)
+                        my.overviewCamera = ZUI.camera.createNewCamera(mainWorld, {x: 0, y: 0}, 1 / 6, 1 / 1)
                         if (my.usePipelinedContext) {
                             my.overviewCamera.context2d = ZUI.canvas.pipelinedContext2d
                         }
@@ -389,13 +389,14 @@ ZUI.main = function () {
                     if (my.usePipelinedContext) {
                         ZUI.canvas.pipelinedContext2d.reset()
                     }
-                    ZUI.camera.drawContainerAndConnectionsOnCamera(my.overviewCamera, my.doDrawGuides)
+                    ZUI.camera.drawCamera(my.overviewCamera)
                     if (my.usePipelinedContext) {
                         ZUI.canvas.pipelinedContext2d.executeCommands()
                         ZUI.canvas.pipelinedContext2d.reset()
                     }
 
                     // Draw outline of main camera on overview camera
+                    
                     {
                         var mainCameraPosition = {
                             "x" : my.mainCamera.centerPosition.x,

@@ -1156,25 +1156,6 @@ ZUI.world = function () {
         return childPosition
     }
 
-    my.setAbsoluteContainerPositions = function (currentSliceContainer, parentPosition) {
-
-        // TODO: also check if this container should not be drawn, but it's children might!
-        if (currentSliceContainer.isVisible) {
-
-            // FIXME: this might leak memory or tax the GC... (maybe set x and y separately here? instead of overwriting position?)
-            currentSliceContainer.position = my.setAbsolutePositions(currentSliceContainer.relativePosition, parentPosition)
-
-            if (currentSliceContainer.hasOwnProperty('sliceChildren')) {
-                for (var childIndex = 0; childIndex < currentSliceContainer.sliceChildren.length; childIndex++) {
-                    var childSliceContainer = currentSliceContainer.sliceChildren[childIndex]
-
-                    my.setAbsoluteContainerPositions(childSliceContainer, currentSliceContainer.position)
-                }
-            }
-        }
-
-    }
-
     my.findPositionInShape = function (knownPosition, isKnownPositionOf, knownShape, knownSize, whichPositionToFind) {
 
         var centerPosition = { x: 0, y: 0}

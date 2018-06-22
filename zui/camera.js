@@ -97,47 +97,6 @@ ZUI.camera = function () {
         camera.leftOverVerticalContainerMovement = null
     }
 
-    my.changeSelectedContainerPositionUsingDeltaPx = function (camera, horizontalDeltaPx, verticalDeltaPx) {
-
-        // FIXME: should we really use normalizedX/Y here? Maybe use a camera-help-function to do this conversion for us?
-        // TODO: converting back to normalized left/top. Should be done by container-function?
-        // FIXME: we should NOT use the properties of the CONTAINER here but of the camera to determine the zoom-level
-        // FIXME: OR we should use camera.pixelsPerMeter?
-
-        var selectedSliceContainer = camera.selectedSliceContainer
-        var selectedWorldContainer = camera.selectedSliceContainer.worldContainer
-
-        var zoomRatioContainerX = selectedSliceContainer.size.width / selectedWorldContainer.normalizedSize.width
-        var zoomRatioContainerY = selectedSliceContainer.size.height / selectedWorldContainer.normalizedSize.height
-
-        // FIXME: do that for touch too!
-        camera.leftOverHorizontalContainerMovement += horizontalDeltaPx / zoomRatioContainerX
-        camera.leftOverVerticalContainerMovement -= verticalDeltaPx / zoomRatioContainerY
-
-        var exactPositionX = selectedWorldContainer.normalizedPosition.x + camera.leftOverHorizontalContainerMovement
-        var exactPositionY = selectedWorldContainer.normalizedPosition.y + camera.leftOverVerticalContainerMovement
-
-        // FIXME: make this a parameter!
-        var horizontalGridSize = 10
-        var verticalGridSize = 10
-
-        // FIXME: only use grid when container is 'locked' to grid... (attribute of container?)
-        var containerIsOnGrid = true
-        if (containerIsOnGrid) {
-            // FIXME: do this for touch too!
-            selectedWorldContainer.normalizedPosition.x = Math.round(exactPositionX / horizontalGridSize) * horizontalGridSize
-            selectedWorldContainer.normalizedPosition.y = Math.round(exactPositionY / verticalGridSize) * verticalGridSize
-        }
-        else {
-            selectedWorldContainer.normalizedPosition.x = exactPositionX
-            selectedWorldContainer.normalizedPosition.y = exactPositionY
-        }
-
-        camera.leftOverHorizontalContainerMovement = exactPositionX - selectedWorldContainer.normalizedPosition.x
-        camera.leftOverVerticalContainerMovement = exactPositionY - selectedWorldContainer.normalizedPosition.y
-
-    }
-
     my.changeSelectedContainerPositionUsingDeltaPxNew = function (camera, horizontalDeltaPx, verticalDeltaPx) {
 
         var selectedSliceContainer = camera.selectedSliceContainer
@@ -214,39 +173,6 @@ ZUI.camera = function () {
         // Determine the new camera position (in the world) bases on the new ZoomPosition and the distinance between it and the camera
         camera.centerPosition.x = newZoomPositionX - distanceBetweenZoomPositionAndCameraCenterPositionX
         camera.centerPosition.y = newZoomPositionY - distanceBetweenZoomPositionAndCameraCenterPositionY
-    }
-
-    my.positionPxIsInsideSliceContainer = function (camera, leftPx, topPx, sliceContainer) {
-
-        // TODO: the hitbox of an ellipse is different than that of a rectangle!
-
-        // Determine the position in the world (meters)
-        var positionX = camera.centerPosition.x + (leftPx - (camera.pixelPosition.leftPx + camera.pixelSize.widthPx / 2)) / camera.pixelsPerMeter
-        var positionY = camera.centerPosition.y - (topPx - (camera.pixelPosition.topPx + camera.pixelSize.heightPx / 2)) / camera.pixelsPerMeter
-
-        var containerProperties = sliceContainer.worldContainer.containerProperties
-
-        var positionPointsTo = containerProperties.positionPointsTo
-
-        var width = sliceContainer.size.width
-        var height = sliceContainer.size.height
-
-        var absolutePosition = {}
-        absolutePosition.x = sliceContainer.position.x
-        absolutePosition.y = sliceContainer.position.y
-
-        var centerPosition = ZUI.world.getCenterPositionBasedOnPointsTo(absolutePosition, sliceContainer.size, positionPointsTo)
-
-        if (positionX > centerPosition.x - width / 2 &&
-            positionX < centerPosition.x + width / 2 &&
-            positionY > centerPosition.y - height / 2 &&
-            positionY < centerPosition.y + height / 2) {
-
-            return true
-        }
-        else {
-            return false
-        }
     }
 
     my.positionPxIsInsideSliceContainerNew = function (camera, leftPx, topPx, sliceContainer) {
@@ -723,7 +649,6 @@ ZUI.camera = function () {
         ZUI.world.doSizingPositioningAndScaling(world, camera.rootWorldSliceContainer)
 
         ZUI.world.setAbsoluteContainerPositionsNew({x:0, y:0}, camera.zLevel, null, camera.rootWorldSliceContainer)
-        // ZUI.world.setAbsoluteContainerPositions(camera.rootWorldSliceContainer, {x:0, y:0})
 
         camera.sliceConnections = []  // FIXME: remove this when createWorldSliceConnectionsFromWorldConnections is called!
         ZUI.world.createWorldSliceConnectionsFromWorldConnections(camera, worldConnections)
@@ -735,137 +660,7 @@ ZUI.camera = function () {
         // Do the drawing of the containers and connections
 
         ZUI.render.drawContainersNew(camera, camera.rootWorldSliceContainer, false)
-        // TODO: ZUI.render.drawContainers(camera, camera.rootWorldSliceContainer, false)
         ZUI.render.drawConnections(camera, camera.sliceConnections)
-        // TODO: ZUI.render.drawContainers(camera, camera.rootWorldSliceContainer, true)
-
-    }
-
-    my.drawContainerAndConnectionsOnCamera = function (camera, doDrawGuides) {
-
-        //
-        // Setting up camera
-        //
-
-        var world = camera.world
-        var rootContainer = world.rootContainer
-
-        if (rootContainer == null) return  // if no world has been loaded we should not proceed
-
-        // TODO: enable guides per camera?
-
-        // FIXME: this should be a camera feature!
-        if (doDrawGuides) {
-            ZUI.world.clearGuides(world)
-        }
-
-        // TODO: whenever there is an EVENT that should change the position or the size (either in meters or in pixels)
-        //       of the camera, you should send the relevant information to a function of that camera.
-        //       It will know what to do with these events.
-        //       The event may include: number of pixel (or meters) moved. Number of relative change in zoom (+ point of zoom)
-
-
-        // TODO: only set these if there was a resize event or a zooming event or a panning event
-        camera.width = camera.pixelSize.widthPx / camera.pixelsPerMeter
-        camera.height = camera.pixelSize.heightPx / camera.pixelsPerMeter
-
-        //
-        // Setting up slices needed for each camera
-        //
-
-        /*
-         if (world.positionsOrSizesHaveChanged) {
-         my.minMaxWorldsCreated = false
-         // TODO: we should only set this to false if we know everything depending on the world-change has been updated
-         world.positionsOrSizesHaveChanged = false
-         }
-         */
-
-        {
-            // FIXME: will this not leak memory or tax the GC? Should we only do this when the world changes structurally? (and store this in the camera)
-            // TODO: should really give this function a container of the world? (that is something the world has already!)
-            camera.sliceContainersByIdentifier = {}
-            camera.rootWorldSliceContainer = ZUI.world.createWorldSliceContainerFromWorldContainer(camera, rootContainer)
-
-            var worldSliceSize = {}
-
-            // We need to compute the width of the slice of the piramid we are looking at (which is the width of the "mainView") given the zLevel for the camera
-
-            // FIXME: we now set it to a constant factor (350), but we might want to do this differently (be careful not to use camera.width or camera.height if the two cameras have different width/height!)
-            if (camera.fitRootContainerToCamera) {
-                worldSliceSize.width = camera.width * camera.zLevel
-                worldSliceSize.height = camera.height * camera.zLevel // (rootContainer.normalizedSize.height / camera.rootWorldSliceContainer.worldContainer.normalizedSize.width) * worldSliceSize.width
-            }
-            else {
-                worldSliceSize.width = 350 * camera.zLevel
-                worldSliceSize.height = 350 * camera.zLevel
-            }
-
-
-            ZUI.world.placeSliceContainerInAllowedSize(world, camera.rootWorldSliceContainer, worldSliceSize)
-
-            // TODO: we should check if the rootContainer fits (minimally) into the mainViewSize
-            camera.rootWorldSliceContainer.isVisible = true
-
-            // centering root container (this puts it on the middle of the world, since mainViewPosition.x/y are both 0, see below)
-            camera.rootWorldSliceContainer.relativePosition.x = 0 // -camera.rootWorldSliceContainer.size.width / 2 // camera.width / 2
-            camera.rootWorldSliceContainer.relativePosition.y = 0 // -camera.rootWorldSliceContainer.size.height / 2 // camera.height / 2
-
-            // FIXME: HACK to initially set the camera to the top  of the rootContainer
-            if (camera.attachRootContainerToSideOfCamera == 'top') {
-                camera.centerPosition.y -= (camera.height / 2 - camera.rootWorldSliceContainer.size.height / 2)
-                camera.attachRootContainerToSideOfCamera = null
-            }
-
-            //
-            // Setting absolute positions and drawing
-            //
-
-            // TODO: use a clearCamera function
-
-            var mainViewPosition = {}
-
-            // This simply means we relate all (relative) positions to the absolute position 0,0
-            mainViewPosition.x = 0
-            mainViewPosition.y = 0
-
-            // TODO: maybe you want to get all relative positions from the world (as a slice), and make the absolute when drawing them (containers + connections)
-            // TODO: maybe always store absolute world-positions ("permanently" inside the world) and when re-arranging the world, we use normalizedPositions (or other rules)?
-            // TODO: the real issue here is the fact that the connections are not directly related to the containers.
-            //       So we first need to calculate the absolute positions of the containers in order to see the length of a connection!
-
-            ZUI.world.setAbsoluteContainerPositions(camera.rootWorldSliceContainer, mainViewPosition)
-
-            var worldConnections = camera.world.connections
-            ZUI.world.createWorldSliceConnectionsFromWorldConnections(camera, worldConnections)
-
-            // TODO: should this be done on relative positions or on absolute positions of the containers?
-            ZUI.world.placeSliceConnections(camera)
-
-            // FIXME: UGLY HACK: we reset bottomWorld.initialContainerIdentifierToCenterOn to null to prevent this from always happening. It SHOUDL happen after the first camera-filling-with-slice-containers. We need some kind of mark for that
-            if (camera.world.initialContainerIdentifierToCenterOn != null) {
-                if (camera.sliceContainersByIdentifier.hasOwnProperty(camera.world.initialContainerIdentifierToCenterOn)) {
-                    var sliceContainerToCenterOn = camera.sliceContainersByIdentifier[camera.world.initialContainerIdentifierToCenterOn]
-
-                    camera.world.initialContainerIdentifierToCenterOn = null
-
-                    my.centerCameraOnSliceContainer(camera, sliceContainerToCenterOn)
-                }
-                else {
-                    // unknown container identifier
-                    // console.log('unknown container: ' + camera.world.initialContainerIdentifierToCenterOn)
-                }
-            }
-
-        }
-
-        ZUI.render.drawContainers(camera, camera.rootWorldSliceContainer, false)
-        ZUI.render.drawConnections(camera, camera.sliceConnections)
-        ZUI.render.drawContainers(camera, camera.rootWorldSliceContainer, true)
-
-        if (doDrawGuides) {
-            ZUI.render.drawGuides(camera, camera.world.guidePoints, camera.world.guideLines)
-        }
 
     }
 
