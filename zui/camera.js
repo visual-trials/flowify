@@ -337,15 +337,8 @@ ZUI.camera = function () {
 
                 // TODO: add more checks on visibility or selectability?
                 if (containerProperties.drawContainer && containerProperties.isSelectable && currentSliceContainer.isVisible) {
-                    if (ZUI.main.useNewLayoutFunctions) {
-                        if (my.positionPxIsInsideSliceContainerNew(camera, leftPx, topPx, currentSliceContainer)) {
-                            sliceContainerAtPosition = currentSliceContainer
-                        }
-                    }
-                    else {
-                        if (my.positionPxIsInsideSliceContainer(camera, leftPx, topPx, currentSliceContainer)) {
-                            sliceContainerAtPosition = currentSliceContainer
-                        }
+                    if (my.positionPxIsInsideSliceContainerNew(camera, leftPx, topPx, currentSliceContainer)) {
+                        sliceContainerAtPosition = currentSliceContainer
                     }
                 }
             }
@@ -357,13 +350,7 @@ ZUI.camera = function () {
     my.centerCameraOnSliceContainer = function (camera, sliceContainer) {
         var positionPointsTo = sliceContainer.worldContainer.containerProperties.positionPointsTo
 
-        var centerPosition = {}
-        if (!ZUI.main.useNewLayoutFunctions) {
-            centerPosition = ZUI.world.getCenterPositionBasedOnPointsTo(sliceContainer.position, sliceContainer.size, positionPointsTo)
-        }
-        else {
-            centerPosition = ZUI.world.findPositionInShape(sliceContainer.newLayout.absolutePosition, sliceContainer.newLayout.isPositionOf, sliceContainer.worldContainer.containerProperties.shape, sliceContainer.newLayout.absoluteSize, 'center')
-        }
+        var centerPosition = ZUI.world.findPositionInShape(sliceContainer.newLayout.absolutePosition, sliceContainer.newLayout.isPositionOf, sliceContainer.worldContainer.containerProperties.shape, sliceContainer.newLayout.absoluteSize, 'center')
 
         camera.centerPosition.x = centerPosition.x
         camera.centerPosition.y = centerPosition.y
@@ -511,12 +498,7 @@ ZUI.camera = function () {
                         ZUI.camera.changeCameraPositionUsingDeltaPx(camera, horizontalDeltaPx, verticalDeltaPx)
                     }
                     else {
-                        if (!ZUI.main.useNewLayoutFunctions) {
-                            ZUI.camera.changeSelectedContainerPositionUsingDeltaPx(camera, horizontalDeltaPx, verticalDeltaPx)
-                        }
-                        else {
-                            ZUI.camera.changeSelectedContainerPositionUsingDeltaPxNew(camera, horizontalDeltaPx, verticalDeltaPx)
-                        }
+                        ZUI.camera.changeSelectedContainerPositionUsingDeltaPxNew(camera, horizontalDeltaPx, verticalDeltaPx)
 
                         world.positionsOrSizesHaveChanged = true
                     }
@@ -626,12 +608,7 @@ ZUI.camera = function () {
                     ZUI.camera.changeCameraPositionUsingDeltaPx(camera, horizontalDeltaPx, verticalDeltaPx)
                 }
                 else {
-                    if (!ZUI.main.useNewLayoutFunctions) {
-                        ZUI.camera.changeSelectedContainerPositionUsingDeltaPx(camera, horizontalDeltaPx, verticalDeltaPx)
-                    }
-                    else {
-                        ZUI.camera.changeSelectedContainerPositionUsingDeltaPxNew(camera, horizontalDeltaPx, verticalDeltaPx)
-                    }
+                    ZUI.camera.changeSelectedContainerPositionUsingDeltaPxNew(camera, horizontalDeltaPx, verticalDeltaPx)
 
                     world.positionsOrSizesHaveChanged = true
                 }

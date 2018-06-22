@@ -16,8 +16,6 @@
 
  */
 
-var useNewLayoutFunctions = true
-
 var containerTypeProperties = {
     root: {
         drawContainer: true,
@@ -590,8 +588,7 @@ ZUI.configureInterface(
     {
         worlds: {
             main: flowWorld
-        },
-        useNewLayoutFunctions: useNewLayoutFunctions
+        }
     }
 )
 ZUI.addInputListeners()

@@ -104,9 +104,6 @@ var ZUI = function () {
     my.configureInterface = function (configuration) {
         // TODO: this should be extended!
         ZUI.main.worlds = configuration.worlds
-        if (configuration.hasOwnProperty("useNewLayoutFunctions")) {
-            ZUI.main.useNewLayoutFunctions = configuration.useNewLayoutFunctions
-        }
     }
 
     my.start = function () {

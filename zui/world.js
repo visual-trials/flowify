@@ -1642,29 +1642,13 @@ ZUI.world = function () {
             "y": null
         }
 
-        var centerPosition = {}
+        var containerAbsolutePosition = {}
+        containerAbsolutePosition.x = sliceContainer.newLayout.absolutePosition.x
+        containerAbsolutePosition.y = sliceContainer.newLayout.absolutePosition.y
 
-        if (!ZUI.main.useNewLayoutFunctions) {
-            var positionPointsTo = containerProperties.positionPointsTo
+        var containerAbsoluteSize = sliceContainer.newLayout.absoluteSize
 
-            var width = sliceContainer.size.width
-            var height = sliceContainer.size.height
-
-            var containerAbsolutePosition = {}
-            containerAbsolutePosition.x = sliceContainer.position.x
-            containerAbsolutePosition.y = sliceContainer.position.y
-
-            centerPosition = my.getCenterPositionBasedOnPointsTo(containerAbsolutePosition, sliceContainer.size, positionPointsTo)
-        }
-        else {
-            var containerAbsolutePosition = {}
-            containerAbsolutePosition.x = sliceContainer.newLayout.absolutePosition.x
-            containerAbsolutePosition.y = sliceContainer.newLayout.absolutePosition.y
-
-            var containerAbsoluteSize = sliceContainer.newLayout.absoluteSize
-
-            centerPosition = my.findPositionInShape(containerAbsolutePosition, sliceContainer.newLayout.isPositionOf, containerProperties.shape, containerAbsoluteSize, 'center')
-        }
+        var centerPosition = my.findPositionInShape(containerAbsolutePosition, sliceContainer.newLayout.isPositionOf, containerProperties.shape, containerAbsoluteSize, 'center')
 
         var centerX = centerPosition.x
         var centerY = centerPosition.y
@@ -1897,42 +1881,19 @@ ZUI.world = function () {
 
                 // TODO: what if connection to header? Use it's rectangle instead of the whole container's rectangle?
 
-                var fromCenterPosition = {}
-                var toCenterPosition = {}
+                var fromAbsolutePosition = {}
+                fromAbsolutePosition.x = fromSliceContainer.newLayout.absolutePosition.x
+                fromAbsolutePosition.y = fromSliceContainer.newLayout.absolutePosition.y
 
-                if (!ZUI.main.useNewLayoutFunctions) {
-                    var fromPositionPointsTo = fromContainerProperties.positionPointsTo
-                    var toPositionPointsTo = toContainerProperties.positionPointsTo
+                var toAbsolutePosition = {}
+                toAbsolutePosition.x = toSliceContainer.newLayout.absolutePosition.x
+                toAbsolutePosition.y = toSliceContainer.newLayout.absolutePosition.y
 
-                    var fromAbsolutePosition = {}
-                    fromAbsolutePosition.x = fromSliceContainer.position.x
-                    fromAbsolutePosition.y = fromSliceContainer.position.y
+                var fromAbsoluteSize = fromSliceContainer.newLayout.absoluteSize
+                var toAbsoluteSize = toSliceContainer.newLayout.absoluteSize
 
-                    var toAbsolutePosition = {}
-                    toAbsolutePosition.x = toSliceContainer.position.x
-                    toAbsolutePosition.y = toSliceContainer.position.y
-
-                    var fromAbsoluteSize = fromSliceContainer.size
-                    var toAbsoluteSize = toSliceContainer.size
-
-                    fromCenterPosition = my.getCenterPositionBasedOnPointsTo(fromAbsolutePosition, fromAbsoluteSize, fromPositionPointsTo)
-                    toCenterPosition = my.getCenterPositionBasedOnPointsTo(toAbsolutePosition, toAbsoluteSize, toPositionPointsTo)
-                }
-                else {
-                    var fromAbsolutePosition = {}
-                    fromAbsolutePosition.x = fromSliceContainer.newLayout.absolutePosition.x
-                    fromAbsolutePosition.y = fromSliceContainer.newLayout.absolutePosition.y
-
-                    var toAbsolutePosition = {}
-                    toAbsolutePosition.x = toSliceContainer.newLayout.absolutePosition.x
-                    toAbsolutePosition.y = toSliceContainer.newLayout.absolutePosition.y
-
-                    var fromAbsoluteSize = fromSliceContainer.newLayout.absoluteSize
-                    var toAbsoluteSize = toSliceContainer.newLayout.absoluteSize
-
-                    fromCenterPosition = my.findPositionInShape(fromAbsolutePosition, fromSliceContainer.newLayout.isPositionOf, fromContainerProperties.shape, fromAbsoluteSize, 'center')
-                    toCenterPosition = my.findPositionInShape(toAbsolutePosition, toSliceContainer.newLayout.isPositionOf, toContainerProperties.shape, toAbsoluteSize, 'center')
-                }
+                var fromCenterPosition = my.findPositionInShape(fromAbsolutePosition, fromSliceContainer.newLayout.isPositionOf, fromContainerProperties.shape, fromAbsoluteSize, 'center')
+                var toCenterPosition = my.findPositionInShape(toAbsolutePosition, toSliceContainer.newLayout.isPositionOf, toContainerProperties.shape, toAbsoluteSize, 'center')
 
                 var fromCenterX = fromCenterPosition.x
                 var fromCenterY = fromCenterPosition.y
@@ -2115,33 +2076,19 @@ ZUI.world = function () {
                     var percentageOfCurve = worldChildContainer.positionAsPercentageOfCurve
                     var childContainerPosition = my.getPointOnBezierCurve(percentageOfCurve, fromAttachmentPoint, fromBendingPoint, toBendingPoint, toLineEndPoint)
 
-                    if (!ZUI.main.useNewLayoutFunctions) {
-                        // FIXME: should we really use the rootWorldSliceContainer of the camera like this?
-                        var childContainerWidth = worldChildContainer.normalizedSize.width * (rootWorldSliceContainer.size.height / rootWorldSliceContainer.worldContainer.normalizedSize.height)
-                        var childContainerHeight = worldChildContainer.normalizedSize.height * (rootWorldSliceContainer.size.height / rootWorldSliceContainer.worldContainer.normalizedSize.height)
-                        worldSliceChildContainer.size.width = childContainerWidth
-                        worldSliceChildContainer.size.height = childContainerHeight
+                    var childContainerWidth = worldChildContainer.normalizedSize.width * worldSliceChildContainer.newLayout.absoluteScale
+                    var childContainerHeight = worldChildContainer.normalizedSize.height * worldSliceChildContainer.newLayout.absoluteScale
+                    worldSliceChildContainer.newLayout.absoluteSize.width = childContainerWidth
+                    worldSliceChildContainer.newLayout.absoluteSize.height = childContainerHeight
 
-                        // We only have an absolute positon here! Relative position is not used!
-                        // worldSliceChildContainer.relativePosition.x
-                        // worldSliceChildContainer.relativePosition.y
-                        worldSliceChildContainer.position = childContainerPosition
-                    }
-                    else {
-                        var childContainerWidth = worldChildContainer.normalizedSize.width * worldSliceChildContainer.newLayout.absoluteScale
-                        var childContainerHeight = worldChildContainer.normalizedSize.height * worldSliceChildContainer.newLayout.absoluteScale
-                        worldSliceChildContainer.newLayout.absoluteSize.width = childContainerWidth
-                        worldSliceChildContainer.newLayout.absoluteSize.height = childContainerHeight
+                    worldSliceChildContainer.newLayout.absolutePosition = childContainerPosition
 
-                        worldSliceChildContainer.newLayout.absolutePosition = childContainerPosition
-
-                        // FIXME:
-                        // FIXME:
-                        // FIXME:
-                        // FIXME:
-                        worldSliceChildContainer.newLayout.isPositionOf = 'center' // FIXME HARDCODED!
-                        worldSliceChildContainer.newLayout.positionOriginatesFrom = 'center' // FIXME HARDCODED!
-                    }
+                    // FIXME:
+                    // FIXME:
+                    // FIXME:
+                    // FIXME:
+                    worldSliceChildContainer.newLayout.isPositionOf = 'center' // FIXME HARDCODED!
+                    worldSliceChildContainer.newLayout.positionOriginatesFrom = 'center' // FIXME HARDCODED!
 
                     // FIXME: hardcoded to true!
                     worldSliceChildContainer.isVisible = true

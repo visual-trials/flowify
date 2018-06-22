@@ -47,7 +47,6 @@ ZUI.main = function () {
     my.showRedrawTimes = false
     my.usePipelinedContext = false
 
-    my.useNewLayoutFunctions = false
     my.fineMouseScrolling = false
     my.showGrid = false
 
@@ -408,12 +407,7 @@ ZUI.main = function () {
                     ZUI.canvas.pipelinedContext2d.reset()
                 }
 
-                if (my.useNewLayoutFunctions) {
-                    ZUI.camera.drawCamera(my.mainCamera)
-                }
-                else {
-                    ZUI.camera.drawContainerAndConnectionsOnCamera(my.mainCamera, my.doDrawGuides)
-                }
+                ZUI.camera.drawCamera(my.mainCamera)
 
                 if (my.usePipelinedContext) {
                     ZUI.canvas.pipelinedContext2d.executeCommands()
