@@ -45,7 +45,7 @@ ZUI.main = function () {
     my.worlds = {}
 
     my.currentTime = null
-    my.showRedrawTimes = true
+    my.showRedrawTimes = false
     my.usePipelinedContext = false
 
     my.fineMouseScrolling = false
