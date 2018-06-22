@@ -21,6 +21,7 @@
     Keyboard commands:
 
         s  - toggle sidebar on/off
+        f  - toggle frame times on/off
         d  - log the currently selected container
         g  - toggle showing grid on
         m  - toggle fine mouse scrolling
@@ -44,7 +45,7 @@ ZUI.main = function () {
     my.worlds = {}
 
     my.currentTime = null
-    my.showRedrawTimes = false
+    my.showRedrawTimes = true
     my.usePipelinedContext = false
 
     my.fineMouseScrolling = false
@@ -120,6 +121,10 @@ ZUI.main = function () {
 
 		if (ZUI.input.keyHasGoneDown && ZUI.input.keyThatIsDown === 83) {  // 's'  (this is the ascii code for 'S' though...)
 			my.showSideBar = !my.showSideBar
+		}
+
+		if (ZUI.input.keyHasGoneDown && ZUI.input.keyThatIsDown === 70) {  // 'f'  (this is the ascii code for 'F' though...)
+			my.showRedrawTimes = !my.showRedrawTimes
 		}
 
         // TODO: create worlds-config (including cameras on these worlds and their dependencies!
