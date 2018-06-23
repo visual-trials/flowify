@@ -1,8 +1,6 @@
 <?php declare(strict_types=1);
 // #!/usr/bin/env php
 
-require "../../lib/bootstrap_PhpParser.php";
-
 require "coupleVisualInfoToAst.php";
 
 $flowContainerId = 0;
@@ -39,42 +37,12 @@ function handleRequest() {
 
 function flowifyPhpAndAttachVisualInfo($fileToFlowifyWithoutExtention)
 {
-
     global $flowConnections, $code;
 
     list($code, $visualInfos) = updateAndGetCodeAndVisualInfoForFile($fileToFlowifyWithoutExtention);
     
-    $lexer = new PhpParser\Lexer\Emulative(['usedAttributes' => [
-        'startLine', 'endLine', 'startFilePos', 'endFilePos', 'comments'
-    ]]);
-    $parser = (new PhpParser\ParserFactory)->create(
-        PhpParser\ParserFactory::PREFER_PHP7,
-        $lexer
-    );
-
-    /*
-    $tokensWithPosInfo = [];
-    $tokenValue = null;
-    $tokenStartAttributes = null;
-    $tokenEndAttributes = null;
-
-    $lexer->startLexing($code);
-    $tokenId = $lexer->getNextToken($tokenValue, $tokenStartAttributes, $tokenEndAttributes);
-    $tokensWithPosInfo[] = $tokenValue;
-    $tokensWithPosInfo[] = $tokenStartAttributes;
-    $tokensWithPosInfo[] = $tokenEndAttributes;
-    */
-
-    try {
-        $stmts = $parser->parse($code);
-        $tokens = $lexer->getTokens();
-    } catch (PhpParser\Error $error) {
-        die($error->getMessage() . "\n");  // $error->getMessageWithColumnInfo($code)
-    }
-
-    $statementsJSON = json_encode($stmts, JSON_PRETTY_PRINT);
-    $statements = json_decode($statementsJSON, true);
-
+    $statements = getAstFromPhpCode($code);
+    
     $varsInScope = [];
     $functionsInScope = [];
 
@@ -523,3 +491,5 @@ function createAndAddFlowElementToParent ($flowElementType, $flowElementName, $f
 
     return $flowElement;
 }
+
+
