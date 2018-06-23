@@ -63,6 +63,23 @@ var containerTypeProperties = {
         maxHeight: 25,
         childrenLayoutFunction: "none",
     },
+    // This function has no input, body and output conatiners (so direct manualPositioning)
+    function: {
+        drawContainer: true,
+        isSelectable: true,   // FIXME: workaround to make it possible to move a functionWrapper!
+        showContainerBody: true,
+        containerColor: {r: 240, g: 240, b: 240, a: 1},
+        containerBorderColor: {r: 230, g: 230, b: 230, a: 0},
+        hasPadding: true,
+        paddingTop: 15,
+        paddingBottom: 15,
+        paddingLeft: 15,
+        paddingRight: 15,
+        paddingBetweenChildren: 30,
+        childrenLayoutFunction: "manualPositioning",
+    },
+    /*
+       This is a function with would have an input, body and output container ( and horizontalLeftToRight-layout )
     function: {
         drawContainer: true,
         containerColor: {r: 255, g: 255, b: 240, a: 1},
@@ -78,6 +95,7 @@ var containerTypeProperties = {
         maxHeight: 1500,
         childrenLayoutFunction: "horizontalLeftToRight",
     },
+    */
     primitiveFunctionWrapper: {
         drawContainer: true,
         showContainerBody: false,
@@ -244,20 +262,6 @@ var containerTypeProperties = {
         paddingBetweenChildren: 15,
         childrenLayoutFunction: "verticalTopToBottom",
     },
-    body: {
-        drawContainer: true,
-        isSelectable: false,   // FIXME: workaround to make it possible to move a functionWrapper!
-        showContainerBody: true,
-        containerColor: {r: 240, g: 240, b: 240, a: 1},
-        containerBorderColor: {r: 230, g: 230, b: 230, a: 0},
-        hasPadding: true,
-        paddingTop: 15,
-        paddingBottom: 15,
-        paddingLeft: 15,
-        paddingRight: 15,
-        paddingBetweenChildren: 30,
-        childrenLayoutFunction: "manualPositioning",
-    }
 }
 var connectionTypeProperties = {
     dataFlow: {
@@ -322,7 +326,7 @@ function convertFlowDataToZUIContainers (world, flowData) {
     var mapFlowTypesToZUITypes = {
         root: "root",
         function: "function",
-        body: "body",
+        // body: "body",  // FIXME: not using body atm 
         primitiveFunction: "primitiveFunction",
         // InputContainer: "input",  // FIXME: we need input, body and output containers!
         // BodyContainer: "body",  // FIXME: we need input, body and output containers!
@@ -424,24 +428,16 @@ function convertFlowDataToZUIContainers (world, flowData) {
             overrulingContainerProperties.containerText = '' // FIXME: simply don't draw the text?
             // overrulingContainerProperties.containerText = containerText
 
-            // FIXME: HACK we need input, body and output containers!
-            if (containerType === 'function') {
-                containerType = 'body'  
-            }
-            
             var worldContainer = ZUI.addWorldContainer(world, parentWorldContainer, flowContainer.id, containerType, overrulingContainerProperties)
 
             // FIXME: we are adding position AND size here, but we only need to add one of them!
             extendWorldContainerWithVisualInfo(worldContainer, flowContainer)
+            // TODO: resetting the manualRelativeScale to one, since the wrapper already got the relativeScale (is there a nicer way of doing this?)
+            worldContainer.manualRelativeScale = 1
 
         }
         else {
             overrulingContainerProperties.containerText = containerText
-            
-            // FIXME: HACK we need input, body and output containers!
-            if (containerType === 'function') {
-                containerType = 'body'  
-            }
             
             var worldContainer = ZUI.addWorldContainer(world, parentWorldContainer, flowContainer.id, containerType, overrulingContainerProperties)
 

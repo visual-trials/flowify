@@ -174,6 +174,9 @@ function flowifyFunction ($functionStatement, $varsInScope, &$functionsInScope, 
     //       but flowifyExpression should. Is this correct?
 
     $functionName = $functionCallFlowElement['name'];
+    
+    // NO BODY $astNodeIdentifier = getAstNodeIdentifier($functionStatement); // FIXME: shouldnt this be attached to the 'stmts' inside the $functionStatement? Also see 'stmts' in the if-statement (similar problem)
+    // NO BODY $functionBodyFlowElement = createFlowElement('body', null, null, $astNodeIdentifier);
 
     $argumentNumber = 0;
     foreach ($flowCallArguments as $flowCallArgument) {
@@ -199,6 +202,7 @@ function flowifyFunction ($functionStatement, $varsInScope, &$functionsInScope, 
             // FIXME: we should put all input-parameters inside an 'input' container
 
             // Adding the parameter to the function
+            // NO BODY $parameterFlowElement = createAndAddFlowElementToParent('variable', $parameterName, null, $astNodeIdentifier, $functionBodyFlowElement);
             $parameterFlowElement = createAndAddFlowElementToParent('variable', $parameterName, null, $astNodeIdentifier, $functionCallFlowElement);
 
             // Connecting the callArgument (outside the function) to the parameter (inside the function)
@@ -215,15 +219,20 @@ function flowifyFunction ($functionStatement, $varsInScope, &$functionsInScope, 
         $argumentNumber++;
     }
 
-    $astNodeIdentifier = getAstNodeIdentifier($functionStatement); // FIXME: shouldnt this be attached to the 'stmts' inside the $functionStatement? Also see 'stmts' in the if-statement (similar problem)
-    $functionBodyFlowElement = createFlowElement('body', null, null, $astNodeIdentifier);
-
     $statements = $functionStatement['stmts'];
 
-    // TODO: make this work! $returnFlowElement = flowifyStatements($statements, $varsInScope, $functionsInScope, $functionBodyFlowElement);
+    // WITH BODY: maybe make this work: 
+    //    - the parameters should be in the function-input
+    //    - the statements should be in the function-body
+    //    - the return variable(s) should be in the function-output
+    // $returnFlowElement = flowifyStatements($statements, $varsInScope, $functionsInScope, $functionBodyFlowElement);
+
+    // OR WITHOUT BODY:
+    //    - Everything should be inside the function-call (no input/body/output)
+    // TODO: don't we need the astNodeIdentifier of the functionStatement for some visualInfo?
     $returnFlowElement = flowifyStatements($statements, $varsInScope, $functionsInScope, $functionCallFlowElement);
 
-    addFlowElementToParent($functionBodyFlowElement, $functionCallFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $functionBodyFlowElement, so changes to it will not be in the parent!
+    // addFlowElementToParent($functionBodyFlowElement, $functionCallFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $functionBodyFlowElement, so changes to it will not be in the parent!
 
     return $returnFlowElement;
 
@@ -898,3 +907,4 @@ function findBestNextStep($posX, $posY, &$stringX, &$stringY, $lengthX, $lengthY
 
     return $bestStep;
 }
+
