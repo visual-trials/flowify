@@ -166,21 +166,6 @@ ZUI.world = function () {
                 identifier: containerIdentifier,
                 type: containerType,
                 containerProperties:  containerProperties,
-                    // FIXME: HACK to be backwards-compatible! PSM1.js and PSM2.js should not access this directy (or at least use 'containerProperties' instead!)
-                    // FIXME: HACK to be backwards-compatible! PSM1.js and PSM2.js should not access this directy (or at least use 'containerProperties' instead!)
-                    // FIXME: HACK to be backwards-compatible! PSM1.js and PSM2.js should not access this directy (or at least use 'containerProperties' instead!)
-                    containerTypeProperties:  containerProperties,
-                    // FIXME: deprecated with new layout functions!
-                    normalizedPosition: {
-                        x: null,
-                        y: null,
-                        isPositionOf: null
-                    },
-                    // FIXME: deprecated with new layout functions!
-                    normalizedSize: {
-                        width: null,
-                        height: null
-                    },
                 overrulingContainerProperties: overrulingContainerProperties, // This is needed to efficiently store the container into json (without all the default containerProperties)
                 positionAsPercentageOfCurve: null,
                 manualPosition: {
