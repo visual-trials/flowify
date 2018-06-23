@@ -253,7 +253,7 @@ if (queryParams['fileToFlowify']) {
 else {
 	fileToFlowify = 'simpleMath.php'
 }
-var url = "php2Flow.php?fileToFlowify=examples/" + fileToFlowify
+var url = "flowifyPHP.php?fileToFlowify=examples/" + fileToFlowify
 	
 var reloadWorld = function (world) {
 
