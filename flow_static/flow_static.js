@@ -32,8 +32,6 @@ var containerTypeProperties = {
         minWidth: 200,
         minHeight: 50,
         maxHeight: 1500,
-        keepAspectRatio: true,
-        aspectRatioAtMaxSize: 1600 / 800,
         childrenLayoutFunction: "manualPositioning",
     },
     functionWrapper: {
@@ -78,8 +76,6 @@ var containerTypeProperties = {
         minWidth: 200,
         minHeight: 50,
         maxHeight: 1500,
-//        keepAspectRatio: true,
-//        aspectRatioAtMaxSize: 1600 / 800,
         childrenLayoutFunction: "horizontalLeftToRight",
     },
     primitiveFunctionWrapper: {
@@ -126,8 +122,6 @@ var containerTypeProperties = {
         minWidth: 200,
         minHeight: 50,
         maxHeight: 1500,
-//        keepAspectRatio: true,
-//        aspectRatioAtMaxSize: 1600 / 800,
         childrenLayoutFunction: "horizontalLeftToRight",
         dataItemGroups: {
             basicInfo: [
@@ -152,8 +146,6 @@ var containerTypeProperties = {
         minWidth: 50,
         minHeight: 50,
         maxHeight: 300,
-//        keepAspectRatio: true,
-//        aspectRatioAtMaxSize: 1600 / 800,
         childrenLayoutFunction: "verticalTopToBottom",
     },
     keyValue: {

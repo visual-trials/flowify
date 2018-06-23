@@ -312,7 +312,6 @@ ZUI.world = function () {
             containerTextColor:  {r: 100, g: 100, b: 100, a: 0.7},
             containerTextFont: 'Arial',
             containerTextFontHeight: 10,
-            containerTextNormalizedFontHeight: null,  // FIXME: this is the old name
             containerTextCenterHorizontally: true,
             containerTextCenterVertically: true,
             containerTextCutOffTextWhenNoMoreRoom: true,
@@ -336,9 +335,6 @@ ZUI.world = function () {
             paddingRight: 0,
             paddingBetweenChildren: 0,
 
-            keepAspectRatio: false,
-            aspectRatioAtMaxSize: null,
-
             // Options: left-top,       middle-top,     right-top,
             //          left-middle,    middle-middle,  right-middle,          // Note: middle-middle = center
             //          left-bottom,    middle-bottom,  right-bottom,
@@ -347,27 +343,15 @@ ZUI.world = function () {
             // Options: verticalTopToBottom, horizontalFromSidesToCenter, normalizedRelativePositioning
             childrenFitFunction: null,
 
-            // Options: left-top,       middle-top,     right-top,
-            //          left-middle,    middle-middle,  right-middle,          // Note: middle-middle = center
-            //          left-bottom,    middle-bottom,  right-bottom,
-            normalizedRelativePositionPointsTo: "left-bottom",
-
             // FIXME: connectOutgoingTo/connectIncomingTo should be an attribute of a CONNECTION-SIDE not (only) of a container!?!?
             // Options: left, right, all-directions, 4-directions
             connectIncomingTo: "left",
             connectOutgoingTo: "right",
 
-            fadeOutChildrenBasedOnPercentageOfNormalSize: false,
-            childrenAtFullOpacityThreshold: null,
-            childrenAtZeroOpacityThreshold: null,
-
             // Interactivity: click/select, double-click, alerting
 
             // TODO: add hoverable, clickable/selectable
             isSelectable: true,
-
-            showDetailCameraWhenDoubleClicked: false,
-            showBottomCameraWhenDoubleClicked: false,
 
             isAlerting: false,
             alertStartTime: null,
