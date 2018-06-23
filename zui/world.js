@@ -202,7 +202,6 @@ ZUI.world = function () {
             maxWidth: null,
             maxHeight: null,
 
-            hasPadding: false,  // FIXME: not needed anymore!
             paddingTop: 0,
             paddingBottom: 0,
             paddingLeft: 0,

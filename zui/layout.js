@@ -63,7 +63,6 @@ ZUI.layout = function () {
 
         var containerProperties = currentSliceContainer.worldContainer.containerProperties
 
-        var hasPadding = containerProperties.hasPadding  // FIXME: this if not used atm!
         var paddingLeft = containerProperties.paddingLeft
         var paddingRight = containerProperties.paddingRight
         var paddingTop = containerProperties.paddingTop
