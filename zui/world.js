@@ -44,118 +44,6 @@ ZUI.world = function () {
         return world
     }
 
-    my.clearWorldContent = function (world) {
-        if (world == null) {
-            world = my.createNewWorld(world)
-        }
-
-        world.rootContainer = null
-        world.containersByIdentifier = {}
-        world.connections = []
-
-        return world
-    }
-
-    my.stripContainerPropertiesFromContainers = function (worldContainer) {
-
-        delete worldContainer.containerProperties
-
-        for (var loopIndex = 0; loopIndex < worldContainer.worldChildren.length; loopIndex++) {
-            var worldChildContainer = worldContainer.worldChildren[loopIndex]
-            my.stripContainerPropertiesFromContainers(worldChildContainer)
-        }
-
-        return worldContainer
-    }
-
-    my.stripConnectionAndContainersPropertiesInConnections = function (worldConnections) {
-
-        for (var connectionIndex = 0; connectionIndex < worldConnections.length; connectionIndex++) {
-
-            var worldConnection = worldConnections[connectionIndex]
-
-            delete worldConnection.connectionProperties
-
-            for (var loopIndex = 0; loopIndex < worldConnection.worldChildren.length; loopIndex++) {
-                var worldChildContainer = worldConnection.worldChildren[loopIndex]
-                my.stripContainerPropertiesFromContainers(worldChildContainer)
-            }
-        }
-
-        return worldConnections
-    }
-
-    my.createStoredWorldFromWorld = function (world) {
-        var storedWorld = {}
-
-        storedWorld.rootContainer = my.stripContainerPropertiesFromContainers(JSON.parse(JSON.stringify(world.rootContainer)))
-        storedWorld.connections = my.stripConnectionAndContainersPropertiesInConnections(JSON.parse(JSON.stringify(world.connections)))
-        storedWorld.containerTypeProperties = world.containerTypeProperties
-        storedWorld.connectionTypeProperties = world.connectionTypeProperties
-
-        // TODO: shouldnt this be a camera option?
-        storedWorld.editMode = world.editMode
-        storedWorld.editModeToggleable = world.editModeToggleable
-
-        return JSON.stringify(storedWorld)
-    }
-
-    my.recreateAllContainersForWorld = function (worldContainer, world) {
-
-        // TODO: check for duplicates
-        // TODO: check for never-ending-recursion
-
-        worldContainer.containerProperties = my.getContainerProperties(world, worldContainer.type, worldContainer.overrulingContainerProperties)
-        world.containersByIdentifier[worldContainer.identifier] = worldContainer
-
-        for (var loopIndex = 0; loopIndex < worldContainer.worldChildren.length; loopIndex++) {
-            var worldChildContainer = worldContainer.worldChildren[loopIndex]
-            my.recreateAllContainersForWorld(worldChildContainer, world)
-        }
-    }
-
-    my.recreateAllConnectionsForWorld = function (worldConnections, world) {
-
-        for (var connectionIndex = 0; connectionIndex < worldConnections.length; connectionIndex++) {
-
-            var worldConnection = worldConnections[connectionIndex]
-
-            worldConnection.connectionProperties = my.getConnectionProperties(world, worldConnection.type, worldConnection.overrulingConnectionProperties)
-
-            for (var loopIndex = 0; loopIndex < worldConnection.worldChildren.length; loopIndex++) {
-                var worldChildContainer = worldConnection.worldChildren[loopIndex]
-                my.recreateAllContainersForWorld(worldChildContainer, world)
-            }
-        }
-    }
-
-    my.createWorldFromStoredWorld = function (storedWorldJSON) {
-
-        var storedWorld = JSON.parse(storedWorldJSON)
-
-        var world = my.createNewWorld()
-
-        world.containerTypeProperties = storedWorld.containerTypeProperties
-        world.connectionTypeProperties = storedWorld.connectionTypeProperties
-
-        world.rootContainer = storedWorld.rootContainer
-        my.recreateAllContainersForWorld(world.rootContainer, world)
-
-        world.connections = storedWorld.connections
-        my.recreateAllConnectionsForWorld(world.connections, world)
-
-        // TODO: shouldnt this be a camera option?
-        world.editMode = storedWorld.editMode
-        world.editModeToggleable = storedWorld.editModeToggleable
-
-        // Since we just "loaded" the world using the storedWorld, there is no need to reload the world at this moment
-        world.mustReloadWorld = false
-
-        // FIXME: we are not setting the reloadCallback function!
-
-        return world
-    }
-
     my.addWorldContainer = function (world, parentContainerOrConnection, containerIdentifier, containerType, overrulingContainerProperties) {
         var worldContainer = null
 
@@ -487,6 +375,118 @@ ZUI.world = function () {
         }
 
         return connectionProperties
+    }
+
+    my.clearWorldContent = function (world) {
+        if (world == null) {
+            world = my.createNewWorld(world)
+        }
+
+        world.rootContainer = null
+        world.containersByIdentifier = {}
+        world.connections = []
+
+        return world
+    }
+
+    my.stripContainerPropertiesFromContainers = function (worldContainer) {
+
+        delete worldContainer.containerProperties
+
+        for (var loopIndex = 0; loopIndex < worldContainer.worldChildren.length; loopIndex++) {
+            var worldChildContainer = worldContainer.worldChildren[loopIndex]
+            my.stripContainerPropertiesFromContainers(worldChildContainer)
+        }
+
+        return worldContainer
+    }
+
+    my.stripConnectionAndContainersPropertiesInConnections = function (worldConnections) {
+
+        for (var connectionIndex = 0; connectionIndex < worldConnections.length; connectionIndex++) {
+
+            var worldConnection = worldConnections[connectionIndex]
+
+            delete worldConnection.connectionProperties
+
+            for (var loopIndex = 0; loopIndex < worldConnection.worldChildren.length; loopIndex++) {
+                var worldChildContainer = worldConnection.worldChildren[loopIndex]
+                my.stripContainerPropertiesFromContainers(worldChildContainer)
+            }
+        }
+
+        return worldConnections
+    }
+
+    my.createStoredWorldFromWorld = function (world) {
+        var storedWorld = {}
+
+        storedWorld.rootContainer = my.stripContainerPropertiesFromContainers(JSON.parse(JSON.stringify(world.rootContainer)))
+        storedWorld.connections = my.stripConnectionAndContainersPropertiesInConnections(JSON.parse(JSON.stringify(world.connections)))
+        storedWorld.containerTypeProperties = world.containerTypeProperties
+        storedWorld.connectionTypeProperties = world.connectionTypeProperties
+
+        // TODO: shouldnt this be a camera option?
+        storedWorld.editMode = world.editMode
+        storedWorld.editModeToggleable = world.editModeToggleable
+
+        return JSON.stringify(storedWorld)
+    }
+
+    my.recreateAllContainersForWorld = function (worldContainer, world) {
+
+        // TODO: check for duplicates
+        // TODO: check for never-ending-recursion
+
+        worldContainer.containerProperties = my.getContainerProperties(world, worldContainer.type, worldContainer.overrulingContainerProperties)
+        world.containersByIdentifier[worldContainer.identifier] = worldContainer
+
+        for (var loopIndex = 0; loopIndex < worldContainer.worldChildren.length; loopIndex++) {
+            var worldChildContainer = worldContainer.worldChildren[loopIndex]
+            my.recreateAllContainersForWorld(worldChildContainer, world)
+        }
+    }
+
+    my.recreateAllConnectionsForWorld = function (worldConnections, world) {
+
+        for (var connectionIndex = 0; connectionIndex < worldConnections.length; connectionIndex++) {
+
+            var worldConnection = worldConnections[connectionIndex]
+
+            worldConnection.connectionProperties = my.getConnectionProperties(world, worldConnection.type, worldConnection.overrulingConnectionProperties)
+
+            for (var loopIndex = 0; loopIndex < worldConnection.worldChildren.length; loopIndex++) {
+                var worldChildContainer = worldConnection.worldChildren[loopIndex]
+                my.recreateAllContainersForWorld(worldChildContainer, world)
+            }
+        }
+    }
+
+    my.createWorldFromStoredWorld = function (storedWorldJSON) {
+
+        var storedWorld = JSON.parse(storedWorldJSON)
+
+        var world = my.createNewWorld()
+
+        world.containerTypeProperties = storedWorld.containerTypeProperties
+        world.connectionTypeProperties = storedWorld.connectionTypeProperties
+
+        world.rootContainer = storedWorld.rootContainer
+        my.recreateAllContainersForWorld(world.rootContainer, world)
+
+        world.connections = storedWorld.connections
+        my.recreateAllConnectionsForWorld(world.connections, world)
+
+        // TODO: shouldnt this be a camera option?
+        world.editMode = storedWorld.editMode
+        world.editModeToggleable = storedWorld.editModeToggleable
+
+        // Since we just "loaded" the world using the storedWorld, there is no need to reload the world at this moment
+        world.mustReloadWorld = false
+
+        // FIXME: we are not setting the reloadCallback function!
+
+        return world
     }
 
     return my
