@@ -42,7 +42,9 @@ function flowifyPhpAndAttachVisualInfo($fileToFlowifyWithoutExtention)
     list($code, $visualInfos) = updateAndGetCodeAndVisualInfoForFile($fileToFlowifyWithoutExtention);
     
     $statements = getAstFromPhpCode($code);
-    
+
+    // TODO: START NEW FUNCTION HERE: flowifyProgram($statements)
+
     $varsInScope = [];
     $functionsInScope = [];
 
@@ -52,7 +54,6 @@ function flowifyPhpAndAttachVisualInfo($fileToFlowifyWithoutExtention)
 
     // TODO: should we do anything with the return value of the main function?
     $returnFlowElement = flowifyStatements($statements, $varsInScope, $functionsInScope, $flowElement);
-
     
     // TODO: END NEW FUNCTION HERE
 
