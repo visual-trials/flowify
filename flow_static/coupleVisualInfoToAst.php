@@ -1,5 +1,137 @@
 <?php
 
+function updateAndGetCodeAndVisualInfoForFile($fileToFlowifyWithoutExtention) {
+    
+    // TODO: the order of the coordinates is now by AST-order, not by horizontal position in the line
+
+    // FIXME: check if php file has been read correctly!
+    $oldCode = file_get_contents($fileToFlowifyWithoutExtention . '.bck');
+    if ($oldCode === false) {
+        $oldCode = "";
+    }
+    $newCode = file_get_contents($fileToFlowifyWithoutExtention . '.php');
+    if ($newCode === false) {
+        // FIXME: give a proper error (through the api) that the file does not exist!
+        exit("The file '{$fileToFlowifyWithoutExtention}.php' does not exist!");
+    }
+
+    $code = $oldCode;
+    $visualInfosJSON = file_get_contents($fileToFlowifyWithoutExtention . '.viz');
+    $visualInfos = array();
+    if ($visualInfosJSON !== false) {
+        $visualInfos = json_decode($visualInfosJSON, true);  // FIXME: what if not valid json?
+    }
+
+    if ($oldCode != $newCode) {
+
+        $path = doDiff($oldCode, $newCode);
+        $oldToNewPositions = getOldToNewPositions($path, $oldCode, $newCode);
+
+        $newVisualInfos = getVisualInfosForNewPositions($visualInfos, $oldToNewPositions);
+
+        if (count($newVisualInfos) == count($visualInfos)) {
+            // If all new positions could be mapped, then we want to copy the php-file over the bck-file and store the new .viz file.
+
+            // FIXME: also check if the new positions line up with the new AST-elements!
+
+            // FIXME: check if this goes right!
+            storeBackupFile ($newCode, $fileToFlowifyWithoutExtention);
+
+            // FIXME: check if this goes right!
+            storeVisualInfos($newVisualInfos, $fileToFlowifyWithoutExtention);
+
+        }
+        else {
+            // FIXME: signal to the front-end that we couldn't store the info!
+        }
+
+        // In all cases we want to SHOW the new code and visualInfos
+        $code = $newCode;
+        $visualInfos = $newVisualInfos;
+    }
+    
+    return array($code, $visualInfos);
+    
+}
+
+function extendFlowElementsWithVisualInfo (&$flowElement, &$visualInfos, &$usedVisualInfos) {
+    
+    $visualInfo = getVisualInfo($flowElement['astNodeIdentifier'], $visualInfos, $usedVisualInfos);
+    extendFlowElementWithVisualInfo($flowElement, $visualInfo);
+    
+    if (array_key_exists('children', $flowElement)) {
+        foreach ($flowElement['children'] as &$childFlowElement) {
+            extendFlowElementsWithVisualInfo($childFlowElement, $visualInfos, $usedVisualInfos);
+        }
+    }
+}
+
+function extendFlowElementWithVisualInfo (&$flowElement, $visualInfo) {
+
+    // TODO: maybe set only certain visual attributes given certain FlowElement types? Or simply check if the attributes exists and/or is null?
+
+    if ($visualInfo === null) {
+        return;
+    }
+
+    if (array_key_exists('x', $visualInfo) && $visualInfo['x'] !== null) {
+        $flowElement['x'] = $visualInfo['x'];
+    }
+    if (array_key_exists('y', $visualInfo) && $visualInfo['y'] !== null) {
+        $flowElement['y'] = $visualInfo['y'];
+    }
+    if (array_key_exists('isPositionOf', $visualInfo) && $visualInfo['isPositionOf'] !== null) {
+        $flowElement['isPositionOf'] = $visualInfo['isPositionOf'];
+    }
+    if (array_key_exists('width', $visualInfo) && $visualInfo['width'] !== null) {
+        $flowElement['width'] = $visualInfo['width'];
+    }
+    if (array_key_exists('height', $visualInfo) && $visualInfo['height'] !== null) {
+        $flowElement['height'] = $visualInfo['height'];
+    }
+    if (array_key_exists('relativeScale', $visualInfo) && $visualInfo['relativeScale'] !== null) {
+        $flowElement['relativeScale'] = $visualInfo['relativeScale'];
+    }
+
+}
+
+function getVisualInfo ($astNodeIdentifier, &$visualInfos, &$usedVisualInfos) {
+
+    $currentVisualInfo = [];
+
+    if (array_key_exists($astNodeIdentifier, $visualInfos)) {
+        $currentVisualInfo = $visualInfos[$astNodeIdentifier];
+        // FIXME: $usedVisualInfos should not be a global that changes it state this way!
+        $usedVisualInfos[$astNodeIdentifier] = $currentVisualInfo;
+    }
+
+    return $currentVisualInfo;
+}
+
+function updateVisualInfos ($changedVisualInfos, $fileToFlowifyWithoutExtention) {
+
+    $visualInfosJSON = file_get_contents($fileToFlowifyWithoutExtention . '.viz');
+    $visualInfos = json_decode($visualInfosJSON, true);  // FIXME: what if not valid json?
+
+    // FIXME: we should verify we are still using the same viz file that the POST is referring to!
+    foreach ($changedVisualInfos as $astNodeIdentifier => $visualInfo) {
+        $visualInfos[$astNodeIdentifier] = $visualInfo;
+    }
+
+    // FIXME: check if this goes right!
+    storeVisualInfos($visualInfos, $fileToFlowifyWithoutExtention);
+}
+
+function storeVisualInfos ($visualInfos, $fileToFlowifyWithoutExtention) {
+    // FIXME: check if this goes right!
+    file_put_contents($fileToFlowifyWithoutExtention . '.viz', json_encode($visualInfos, JSON_PRETTY_PRINT));
+}
+
+function storeBackupFile ($code, $fileToFlowifyWithoutExtention) {
+    // FIXME: check if this goes right!
+    file_put_contents($fileToFlowifyWithoutExtention . '.bck', $code);
+}
+
 function getVisualInfosForNewPositions($visualInfos, $oldToNewPositions) {
     $newVisualInfos = [];
 

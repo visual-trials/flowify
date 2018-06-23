@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 // #!/usr/bin/env php
 
-require "visualInfo.php";
-require "resolveASTChanges.php";
 require "../../lib/bootstrap_PhpParser.php";
+
+require "coupleVisualInfoToAst.php";
 
 $flowContainerId = 0;
 $flowConnections = [];
@@ -42,59 +42,7 @@ function flowifyPhpAndAttachVisualInfo($fileToFlowifyWithoutExtention)
 
     global $flowConnections, $code;
 
-    // $file = $argv[1];
-
-    // TODO: the order of the coordinates is now by AST-order, not by horizontal position in the line
-
-    // FIXME: check if php file has been read correctly!
-    $oldCode = file_get_contents($fileToFlowifyWithoutExtention . '.bck');
-    if ($oldCode === false) {
-        $oldCode = "";
-    }
-    $newCode = file_get_contents($fileToFlowifyWithoutExtention . '.php');
-    if ($newCode === false) {
-        // FIXME: give a proper error (through the api) that the file does not exist!
-        exit("The file '{$fileToFlowifyWithoutExtention}.php' does not exist!");
-    }
-
-    $code = $oldCode;
-    $visualInfosJSON = file_get_contents($fileToFlowifyWithoutExtention . '.viz');
-    $visualInfos = array();
-    if ($visualInfosJSON !== false) {
-        $visualInfos = json_decode($visualInfosJSON, true);  // FIXME: what if not valid json?
-    }
-
-    if ($oldCode != $newCode) {
-
-        $path = doDiff($oldCode, $newCode);
-        $oldToNewPositions = getOldToNewPositions($path, $oldCode, $newCode);
-
-        $newVisualInfos = getVisualInfosForNewPositions($visualInfos, $oldToNewPositions);
-
-        if (count($newVisualInfos) == count($visualInfos)) {
-            // If all new positions could be mapped, then we want to copy the php-file over the bck-file and store the new .viz file.
-
-            // FIXME: also check if the new positions line up with the new AST-elements!
-
-            // FIXME: check if this goes right!
-            storeBackupFile ($newCode, $fileToFlowifyWithoutExtention);
-
-            // FIXME: check if this goes right!
-            storeVisualInfos($newVisualInfos, $fileToFlowifyWithoutExtention);
-
-        }
-        else {
-            // FIXME: signal to the front-end that we couldn't store the info!
-        }
-
-        // In all cases we want to SHOW the new code and visualInfos
-        $code = $newCode;
-        $visualInfos = $newVisualInfos;
-    }
-
-    
-    // TODO: START A NEW FUNCTION HERE
-    
+    list($code, $visualInfos) = updateAndGetCodeAndVisualInfoForFile($fileToFlowifyWithoutExtention);
     
     $lexer = new PhpParser\Lexer\Emulative(['usedAttributes' => [
         'startLine', 'endLine', 'startFilePos', 'endFilePos', 'comments'
