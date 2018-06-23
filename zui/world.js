@@ -41,9 +41,6 @@ ZUI.world = function () {
         world.editMode = false
         world.editModeToggleable = false
 
-        world.guidePoints = []
-        world.guideLines = []
-
         return world
     }
 
@@ -534,39 +531,6 @@ ZUI.world = function () {
         }
 
         return connectionProperties
-    }
-
-    
-    
-    my.addGuidePoint = function (world, container, deltaX, deltaY) {
-
-        var guidePoint = {
-            container: container,
-            deltaX: deltaX,
-            deltaY: deltaY
-        }
-
-        world.guidePoints.push(guidePoint)
-
-        return guidePoint
-    }
-
-    my.addGuideLine = function (world, fromPoint, toPoint, lineStyle) {
-
-        var guideLine = {
-            fromPosition: fromPoint,
-            toPosition: toPoint,
-            lineStyle: lineStyle
-        }
-
-        world.guideLines.push(guideLine)
-
-        return guideLine
-    }
-
-    my.clearGuides = function (world) {
-        world.guideLines = []
-        world.guidePoints = []
     }
 
     return my

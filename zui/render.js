@@ -1304,54 +1304,5 @@ ZUI.render = function () {
 
     }
 
-    my.drawGuide = function (camera, x, y, lineColor) {
-        var context2d = camera.context2d
-
-        // TODO: only draw the portion that fits inside the camera!
-
-        var leftPx = camera.pixelPosition.leftPx + camera.pixelSize.widthPx / 2 + (x - camera.centerPosition.x) * camera.pixelsPerMeter
-        var topPx = camera.pixelPosition.topPx + camera.pixelSize.heightPx / 2 - (y - camera.centerPosition.y) * camera.pixelsPerMeter
-
-//        context2d.fillStyle =
-
-        context2d.beginPath()
-        context2d.lineWidth = "1"
-        context2d.strokeStyle = my.getCanvasRGBAColor(lineColor, 1.0)
-        context2d.moveTo(leftPx - 5, topPx)
-        context2d.lineTo(leftPx - 10, topPx)
-        context2d.stroke()
-        context2d.moveTo(leftPx + 5, topPx)
-        context2d.lineTo(leftPx + 10, topPx)
-        context2d.stroke()
-        context2d.moveTo(leftPx, topPx + 5)
-        context2d.lineTo(leftPx, topPx + 10)
-        context2d.stroke()
-        context2d.moveTo(leftPx, topPx - 5)
-        context2d.lineTo(leftPx, topPx - 10)
-        context2d.stroke()
-
-    }
-
-    my.drawGuides = function (camera, guidePoints, guideLines) {
-
-        var loopIndex
-        for (loopIndex = 0; loopIndex < guidePoints.length; loopIndex++) {
-            var guidePoint = guidePoints[loopIndex]
-
-            var container = guidePoint.container
-
-            var guidePointPosition = {
-                x: container.position.x + guidePoint.deltaX,
-                y: container.position.y + guidePoint.deltaY
-            }
-
-            var guideColor = {r: 255, g: 0, b: 0, a: 1.0}
-
-            my.drawGuide(camera, guidePointPosition.x, guidePointPosition.y, guideColor)
-
-        }
-
-    }
-
     return my
 }()

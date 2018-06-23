@@ -55,7 +55,6 @@ ZUI.main = function () {
     my.showOverviewCamera = true
     my.showGraph = false
     my.showLog = true
-    my.doDrawGuides = false
 
     my.tempStoredWorldJSON = null
 
