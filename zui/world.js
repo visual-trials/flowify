@@ -244,18 +244,6 @@ ZUI.world = function () {
                 isPositionOf: null,  // TODO: in worldContainer?
                 positionOriginatesFrom: null  // TODO: in worldContainer?
             },
-            relativePosition: {
-                x: null,
-                y: null
-            },
-            position: {
-                x: null,
-                y: null
-            },
-            size: {
-                width: null,
-                height: null
-            },
             sliceChildren : []
         }
 
