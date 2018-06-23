@@ -168,6 +168,7 @@ ZUI.layout = function () {
 
             var currentWidth = null
             var currentHeight = null
+            var relativeScale = 1
 
             if (currentSliceContainer.worldContainer.manualSize.width != null) {
                 currentWidth = currentSliceContainer.worldContainer.manualSize.width  // FIXME: right now the manualSize is interpreted as the maxSize. Shouldn't we make this explicit?
@@ -177,7 +178,11 @@ ZUI.layout = function () {
                 currentHeight = currentSliceContainer.worldContainer.manualSize.height  // FIXME: right now the manualSize is interpreted as the maxSize. Shouldn't we make this explicit?
             }
 
-            currentSliceContainer.newLayout.relativeScale = 1
+            if (currentSliceContainer.worldContainer.manualRelativeScale != null) {
+                relativeScale = currentSliceContainer.worldContainer.manualRelativeScale
+            }
+            currentSliceContainer.newLayout.relativeScale = relativeScale
+            
 
             for (var loopIndex = 0; loopIndex < currentSliceContainer.sliceChildren.length; loopIndex++) {
                 var childSliceContainer = currentSliceContainer.sliceChildren[loopIndex]

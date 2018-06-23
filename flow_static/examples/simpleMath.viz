@@ -105,10 +105,11 @@
     },
     "17:6-17:21": {
         "x": 480,
-        "y": 580,
+        "y": 570,
         "isPositionOf": "center",
         "width": 400,
-        "height": 200
+        "height": 200,
+        "relativeScale": 0.5
     },
     "25:20-25:25": {
         "x": 60,

@@ -178,6 +178,7 @@ ZUI.world = function () {
                     width: null,
                     height: null
                 },
+                manualRelativeScale: null,
                 containerData: {
                     label: null,
                 },

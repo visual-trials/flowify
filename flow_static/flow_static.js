@@ -392,6 +392,9 @@ function convertFlowDataToZUIContainers (world, flowData) {
             if (flowContainer.hasOwnProperty("height")) {
                 worldContainer.manualSize.height = flowContainer.height
             }
+            if (flowContainer.hasOwnProperty("relativeScale")) {
+                worldContainer.manualRelativeScale = flowContainer.relativeScale
+            }
 
             worldContainer.containerData.astNodeIdentifier = flowContainer.astNodeIdentifier
         }
@@ -495,6 +498,9 @@ var sliceContainerWasMoved = function (movedSliceContainer) {
         }
         if (movedSliceContainer.worldContainer.manualSize.height != null) {
             visualInfos[astNodeIdentifier]["height"] = movedSliceContainer.worldContainer.manualSize.height
+        }
+        if (movedSliceContainer.worldContainer.manualRelativeScale != null) {
+            visualInfos[astNodeIdentifier]["relativeScale"] = movedSliceContainer.worldContainer.manualRelativeScale
         }
 
         // console.log(jsonData)

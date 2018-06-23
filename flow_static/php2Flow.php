@@ -604,6 +604,9 @@ function extendFlowElementWithVisualInfo (&$flowElement, $visualInfo) {
     if (array_key_exists('height', $visualInfo) && $visualInfo['height'] !== null) {
         $flowElement['height'] = $visualInfo['height'];
     }
+    if (array_key_exists('relativeScale', $visualInfo) && $visualInfo['relativeScale'] !== null) {
+        $flowElement['relativeScale'] = $visualInfo['relativeScale'];
+    }
 
 }
 
