@@ -925,7 +925,7 @@ ZUI.render = function () {
         var width = sliceContainer.newLayout.absoluteSize.width
         var height = sliceContainer.newLayout.absoluteSize.height
 
-        var absoluteLeftBottomPosition = ZUI.world.findPositionInShape(sliceContainer.newLayout.absolutePosition, sliceContainer.newLayout.isPositionOf, containerProperties.shape, sliceContainer.newLayout.absoluteSize, 'left-bottom')
+        var absoluteLeftBottomPosition = ZUI.layout.findPositionInShape(sliceContainer.newLayout.absolutePosition, sliceContainer.newLayout.isPositionOf, containerProperties.shape, sliceContainer.newLayout.absoluteSize, 'left-bottom')
 
         var x = absoluteLeftBottomPosition.x
         var y = absoluteLeftBottomPosition.y

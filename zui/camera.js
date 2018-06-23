@@ -190,7 +190,7 @@ ZUI.camera = function () {
         var width = sliceContainer.newLayout.absoluteSize.width
         var height = sliceContainer.newLayout.absoluteSize.height
 
-        var centerPosition = ZUI.world.findPositionInShape(sliceContainer.newLayout.absolutePosition, sliceContainer.newLayout.isPositionOf, containerProperties.shape, sliceContainer.newLayout.absoluteSize, 'center')
+        var centerPosition = ZUI.layout.findPositionInShape(sliceContainer.newLayout.absolutePosition, sliceContainer.newLayout.isPositionOf, containerProperties.shape, sliceContainer.newLayout.absoluteSize, 'center')
 
         if (positionX > centerPosition.x - width / 2 &&
             positionX < centerPosition.x + width / 2 &&
@@ -276,7 +276,7 @@ ZUI.camera = function () {
     my.centerCameraOnSliceContainer = function (camera, sliceContainer) {
         var positionPointsTo = sliceContainer.worldContainer.containerProperties.positionPointsTo
 
-        var centerPosition = ZUI.world.findPositionInShape(sliceContainer.newLayout.absolutePosition, sliceContainer.newLayout.isPositionOf, sliceContainer.worldContainer.containerProperties.shape, sliceContainer.newLayout.absoluteSize, 'center')
+        var centerPosition = ZUI.layout.findPositionInShape(sliceContainer.newLayout.absolutePosition, sliceContainer.newLayout.isPositionOf, sliceContainer.worldContainer.containerProperties.shape, sliceContainer.newLayout.absoluteSize, 'center')
 
         camera.centerPosition.x = centerPosition.x
         camera.centerPosition.y = centerPosition.y
@@ -646,13 +646,13 @@ ZUI.camera = function () {
         camera.rootWorldSliceContainer.newLayout.isPositionOf = 'center'
         camera.rootWorldSliceContainer.newLayout.positionOriginatesFrom = 'center'
 
-        ZUI.world.doSizingPositioningAndScaling(world, camera.rootWorldSliceContainer)
+        ZUI.layout.doSizingPositioningAndScaling(world, camera.rootWorldSliceContainer)
 
-        ZUI.world.setAbsoluteContainerPositionsNew({x:0, y:0}, camera.zLevel, null, camera.rootWorldSliceContainer)
+        ZUI.layout.setAbsoluteContainerPositionsNew({x:0, y:0}, camera.zLevel, null, camera.rootWorldSliceContainer)
 
         camera.sliceConnections = []  // FIXME: remove this when createWorldSliceConnectionsFromWorldConnections is called!
         ZUI.world.createWorldSliceConnectionsFromWorldConnections(camera, worldConnections)
-        ZUI.world.placeSliceConnections(camera)
+        ZUI.layout.placeSliceConnections(camera)
 
         // TODO: my.centerCameraOnSliceContainer(camera, sliceContainerToCenterOn)
 
