@@ -399,22 +399,15 @@ var sliceContainerWasSelected = function (selectedSliceContainer) {
     // console.log(selectedSliceContainer)
 }
 
-// TODO: guides for debugging
-ZUI.main.doDrawGuides = true
-
 var flowWorld = ZUI.world.createNewWorld()
 ZUI.setContainerTypeProperties(flowWorld, containerTypeProperties)
 ZUI.setConnectionTypeProperties(flowWorld, connectionTypeProperties)
 ZUI.setReloadWorldFunction(flowWorld, reloadWorld)
 // ZUI.setContainerWasDoubleClickedOutputListener(flowWorld, sliceContainerWasDoubleClicked)
- ZUI.setContainerHasMovedOutputListener(flowWorld, sliceContainerWasMoved)
+ZUI.setContainerHasMovedOutputListener(flowWorld, sliceContainerWasMoved)
 ZUI.setContainerWasSelectedOutputListener(flowWorld, sliceContainerWasSelected)
 ZUI.setEditModeToggleable(flowWorld, true)
 
-// ZUI.setContainerTypeProperties(containerTypeProperties)
-ZUI.setReloadWorldFunction(flowWorld, reloadWorld)
-ZUI.setContainerHasMovedOutputListener(sliceContainerWasMoved)
-ZUI.setContainerWasSelectedOutputListener(sliceContainerWasSelected)
 ZUI.configureInterface(
     {
         worlds: {

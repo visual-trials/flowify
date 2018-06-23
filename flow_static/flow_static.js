@@ -139,39 +139,6 @@ var containerTypeProperties = {
             ]
         }
     },
-    map: {
-        drawContainer: true,
-        containerColor: {r: 240, g: 245, b: 255, a: 1},
-        containerBorderColor: {r: 220, g: 220, b: 255, a: 1},
-        connectOutgoingTo: "right",
-        connectIncomingTo: "left",
-        paddingTop: 10,
-        paddingBottom: 10,
-        paddingLeft: 10,
-        paddingRight: 10,
-        paddingBetweenChildren: 10,
-        minWidth: 50,
-        minHeight: 50,
-        maxHeight: 300,
-        childrenLayoutFunction: "verticalTopToBottom",
-    },
-    keyValue: {
-        drawContainer: false,
-        showContainerBody: true,
-        showContainerIcon: false,
-        showContainerText: false,
-        connectOutgoingTo: "right",
-        connectIncomingTo: "left",
-        paddingTop: 0,
-        paddingBottom: 0,
-        paddingLeft: 0,
-        paddingRight: 0,
-        paddingBetweenChildren: 10,
-        minWidth: 25,
-        minHeight: 25,
-        maxHeight: 45,
-        childrenLayoutFunction: "horizontalLeftToRight",
-    },
     variable: {
         drawContainer: true,
         showContainerBody: true,
@@ -197,7 +164,7 @@ var containerTypeProperties = {
             ]
         }
     },
-    value: {
+    constant: {
         drawContainer: true,
         showContainerBody: true,
         containerColor: {r: 255, g: 230, b: 230, a: 1},
@@ -302,28 +269,33 @@ var reloadWorld = function (world) {
     xmlhttp.send()
 }
 
-function convertFlowDataToZUIContainers (world, flowData) {
-
-
-    // console.log(flowData)
-
-    var mapFlowTypesToZUITypes = {
-        root: "root",
-        function: "function",
-        // body: "body",  // FIXME: not using body atm 
-        primitiveFunction: "primitiveFunction",
-        // InputContainer: "input",  // FIXME: we need input, body and output containers!
-        // BodyContainer: "body",  // FIXME: we need input, body and output containers!
-        // OutputContainer: "output",  // FIXME: we need input, body and output containers!
-        // KeyValue: "keyValue",
-        variable: "variable",  // FIXME
-        constant: "value",  // FIXME
-        // Map: "map",
-        // List: "map",  // FIXME
-
-        // FIXME:add more
-
+var extendWorldContainerWithVisualInfo = function (worldContainer, flowContainer) {
+    if (flowContainer.hasOwnProperty("x")) {
+        worldContainer.manualPosition.x = flowContainer.x
     }
+    if (flowContainer.hasOwnProperty("y")) {
+        worldContainer.manualPosition.y = flowContainer.y
+    }
+    if (flowContainer.hasOwnProperty("isPositionOf")) {
+        worldContainer.manualPosition.isPositionOf = flowContainer.isPositionOf
+    }
+    else {
+        worldContainer.manualPosition.isPositionOf = "center"  // FIXME: should this not simply be stored? (and not rely on the default of the engine! or some hardcoded value here!)
+    }
+    if (flowContainer.hasOwnProperty("width")) {
+        worldContainer.manualSize.width = flowContainer.width
+    }
+    if (flowContainer.hasOwnProperty("height")) {
+        worldContainer.manualSize.height = flowContainer.height
+    }
+    if (flowContainer.hasOwnProperty("relativeScale")) {
+        worldContainer.manualRelativeScale = flowContainer.relativeScale
+    }
+
+    worldContainer.containerData.astNodeIdentifier = flowContainer.astNodeIdentifier
+}
+
+function convertFlowDataToZUIContainers (world, flowData) {
 
     // TODO: a connection should have a type, most notably:
 
@@ -334,7 +306,7 @@ function convertFlowDataToZUIContainers (world, flowData) {
 
     var addContainersToWorld = function (world, parentWorldContainer, flowContainer) {
 
-        var containerType = mapFlowTypesToZUITypes[flowContainer.type]  // FIXME: check if it exists!
+        var containerType = flowContainer.type  // FIXME: check if it exists!
 
         var overrulingContainerProperties = {}
         var containerText = null
@@ -360,36 +332,6 @@ function convertFlowDataToZUIContainers (world, flowData) {
         else if (flowContainer.type === 'root') {
             containerText = 'root'
         }
-
-        var extendWorldContainerWithVisualInfo = function (worldContainer, flowContainer) {
-            if (flowContainer.hasOwnProperty("x")) {
-                worldContainer.manualPosition.x = flowContainer.x
-            }
-            if (flowContainer.hasOwnProperty("y")) {
-                worldContainer.manualPosition.y = flowContainer.y
-            }
-            if (flowContainer.hasOwnProperty("isPositionOf")) {
-                worldContainer.manualPosition.isPositionOf = flowContainer.isPositionOf
-            }
-            else {
-                worldContainer.manualPosition.isPositionOf = "center"  // FIXME: should this not simply be stored? (and not rely on the default of the engine! or some hardcoded value here!)
-            }
-            if (flowContainer.hasOwnProperty("width")) {
-                worldContainer.manualSize.width = flowContainer.width
-            }
-            if (flowContainer.hasOwnProperty("height")) {
-                worldContainer.manualSize.height = flowContainer.height
-            }
-            if (flowContainer.hasOwnProperty("relativeScale")) {
-                worldContainer.manualRelativeScale = flowContainer.relativeScale
-            }
-
-            worldContainer.containerData.astNodeIdentifier = flowContainer.astNodeIdentifier
-        }
-
-        // FIXME: we should set the 'layoutFunction' for each of the containerTypes!!
-        // FIXME: we should set the 'layoutFunction' for each of the containerTypes!!
-        // FIXME: we should set the 'layoutFunction' for each of the containerTypes!!
 
         if (addHeader) {
             var worldContainerWrapper = ZUI.addWorldContainer(world, parentWorldContainer, flowContainer.id + '_Wrapper', containerType + 'Wrapper')
@@ -483,8 +425,6 @@ var sliceContainerWasMoved = function (movedSliceContainer) {
             visualInfos[astNodeIdentifier]["relativeScale"] = movedSliceContainer.worldContainer.manualRelativeScale
         }
 
-        // console.log(jsonData)
-
         var xmlhttp = new XMLHttpRequest()
         xmlhttp.onreadystatechange = function() {
             if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
@@ -509,22 +449,15 @@ var sliceContainerWasSelected = function (selectedSliceContainer) {
     // console.log(selectedSliceContainer)
 }
 
-// TODO: guides for debugging
-ZUI.main.doDrawGuides = true
-
 var flowWorld = ZUI.world.createNewWorld()
 ZUI.setContainerTypeProperties(flowWorld, containerTypeProperties)
 ZUI.setConnectionTypeProperties(flowWorld, connectionTypeProperties)
 ZUI.setReloadWorldFunction(flowWorld, reloadWorld)
 // ZUI.setContainerWasDoubleClickedOutputListener(flowWorld, sliceContainerWasDoubleClicked)
- ZUI.setContainerHasMovedOutputListener(flowWorld, sliceContainerWasMoved)
+ZUI.setContainerHasMovedOutputListener(flowWorld, sliceContainerWasMoved)
 ZUI.setContainerWasSelectedOutputListener(flowWorld, sliceContainerWasSelected)
 ZUI.setEditModeToggleable(flowWorld, true)
 
-// ZUI.setContainerTypeProperties(containerTypeProperties)
-ZUI.setReloadWorldFunction(flowWorld, reloadWorld)
-ZUI.setContainerHasMovedOutputListener(sliceContainerWasMoved)
-ZUI.setContainerWasSelectedOutputListener(sliceContainerWasSelected)
 ZUI.configureInterface(
     {
         worlds: {
