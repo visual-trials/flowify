@@ -359,8 +359,6 @@ ZUI.world = function () {
             // Options: verticalTopToBottom, horizontalFromSidesToCenter, normalizedRelativePositioning
             childrenFitFunction: null,
 
-            doSizingBasedOnScale: false,
-
             // Options: left-top,       middle-top,     right-top,
             //          left-middle,    middle-middle,  right-middle,          // Note: middle-middle = center
             //          left-bottom,    middle-bottom,  right-bottom,

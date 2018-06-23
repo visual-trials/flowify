@@ -35,7 +35,6 @@ var containerTypeProperties = {
         keepAspectRatio: true,
         aspectRatioAtMaxSize: 1600 / 800,
         childrenLayoutFunction: "manualPositioning",
-        doSizingBasedOnScale: true,
     },
     functionWrapper: {
         drawContainer: true,

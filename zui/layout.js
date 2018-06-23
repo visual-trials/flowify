@@ -59,7 +59,7 @@ ZUI.layout = function () {
         return textWidth
     }
 
-    my.doSizingPositioningAndScaling = function (world, currentSliceContainer, allowedSizeInParent) {
+    my.doSizingPositioningAndScaling = function (world, currentSliceContainer) {
 
         var containerProperties = currentSliceContainer.worldContainer.containerProperties
 
@@ -70,7 +70,6 @@ ZUI.layout = function () {
         var paddingBottom = containerProperties.paddingBottom
         var paddingBetweenChildren = containerProperties.paddingBetweenChildren
         var childrenLayoutFunction = containerProperties.childrenLayoutFunction
-        var doSizingBasedOnScale = containerProperties.doSizingBasedOnScale
 
         // FIXME: set isVisible dynamically
         currentSliceContainer.isVisible = true
@@ -83,158 +82,42 @@ ZUI.layout = function () {
             var sumChildrenHeight = 0
             var oneOrMoreChildrenAdded = false
 
-            if (allowedSizeInParent == null) {   // this means: get the MaxSize
+            for (var loopIndex = 0; loopIndex < currentSliceContainer.sliceChildren.length; loopIndex++) {
+                var childSliceContainer = currentSliceContainer.sliceChildren[loopIndex]
 
-                for (var loopIndex = 0; loopIndex < currentSliceContainer.sliceChildren.length; loopIndex++) {
-                    var childSliceContainer = currentSliceContainer.sliceChildren[loopIndex]
+                var childSize = my.doSizingPositioningAndScaling(world, childSliceContainer)
 
-                    var childSize = my.doSizingPositioningAndScaling(world, childSliceContainer)
+                if (childSize != null) {
 
-                    if (childSize != null) {
-
-                        if (childSize.width > largestChildWidth) {
-                            largestChildWidth = childSize.width
-                        }
-
-                        if (oneOrMoreChildrenAdded) {
-                            sumChildrenHeight += paddingBetweenChildren
-                        }
-
-                        childSliceContainer.newLayout.position.x = paddingLeft
-                        childSliceContainer.newLayout.position.y = - paddingTop - sumChildrenHeight
-                        childSliceContainer.newLayout.isPositionOf = 'left-top'
-                        childSliceContainer.newLayout.positionOriginatesFrom = 'left-top'
-
-                        sumChildrenHeight += childSize.height
-                        oneOrMoreChildrenAdded = true
+                    if (childSize.width > largestChildWidth) {
+                        largestChildWidth = childSize.width
                     }
 
+                    if (oneOrMoreChildrenAdded) {
+                        sumChildrenHeight += paddingBetweenChildren
+                    }
+
+                    childSliceContainer.newLayout.position.x = paddingLeft
+                    childSliceContainer.newLayout.position.y = - paddingTop - sumChildrenHeight
+                    childSliceContainer.newLayout.isPositionOf = 'left-top'
+                    childSliceContainer.newLayout.positionOriginatesFrom = 'left-top'
+
+                    sumChildrenHeight += childSize.height
+                    oneOrMoreChildrenAdded = true
                 }
 
-                // FIXME: HACK to enlarge the childs to the maxWidth of the other childs! (among other things, this should keep in mind the pointsTo etc, and re-center text/containers in the child!)
-                for (var loopIndex = 0; loopIndex < currentSliceContainer.sliceChildren.length; loopIndex++) {
-                    var childSliceContainer = currentSliceContainer.sliceChildren[loopIndex]
-
-                    childSliceContainer.newLayout.size.width = largestChildWidth
-                }
-
-                currentSliceContainer.newLayout.size.width = paddingLeft + largestChildWidth + paddingRight
-                currentSliceContainer.newLayout.size.height = paddingTop + sumChildrenHeight + paddingBottom
-
             }
-            else {  // This means: shrink the container (and it's children) so it fits into the allowedSize
 
-                {   /*  DEPRECATED!! */
+            // FIXME: HACK to enlarge the childs to the maxWidth of the other childs! (among other things, this should keep in mind the pointsTo etc, and re-center text/containers in the child!)
+            for (var loopIndex = 0; loopIndex < currentSliceContainer.sliceChildren.length; loopIndex++) {
+                var childSliceContainer = currentSliceContainer.sliceChildren[loopIndex]
 
-                    // FIXME: should we not account for relative scale for allowedSize?
-                    var totalHorizontalPadding = paddingLeft + paddingRight
-                    var nrOfPaddingsBetweenChildren = 0
-                    if (currentSliceContainer.sliceChildren.length > 1) {
-                        nrOfPaddingsBetweenChildren = currentSliceContainer.sliceChildren.length - 1
-                    }
-                    var totalVerticalPadding = nrOfPaddingsBetweenChildren * paddingBetweenChildren + paddingTop + paddingBottom
-                    var maxChildWidth = allowedSizeInParent.width - totalHorizontalPadding
-                    var maxSumChildrenHeight = allowedSizeInParent.height - totalVerticalPadding
-
-                    if (maxSumChildrenHeight < 0) {
-                        maxSumChildrenHeight = 0
-
-                        paddingBetweenChildren = allowedSizeInParent.height * paddingBetweenChildren / totalVerticalPadding
-                        paddingTop = allowedSizeInParent.height * paddingTop / totalVerticalPadding
-                        paddingBottom = allowedSizeInParent.height * paddingBottom / totalVerticalPadding
-                        totalVerticalPadding = allowedSizeInParent.height
-                    }
-
-                    if (maxChildWidth < 0) {
-                        maxChildWidth = 0
-
-                        paddingLeft = allowedSizeInParent.width * paddingLeft / totalHorizontalPadding
-                        paddingRight = allowedSizeInParent.width * paddingRight / totalHorizontalPadding
-                        totalHorizontalPadding = allowedSizeInParent.width
-                    }
-
-                    // TODO: implement this:
-                    //    var childResizeMethod = null  // Options: 'shrinkChildrenEvenly', 'shrinkChildrenThatDontFit'
-
-                    var verticalPositionChild = 0
-                    for (var loopIndex = 0; loopIndex < currentSliceContainer.sliceChildren.length; loopIndex++) {
-                        var childSliceContainer = currentSliceContainer.sliceChildren[loopIndex]
-
-                        // TODO: we are currently re-doing the maxSize-ing. This shouldn't be necessary, but since we enlarge afterwards (with a HACK) we recompute the maxSize of each child here
-                        var childSize = my.doSizingPositioningAndScaling(world, childSliceContainer)
-
-                        if (childSize != null) { // TODO: be careful, childSize has been multplied with the child's relative scale (so it's in terms of the parent)
-
-                            if (oneOrMoreChildrenAdded) {
-                                verticalPositionChild -= paddingBetweenChildren
-                            }
-
-                            var maxChildHeight = maxSumChildrenHeight - sumChildrenHeight
-
-                            if (maxChildHeight < 0) {
-                                maxChildHeight = 0
-                            }
-
-                            if (childSize.width > maxChildWidth || childSize.height > maxChildHeight) {
-
-                                // We are going to shrink or eliminate this child! Since there is not room for it's maxSized version!
-
-                                var allowedSizeChild = {}
-
-                                // TODO: what to do with a child that is too wide? Should we shrink it's height accordingly (to keep it's aspect ratio)?
-                                allowedSizeChild.height = maxChildHeight
-                                allowedSizeChild.width = maxChildWidth   // Note that this will lead to childSize.width = maxChildWidth after calling doSizingPositioningAndScaling below
-
-                                if (childSize.width < maxChildWidth) {
-                                    allowedSizeChild.width = childSize.width
-                                }
-
-                                if (childSize.height < maxChildHeight) {
-                                    allowedSizeChild.height = childSize.height
-                                }
-
-                                childSize = my.doSizingPositioningAndScaling(world, childSliceContainer, allowedSizeChild) // FIXME: should we divide allowedSizeChild by the child's relative scale here?
-
-
-                            }
-
-                            if (childSize.width > largestChildWidth) {
-                                largestChildWidth = childSize.width
-                            }
-
-                            childSliceContainer.newLayout.position.x = paddingLeft
-                            childSliceContainer.newLayout.position.y = -paddingTop + verticalPositionChild
-                            childSliceContainer.newLayout.isPositionOf = 'left-top'
-                            childSliceContainer.newLayout.positionOriginatesFrom = 'left-top'
-
-                            // HACK to not show the container...
-                            if (childSize.width === 0 || childSize.height === 0) {
-                                childSliceContainer.worldContainer.containerProperties.showContainerBody = false
-                            }
-                            else {
-                                childSliceContainer.worldContainer.containerProperties.showContainerBody = true
-                            }
-
-                            sumChildrenHeight += childSize.height
-                            verticalPositionChild -= childSize.height
-                            oneOrMoreChildrenAdded = true
-                        }
-
-                    }
-
-                    // FIXME: HACK to enlarge the childs to the maxWidth of the other childs! (among other things, this should keep in mind the pointsTo etc, and re-center text/containers in the child!)
-                    for (var loopIndex = 0; loopIndex < currentSliceContainer.sliceChildren.length; loopIndex++) {
-                        var childSliceContainer = currentSliceContainer.sliceChildren[loopIndex]
-
-                        childSliceContainer.newLayout.size.width = largestChildWidth
-                    }
-
-                    currentSliceContainer.newLayout.size.width = largestChildWidth + totalHorizontalPadding
-                    currentSliceContainer.newLayout.size.height = sumChildrenHeight + totalVerticalPadding
-
-                }   /*  / DEPRECATED!! */
-
+                childSliceContainer.newLayout.size.width = largestChildWidth
             }
+
+            currentSliceContainer.newLayout.size.width = paddingLeft + largestChildWidth + paddingRight
+            currentSliceContainer.newLayout.size.height = paddingTop + sumChildrenHeight + paddingBottom
+
 
         }
         else if (childrenLayoutFunction === 'horizontalLeftToRight') {
@@ -245,137 +128,36 @@ ZUI.layout = function () {
             var sumChildrenWidth = 0
             var oneOrMoreChildrenAdded = false
 
-            if (allowedSizeInParent == null) {   // this means: get the MaxSize
+            for (var loopIndex = 0; loopIndex < currentSliceContainer.sliceChildren.length; loopIndex++) {
+                var childSliceContainer = currentSliceContainer.sliceChildren[loopIndex]
 
-                for (var loopIndex = 0; loopIndex < currentSliceContainer.sliceChildren.length; loopIndex++) {
-                    var childSliceContainer = currentSliceContainer.sliceChildren[loopIndex]
+                // TODO: we are currently re-doing the maxSize-ing. This shouldn't be necessary, but since we enlarge afterwards (with a HACK) we recompute the maxSize of each child here
+                var childSize = my.doSizingPositioningAndScaling(world, childSliceContainer)
 
-                    // TODO: we are currently re-doing the maxSize-ing. This shouldn't be necessary, but since we enlarge afterwards (with a HACK) we recompute the maxSize of each child here
-                    var childSize = my.doSizingPositioningAndScaling(world, childSliceContainer)
+                if (childSize != null) {
 
-                    if (childSize != null) {
-
-                        if (childSize.height > largestChildHeight) {
-                            largestChildHeight = childSize.height
-                        }
-
-                        if (oneOrMoreChildrenAdded) {
-                            sumChildrenWidth += paddingBetweenChildren
-                        }
-
-                        childSliceContainer.newLayout.position.x = paddingLeft + sumChildrenWidth
-                        childSliceContainer.newLayout.position.y = - paddingTop
-                        childSliceContainer.newLayout.isPositionOf = 'left-top'
-                        childSliceContainer.newLayout.positionOriginatesFrom = 'left-top'
-
-                        sumChildrenWidth += childSize.width
-                        oneOrMoreChildrenAdded = true
-
+                    if (childSize.height > largestChildHeight) {
+                        largestChildHeight = childSize.height
                     }
+
+                    if (oneOrMoreChildrenAdded) {
+                        sumChildrenWidth += paddingBetweenChildren
+                    }
+
+                    childSliceContainer.newLayout.position.x = paddingLeft + sumChildrenWidth
+                    childSliceContainer.newLayout.position.y = - paddingTop
+                    childSliceContainer.newLayout.isPositionOf = 'left-top'
+                    childSliceContainer.newLayout.positionOriginatesFrom = 'left-top'
+
+                    sumChildrenWidth += childSize.width
+                    oneOrMoreChildrenAdded = true
+
                 }
-
-                currentSliceContainer.newLayout.size.width = paddingLeft + sumChildrenWidth + paddingRight
-                currentSliceContainer.newLayout.size.height = paddingTop + largestChildHeight + paddingBottom
-
             }
-            else {  // This means: shrink the container (and it's children) so it fits into the allowedSize
 
-                {   /*  DEPRECATED!! */
+            currentSliceContainer.newLayout.size.width = paddingLeft + sumChildrenWidth + paddingRight
+            currentSliceContainer.newLayout.size.height = paddingTop + largestChildHeight + paddingBottom
 
-                    // FIXME: should we not account for relative scale for allowedSize?
-                    var nrOfPaddingsBetweenChildren = 0
-                    if (currentSliceContainer.sliceChildren.length > 1) {
-                        nrOfPaddingsBetweenChildren = currentSliceContainer.sliceChildren.length - 1
-                    }
-                    var totalHorizontalPadding = nrOfPaddingsBetweenChildren * paddingBetweenChildren + paddingLeft + paddingRight
-                    var totalVetticalPadding = paddingTop + paddingBottom
-                    var maxSumChildrenWidth = allowedSizeInParent.width - totalHorizontalPadding
-                    var maxChildHeight = allowedSizeInParent.height - totalVetticalPadding
-
-                    if (maxSumChildrenWidth < 0) {
-                        maxSumChildrenWidth = 0
-
-                        paddingBetweenChildren = allowedSizeInParent.width * paddingBetweenChildren / totalHorizontalPadding
-                        paddingLeft = allowedSizeInParent.width * paddingLeft / totalHorizontalPadding
-                        paddingRight = allowedSizeInParent.width * paddingRight / totalHorizontalPadding
-                        totalHorizontalPadding = allowedSizeInParent.width
-                    }
-
-                    if (maxChildHeight < 0) {
-                        maxChildHeight = 0
-
-                        paddingTop = allowedSizeInParent.height * paddingTop / totalVetticalPadding
-                        paddingBottom = allowedSizeInParent.height * paddingBottom / totalVetticalPadding
-                        totalVetticalPadding = allowedSizeInParent.height
-                    }
-
-                    var horizontalPositionChild = 0
-                    for (var loopIndex = 0; loopIndex < currentSliceContainer.sliceChildren.length; loopIndex++) {
-                        var childSliceContainer = currentSliceContainer.sliceChildren[loopIndex]
-
-                        var childSize = my.doSizingPositioningAndScaling(world, childSliceContainer)
-
-                        if (childSize != null) {
-
-                            if (oneOrMoreChildrenAdded) {
-                                horizontalPositionChild += paddingBetweenChildren
-                            }
-
-                            var maxChildWidth = maxSumChildrenWidth - sumChildrenWidth
-
-                            if (maxChildWidth < 0) {
-                                maxChildWidth = 0
-                            }
-
-                            if (childSize.width > maxChildWidth || childSize.height > maxChildHeight) {
-                                // We should shrink or elimiate this child! Since there is not room for it's maxSized version!
-
-                                // TODO: what to do with a child that is too wide? Should we shrink it's height accordingly (to keep it's aspect ratio)?
-                                var allowedSizeChild = {}
-                                allowedSizeChild.height = maxChildHeight
-                                allowedSizeChild.width = maxChildWidth   // Note that this will lead to childSize.width = maxChildWidth after calling doSizingPositioningAndScaling below
-
-                                if (childSize.width < maxChildWidth) {
-                                    allowedSizeChild.width = childSize.width
-                                }
-
-                                if (childSize.height < maxChildHeight) {
-                                    allowedSizeChild.height = childSize.height
-                                }
-
-                                childSize = my.doSizingPositioningAndScaling(world, childSliceContainer, allowedSizeChild) // FIXME: should we divide allowedSizeChild by the child's relative scale here?
-                            }
-
-                            if (childSize.height > largestChildHeight) {
-                                largestChildHeight = childSize.height
-                            }
-
-                            childSliceContainer.newLayout.position.x = paddingLeft + horizontalPositionChild
-                            childSliceContainer.newLayout.position.y = - paddingTop
-                            childSliceContainer.newLayout.isPositionOf = 'left-top'
-                            childSliceContainer.newLayout.positionOriginatesFrom = 'left-top'
-
-                            // HACK to not show the container...
-                            if (childSize.width === 0 || childSize.height === 0) {
-                                childSliceContainer.worldContainer.containerProperties.showContainerBody = false
-                            }
-                            else {
-                                childSliceContainer.worldContainer.containerProperties.showContainerBody = true
-                            }
-
-                            sumChildrenWidth += childSize.width
-                            horizontalPositionChild += childSize.width
-                            oneOrMoreChildrenAdded = true
-
-                        }
-                    }
-
-                    currentSliceContainer.newLayout.size.width = sumChildrenWidth + totalHorizontalPadding
-                    currentSliceContainer.newLayout.size.height = largestChildHeight + totalVetticalPadding
-
-                }   /* / DEPRECATED!! */
-
-            }
 
             return { width: currentSliceContainer.newLayout.size.width * currentSliceContainer.newLayout.relativeScale,
                 height: currentSliceContainer.newLayout.size.height * currentSliceContainer.newLayout.relativeScale }
@@ -384,218 +166,85 @@ ZUI.layout = function () {
 
             // This is a 'manualPosition' layout function
 
-            if (allowedSizeInParent == null) {   // this means: get the MaxSize
+            var currentWidth = null
+            var currentHeight = null
 
-                var prioritizeChildren = true
-
-                {
-                    /* @Refactor:
-                            1) We first want a levelOfDetail (int) as input here, and then calculate the size of the container (and it's children)
-                            2) Based on the camera zoom, we then calculate (outside this function) the corresponding levelOfDetail (float), using the levelOfDetail (int) that still fits, and the one that doesn't fit the desired allowedSize
-                            3) When we get the precise levelOfDetail (float) , we interpolate the size and positions of the container and it's children (not in this function, but it might burrow some parts of this function)
-
-                            This means below should be done (differently and) outside of the childrenLayout function. Essentially it is trying to do (2) here.
-                            Instead it should map the slope of increase in size between LoD-layers to camera-level increases (this cannot be done exacte, since the aspect ratio might change!)
-                            Alternatively, you could "zoom" along LoD float: 1.1 -> 1.2 -> 1.3 etc (which might be weird if you jump from 1.9 to 2.1 for example)
-
-                            Either way: we should not be doing "Sizing" based on anything (for example on Scale), since we want to be LevelOfDetail-based/driven
-                    */
-
-                    /* @Refactor:
-                            We also want to decide whether we should store a manualPosition per LoD or for all LoDs. If we do the latter,
-                            we need to decide how we deal with changes in the aspect ratio (if allowed).
-
-                            Also, we now set the width and height manually too. But shouldn't we be able to position manually without sizing the parent manually?
-                            If so, should we use a percentage/normalized position? Or one that assumes some level of detail (or simply the position in the highest level of detail)?
-                     */
-
-                    var currentWidth = null
-                    var currentHeight = null
-
-                    if (currentSliceContainer.worldContainer.manualSize.width != null) {
-                        currentWidth = currentSliceContainer.worldContainer.manualSize.width  // FIXME: right now the manualSize is interpreted as the maxSize. Shouldn't we make this explicit?
-                    }
-
-                    if (currentSliceContainer.worldContainer.manualSize.height != null) {
-                        currentHeight = currentSliceContainer.worldContainer.manualSize.height  // FIXME: right now the manualSize is interpreted as the maxSize. Shouldn't we make this explicit?
-                    }
-
-                    currentSliceContainer.newLayout.relativeScale = 1
-                    // TODO: this ENLARGES the root container based on the zLevel (~scale) of the camera. We should probably do this differently
-                    var positionMultiplier = 1.0  // FIXME: this is a bit of a weird way of doing this
-                    if (doSizingBasedOnScale) {
-                        positionMultiplier = ZUI.main.mainCamera.zLevel
-                        currentWidth = currentWidth * ZUI.main.mainCamera.zLevel
-                        currentHeight = currentHeight * ZUI.main.mainCamera.zLevel
-                        currentSliceContainer.newLayout.relativeScale = 1 / ZUI.main.mainCamera.zLevel  // TODO: this now keeps the absolute Scale of the root container constant. We should do this differently, probably...
-                    }
-                }
-
-                for (var loopIndex = 0; loopIndex < currentSliceContainer.sliceChildren.length; loopIndex++) {
-                    var childSliceContainer = currentSliceContainer.sliceChildren[loopIndex]
-
-                    var childSize = my.doSizingPositioningAndScaling(world, childSliceContainer)
-
-                    if (childSize != null) {
-
-                        // FIXME: we are assuming the x and y are always filled here! We need some check!
-                        childSliceContainer.newLayout.position.x = childSliceContainer.worldContainer.manualPosition.x * positionMultiplier
-                        childSliceContainer.newLayout.position.y = childSliceContainer.worldContainer.manualPosition.y * positionMultiplier
-
-                        childSliceContainer.newLayout.isPositionOf = 'left-bottom'  // TODO: should this default be set here?
-                        if (childSliceContainer.worldContainer.manualPosition.isPositionOf != null) {
-                            childSliceContainer.newLayout.isPositionOf = childSliceContainer.worldContainer.manualPosition.isPositionOf
-                        }
-                        childSliceContainer.newLayout.positionOriginatesFrom = 'left-bottom'  // TODO: should this default be set here?
-                        if (childSliceContainer.worldContainer.manualPosition.positionOriginatesFrom != null) {
-                            childSliceContainer.newLayout.positionOriginatesFrom = childSliceContainer.worldContainer.manualPosition.positionOriginatesFrom
-                        }
-
-                        var childContainerType = childSliceContainer.worldContainer.type
-
-                        var scaleChildren = true
-                        // FIXME: HACK
-                        if (prioritizeChildren) {
-                            if ((childContainerType === 'functionWrapper' || childContainerType === 'primitiveFunctionWrapper') && ZUI.main.mainCamera.zLevel < 1) {
-                                // childSliceContainer.isVisible = false
-
-                                if (scaleChildren) {
-                                    // We want  to scale the child down. Since there is not room for it's maxSized version!
-                                    childSliceContainer.newLayout.relativeScale = ZUI.main.mainCamera.zLevel * ZUI.main.mainCamera.zLevel
-                                }
-                                else {
-
-
-                                    var allowedSizeChild = {}
-
-                                    allowedSizeChild.width = childSize.width * ZUI.main.mainCamera.zLevel * ZUI.main.mainCamera.zLevel
-                                    allowedSizeChild.height = childSize.height * ZUI.main.mainCamera.zLevel * ZUI.main.mainCamera.zLevel
-
-
-                                    // TODO: should the allowedSizeChild be in terms of the scale of the child or the parent?
-                                    var childSize = my.doSizingPositioningAndScaling(world, childSliceContainer, allowedSizeChild)
-                                }
-
-                            }
-                        }
-
-                        // childSliceContainer.newLayout.position.x = paddingLeft
-                        // childSliceContainer.newLayout.position.y = paddingBottom + sumChildrenHeight
-
-                        // sumChildrenHeight += childSize.height
-                        // oneOrMoreChildrenAdded = true
-                    }
-                }
-
-                currentSliceContainer.newLayout.size.width = currentWidth
-                currentSliceContainer.newLayout.size.height = currentHeight
-
+            if (currentSliceContainer.worldContainer.manualSize.width != null) {
+                currentWidth = currentSliceContainer.worldContainer.manualSize.width  // FIXME: right now the manualSize is interpreted as the maxSize. Shouldn't we make this explicit?
             }
-            else {
-                // FIXME: what to do here?
+
+            if (currentSliceContainer.worldContainer.manualSize.height != null) {
+                currentHeight = currentSliceContainer.worldContainer.manualSize.height  // FIXME: right now the manualSize is interpreted as the maxSize. Shouldn't we make this explicit?
             }
+
+            currentSliceContainer.newLayout.relativeScale = 1
+
+            for (var loopIndex = 0; loopIndex < currentSliceContainer.sliceChildren.length; loopIndex++) {
+                var childSliceContainer = currentSliceContainer.sliceChildren[loopIndex]
+
+                var childSize = my.doSizingPositioningAndScaling(world, childSliceContainer)
+
+                if (childSize != null) {
+                    var positionMultiplier = 1.0
+
+                    // FIXME: we are assuming the x and y are always filled here! We need some check!
+                    childSliceContainer.newLayout.position.x = childSliceContainer.worldContainer.manualPosition.x * positionMultiplier
+                    childSliceContainer.newLayout.position.y = childSliceContainer.worldContainer.manualPosition.y * positionMultiplier
+
+                    childSliceContainer.newLayout.isPositionOf = 'left-bottom'  // TODO: should this default be set here?
+                    if (childSliceContainer.worldContainer.manualPosition.isPositionOf != null) {
+                        childSliceContainer.newLayout.isPositionOf = childSliceContainer.worldContainer.manualPosition.isPositionOf
+                    }
+                    childSliceContainer.newLayout.positionOriginatesFrom = 'left-bottom'  // TODO: should this default be set here?
+                    if (childSliceContainer.worldContainer.manualPosition.positionOriginatesFrom != null) {
+                        childSliceContainer.newLayout.positionOriginatesFrom = childSliceContainer.worldContainer.manualPosition.positionOriginatesFrom
+                    }
+
+                }
+            }
+
+            currentSliceContainer.newLayout.size.width = currentWidth
+            currentSliceContainer.newLayout.size.height = currentHeight
+
 
         }
         else if (childrenLayoutFunction === 'none') {
 
             // This is a one-textLine layout function
 
-            if (allowedSizeInParent == null) {   // this means: get the MaxSize
+            // FIXME: check if containerText should be shown. But if not, then size of 0?? Or check for icons aswell?
+            //  if (showContainerText)
 
-                // FIXME: check if containerText should be shown. But if not, then size of 0?? Or check for icons aswell?
-                //  if (showContainerText)
+            var containerText = containerProperties.containerText
+            var containerTextFontHeight = containerProperties.containerTextFontHeight
+            var containerTextColor = containerProperties.containerTextColor
+            var containerTextFont = containerProperties.containerTextFont
 
-                var containerText = containerProperties.containerText
-                var containerTextFontHeight = containerProperties.containerTextFontHeight
-                var containerTextColor = containerProperties.containerTextColor
-                var containerTextFont = containerProperties.containerTextFont
-
-                currentSliceContainer.textLines = []
-                // FIXME: we are assuming only ONE text line here!
-                // FIXME: should we add character-size-and-position information here? Or should we leave that to the renderer and the camera (for mouse-selecting-text)?
-                var textLine = '' + containerText // TODO: forcing it to a string here. Is there a better solution?
-                var textPosition = {
-                    x: paddingLeft,
-                    y: paddingBottom
-                }
-                var textLineWidth = my.measureTextWidth(textLine, containerTextFontHeight, containerTextFont)
-                currentSliceContainer.textLines.push({
-                    text: containerText,
-                    baseFont: containerTextFont,
-                    fontColor: containerTextColor,
-                    fontHeight: containerTextFontHeight,
-                    textWidth: textLineWidth,
-                    position: textPosition
-                    // align: "TODO"
-                })
-                // TODO: isPositionOf and/or positionOriginatesFrom?
-
-                // TODO: var textPaddingBetween/lineDistance for multilines
-
-                currentSliceContainer.newLayout.size.width = paddingLeft + textLineWidth + paddingRight
-                currentSliceContainer.newLayout.size.height = paddingTop + containerTextFontHeight + paddingBottom
-
+            currentSliceContainer.textLines = []
+            // FIXME: we are assuming only ONE text line here!
+            // FIXME: should we add character-size-and-position information here? Or should we leave that to the renderer and the camera (for mouse-selecting-text)?
+            var textLine = '' + containerText // TODO: forcing it to a string here. Is there a better solution?
+            var textPosition = {
+                x: paddingLeft,
+                y: paddingBottom
             }
-            else {  // This means: shrink the container (and it's children) so it fits into the allowedSize
+            var textLineWidth = my.measureTextWidth(textLine, containerTextFontHeight, containerTextFont)
+            currentSliceContainer.textLines.push({
+                text: containerText,
+                baseFont: containerTextFont,
+                fontColor: containerTextColor,
+                fontHeight: containerTextFontHeight,
+                textWidth: textLineWidth,
+                position: textPosition
+                // align: "TODO"
+            })
+            // TODO: isPositionOf and/or positionOriginatesFrom?
 
-                // FIXME: should we not account for relative scale for allowedSize?
-                var maxSumChildrenWidth = allowedSizeInParent.width -  paddingLeft - paddingRight
-                var maxChildHeight = allowedSizeInParent.height - paddingTop - paddingBottom
+            // TODO: var textPaddingBetween/lineDistance for multilines
 
-                if (maxSumChildrenWidth < 0) {
-                    maxSumChildrenWidth = 0
-                    paddingLeft = allowedSizeInParent.width * paddingLeft / (paddingLeft + paddingRight)
-                    paddingRight = allowedSizeInParent.width * paddingRight / (paddingLeft + paddingRight)
-                }
+            currentSliceContainer.newLayout.size.width = paddingLeft + textLineWidth + paddingRight
+            currentSliceContainer.newLayout.size.height = paddingTop + containerTextFontHeight + paddingBottom
 
-                if (maxChildHeight < 0) {
-                    maxChildHeight = 0
-                    paddingTop = allowedSizeInParent.height * paddingTop / (paddingTop + paddingBottom)
-                    paddingBottom = allowedSizeInParent.height * paddingBottom / (paddingTop + paddingBottom)
-                }
-
-                // FIXME: check if containerText should be shown. But if not, then size of 0?? Or check for icons aswell?
-                //  if (showContainerText)
-
-                var containerText = containerProperties.containerText
-                var containerTextFontHeight = containerProperties.containerTextFontHeight
-                var containerTextColor = containerProperties.containerTextColor
-                var containerTextFont = containerProperties.containerTextFont
-
-                currentSliceContainer.textLines = []
-                // FIXME: we are assuming only ONE text line here!
-                // FIXME: should we add character-size-and-position information here? Or should we leave that to the renderer and the camera (for mouse-selecting-text)?
-                var textLine = '' + containerText // TODO: forcing it to a string here. Is there a better solution?
-                var textPosition = {
-                    x: paddingLeft,
-                    y: paddingBottom
-                }
-                var textLineWidth = my.measureTextWidth(textLine, containerTextFontHeight, containerTextFont)
-                if (textLineWidth <= maxSumChildrenWidth && containerTextFontHeight <= maxChildHeight) {
-
-                    currentSliceContainer.textLines.push({
-                        text: containerText,
-                        baseFont: containerTextFont,
-                        fontColor: containerTextColor,
-                        fontHeight: containerTextFontHeight,
-                        textWidth: textLineWidth,
-                        position: textPosition
-                        // align: "TODO"
-                    })
-                    // TODO: isPositionOf and/or positionOriginatesFrom?
-
-                    // TODO: var textPaddingBetween/lineDistance for multilines
-
-                    currentSliceContainer.newLayout.size.width = paddingLeft + textLineWidth + paddingRight
-                    currentSliceContainer.newLayout.size.height = paddingTop + containerTextFontHeight + paddingBottom
-                }
-                else {
-                    currentSliceContainer.newLayout.size.width = paddingLeft + maxSumChildrenWidth + paddingRight
-                    currentSliceContainer.newLayout.size.height = paddingTop + maxChildHeight + paddingBottom
-                }
-
-
-            }
 
             currentSliceContainer.newLayout.relativeScale = 1
 
