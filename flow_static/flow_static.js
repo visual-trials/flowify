@@ -21,16 +21,11 @@ var containerTypeProperties = {
         drawContainer: true,
         containerColor: {r: 250, g: 250, b: 250, a: 1},
         containerBorderColor: {r: 240, g: 240, b: 240, a: 1},
-        connectOutgoingTo: "right",
-        connectIncomingTo: "left",
         paddingTop: 20,
         paddingBottom: 20,
         paddingLeft: 20,
         paddingRight: 20,
         paddingBetweenChildren: 20,
-        minWidth: 200,
-        minHeight: 50,
-        maxHeight: 1500,
         childrenLayoutFunction: "manualPositioning",
     },
     functionWrapper: {
@@ -46,17 +41,11 @@ var containerTypeProperties = {
         showContainerBody: true,
         containerColor: {r: 210, g: 230, b: 255, a: 1},
         containerBorderColor: {r: 180, g: 200, b: 255, a: 1},
-        showContainerIcon: false,
         showContainerText: true,
-        connectOutgoingTo: "right",
-        connectIncomingTo: "left",
         paddingTop: 10,
         paddingBottom: 10,
         paddingLeft: 10,
         paddingRight: 10,
-        minWidth: 25,
-        minHeight: 25,
-        maxHeight: 25,
         childrenLayoutFunction: "none",
     },
     // This function has no input, body and output conatiners (so direct manualPositioning)
@@ -70,7 +59,6 @@ var containerTypeProperties = {
         paddingBottom: 15,
         paddingLeft: 15,
         paddingRight: 15,
-        paddingBetweenChildren: 30,
         childrenLayoutFunction: "manualPositioning",
     },
     /*
@@ -84,9 +72,6 @@ var containerTypeProperties = {
         paddingLeft: 20,
         paddingRight: 20,
         paddingBetweenChildren: 20,
-        minWidth: 200,
-        minHeight: 50,
-        maxHeight: 1500,
         childrenLayoutFunction: "horizontalLeftToRight",
     },
     */
@@ -103,17 +88,11 @@ var containerTypeProperties = {
         showContainerBody: true,
         containerColor: {r: 210, g: 230, b: 255, a: 1},
         containerBorderColor: {r: 180, g: 200, b: 255, a: 1},
-        showContainerIcon: false,
         showContainerText: true,
-        connectOutgoingTo: "right",
-        connectIncomingTo: "left",
         paddingTop: 10,
         paddingBottom: 10,
         paddingLeft: 10,
         paddingRight: 10,
-        minWidth: 25,
-        minHeight: 25,
-        maxHeight: 25,
         childrenLayoutFunction: "none",
     },
     primitiveFunction: {
@@ -127,9 +106,6 @@ var containerTypeProperties = {
         paddingLeft: 20,
         paddingRight: 20,
         paddingBetweenChildren: 20,
-        minWidth: 200,
-        minHeight: 50,
-        maxHeight: 1500,
         childrenLayoutFunction: "horizontalLeftToRight",
         dataItemGroups: {
             basicInfo: [
@@ -139,22 +115,112 @@ var containerTypeProperties = {
             ]
         }
     },
+    ifMainWrapper: {
+        drawContainer: true,
+        showContainerBody: false,
+        containerColor: {r: 240, g: 240, b: 240, a: 1},
+        containerBorderColor: {r: 230, g: 230, b: 200, a: 0},
+        childrenLayoutFunction: "verticalTopToBottom",
+    },
+    ifMainHeader: {
+        drawContainer: true,
+        isSelectable: false,   // FIXME: workaround to make it possible to move a ifMainWrapper!
+        showContainerBody: true,
+        containerColor: {r: 210, g: 230, b: 255, a: 1},
+        containerBorderColor: {r: 180, g: 200, b: 255, a: 1},
+        showContainerText: true,
+        paddingTop: 10,
+        paddingBottom: 10,
+        paddingLeft: 10,
+        paddingRight: 10,
+        childrenLayoutFunction: "none",
+    },
+    ifMain: {
+        drawContainer: true,
+        isSelectable: true,   // FIXME: workaround to make it possible to move a ifMainWrapper!
+        showContainerBody: true,
+        containerColor: {r: 255, g: 255, b: 240, a: 1},
+        containerBorderColor: {r: 240, g: 240, b: 220, a: .8},
+        paddingTop: 15,
+        paddingBottom: 15,
+        paddingLeft: 15,
+        paddingRight: 15,
+        childrenLayoutFunction: "manualPositioning",
+    },
+    ifCondWrapper: {
+        drawContainer: true,
+        showContainerBody: false,
+        containerColor: {r: 240, g: 240, b: 240, a: 1},
+        containerBorderColor: {r: 230, g: 230, b: 200, a: 0},
+        childrenLayoutFunction: "verticalTopToBottom",
+    },
+    ifCondHeader: {
+        drawContainer: true,
+        isSelectable: false,   // FIXME: workaround to make it possible to move a ifCondWrapper!
+        showContainerBody: true,
+        containerColor: {r: 210, g: 230, b: 255, a: 1},
+        containerBorderColor: {r: 180, g: 200, b: 255, a: 1},
+        showContainerText: true,
+        paddingTop: 10,
+        paddingBottom: 10,
+        paddingLeft: 10,
+        paddingRight: 10,
+        childrenLayoutFunction: "none",
+    },
+    ifCond: {
+        drawContainer: true,
+        isSelectable: true,   // FIXME: workaround to make it possible to move a ifCondWrapper!
+        showContainerBody: true,
+        containerColor: {r: 240, g: 240, b: 240, a: 1},
+        containerBorderColor: {r: 230, g: 230, b: 230, a: 0},
+        paddingTop: 15,
+        paddingBottom: 15,
+        paddingLeft: 15,
+        paddingRight: 15,
+        childrenLayoutFunction: "manualPositioning",
+    },
+    ifThenWrapper: {
+        drawContainer: true,
+        showContainerBody: false,
+        containerColor: {r: 240, g: 240, b: 240, a: 1},
+        containerBorderColor: {r: 230, g: 230, b: 200, a: 0},
+        childrenLayoutFunction: "verticalTopToBottom",
+    },
+    ifThenHeader: {
+        drawContainer: true,
+        isSelectable: false,   // FIXME: workaround to make it possible to move a ifThenWrapper!
+        showContainerBody: true,
+        containerColor: {r: 210, g: 230, b: 255, a: 1},
+        containerBorderColor: {r: 180, g: 200, b: 255, a: 1},
+        showContainerText: true,
+        paddingTop: 10,
+        paddingBottom: 10,
+        paddingLeft: 10,
+        paddingRight: 10,
+        childrenLayoutFunction: "none",
+    },
+    ifThen: {
+        drawContainer: true,
+        isSelectable: true,   // FIXME: workaround to make it possible to move a ifThenWrapper!
+        showContainerBody: true,
+        containerColor: {r: 240, g: 240, b: 240, a: 1},
+        containerBorderColor: {r: 230, g: 230, b: 230, a: 0},
+        paddingTop: 15,
+        paddingBottom: 15,
+        paddingLeft: 15,
+        paddingRight: 15,
+        childrenLayoutFunction: "manualPositioning",
+    },
     variable: {
         drawContainer: true,
         showContainerBody: true,
         containerColor: {r: 210, g: 230, b: 255, a: 1},
         containerBorderColor: {r: 180, g: 200, b: 255, a: 1},
-        showContainerIcon: false,
         showContainerText: true,
-        connectOutgoingTo: "right",
-        connectIncomingTo: "left",
         paddingTop: 10,
         paddingBottom: 10,
         paddingLeft: 10,
         paddingRight: 10,
-        minWidth: 25,
-        minHeight: 25,
-        maxHeight: 25,
         childrenLayoutFunction: "none",
         dataItemGroups: {
             basicInfo: [
@@ -169,17 +235,11 @@ var containerTypeProperties = {
         showContainerBody: true,
         containerColor: {r: 255, g: 230, b: 230, a: 1},
         containerBorderColor: {r: 255, g: 200, b: 180, a: 1},
-        showContainerIcon: false,
         showContainerText: true,
-        connectOutgoingTo: "right",
-        connectIncomingTo: "left",
         paddingTop: 10,
         paddingBottom: 10,
         paddingLeft: 10,
         paddingRight: 10,
-        minWidth: 25,
-        minHeight: 25,
-        maxHeight: 25,
         childrenLayoutFunction: "none",
         dataItemGroups: {
             basicInfo: [
@@ -188,30 +248,6 @@ var containerTypeProperties = {
                 { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" }
             ]
         }
-    },
-    input: {
-        drawContainer: true,
-        showContainerBody: true,
-        containerColor: {r: 240, g: 240, b: 240, a: 1},
-        containerBorderColor: {r: 230, g: 230, b: 200, a: 0},
-        paddingTop: 15,
-        paddingBottom: 15,
-        paddingLeft: 15,
-        paddingRight: 15,
-        paddingBetweenChildren: 15,
-        childrenLayoutFunction: "verticalTopToBottom",
-    },
-    output: {
-        drawContainer: true,
-        showContainerBody: true,
-        containerColor: {r: 240, g: 240, b: 240, a: 1},
-        containerBorderColor: {r: 230, g: 230, b: 230, a: 0},
-        paddingTop: 15,
-        paddingBottom: 15,
-        paddingLeft: 15,
-        paddingRight: 15,
-        paddingBetweenChildren: 15,
-        childrenLayoutFunction: "verticalTopToBottom",
     },
 }
 var connectionTypeProperties = {
@@ -320,6 +356,19 @@ function convertFlowDataToZUIContainers (world, flowData) {
         }
         else if (flowElement.type === 'constant') {
             containerText = flowElement.value
+        }
+        else if (flowElement.type === 'ifCond') {
+            addHeader = true
+            headerText = flowElement.name
+        }
+        else if (flowElement.type === 'ifThen') {
+            addHeader = true
+            headerText = flowElement.name
+        }
+        else if (flowElement.type === 'ifMain') {
+            addHeader = true
+            // containerText = flowElement.name
+            headerText = flowElement.name
         }
         else if (flowElement.type === 'primitiveFunction') {
             addHeader = true

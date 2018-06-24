@@ -399,8 +399,7 @@ function flowifyFunction ($functionStatement, $varsInScope, &$functionsInScope, 
 function flowifyIfStatement($ifStatement, &$varsInScope, &$functionsInScope, &$parentFlowElement) {
     
     $astNodeIdentifier = getAstNodeIdentifier($ifStatement);
-    // FIXME: this should be a flowElement of the type 'if(-body)' (right?) now using placeholder 'function'.
-    $ifFlowElement = createFlowElement('function', 'if', null, $astNodeIdentifier);
+    $ifFlowElement = createFlowElement('ifMain', 'if', null, $astNodeIdentifier);
     
     // echo print_r($ifStatement, true);
 
@@ -412,9 +411,9 @@ function flowifyIfStatement($ifStatement, &$varsInScope, &$functionsInScope, &$p
         // FIXME: we can't really use $conditionExpression here! since it's ALSO used by the expression itself (in this case the BinOpGreater expression)
         //        to fix this, there has to be a special visual attribute INSIDE the if-visual info containing the position of the COND-part
         //        This would ALSO solve the problem if the THEN-clause positioning BTW!
+        
         $astNodeIdentifier = getAstNodeIdentifier($conditionExpression);
-        // FIXME: this should be a flowElement of the type 'condition' (right?) now using placeholder 'function'.
-        $condFlowElement = createFlowElement('function', 'cond', null, $astNodeIdentifier);
+        $condFlowElement = createFlowElement('ifCond', 'cond', null, $astNodeIdentifier);
         
         $flowElement = flowifyExpression($conditionExpression, $varsInScope, $localFunctions, $condFlowElement);
         
@@ -431,11 +430,11 @@ function flowifyIfStatement($ifStatement, &$varsInScope, &$functionsInScope, &$p
         
         // FIXME: HACK: we currently don't get positions from all the statements in the the-body,
         //              so we now use the positional info from FIRST statement (UGLY)
-        $astNodeIdentifier = getAstNodeIdentifier($thenStatements[0]);
-        // FIXME: this should be a flowElement of the type 'then-body' (right?) now using placeholder 'function'.
-        $thenBodyFlowElement = createFlowElement('function', 'then', null, $astNodeIdentifier);
         
-        // FIXME: we don't have a return statement in then-bodies, so we call it $noReturnFlowElement (but we shouldn't get it at all)
+        $astNodeIdentifier = getAstNodeIdentifier($thenStatements[0]);
+        $thenBodyFlowElement = createFlowElement('ifThen', 'then', null, $astNodeIdentifier);
+        
+        // TODO: we don't have a return statement in then-bodies, so we call it $noReturnFlowElement here (but we shouldn't get it at all)
         $noReturnFlowElement = flowifyStatements($thenStatements, $varsInScope, $functionsInScope, $thenBodyFlowElement);
 
         addFlowElementToParent($thenBodyFlowElement, $ifFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $thenBodyFlowElement, so changes to it will not be in the parent!
