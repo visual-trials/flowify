@@ -77,28 +77,34 @@ function flowifyPhpAndAttachVisualInfo($fileToFlowifyWithoutExtention)
 
 function flowifyProgram($statements) {
     
-    $varsInScope = [];
-    $functionsInScope = [];
+    // $varsInScope = [];
+    // $functionsInScope = [];
 
     $astNodeIdentifier = getAstNodeIdentifier(null);
 
     $rootFlowElement = createFlowElement('root', 'root', null, $astNodeIdentifier);
 
     // TODO: should we do anything with the return value of the main function?
-    $noReturnFlowElement = flowifyStatements($statements, $varsInScope, $functionsInScope, $rootFlowElement);
+    $noReturnFlowElement = flowifyStatements($statements, /* $varsInScope, $functionsInScope,*/ $rootFlowElement);
     
     return $rootFlowElement;
 }
     
-function flowifyStatements ($statements, $varsInScope, &$functionsInScope, &$bodyFlowElement) {
+function flowifyStatements ($statements, /*$varsInScope, &$functionsInScope,*/ &$bodyFlowElement) {
 
+    // TODO: is this correct???
+    // $bodyFlowElement['varsInScope'] = [];
+    // $bodyFlowElement['functionsInScope'] = [];
+    $varsInScope = &$bodyFlowElement['varsInScope'];
+    $functionsInScope = &$bodyFlowElement['functionsInScope'];
+    
     // Note: we made $varsInScope a non-ref in flowifyStatements(), but it still is a ref in flowifyExpression().
     //       We assume that the functionBody (with it arguments as extra local vars) should not change $varsInScope,
     //       but flowifyExpression should. Is this correct?
 
     $returnFlowElement = null;
 
-    $localFunctions = [];
+    // $localFunctions = [];
 
     // 1)    First find all defined functions, so we known the nodes of them, when they are called
     foreach ($statements as $statement) {
@@ -109,7 +115,8 @@ function flowifyStatements ($statements, $varsInScope, &$functionsInScope, &$bod
             $identifierNode = $statement['name']; // TODO: we are assuming 'name' is always present
 
             if ($identifierNode['nodeType'] === 'Identifier') {
-                $localFunctions[$identifierNode['name']] = $statement;
+                // $localFunctions[$identifierNode['name']] = $statement;
+                $functionsInScope[$identifierNode['name']] = $statement;
             }
             else {
                 echo "Found '" . $identifierNode['nodeType'] . "' as nodeType inside 'name' of 'Stmt_Function'\n";
@@ -131,7 +138,7 @@ function flowifyStatements ($statements, $varsInScope, &$functionsInScope, &$bod
 
             $expression = $statement['expr'];
 
-            $flowElement = flowifyExpression($expression, $varsInScope, $localFunctions, $bodyFlowElement);
+            $flowElement = flowifyExpression($expression, /*$varsInScope, $localFunctions,*/ $bodyFlowElement);
 
             if ($statementType === 'Stmt_Return') {
                 $returnFlowElement = $flowElement;
@@ -139,7 +146,7 @@ function flowifyStatements ($statements, $varsInScope, &$functionsInScope, &$bod
         }
         else if($statementType === 'Stmt_If') {
             
-            flowifyIfStatement($statement, $varsInScope, $localFunctions, $bodyFlowElement);
+            flowifyIfStatement($statement, /*$varsInScope, $localFunctions,*/ $bodyFlowElement);
             
         }
         else {
@@ -153,8 +160,12 @@ function flowifyStatements ($statements, $varsInScope, &$functionsInScope, &$bod
     return $returnFlowElement;
 }
 
-function flowifyExpression ($expression, &$varsInScope, &$functionsInScope, &$parentFlowElement) {  // TODO: should &$functionsInScope really be an argument by reference?
+function flowifyExpression ($expression, /*&$varsInScope, &$functionsInScope,*/ &$parentFlowElement) {  
+    // TODO: should &$functionsInScope really be an argument by reference?
 
+    $varsInScope = &$parentFlowElement['varsInScope'];
+    $functionsInScope = &$parentFlowElement['functionsInScope'];
+    
     $expressionType = $expression['nodeType'];
 
     $flowElement = null;
@@ -179,8 +190,8 @@ function flowifyExpression ($expression, &$varsInScope, &$functionsInScope, &$pa
         $leftExpression = $expression['left'];
         $rightExpression = $expression['right'];
 
-        $leftFlow = flowifyExpression($leftExpression, $varsInScope, $functionsInScope, $parentFlowElement);
-        $rightFlow = flowifyExpression($rightExpression, $varsInScope, $functionsInScope, $parentFlowElement);
+        $leftFlow = flowifyExpression($leftExpression, /*$varsInScope, $functionsInScope,*/ $parentFlowElement);
+        $rightFlow = flowifyExpression($rightExpression, /*$varsInScope, $functionsInScope,*/ $parentFlowElement);
 
         $flowElement = createAndAddFlowElementToParent('primitiveFunction', '+', null, $astNodeIdentifier, $parentFlowElement);
 
@@ -191,8 +202,8 @@ function flowifyExpression ($expression, &$varsInScope, &$functionsInScope, &$pa
         $leftExpression = $expression['left'];
         $rightExpression = $expression['right'];
 
-        $leftFlow = flowifyExpression($leftExpression, $varsInScope, $functionsInScope, $parentFlowElement);
-        $rightFlow = flowifyExpression($rightExpression, $varsInScope, $functionsInScope, $parentFlowElement);
+        $leftFlow = flowifyExpression($leftExpression, /*$varsInScope, $functionsInScope,*/ $parentFlowElement);
+        $rightFlow = flowifyExpression($rightExpression, /*$varsInScope, $functionsInScope,*/ $parentFlowElement);
 
         $flowElement = createAndAddFlowElementToParent('primitiveFunction', '*', null, $astNodeIdentifier, $parentFlowElement);
 
@@ -203,8 +214,8 @@ function flowifyExpression ($expression, &$varsInScope, &$functionsInScope, &$pa
         $leftExpression = $expression['left'];
         $rightExpression = $expression['right'];
 
-        $leftFlow = flowifyExpression($leftExpression, $varsInScope, $functionsInScope, $parentFlowElement);
-        $rightFlow = flowifyExpression($rightExpression, $varsInScope, $functionsInScope, $parentFlowElement);
+        $leftFlow = flowifyExpression($leftExpression, /*$varsInScope, $functionsInScope,*/ $parentFlowElement);
+        $rightFlow = flowifyExpression($rightExpression, /*$varsInScope, $functionsInScope,*/ $parentFlowElement);
 
         $flowElement = createAndAddFlowElementToParent('primitiveFunction', '/', null, $astNodeIdentifier, $parentFlowElement);
 
@@ -215,8 +226,8 @@ function flowifyExpression ($expression, &$varsInScope, &$functionsInScope, &$pa
         $leftExpression = $expression['left'];
         $rightExpression = $expression['right'];
 
-        $leftFlow = flowifyExpression($leftExpression, $varsInScope, $functionsInScope, $parentFlowElement);
-        $rightFlow = flowifyExpression($rightExpression, $varsInScope, $functionsInScope, $parentFlowElement);
+        $leftFlow = flowifyExpression($leftExpression, /*$varsInScope, $functionsInScope,*/ $parentFlowElement);
+        $rightFlow = flowifyExpression($rightExpression, /*$varsInScope, $functionsInScope,*/ $parentFlowElement);
 
         $flowElement = createAndAddFlowElementToParent('primitiveFunction', '>', null, $astNodeIdentifier, $parentFlowElement);
 
@@ -241,7 +252,7 @@ function flowifyExpression ($expression, &$varsInScope, &$functionsInScope, &$pa
 
         $assignExpression = $expression['expr'];
 
-        $flowAssign = flowifyExpression($assignExpression, $varsInScope, $functionsInScope, $parentFlowElement);
+        $flowAssign = flowifyExpression($assignExpression, /*$varsInScope, $functionsInScope,*/ $parentFlowElement);
 
         $flowElement = createAndAddFlowElementToParent('variable', $variableName, null, $astNodeIdentifier, $parentFlowElement);
 
@@ -272,7 +283,7 @@ function flowifyExpression ($expression, &$varsInScope, &$functionsInScope, &$pa
             if ($callArgument['nodeType'] === 'Arg') {
                 if (array_key_exists('value', $callArgument)) {
                     $callArgumentExpression = $callArgument['value'];
-                    $flowCallArgument = flowifyExpression($callArgumentExpression, $varsInScope, $functionsInScope, $parentFlowElement);
+                    $flowCallArgument = flowifyExpression($callArgumentExpression, /*$varsInScope, $functionsInScope,*/ $parentFlowElement);
                     array_push($flowCallArguments, $flowCallArgument);
                 }
                 else {
@@ -299,7 +310,7 @@ function flowifyExpression ($expression, &$varsInScope, &$functionsInScope, &$pa
             // Flowify the body of the functions (including the return value) and use that  return value as our own output
             // FIXME: what if function has no return value? Should we return a null-flowElement?
             $localVars = [];  // FIXME: what should we pass as localVars to the called function?
-            $flowElement = flowifyFunction($functionStatement, $localVars, $functionsInScope, $flowCallArguments, $functionCallFlowElement);
+            $flowElement = flowifyFunction($functionStatement, /*$localVars, $functionsInScope,*/ $flowCallArguments, $functionCallFlowElement);
 
             addFlowElementToParent($functionCallFlowElement, $parentFlowElement);  // Note: do not call this before flowifyFunction, because this COPIES $flowFunctionCallElement, so changes to it will not be in the parent!
         }
@@ -327,8 +338,16 @@ function flowifyExpression ($expression, &$varsInScope, &$functionsInScope, &$pa
     return $flowElement;
 }
 
-function flowifyFunction ($functionStatement, $varsInScope, &$functionsInScope, $flowCallArguments, &$functionCallFlowElement) { // TODO: should &$functionsInScope really be an argument by reference?
+function flowifyFunction ($functionStatement, /*$varsInScope, &$functionsInScope,*/ $flowCallArguments, &$functionCallFlowElement) { 
 
+    // TODO: should &$functionsInScope really be an argument by reference?
+    
+    // Is this correct??
+    $functionCallFlowElement['varsInScope'] = [];
+    $functionCallFlowElement['functionsInScope'] = [];
+    $varsInScope = &$functionCallFlowElement['varsInScope'];
+    $functionsInScope = &$functionCallFlowElement['functionsInScope'];
+    
     // Note: we made $varsInScope a non-ref in flowifyFunction(), but it still is a ref in flowifyExpression().
     //       We assume that the functionBody (with it arguments as extra local vars) should not change $varsInScope,
     //       but flowifyExpression should. Is this correct?
@@ -390,7 +409,7 @@ function flowifyFunction ($functionStatement, $varsInScope, &$functionsInScope, 
     // OR WITHOUT BODY:
     //    - Everything should be inside the function-call (no input/body/output)
     // TODO: don't we need the astNodeIdentifier of the functionStatement for some visualInfo?
-    $returnFlowElement = flowifyStatements($statements, $varsInScope, $functionsInScope, $functionCallFlowElement);
+    $returnFlowElement = flowifyStatements($statements, /*$varsInScope, $functionsInScope,*/ $functionCallFlowElement);
 
     // addFlowElementToParent($functionBodyFlowElement, $functionCallFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $functionBodyFlowElement, so changes to it will not be in the parent!
 
@@ -398,7 +417,10 @@ function flowifyFunction ($functionStatement, $varsInScope, &$functionsInScope, 
 
 }
 
-function flowifyIfStatement($ifStatement, &$varsInScope, &$functionsInScope, &$parentFlowElement) {
+function flowifyIfStatement($ifStatement, /*&$varsInScope, &$functionsInScope,*/ &$parentFlowElement) {
+    
+    $varsInScope = &$parentFlowElement['varsInScope'];
+    $functionsInScope = &$parentFlowElement['functionsInScope'];
     
     $astNodeIdentifier = getAstNodeIdentifier($ifStatement);
     $ifFlowElement = createFlowElement('ifMain', 'if', null, $astNodeIdentifier);
@@ -417,7 +439,10 @@ function flowifyIfStatement($ifStatement, &$varsInScope, &$functionsInScope, &$p
         $astNodeIdentifier = getAstNodeIdentifier($conditionExpression);
         $condFlowElement = createFlowElement('ifCond', 'cond', null, $astNodeIdentifier);
         
-        $flowElement = flowifyExpression($conditionExpression, $varsInScope, $localFunctions, $condFlowElement);
+        // FIXME: we should do this when creating the FlowElement (getting these from the parent, or better: referring to the parent from within the child)
+        $condFlowElement['varsInScope'] = &$varsInScope;
+        $condFlowElement['functionsInScope'] = &$functionsInScope;
+        $flowElement = flowifyExpression($conditionExpression, /*$varsInScope, $localFunctions,*/ $condFlowElement);
         
         // TODO: the flowElement coming from the conditionExpression is a boolean and determines 
         //       whether the then-statements or the else(if)-statements are executed. How to should
@@ -436,8 +461,11 @@ function flowifyIfStatement($ifStatement, &$varsInScope, &$functionsInScope, &$p
         $astNodeIdentifier = getAstNodeIdentifier($thenStatements[0]);
         $thenBodyFlowElement = createFlowElement('ifThen', 'then', null, $astNodeIdentifier);
         
+        $thenBodyFlowElement['varsInScope'] = &$varsInScope;
+        $thenBodyFlowElement['functionsInScope'] = &$functionsInScope;
+        
         // TODO: we don't have a return statement in then-bodies, so we call it $noReturnFlowElement here (but we shouldn't get it at all)
-        $noReturnFlowElement = flowifyStatements($thenStatements, $varsInScope, $functionsInScope, $thenBodyFlowElement);
+        $noReturnFlowElement = flowifyStatements($thenStatements, /*$varsInScope, $functionsInScope,*/ $thenBodyFlowElement);
 
         addFlowElementToParent($thenBodyFlowElement, $ifFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $thenBodyFlowElement, so changes to it will not be in the parent!
         
