@@ -160,6 +160,11 @@ function flowifyStatements ($statements, /*$varsInScope, &$functionsInScope,*/ &
     return $returnFlowElement;
 }
 
+function isAssoc(array $arr) {
+    if (array() === $arr) return false;
+    return array_keys($arr) !== range(0, count($arr) - 1);
+}    
+
 function flowifyExpression ($expression, /*&$varsInScope, &$functionsInScope,*/ &$parentFlowElement) {  
     // TODO: should &$functionsInScope really be an argument by reference?
 
@@ -177,7 +182,12 @@ function flowifyExpression ($expression, /*&$varsInScope, &$functionsInScope,*/ 
         $name = $expression['name'];
         if (array_key_exists($name, $varsInScope)) {
             // TODO: in the beginning of flowifyExpression you should check if it's a variable. If it already exists, you should return a ref to the flow object representing that variable (AT THAT POINT, because it could be overwritten)
-            $flowElement = &$varsInScope[$name]; // FIXME: you might want to duplicate certain flow-elements, if they are used inside another function for example (as input-vars)
+            if (!isAssoc($varsInScope[$name])) {
+                $flowElement = &$varsInScope[$name];
+            }
+            else {
+                $flowElement = &$varsInScope[$name]; // FIXME: you might want to duplicate certain flow-elements, if they are used inside another function for example (as input-vars)
+            }
         }
         else {
             $flowElement = createAndAddFlowElementToParent('variable', $name, null, $astNodeIdentifier, $parentFlowElement);
@@ -195,8 +205,15 @@ function flowifyExpression ($expression, /*&$varsInScope, &$functionsInScope,*/ 
 
         $flowElement = createAndAddFlowElementToParent('primitiveFunction', '+', null, $astNodeIdentifier, $parentFlowElement);
 
+        // FIXME: PLACEHOLDER!
         addFlowConnection($leftFlow, $flowElement);
-        addFlowConnection($rightFlow, $flowElement);
+        if (!isAssoc($rightFlow)) {
+            addFlowConnection($rightFlow[0], $flowElement);
+            addFlowConnection($rightFlow[1], $flowElement);
+        }
+        else {
+            addFlowConnection($rightFlow, $flowElement);
+        }
     }
     else if ($expressionType === 'Expr_BinaryOp_Mul') {
         $leftExpression = $expression['left'];
@@ -258,7 +275,14 @@ function flowifyExpression ($expression, /*&$varsInScope, &$functionsInScope,*/ 
 
         addFlowConnection($flowAssign, $flowElement);
 
-        $varsInScope[$variableName] = $flowElement;
+        // FIXME: PLACEHOLDER!
+        if (array_key_exists($variableName, $varsInScope)) {
+            $firstFlowElement = $varsInScope[$variableName]; // FIXME: this assumes there is only ONE in here!
+            $varsInScope[$variableName] = [$firstFlowElement, $flowElement];
+        }
+        else {
+            $varsInScope[$variableName] = $flowElement;
+        }
     }
     else if ($expressionType === 'Expr_FuncCall') {
 
@@ -537,7 +561,7 @@ function stripScope (&$flowElement) {
         unset($flowElement['functionsInScope']);
     }
     if (array_key_exists('children', $flowElement)) {
-        foreach ($parentFlowElement['children'] as &$childFlowElement) {
+        foreach ($flowElement['children'] as &$childFlowElement) {
             stripScope($childFlowElement);
         }
     }    
