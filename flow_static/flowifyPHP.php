@@ -45,6 +45,8 @@ function flowifyPhpAndAttachVisualInfo($fileToFlowifyWithoutExtention)
 
     $rootFlowElement = flowifyProgram($statements);
     
+    stripScope($rootFlowElement);
+    
     $usedVisualInfos = [];
     extendFlowElementsWithVisualInfo($rootFlowElement, $visualInfos, $usedVisualInfos);
 
@@ -469,7 +471,7 @@ function addFlowElementToParent (&$flowElement, &$parentFlowElement) {
     array_push($parentFlowElement['children'], $flowElement);
 }
 
-function createFlowElement ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $canHaveChildren = true) {
+function createFlowElement ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $canHaveChildren = true, $hasScope = true) {
 
     global $flowContainerId;
 
@@ -482,16 +484,33 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
         $flowElement['children'] = [];
     }
     $flowElement['astNodeIdentifier'] = $astNodeIdentifier;
+    
+    if ($hasScope) {
+        $flowElement['varsInScope'] = [];
+        $flowElement['functionsInScope'] = [];
+    }
 
     return $flowElement;
 }
 
-function createAndAddFlowElementToParent ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, &$parentFlowElement, $canHaveChildren = false) {
+function createAndAddFlowElementToParent ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, &$parentFlowElement, $canHaveChildren = false, $hasScope = false) {
 
-    $flowElement = createFlowElement ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $canHaveChildren);
+    $flowElement = createFlowElement ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $canHaveChildren, $hasScope);
     addFlowElementToParent($flowElement, $parentFlowElement);
 
     return $flowElement;
 }
 
-
+function stripScope (&$flowElement) {
+    if (array_key_exists('varsInScope', $flowElement)) {
+        unset($flowElement['varsInScope']);
+    }
+    if (array_key_exists('functionsInScope', $flowElement)) {
+        unset($flowElement['functionsInScope']);
+    }
+    if (array_key_exists('children', $flowElement)) {
+        foreach ($parentFlowElement['children'] as &$childFlowElement) {
+            stripScope($childFlowElement);
+        }
+    }    
+}
