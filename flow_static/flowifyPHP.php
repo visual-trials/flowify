@@ -43,23 +43,10 @@ function flowifyPhpAndAttachVisualInfo($fileToFlowifyWithoutExtention)
     
     $statements = getAstFromPhpCode($code);
 
-    // TODO: START NEW FUNCTION HERE: flowifyProgram($statements)
-
-    $varsInScope = [];
-    $functionsInScope = [];
-
-    $astNodeIdentifier = getAstNodeIdentifier(null);
-
-    $flowElement = createFlowElement('root', 'root', null, $astNodeIdentifier);
-
-    // TODO: should we do anything with the return value of the main function?
-    $returnFlowElement = flowifyStatements($statements, $varsInScope, $functionsInScope, $flowElement);
-    
-    // TODO: END NEW FUNCTION HERE
-
+    $rootFlowElement = flowifyProgram($statements);
     
     $usedVisualInfos = [];
-    extendFlowElementsWithVisualInfo($flowElement, $visualInfos, $usedVisualInfos);
+    extendFlowElementsWithVisualInfo($rootFlowElement, $visualInfos, $usedVisualInfos);
 
     // TODO: If we use at least part of the nr of visualInfos we had, we store it (think of something better!)
     if (count($visualInfos) > 0 && count($usedVisualInfos) / count($visualInfos) > 0.5) {
@@ -69,7 +56,7 @@ function flowifyPhpAndAttachVisualInfo($fileToFlowifyWithoutExtention)
 
     $flowifiedPhp = [];
     $flowifiedPhp['code'] = explode("\n", $code);;
-    $flowifiedPhp['containers'] = $flowElement;
+    $flowifiedPhp['containers'] = $rootFlowElement;
     $flowifiedPhp['connections'] = $flowConnections;
     $flowifiedPhp['statements'] = $statements;
     $flowifiedPhp['visualInfos'] = $visualInfos;
@@ -86,6 +73,21 @@ function flowifyPhpAndAttachVisualInfo($fileToFlowifyWithoutExtention)
     return $flowifiedPhp;
 }
 
+function flowifyProgram($statements) {
+    
+    $varsInScope = [];
+    $functionsInScope = [];
+
+    $astNodeIdentifier = getAstNodeIdentifier(null);
+
+    $rootFlowElement = createFlowElement('root', 'root', null, $astNodeIdentifier);
+
+    // TODO: should we do anything with the return value of the main function?
+    $noReturnFlowElement = flowifyStatements($statements, $varsInScope, $functionsInScope, $rootFlowElement);
+    
+    return $rootFlowElement;
+}
+    
 function flowifyStatements ($statements, $varsInScope, &$functionsInScope, &$bodyFlowElement) {
 
     // Note: we made $varsInScope a non-ref in flowifyStatements(), but it still is a ref in flowifyExpression().
