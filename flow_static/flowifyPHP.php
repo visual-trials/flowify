@@ -157,7 +157,7 @@ function flowifyFunction ($functionStatement, $varsInScope, &$functionsInScope, 
 
 }
 
-function flowifyStatements ($statements, &$varsInScope, &$functionsInScope, &$bodyFlowElement) {
+function flowifyStatements ($statements, $varsInScope, &$functionsInScope, &$bodyFlowElement) {
 
     // Note: we made $varsInScope a non-ref in flowifyStatements(), but it still is a ref in flowifyExpression().
     //       We assume that the functionBody (with it arguments as extra local vars) should not change $varsInScope,
