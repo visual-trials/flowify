@@ -86,77 +86,6 @@ function flowifyPhpAndAttachVisualInfo($fileToFlowifyWithoutExtention)
     return $flowifiedPhp;
 }
 
-function flowifyFunction ($functionStatement, $varsInScope, &$functionsInScope, $flowCallArguments, &$functionCallFlowElement) { // TODO: should &$functionsInScope really be an argument by reference?
-
-    // Note: we made $varsInScope a non-ref in flowifyFunction(), but it still is a ref in flowifyExpression().
-    //       We assume that the functionBody (with it arguments as extra local vars) should not change $varsInScope,
-    //       but flowifyExpression should. Is this correct?
-
-    $functionName = $functionCallFlowElement['name'];
-    
-    // NO BODY $astNodeIdentifier = getAstNodeIdentifier($functionStatement); // FIXME: shouldnt this be attached to the 'stmts' inside the $functionStatement? Also see 'stmts' in the if-statement (similar problem)
-    // NO BODY $functionBodyFlowElement = createFlowElement('body', null, null, $astNodeIdentifier);
-
-    $argumentNumber = 0;
-    foreach ($flowCallArguments as $flowCallArgument) {
-
-        $parameters = $functionStatement['params'];
-        // FIXME: there might be optional arguments...
-        if (count($parameters) === count($flowCallArguments)) { // TODO: this is checked for every argument (= redundant)
-            $parameter = $parameters[$argumentNumber];
-
-            $parameterVar = $parameter['var'];
-
-            $parameterName = null;
-            if ($parameterVar['nodeType'] === 'Expr_Variable') {
-                $parameterName = $parameterVar['name'];
-            }
-            else {
-                die("Found" . $parameterVar['nodeType'] . " as nodeType inside 'var' of param\n");
-            }
-
-            // FIXME: the $astNodeIdentifier should be based on the attributes of that AST-element!) That way each parameter will have it's own proper $astNodeIdentifier
-            $astNodeIdentifier = getAstNodeIdentifier($parameterVar);
-
-            // FIXME: we should put all input-parameters inside an 'input' container
-
-            // Adding the parameter to the function
-            // NO BODY $parameterFlowElement = createAndAddFlowElementToParent('variable', $parameterName, null, $astNodeIdentifier, $functionBodyFlowElement);
-            $parameterFlowElement = createAndAddFlowElementToParent('variable', $parameterName, null, $astNodeIdentifier, $functionCallFlowElement);
-
-            // Connecting the callArgument (outside the function) to the parameter (inside the function)
-            addFlowConnection($flowCallArgument, $parameterFlowElement);
-
-            // Setting the parameter as a local var within the function body
-            $varsInScope[$parameterName] = $parameterFlowElement;
-
-        }
-        else {
-            die("The number of call arguments for function $functionName is different from the number of arguments inside the function!\n");
-        }
-
-        $argumentNumber++;
-    }
-
-    $statements = $functionStatement['stmts'];
-
-    // WITH BODY: maybe make this work: 
-    //    - the parameters should be in the function-input
-    //    - the statements should be in the function-body
-    //    - the return variable(s) should be in the function-output
-    // $returnFlowElement = flowifyStatements($statements, $varsInScope, $functionsInScope, $functionBodyFlowElement);
-
-    // OR WITHOUT BODY:
-    //    - Everything should be inside the function-call (no input/body/output)
-    // TODO: don't we need the astNodeIdentifier of the functionStatement for some visualInfo?
-    $returnFlowElement = flowifyStatements($statements, $varsInScope, $functionsInScope, $functionCallFlowElement);
-
-    // addFlowElementToParent($functionBodyFlowElement, $functionCallFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $functionBodyFlowElement, so changes to it will not be in the parent!
-
-    return $returnFlowElement;
-
-}
-
 function flowifyStatements ($statements, $varsInScope, &$functionsInScope, &$bodyFlowElement) {
 
     // Note: we made $varsInScope a non-ref in flowifyStatements(), but it still is a ref in flowifyExpression().
@@ -218,68 +147,6 @@ function flowifyStatements ($statements, $varsInScope, &$functionsInScope, &$bod
     }
 
     return $returnFlowElement;
-}
-
-function flowifyIfStatement($ifStatement, &$varsInScope, &$functionsInScope, &$parentFlowElement) {
-    
-    $astNodeIdentifier = getAstNodeIdentifier($ifStatement);
-    // FIXME: this should be a flowElement of the type 'if(-body)' (right?) now using placeholder 'function'.
-    $ifFlowElement = createFlowElement('function', 'if', null, $astNodeIdentifier);
-    
-    // echo print_r($ifStatement, true);
-
-    {
-        // == COND ==
-        
-        $conditionExpression = $ifStatement['cond'];
-        
-        // FIXME: we can't really use $conditionExpression here! since it's ALSO used by the expression itself (in this case the BinOpGreater expression)
-        //        to fix this, there has to be a special visual attribute INSIDE the if-visual info containing the position of the COND-part
-        //        This would ALSO solve the problem if the THEN-clause positioning BTW!
-        $astNodeIdentifier = getAstNodeIdentifier($conditionExpression);
-        // FIXME: this should be a flowElement of the type 'condition' (right?) now using placeholder 'function'.
-        $condFlowElement = createFlowElement('function', 'cond', null, $astNodeIdentifier);
-        
-        $flowElement = flowifyExpression($conditionExpression, $varsInScope, $localFunctions, $condFlowElement);
-        
-        // TODO: the flowElement coming from the conditionExpression is a boolean and determines 
-        //       whether the then-statements or the else(if)-statements are executed. How to should
-        //       we visualize this?
-        
-        addFlowElementToParent($condFlowElement, $ifFlowElement);  // Note: do not call this before flowifyExpression, because this COPIES $condFlowElement, so changes to it will not be in the parent!
-        
-        
-        // == THEN ==
-        
-        $thenStatements = $ifStatement['stmts'];
-        
-        // FIXME: HACK: we currently don't get positions from all the statements in the the-body,
-        //              so we now use the positional info from FIRST statement (UGLY)
-        $astNodeIdentifier = getAstNodeIdentifier($thenStatements[0]);
-        // FIXME: this should be a flowElement of the type 'then-body' (right?) now using placeholder 'function'.
-        $thenBodyFlowElement = createFlowElement('function', 'then', null, $astNodeIdentifier);
-        
-        // FIXME: we don't have a return statement in then-bodies, so we call it $noReturnFlowElement (but we shouldn't get it at all)
-        $noReturnFlowElement = flowifyStatements($thenStatements, $varsInScope, $functionsInScope, $thenBodyFlowElement);
-
-        addFlowElementToParent($thenBodyFlowElement, $ifFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $thenBodyFlowElement, so changes to it will not be in the parent!
-        
-        
-        // == ELSE ==
-        
-        // TODO: $elseStatements = $ifStatement['else']
-        
-        // TODO: even if the else statement does'nt exist, the else-flowElements has to be created!
-        
-        
-        // == ELSEIF ==
-        
-        // TODO: $elseIfStatements = $ifStatement['elseif']
-
-    }                
-    
-    addFlowElementToParent($ifFlowElement, $parentFlowElement);  // Note: do not call this before the calls to the other addFlowElementToParent, because this COPIES $ifFlowElement, so changes to it will not be in the parent!
-    
 }
 
 function flowifyExpression ($expression, &$varsInScope, &$functionsInScope, &$parentFlowElement) {  // TODO: should &$functionsInScope really be an argument by reference?
@@ -454,6 +321,139 @@ function flowifyExpression ($expression, &$varsInScope, &$functionsInScope, &$pa
     // FIXME: if no elements found/created, do this?            $flowElement['name'] = '<unknown>';
 
     return $flowElement;
+}
+
+function flowifyFunction ($functionStatement, $varsInScope, &$functionsInScope, $flowCallArguments, &$functionCallFlowElement) { // TODO: should &$functionsInScope really be an argument by reference?
+
+    // Note: we made $varsInScope a non-ref in flowifyFunction(), but it still is a ref in flowifyExpression().
+    //       We assume that the functionBody (with it arguments as extra local vars) should not change $varsInScope,
+    //       but flowifyExpression should. Is this correct?
+
+    $functionName = $functionCallFlowElement['name'];
+    
+    // NO BODY $astNodeIdentifier = getAstNodeIdentifier($functionStatement); // FIXME: shouldnt this be attached to the 'stmts' inside the $functionStatement? Also see 'stmts' in the if-statement (similar problem)
+    // NO BODY $functionBodyFlowElement = createFlowElement('body', null, null, $astNodeIdentifier);
+
+    $argumentNumber = 0;
+    foreach ($flowCallArguments as $flowCallArgument) {
+
+        $parameters = $functionStatement['params'];
+        // FIXME: there might be optional arguments...
+        if (count($parameters) === count($flowCallArguments)) { // TODO: this is checked for every argument (= redundant)
+            $parameter = $parameters[$argumentNumber];
+
+            $parameterVar = $parameter['var'];
+
+            $parameterName = null;
+            if ($parameterVar['nodeType'] === 'Expr_Variable') {
+                $parameterName = $parameterVar['name'];
+            }
+            else {
+                die("Found" . $parameterVar['nodeType'] . " as nodeType inside 'var' of param\n");
+            }
+
+            // FIXME: the $astNodeIdentifier should be based on the attributes of that AST-element!) That way each parameter will have it's own proper $astNodeIdentifier
+            $astNodeIdentifier = getAstNodeIdentifier($parameterVar);
+
+            // FIXME: we should put all input-parameters inside an 'input' container
+
+            // Adding the parameter to the function
+            // NO BODY $parameterFlowElement = createAndAddFlowElementToParent('variable', $parameterName, null, $astNodeIdentifier, $functionBodyFlowElement);
+            $parameterFlowElement = createAndAddFlowElementToParent('variable', $parameterName, null, $astNodeIdentifier, $functionCallFlowElement);
+
+            // Connecting the callArgument (outside the function) to the parameter (inside the function)
+            addFlowConnection($flowCallArgument, $parameterFlowElement);
+
+            // Setting the parameter as a local var within the function body
+            $varsInScope[$parameterName] = $parameterFlowElement;
+
+        }
+        else {
+            die("The number of call arguments for function $functionName is different from the number of arguments inside the function!\n");
+        }
+
+        $argumentNumber++;
+    }
+
+    $statements = $functionStatement['stmts'];
+
+    // WITH BODY: maybe make this work: 
+    //    - the parameters should be in the function-input
+    //    - the statements should be in the function-body
+    //    - the return variable(s) should be in the function-output
+    // $returnFlowElement = flowifyStatements($statements, $varsInScope, $functionsInScope, $functionBodyFlowElement);
+
+    // OR WITHOUT BODY:
+    //    - Everything should be inside the function-call (no input/body/output)
+    // TODO: don't we need the astNodeIdentifier of the functionStatement for some visualInfo?
+    $returnFlowElement = flowifyStatements($statements, $varsInScope, $functionsInScope, $functionCallFlowElement);
+
+    // addFlowElementToParent($functionBodyFlowElement, $functionCallFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $functionBodyFlowElement, so changes to it will not be in the parent!
+
+    return $returnFlowElement;
+
+}
+
+function flowifyIfStatement($ifStatement, &$varsInScope, &$functionsInScope, &$parentFlowElement) {
+    
+    $astNodeIdentifier = getAstNodeIdentifier($ifStatement);
+    // FIXME: this should be a flowElement of the type 'if(-body)' (right?) now using placeholder 'function'.
+    $ifFlowElement = createFlowElement('function', 'if', null, $astNodeIdentifier);
+    
+    // echo print_r($ifStatement, true);
+
+    {
+        // == COND ==
+        
+        $conditionExpression = $ifStatement['cond'];
+        
+        // FIXME: we can't really use $conditionExpression here! since it's ALSO used by the expression itself (in this case the BinOpGreater expression)
+        //        to fix this, there has to be a special visual attribute INSIDE the if-visual info containing the position of the COND-part
+        //        This would ALSO solve the problem if the THEN-clause positioning BTW!
+        $astNodeIdentifier = getAstNodeIdentifier($conditionExpression);
+        // FIXME: this should be a flowElement of the type 'condition' (right?) now using placeholder 'function'.
+        $condFlowElement = createFlowElement('function', 'cond', null, $astNodeIdentifier);
+        
+        $flowElement = flowifyExpression($conditionExpression, $varsInScope, $localFunctions, $condFlowElement);
+        
+        // TODO: the flowElement coming from the conditionExpression is a boolean and determines 
+        //       whether the then-statements or the else(if)-statements are executed. How to should
+        //       we visualize this?
+        
+        addFlowElementToParent($condFlowElement, $ifFlowElement);  // Note: do not call this before flowifyExpression, because this COPIES $condFlowElement, so changes to it will not be in the parent!
+        
+        
+        // == THEN ==
+        
+        $thenStatements = $ifStatement['stmts'];
+        
+        // FIXME: HACK: we currently don't get positions from all the statements in the the-body,
+        //              so we now use the positional info from FIRST statement (UGLY)
+        $astNodeIdentifier = getAstNodeIdentifier($thenStatements[0]);
+        // FIXME: this should be a flowElement of the type 'then-body' (right?) now using placeholder 'function'.
+        $thenBodyFlowElement = createFlowElement('function', 'then', null, $astNodeIdentifier);
+        
+        // FIXME: we don't have a return statement in then-bodies, so we call it $noReturnFlowElement (but we shouldn't get it at all)
+        $noReturnFlowElement = flowifyStatements($thenStatements, $varsInScope, $functionsInScope, $thenBodyFlowElement);
+
+        addFlowElementToParent($thenBodyFlowElement, $ifFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $thenBodyFlowElement, so changes to it will not be in the parent!
+        
+        
+        // == ELSE ==
+        
+        // TODO: $elseStatements = $ifStatement['else']
+        
+        // TODO: even if the else statement does'nt exist, the else-flowElements has to be created!
+        
+        
+        // == ELSEIF ==
+        
+        // TODO: $elseIfStatements = $ifStatement['elseif']
+
+    }                
+    
+    addFlowElementToParent($ifFlowElement, $parentFlowElement);  // Note: do not call this before the calls to the other addFlowElementToParent, because this COPIES $ifFlowElement, so changes to it will not be in the parent!
+    
 }
 
 // Helper functions

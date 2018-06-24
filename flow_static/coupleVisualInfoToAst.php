@@ -2,42 +2,6 @@
 
 require "../../lib/bootstrap_PhpParser.php";
 
-function getAstFromPhpCode($code) {
-    
-    $lexer = new PhpParser\Lexer\Emulative(['usedAttributes' => [
-        'startLine', 'endLine', 'startFilePos', 'endFilePos', 'comments'
-    ]]);
-    $parser = (new PhpParser\ParserFactory)->create(
-        PhpParser\ParserFactory::PREFER_PHP7,
-        $lexer
-    );
-
-    /*
-    $tokensWithPosInfo = [];
-    $tokenValue = null;
-    $tokenStartAttributes = null;
-    $tokenEndAttributes = null;
-
-    $lexer->startLexing($code);
-    $tokenId = $lexer->getNextToken($tokenValue, $tokenStartAttributes, $tokenEndAttributes);
-    $tokensWithPosInfo[] = $tokenValue;
-    $tokensWithPosInfo[] = $tokenStartAttributes;
-    $tokensWithPosInfo[] = $tokenEndAttributes;
-    */
-
-    try {
-        $stmts = $parser->parse($code);
-        $tokens = $lexer->getTokens();
-    } catch (PhpParser\Error $error) {
-        die($error->getMessage() . "\n");  // $error->getMessageWithColumnInfo($code)
-    }
-
-    $statementsJSON = json_encode($stmts, JSON_PRETTY_PRINT);
-    $statements = json_decode($statementsJSON, true);
-
-    return $statements;
-}
-
 function updateAndGetCodeAndVisualInfoForFile($fileToFlowifyWithoutExtention) {
     
     // TODO: the order of the coordinates is now by AST-order, not by horizontal position in the line
@@ -90,6 +54,42 @@ function updateAndGetCodeAndVisualInfoForFile($fileToFlowifyWithoutExtention) {
     
     return array($code, $visualInfos);
     
+}
+
+function getAstFromPhpCode($code) {
+    
+    $lexer = new PhpParser\Lexer\Emulative(['usedAttributes' => [
+        'startLine', 'endLine', 'startFilePos', 'endFilePos', 'comments'
+    ]]);
+    $parser = (new PhpParser\ParserFactory)->create(
+        PhpParser\ParserFactory::PREFER_PHP7,
+        $lexer
+    );
+
+    /*
+    $tokensWithPosInfo = [];
+    $tokenValue = null;
+    $tokenStartAttributes = null;
+    $tokenEndAttributes = null;
+
+    $lexer->startLexing($code);
+    $tokenId = $lexer->getNextToken($tokenValue, $tokenStartAttributes, $tokenEndAttributes);
+    $tokensWithPosInfo[] = $tokenValue;
+    $tokensWithPosInfo[] = $tokenStartAttributes;
+    $tokensWithPosInfo[] = $tokenEndAttributes;
+    */
+
+    try {
+        $stmts = $parser->parse($code);
+        $tokens = $lexer->getTokens();
+    } catch (PhpParser\Error $error) {
+        die($error->getMessage() . "\n");  // $error->getMessageWithColumnInfo($code)
+    }
+
+    $statementsJSON = json_encode($stmts, JSON_PRETTY_PRINT);
+    $statements = json_decode($statementsJSON, true);
+
+    return $statements;
 }
 
 function extendFlowElementsWithVisualInfo (&$flowElement, &$visualInfos, &$usedVisualInfos) {
