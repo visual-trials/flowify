@@ -269,30 +269,30 @@ var reloadWorld = function (world) {
     xmlhttp.send()
 }
 
-var extendWorldContainerWithVisualInfo = function (worldContainer, flowContainer) {
-    if (flowContainer.hasOwnProperty("x")) {
-        worldContainer.manualPosition.x = flowContainer.x
+var extendWorldContainerWithVisualInfo = function (worldContainer, flowElement) {
+    if (flowElement.hasOwnProperty("x")) {
+        worldContainer.manualPosition.x = flowElement.x
     }
-    if (flowContainer.hasOwnProperty("y")) {
-        worldContainer.manualPosition.y = flowContainer.y
+    if (flowElement.hasOwnProperty("y")) {
+        worldContainer.manualPosition.y = flowElement.y
     }
-    if (flowContainer.hasOwnProperty("isPositionOf")) {
-        worldContainer.manualPosition.isPositionOf = flowContainer.isPositionOf
+    if (flowElement.hasOwnProperty("isPositionOf")) {
+        worldContainer.manualPosition.isPositionOf = flowElement.isPositionOf
     }
     else {
         worldContainer.manualPosition.isPositionOf = "center"  // FIXME: should this not simply be stored? (and not rely on the default of the engine! or some hardcoded value here!)
     }
-    if (flowContainer.hasOwnProperty("width")) {
-        worldContainer.manualSize.width = flowContainer.width
+    if (flowElement.hasOwnProperty("width")) {
+        worldContainer.manualSize.width = flowElement.width
     }
-    if (flowContainer.hasOwnProperty("height")) {
-        worldContainer.manualSize.height = flowContainer.height
+    if (flowElement.hasOwnProperty("height")) {
+        worldContainer.manualSize.height = flowElement.height
     }
-    if (flowContainer.hasOwnProperty("relativeScale")) {
-        worldContainer.manualRelativeScale = flowContainer.relativeScale
+    if (flowElement.hasOwnProperty("relativeScale")) {
+        worldContainer.manualRelativeScale = flowElement.relativeScale
     }
 
-    worldContainer.containerData.astNodeIdentifier = flowContainer.astNodeIdentifier
+    worldContainer.containerData.astNodeIdentifier = flowElement.astNodeIdentifier
 }
 
 function convertFlowDataToZUIContainers (world, flowData) {
@@ -304,9 +304,9 @@ function convertFlowDataToZUIContainers (world, flowData) {
     // 3) Copy (this is copy of the element)
     // 4) Conversion (this is the element, changed by some operation)
 
-    var addContainersToWorld = function (world, parentWorldContainer, flowContainer) {
+    var addContainersToWorld = function (world, parentWorldContainer, flowElement) {
 
-        var containerType = flowContainer.type  // FIXME: check if it exists!
+        var containerType = flowElement.type  // FIXME: check if it exists!
 
         var overrulingContainerProperties = {}
         var containerText = null
@@ -315,29 +315,29 @@ function convertFlowDataToZUIContainers (world, flowData) {
         var overrulingHeaderProperties = {}
         var headerText = null
 
-        if (flowContainer.type === 'variable') {
-            containerText = flowContainer.name
+        if (flowElement.type === 'variable') {
+            containerText = flowElement.name
         }
-        else if (flowContainer.type === 'constant') {
-            containerText = flowContainer.value
+        else if (flowElement.type === 'constant') {
+            containerText = flowElement.value
         }
-        else if (flowContainer.type === 'primitiveFunction') {
+        else if (flowElement.type === 'primitiveFunction') {
             addHeader = true
-            headerText = flowContainer.name
+            headerText = flowElement.name
         }
-        else if (flowContainer.type === 'function') {
+        else if (flowElement.type === 'function') {
             addHeader = true
-            headerText = flowContainer.name
+            headerText = flowElement.name
         }
-        else if (flowContainer.type === 'root') {
+        else if (flowElement.type === 'root') {
             containerText = 'root'
         }
 
         if (addHeader) {
-            var worldContainerWrapper = ZUI.addWorldContainer(world, parentWorldContainer, flowContainer.id + '_Wrapper', containerType + 'Wrapper')
+            var worldContainerWrapper = ZUI.addWorldContainer(world, parentWorldContainer, flowElement.id + '_Wrapper', containerType + 'Wrapper')
 
             // FIXME: we are adding position AND size here, but we only need to add one of them!
-            extendWorldContainerWithVisualInfo(worldContainerWrapper, flowContainer)
+            extendWorldContainerWithVisualInfo(worldContainerWrapper, flowElement)
 
             parentWorldContainer = worldContainerWrapper
 
@@ -347,17 +347,17 @@ function convertFlowDataToZUIContainers (world, flowData) {
             overrulingHeaderProperties.containerBorderColor = containerProperties.containerBorderColor
 
             overrulingHeaderProperties.containerText = headerText
-            var worldContainerHeader = ZUI.addWorldContainer(world, parentWorldContainer, flowContainer.id + '_Header', containerType + 'Header', overrulingHeaderProperties)
+            var worldContainerHeader = ZUI.addWorldContainer(world, parentWorldContainer, flowElement.id + '_Header', containerType + 'Header', overrulingHeaderProperties)
 
             overrulingContainerProperties.containerColor = {r: 250, g: 250, b: 250, a: 1}
             overrulingContainerProperties.containerBorderColor = {r: 150, g: 150, b: 150, a: 0.1}
             overrulingContainerProperties.containerText = '' // FIXME: simply don't draw the text?
             // overrulingContainerProperties.containerText = containerText
 
-            var worldContainer = ZUI.addWorldContainer(world, parentWorldContainer, flowContainer.id, containerType, overrulingContainerProperties)
+            var worldContainer = ZUI.addWorldContainer(world, parentWorldContainer, flowElement.id, containerType, overrulingContainerProperties)
 
             // FIXME: we are adding position AND size here, but we only need to add one of them!
-            extendWorldContainerWithVisualInfo(worldContainer, flowContainer)
+            extendWorldContainerWithVisualInfo(worldContainer, flowElement)
             // TODO: resetting the manualRelativeScale to one, since the wrapper already got the relativeScale (is there a nicer way of doing this?)
             worldContainer.manualRelativeScale = 1
 
@@ -365,32 +365,32 @@ function convertFlowDataToZUIContainers (world, flowData) {
         else {
             overrulingContainerProperties.containerText = containerText
             
-            var worldContainer = ZUI.addWorldContainer(world, parentWorldContainer, flowContainer.id, containerType, overrulingContainerProperties)
+            var worldContainer = ZUI.addWorldContainer(world, parentWorldContainer, flowElement.id, containerType, overrulingContainerProperties)
 
-            extendWorldContainerWithVisualInfo(worldContainer, flowContainer)
+            extendWorldContainerWithVisualInfo(worldContainer, flowElement)
 
         }
 
-        if (flowContainer.hasOwnProperty('children')) {
-            for (var loopIndex = 0; loopIndex < flowContainer.children.length; loopIndex++) {
-                var childContainer = flowContainer.children[loopIndex]
-                addContainersToWorld(world, worldContainer, childContainer)
+        if (flowElement.hasOwnProperty('children')) {
+            for (var loopIndex = 0; loopIndex < flowElement.children.length; loopIndex++) {
+                var childFlowElement = flowElement.children[loopIndex]
+                addContainersToWorld(world, worldContainer, childFlowElement)
             }
         }
     }
 
     ZUI.clearWorldContent(world)
 
-    var rootContainer = flowData.containers
-    var connections = flowData.connections
+    var rootFlowElement = flowData.rootFlowElement
+    var flowConnections = flowData.flowConnections
 
-    addContainersToWorld(world, null, rootContainer)
+    addContainersToWorld(world, null, rootFlowElement)
 
-    for (loopIndex = 0; loopIndex < connections.length; loopIndex++) {
-        var connection = connections[loopIndex]
+    for (loopIndex = 0; loopIndex < flowConnections.length; loopIndex++) {
+        var flowConnection = flowConnections[loopIndex]
 
         // TODO: connection.type?
-        ZUI.addWorldConnection(world, connection.from, connection.to, 'dataFlow')
+        ZUI.addWorldConnection(world, flowConnection.from, flowConnection.to, 'dataFlow')
     }
 
 }

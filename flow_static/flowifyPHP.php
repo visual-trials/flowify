@@ -56,8 +56,8 @@ function flowifyPhpAndAttachVisualInfo($fileToFlowifyWithoutExtention)
 
     $flowifiedPhp = [];
     $flowifiedPhp['code'] = explode("\n", $code);;
-    $flowifiedPhp['containers'] = $rootFlowElement;
-    $flowifiedPhp['connections'] = $flowConnections;
+    $flowifiedPhp['rootFlowElement'] = $rootFlowElement;
+    $flowifiedPhp['flowConnections'] = $flowConnections;
     $flowifiedPhp['statements'] = $statements;
     $flowifiedPhp['visualInfos'] = $visualInfos;
     $flowifiedPhp['usedVisualInfos'] = $usedVisualInfos;
