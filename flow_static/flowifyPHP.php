@@ -182,6 +182,12 @@ function flowifyExpression ($expression, /*&$varsInScope, &$functionsInScope,*/ 
         $name = $expression['name'];
         if (array_key_exists($name, $varsInScope)) {
             // TODO: in the beginning of flowifyExpression you should check if it's a variable. If it already exists, you should return a ref to the flow object representing that variable (AT THAT POINT, because it could be overwritten)
+            
+            // FIXME: in varsInScope there should always be an array (usually of 1).
+            //        if it containes more than 1, then we want to collapse them into one here (connecting with all of them)
+            //        BUT we want to add connection-points at all the places where they have a "common ground"
+            //        We probably also want to add connection-points back-steam: in an else-statement for example, maybe even create an else statement if it wasn't there yet?)
+            // FIXME: get rid of isAssoc!
             if (!isAssoc($varsInScope[$name])) {
                 $flowElement = &$varsInScope[$name];
             }
@@ -207,6 +213,9 @@ function flowifyExpression ($expression, /*&$varsInScope, &$functionsInScope,*/ 
 
         // FIXME: PLACEHOLDER!
         addFlowConnection($leftFlow, $flowElement);
+        // FIXME: this should never happen
+        //        OR
+        //        We should let addFlowConnection resolve this
         if (!isAssoc($rightFlow)) {
             addFlowConnection($rightFlow[0], $flowElement);
             addFlowConnection($rightFlow[1], $flowElement);
