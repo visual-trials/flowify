@@ -171,7 +171,7 @@ function flowifyExpression ($expression, &$parentFlowElement) {
             // TODO: in the beginning of flowifyExpression you should check if it's a variable. 
             //       If it already exists, you should return a ref to the flow object representing that variable (AT THAT POINT, because it could be overwritten)
             
-            // Note: this could be a conditionalFlowElement (containing multiple flowElements inside it)
+            // Note: this could be a conditionalFlowElement (containing multiple flowElements)
             $flowElement = &$varsInScope[$name];
         }
         else {
@@ -451,32 +451,44 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
         $astNodeIdentifier = getAstNodeIdentifier($thenStatements[0]);
         $thenBodyFlowElement = createFlowElement('ifThen', 'then', null, $astNodeIdentifier);
         
-        // Note: we COPY the varsInScope here. This is because the thenBody might replace vars in it's scope,
-        //       These are however CONDITIONALLY replace when it comes the the if-statement. 
-        //       Instead of the then-state letting the var be replaced, we ADD it to our varsInScope
-        $thenBodyFlowElement['varsInScope'] = $varsInScope;
+        // Note: we *copy* the varsInScope here. This is because the thenBody might replace vars in it's scope,
+        //       These are however conditional-replacement when it comes the the if-statement. 
+        //       Instead of the thenBody letting the vars in the if-scope to be replaced, we *add* it later to our varsInScope,
+        //       by using a conditionalFlowElement.
+        
+        $thenBodyFlowElement['varsInScope'] = $varsInScope;  // copy!
         $thenBodyFlowElement['functionsInScope'] = &$functionsInScope;
         
         // TODO: we don't have a return statement in then-bodies, so we call it $noReturnFlowElement here (but we shouldn't get it at all)
-        $noReturnFlowElement = flowifyStatements($thenStatements, /*$varsInScope, $functionsInScope,*/ $thenBodyFlowElement);
+        $noReturnFlowElement = flowifyStatements($thenStatements, $thenBodyFlowElement);
 
-        // We check if there have been any vars replaced inside the then-statement. If so, we add it to our scope
+        // We loop through all the varsInScope of the thenBody
         foreach ($thenBodyFlowElement['varsInScope'] as $variableName => $thenBodyVarInScopeElement) {
+            
             // TODO: we are comparing the varsInScope from then thenBodyFlowElement and the parentFlowElement. 
             //       But shouldn't we compare with the varsInScope from the $ifFlowElement?
+            
+            // We check if we have the same variable in our (if) scope
             if (array_key_exists($variableName, $parentFlowElement['varsInScope'])) {
-                // The var exists both in thenBodyFlowElement and in parentFlowElement
+                
+                // This means: the var exists both in thenBodyFlowElement and in our own scope
+                
+                // We check if it's the same variable (if not, it's been replaced) by comaring their ids
                 if ($thenBodyFlowElement['varsInScope'][$variableName]['id'] !== $parentFlowElement['varsInScope'][$variableName]['id']) {
-                    // The vars differ, so it must have been replaced (or extended) inside the then-body. That means we add it.
+                    // The vars differ, so it must have been replaced (or extended) inside the thenBody. That means we add it by using a conditionalFlowElement.
                     
                     // TODO: what if: $thenBodyFlowElement['varsInScope'][$variableName]['type'] === 'conditionalFlowElement'
-                    // TODO: what if: $parentFlowElement['varsInScope'][$variableName]['type'] === 'conditionalFlowElement'
-                    
-                    if ($parentFlowElement['varsInScope'][$variableName]['type'] !== 'conditionalFlowElement') {
-                        $existingFlowElement = $parentFlowElement['varsInScope'][$variableName];
-                        $parentFlowElement['varsInScope'][$variableName] = createConditionalFlowElement();
-                        addFlowElementToConditionalFlowElement($parentFlowElement['varsInScope'][$variableName], $existingFlowElement);
-                    }
+                    // Answer: probably ok. We just need to keep in mind you can get conditionalFlowElements inside conditionalFlowElements (especially when adding connections)
+
+                    // TODO: what if: $parentFlowElement['varsInScope'][$variableName]['type'] === 'conditionalFlowElement'                        
+                    // Answer: probably ok. It's just that we already got a conditional, now it's more conditional.
+
+                    // FIXME: wait before we have the elseBodyFlowElement, then check if that also has the variable. 
+                    //        If so, overwrite the one in the parent/if entirely.
+                    //        If not, we add the one from the thenBody as the first, the one from the parent as the second.
+                    $existingFlowElement = $parentFlowElement['varsInScope'][$variableName];  // copy!
+                    $parentFlowElement['varsInScope'][$variableName] = createConditionalFlowElement();
+                    addFlowElementToConditionalFlowElement($parentFlowElement['varsInScope'][$variableName], $existingFlowElement);
                     addFlowElementToConditionalFlowElement($parentFlowElement['varsInScope'][$variableName], $thenBodyFlowElement['varsInScope'][$variableName]);
                 }
             }
@@ -531,6 +543,9 @@ function addFlowElementToParent (&$flowElement, &$parentFlowElement) {
 }
 
 function createConditionalFlowElement () {
+    
+    global $flowElementId;
+
     $conditionalFlowElement = [];
     $conditionalFlowElement['id'] = $flowElementId++;
     $conditionalFlowElement['type'] = 'conditionalFlowElement';
