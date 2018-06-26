@@ -415,8 +415,6 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
     $astNodeIdentifier = getAstNodeIdentifier($ifStatement);
     $ifFlowElement = createFlowElement('ifMain', 'if', null, $astNodeIdentifier);
     
-    // echo print_r($ifStatement, true);
-
     {
         // == COND ==
         
@@ -445,14 +443,14 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
         
         $thenStatements = $ifStatement['stmts'];
         
-        // FIXME: HACK: we currently don't get positions from all the statements in the the-body,
+        // FIXME: HACK: we currently don't get positions from all the statements in the then-body,
         //              so we now use the positional info from FIRST statement (UGLY)
         
         $astNodeIdentifier = getAstNodeIdentifier($thenStatements[0]);
         $thenBodyFlowElement = createFlowElement('ifThen', 'then', null, $astNodeIdentifier);
         
         // Note: we *copy* the varsInScope here. This is because the thenBody might replace vars in it's scope,
-        //       These are however conditional-replacement when it comes the the if-statement. 
+        //       These are however conditional-replacement when it comes to the if-statement. 
         //       Instead of the thenBody letting the vars in the if-scope to be replaced, we *add* it later to our varsInScope,
         //       by using a conditionalFlowElement.
         
@@ -461,55 +459,132 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
         
         // TODO: we don't have a return statement in then-bodies, so we call it $noReturnFlowElement here (but we shouldn't get it at all)
         $noReturnFlowElement = flowifyStatements($thenStatements, $thenBodyFlowElement);
-
-        // We loop through all the varsInScope of the thenBody
-        foreach ($thenBodyFlowElement['varsInScope'] as $variableName => $thenBodyVarInScopeElement) {
-            
-            // TODO: we are comparing the varsInScope from then thenBodyFlowElement and the parentFlowElement. 
-            //       But shouldn't we compare with the varsInScope from the $ifFlowElement?
-            
-            // We check if we have the same variable in our (if) scope
-            if (array_key_exists($variableName, $parentFlowElement['varsInScope'])) {
-                
-                // This means: the var exists both in thenBodyFlowElement and in our own scope
-                
-                // We check if it's the same variable (if not, it's been replaced) by comaring their ids
-                if ($thenBodyFlowElement['varsInScope'][$variableName]['id'] !== $parentFlowElement['varsInScope'][$variableName]['id']) {
-                    // The vars differ, so it must have been replaced (or extended) inside the thenBody. That means we add it by using a conditionalVariableFlowElement.
-                    
-                    // TODO: what if: $thenBodyFlowElement['varsInScope'][$variableName]['type'] === 'conditionalFlowElement'
-                    // Answer: probably ok. We just need to keep in mind you can get conditionalFlowElements inside conditionalFlowElements (especially when adding connections)
-
-                    // TODO: what if: $parentFlowElement['varsInScope'][$variableName]['type'] === 'conditionalFlowElement'                        
-                    // Answer: probably ok. It's just that we already got a conditional, now it's more conditional.
-
-                    // FIXME: wait before we have the elseBodyFlowElement, then check if that also has the variable. 
-                    //        If so, overwrite the one in the parent/if entirely.
-                    //        If not, we add the one from the thenBody as the first, the one from the parent as the second.
-                    $thenVariableFlowElement = $thenBodyFlowElement['varsInScope'][$variableName];  // copy!
-                    $elseVariableFlowElement = $parentFlowElement['varsInScope'][$variableName];  // copy!
-                    $parentFlowElement['varsInScope'][$variableName] = createConditionalVariableElement($thenVariableFlowElement, $elseVariableFlowElement);
-                }
-            }
-            else {  // the variable exists in the then- statement, but not in the if-statement, so it must have been declared in the then-statement
-            
-                // TODO: depending on the language, variables DECLARED in an then- or else- statement are or are not
-                //       available in the scope outside the then- or else- statement.
-                //       We assume here that the current language has BLOCK-scope, so any newly declared variables
-                //       within the then- or else- statement, are NOT copied back into the if- scope!
-                //       The problem: PHP does not have this kind of scoping behaviour, right? (should investigate)
-                
-            }
-        }
         
         addFlowElementToParent($thenBodyFlowElement, $ifFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $thenBodyFlowElement, so changes to it will not be in the parent!
         
         
         // == ELSE ==
         
-        // TODO: $elseStatements = $ifStatement['else']
+        $elseStatements = $ifStatement['else'];
         
-        // TODO: even if the else statement does'nt exist, the else-flowElements has to be created!
+        $elseBodyFlowElement = null;
+        if ($elseStatements !== null) {
+            // There is an else-statement
+            
+            // FIXME: HACK: we currently don't get positions from all the statements in the else-body,
+            //              so we now use the positional info from FIRST statement (UGLY)
+            
+            $astNodeIdentifier = getAstNodeIdentifier($elseStatements[0]);
+            $elseBodyFlowElement = createFlowElement('ifElse', 'else', null, $astNodeIdentifier);
+            
+            // Note: we *copy* the varsInScope here. This is because the elseBody might replace vars in it's scope,
+            //       These are however conditional-replacement when it comes to the if-statement. 
+            //       Instead of the elseBody letting the vars in the if-scope to be replaced, we *add* it later to our varsInScope,
+            //       by using a conditionalFlowElement.
+            
+            $elseBodyFlowElement['varsInScope'] = $varsInScope;  // copy!
+            $elseBodyFlowElement['functionsInScope'] = &$functionsInScope;
+            
+            // TODO: we don't have a return statement in then-bodies, so we call it $noReturnFlowElement here (but we shouldn't get it at all)
+            $noReturnFlowElement = flowifyStatements($elseStatements, $elseBodyFlowElement);
+            
+            addFlowElementToParent($elseBodyFlowElement, $ifFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $thenBodyFlowElement, so changes to it will not be in the parent!
+        }
+
+        
+        // Note: we are comparing the varsInScope from the parentFlowElement with the varsInScope of the then/elseBodyFlowElement. 
+        //       We don't compare with the varsInScope of the ifFlowElement, because its only a wrapper-element, and doesn't contain varsInScope
+        
+        $varsInScopeParent = &$parentFlowElement['varsInScope'];
+        $varsInScopeThenBody = &$thenBodyFlowElement['varsInScope'];
+        $varsInScopeElseBody = [];
+        if ($elseBodyFlowElement !== null) {
+            $varsInScopeElseBody = &$elseBodyFlowElement['varsInScope'];
+        }
+
+        // We loop through all the varsInScope of the parentFlowElement
+        foreach ($varsInScopeParent as $variableName => $parentVarInScopeElement) {
+            
+            $varReplacedInThenBody = false;
+            $varReplacedInElseBody = false;
+            
+            // We check if we have the same variable in our thenBody scope
+            if (array_key_exists($variableName, $varsInScopeThenBody)) {
+                // The var exists both in thenBodyFlowElement and in the parent's scope
+                if ($varsInScopeThenBody[$variableName]['id'] !== $varsInScopeParent[$variableName]['id']) {
+                    // The vars differ, so it must have been replaced (or extended) inside the thenBody. 
+                    $varReplacedInThenBody = true;
+                }
+            }
+            
+            // We check if we have the same variable in our elseBody scope
+            if (array_key_exists($variableName, $varsInScopeElseBody)) {
+                // The var exists both in elseBodyFlowElement and in the parent's scope
+                if ($varsInScopeElseBody[$variableName]['id'] !== $varsInScopeParent[$variableName]['id']) {
+                    // The vars differ, so it must have been replaced (or extended) inside the elseBody. 
+                    $varReplacedInElseBody = true;
+                }
+            }
+            
+            if ($varReplacedInThenBody && $varReplacedInElseBody) {
+                // We overwrite the parent's varInScope and adding them both using a conditionalVariableFlowElement.
+                $thenVariableFlowElement = $varsInScopeThenBody[$variableName];  // copy!
+                $elseVariableFlowElement = $varsInScopeElseBody[$variableName];  // copy!
+                $varsInScopeParent[$variableName] = createConditionalVariableElement($thenVariableFlowElement, $elseVariableFlowElement);
+            }
+            else if ($varReplacedInThenBody) {
+                // Only the thenBody has replaced the variable. We use the parent's variable as the (default) else variable
+                // TODO: add the variable to the elseBody as a PASSTHROUGH variable!
+                //       and maybe add an elseBody if it doesn't exist yet (with type signifying that it doesn't really exist, but it's synthetic)
+                $thenVariableFlowElement = $varsInScopeThenBody[$variableName];  // copy!
+                $elseVariableFlowElement = $varsInScopeParent[$variableName];  // copy!
+                $varsInScopeParent[$variableName] = createConditionalVariableElement($thenVariableFlowElement, $elseVariableFlowElement);
+            }
+            else if ($varReplacedInElseBody) {
+                // Only the elseBody has replaced the variable. We use the parent's variable as the (default) then variable
+                // TODO: add the variable to the thenBody as a PASSTHROUGH variable!
+                $thenVariableFlowElement = $varsInScopeParent[$variableName];  // copy!
+                $elseVariableFlowElement = $varsInScopeElseBody[$variableName];  // copy!
+                $varsInScopeParent[$variableName] = createConditionalVariableElement($thenVariableFlowElement, $elseVariableFlowElement);
+            }
+            else {
+                // The variable wasn't replaced by either the thenBody or the elseBody, so nothing to do here
+            }
+        }
+            
+        foreach ($varsInScopeThenBody as $variableName => $thenBodyVarInScopeElement) {
+            
+            // We check if we have the same variable in our parent's scope
+            if (!array_key_exists($variableName, $varsInScopeParent)) {
+                
+                // the variable exists in the thenBody scope, but not in the parent's scope, so it must have been declared in the thenBody
+            
+                // TODO: depending on the language, variables DECLARED in an then- or else- statement are or are not
+                //       available in the scope outside the then- or else- statement.
+                //       We assume here that the current language has BLOCK-scope, so any newly declared variables
+                //       within the then- or else- statement, are NOT copied back into the if- scope!
+                //       The problem: PHP does not have this kind of scoping behaviour, right? (should investigate)
+            }
+
+        }
+        
+        foreach ($varsInScopeElseBody as $variableName => $elseBodyVarInScopeElement) {
+            
+            // We check if we have the same variable in our parent's scope
+            if (!array_key_exists($variableName, $varsInScopeParent)) {
+                
+                // the variable exists in the elseBody scope, but not in the parent's scope, so it must have been declared in the elseBody
+            
+                // TODO: depending on the language, variables DECLARED in an then- or else- statement are or are not
+                //       available in the scope outside the then- or else- statement.
+                //       We assume here that the current language has BLOCK-scope, so any newly declared variables
+                //       within the then- or else- statement, are NOT copied back into the if- scope!
+                //       The problem: PHP does not have this kind of scoping behaviour, right? (should investigate)
+            }
+
+        }
+        
+        // TODO: what should be done if the SAME variable was declared in the thenBody AND the elseBody, but wasn't present in the parent's scope?
         
         
         // == ELSEIF ==
