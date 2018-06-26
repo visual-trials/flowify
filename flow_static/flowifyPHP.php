@@ -85,7 +85,7 @@ function flowifyProgram($statements) {
     $rootFlowElement = createFlowElement('root', 'root', null, $astNodeIdentifier);
 
     // TODO: should we do anything with the return value of the main function?
-    $noReturnFlowElement = flowifyStatements($statements, /* $varsInScope, $functionsInScope,*/ $rootFlowElement);
+    $noReturnFlowElement = flowifyStatements($statements, $rootFlowElement);
     
     return $rootFlowElement;
 }
