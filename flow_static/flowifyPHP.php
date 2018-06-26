@@ -419,10 +419,9 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
         
         $conditionExpression = $ifStatement['cond'];
         
-        // FIXME: we can't really use $conditionExpression here! since it's ALSO used by the expression itself (in this case the BinOpGreater expression)
-        //        to fix this, there has to be a special visual attribute INSIDE the if-visual info containing the position of the COND-part
-        //        This would ALSO solve the problem if the THEN-clause positioning BTW!
-        
+        // Because the position in the code of $conditionExpression always corresponds to the ifCondition,
+        // we create a separate astNodeIdentifier for the ifCondition by postFixing the identifier of the 
+        // if-statement with "_IfCond". 
         $astCondNodeIdentifier = $astNodeIdentifier . "_IfCond";
         $condFlowElement = createFlowElement('ifCond', 'cond', null, $astCondNodeIdentifier);
         
