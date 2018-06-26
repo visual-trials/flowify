@@ -602,19 +602,47 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
 function addFlowConnection ($fromFlowElement, $toFlowElement) {
     global $flowConnections;
 
-    // TODO: we probably don't want it this way. Want want either of these:
+    // TODO: we probably don't want it this way. We want either of these:
     // 1) place each conditionalVariableFlowElement and connect with it's then- and else- flowElements.
     //    You do this at in the flowifyIfStatement and don't need to know anything in addFlowConnection about conditionalVariable
     // 2) don't place each conditionalVariableFlowElement, but connect with all flowElementa
     //    You do this by recursively get a list of all then- and else- flowElements
-    // FIXME: For now we do 2, but only 1 deep!
+    // TODO: For now we do 2, but 1 is probably the better way
+    
     if ($fromFlowElement['type'] === 'conditionalVariable') {
-        array_push($flowConnections, [ 'from' => $fromFlowElement['then']['id'], 'to' => $toFlowElement['id']]);            
-        array_push($flowConnections, [ 'from' => $fromFlowElement['else']['id'], 'to' => $toFlowElement['id']]);            
+        $fromVariableList = getVariableListRecursively($fromFlowElement);
+        foreach ($fromVariableList as $fromVariableFlowElement) {
+            array_push($flowConnections, [ 'from' => $fromVariableFlowElement['id'], 'to' => $toFlowElement['id']]);
+        }
     }
     else {
         array_push($flowConnections, [ 'from' => $fromFlowElement['id'], 'to' => $toFlowElement['id']]);
     }
+}
+
+function getVariableListRecursively ($conditionalVariableFlowElement) {
+    $variableList = [];
+    
+    $thenFlowElement = $conditionalVariableFlowElement['then'];
+    $elseFlowElement = $conditionalVariableFlowElement['else'];
+    
+    if ($thenFlowElement['type'] === 'conditionalVariable') {
+        $thenVariableList = getVariableListRecursively($thenFlowElement);
+        $variableList = array_merge($variableList, $thenVariableList);
+    }
+    else {
+        array_push($variableList, $thenFlowElement);
+    }
+    
+    if ($elseFlowElement['type'] === 'conditionalVariable') {
+        $elseVariableList = getVariableListRecursively($elseFlowElement);
+        $variableList = array_merge($variableList, $elseVariableList);
+    }
+    else {
+        array_push($variableList, $elseFlowElement);
+    }
+    
+    return $variableList;
 }
 
 function addFlowElementToParent (&$flowElement, &$parentFlowElement) {
