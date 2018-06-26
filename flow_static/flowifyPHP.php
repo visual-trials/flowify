@@ -365,7 +365,6 @@ function flowifyFunction ($functionStatement, $flowCallArguments, &$functionCall
                 die("Found" . $parameterVar['nodeType'] . " as nodeType inside 'var' of param\n");
             }
 
-            // FIXME: the $astNodeIdentifier should be based on the attributes of that AST-element!) That way each parameter will have it's own proper $astNodeIdentifier
             $astNodeIdentifier = getAstNodeIdentifier($parameterVar);
 
             // FIXME: we should put all input-parameters inside an 'input' container
@@ -424,8 +423,8 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
         //        to fix this, there has to be a special visual attribute INSIDE the if-visual info containing the position of the COND-part
         //        This would ALSO solve the problem if the THEN-clause positioning BTW!
         
-        $astNodeIdentifier = getAstNodeIdentifier($conditionExpression);
-        $condFlowElement = createFlowElement('ifCond', 'cond', null, $astNodeIdentifier);
+        $astCondNodeIdentifier = $astNodeIdentifier . "_IfCond";
+        $condFlowElement = createFlowElement('ifCond', 'cond', null, $astCondNodeIdentifier);
         
         // FIXME: we should do this when creating the FlowElement (getting these from the parent, or better: referring to the parent from within the child)
         $condFlowElement['varsInScope'] = &$varsInScope;
