@@ -441,10 +441,7 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
         
         $thenStatements = $ifStatement['stmts'];
         
-        // FIXME: HACK: we currently don't get positions from all the statements in the then-body,
-        //              so we now use the positional info from FIRST statement (UGLY)
-        
-        $astNodeIdentifier = getAstNodeIdentifier($thenStatements[0]);
+        $astNodeIdentifier = getAstNodeIdentifier($thenStatements);
         $thenBodyFlowElement = createFlowElement('ifThen', 'then', null, $astNodeIdentifier);
         
         // Note: we *copy* the varsInScope here. This is because the thenBody might replace vars in it's scope,
@@ -475,10 +472,7 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
             // There is an else-statement, getting the body of statements in it
             $elseStatements = $elseStatement['stmts'];
             
-            // FIXME: HACK: we currently don't get positions from all the statements in the else-body,
-            //              so we now use the positional info from FIRST statement (UGLY)
-            
-            $astNodeIdentifier = getAstNodeIdentifier($elseStatements[0]);
+            $astNodeIdentifier = getAstNodeIdentifier($elseStatements);
             $elseBodyFlowElement = createFlowElement('ifElse', 'else', null, $astNodeIdentifier);
             
             // Note: we *copy* the varsInScope here. This is because the elseBody might replace vars in it's scope,

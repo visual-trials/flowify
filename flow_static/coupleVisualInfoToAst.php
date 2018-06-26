@@ -207,28 +207,43 @@ function getAstNodeIdentifier ($astNode) {
 
     global $code;
 
+    $startAstNode = $astNode;
+    $endAstNode = $astNode;
+    // For statements, you get a list of statements, so we need the start positions of the first statement and the end position of the last statement
+    if ($astNode !== null && !is_assoc($astNode)) {
+        if (count($astNode) > 0) {
+            $startAstNode = $astNode[0];
+            $endAstNode = $astNode[count($astNode) - 1];
+        }
+    }
+    
     $startLine = 0;
     $startingColumnNumber = 0;
     $endLine = 0;
     $endColumnNumber = 0;
 
-    if ($astNode !== null) {
-        if (array_key_exists('attributes', $astNode) && array_key_exists('startLine', $astNode['attributes'] )) {
-            $startLine = $astNode['attributes']['startLine'];
-            $endLine = $astNode['attributes']['endLine'];
-            $startLineCheck = stringPosToLineNumber($code, $astNode['attributes']['startFilePos']);
-            if ($startLine !== $startLineCheck) {
-                die("startLine: '$startLine'' is not equals to startLineCheck: '$startLineCheck''");
+    if ($startAstNode !== null) {
+        if (array_key_exists('attributes', $startAstNode) && array_key_exists('startLine', $startAstNode['attributes'] )) {
+            if (array_key_exists('attributes', $endAstNode) && array_key_exists('startLine', $endAstNode['attributes'] )) {
+                $startLine = $startAstNode['attributes']['startLine'];
+                $endLine = $endAstNode['attributes']['endLine'];
+                $startLineCheck = stringPosToLineNumber($code, $startAstNode['attributes']['startFilePos']);
+                if ($startLine !== $startLineCheck) {
+                    die("startLine: '$startLine'' is not equals to startLineCheck: '$startLineCheck''");
+                }
+                $endLineCheck = stringPosToLineNumber($code, $endAstNode['attributes']['endFilePos']);
+                if ($endLine !== $endLineCheck) {
+                    die("endLine: '$endLine'' is not equals to endLineCheck: '$endLineCheck''");
+                }
+                $startingColumnNumber = stringPosToColumn($code, $startAstNode['attributes']['startFilePos']);
+                $endColumnNumber = stringPosToColumn($code, $endAstNode['attributes']['endFilePos']);
             }
-            $endLineCheck = stringPosToLineNumber($code, $astNode['attributes']['endFilePos']);
-            if ($endLine !== $endLineCheck) {
-                die("endLine: '$endLine'' is not equals to endLineCheck: '$endLineCheck''");
+            else {
+                die("Could not find attributes in node!\n" . print_r($endAstNode, true));
             }
-            $startingColumnNumber = stringPosToColumn($code, $astNode['attributes']['startFilePos']);
-            $endColumnNumber = stringPosToColumn($code, $astNode['attributes']['endFilePos']);
         }
         else {
-            die("Could not find attributes in node!\n" . print_r($astNode, true));
+            die("Could not find attributes in node!\n" . print_r($startAstNode, true));
         }
     }
 
@@ -423,3 +438,10 @@ function findBestNextStep($posX, $posY, &$stringX, &$stringY, $lengthX, $lengthY
 
     return $bestStep;
 }
+
+function is_assoc(array $array)
+{
+    if ([] === $array) return false;
+    return array_keys($array) !== range(0, count($array) - 1);
+}
+
