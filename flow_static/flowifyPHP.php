@@ -143,7 +143,7 @@ function flowifyStatements ($statements, &$bodyFlowElement) {
             
         }
         else {
-            echo "statementType '$statementType' found in function body, but not supported!\n";
+            echo "statementType '".$statementType."' found in function body, but not supported!\n";
             echo print_r($statement, true);
             continue;
         }
@@ -465,11 +465,17 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
         
         // == ELSE ==
         
-        $elseStatements = $ifStatement['else'];
+        $elseStatement = $ifStatement['else'];
         
         $elseBodyFlowElement = null;
-        if ($elseStatements !== null) {
-            // There is an else-statement
+        if ($elseStatement !== null) {
+            
+            if ($elseStatement['nodeType'] !== 'Stmt_Else') {
+                die("Expected nodeType 'Stmt_Else' in else. Not found.");
+            }
+            
+            // There is an else-statement, getting the body of statements in it
+            $elseStatements = $elseStatement['stmts'];
             
             // FIXME: HACK: we currently don't get positions from all the statements in the else-body,
             //              so we now use the positional info from FIRST statement (UGLY)

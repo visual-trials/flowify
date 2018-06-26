@@ -211,6 +211,38 @@ var containerTypeProperties = {
         paddingRight: 15,
         childrenLayoutFunction: "manualPositioning",
     },
+    ifElseWrapper: {
+        drawContainer: true,
+        showContainerBody: false,
+        containerColor: {r: 240, g: 240, b: 240, a: 1},
+        containerBorderColor: {r: 230, g: 230, b: 200, a: 0},
+        childrenLayoutFunction: "verticalTopToBottom",
+    },
+    ifElseHeader: {
+        drawContainer: true,
+        isSelectable: false,   // FIXME: workaround to make it possible to move a ifThenWrapper!
+        showContainerBody: true,
+        containerColor: {r: 210, g: 230, b: 255, a: 1},
+        containerBorderColor: {r: 180, g: 200, b: 255, a: 1},
+        showContainerText: true,
+        paddingTop: 10,
+        paddingBottom: 10,
+        paddingLeft: 10,
+        paddingRight: 10,
+        childrenLayoutFunction: "none",
+    },
+    ifElse: {
+        drawContainer: true,
+        isSelectable: true,   // FIXME: workaround to make it possible to move a ifThenWrapper!
+        showContainerBody: true,
+        containerColor: {r: 240, g: 240, b: 240, a: 1},
+        containerBorderColor: {r: 230, g: 230, b: 230, a: 0},
+        paddingTop: 15,
+        paddingBottom: 15,
+        paddingLeft: 15,
+        paddingRight: 15,
+        childrenLayoutFunction: "manualPositioning",
+    },
     variable: {
         drawContainer: true,
         showContainerBody: true,
@@ -362,6 +394,10 @@ function convertFlowDataToZUIContainers (world, flowData) {
             headerText = flowElement.name
         }
         else if (flowElement.type === 'ifThen') {
+            addHeader = true
+            headerText = flowElement.name
+        }
+        else if (flowElement.type === 'ifElse') {
             addHeader = true
             headerText = flowElement.name
         }
