@@ -48,7 +48,8 @@
     },
     "7:13-7:33": {
         "x": 690,
-        "y": 90
+        "y": 90,
+        "isPositionOf": "center"
     },
     "7:1-7:33": {
         "x": 820,
@@ -80,11 +81,12 @@
         "isPositionOf": "center"
     },
     "15:7-15:16": {
-        "x": 630,
-        "y": 360,
+        "x": 560,
+        "y": 420,
         "isPositionOf": "center",
         "width": 300,
-        "height": 120
+        "height": 120,
+        "relativeScale": 1
     },
     "19:18-19:29": {
         "x": 70,
@@ -104,8 +106,8 @@
         "y": 320
     },
     "17:6-17:21": {
-        "x": 420,
-        "y": 580,
+        "x": 460,
+        "y": 600,
         "isPositionOf": "center",
         "width": 400,
         "height": 200,

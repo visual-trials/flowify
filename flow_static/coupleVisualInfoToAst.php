@@ -174,7 +174,13 @@ function getVisualInfosForNewPositions($visualInfos, $oldToNewPositions) {
     $newVisualInfos = [];
 
     foreach ($visualInfos as $astNodeIdentifier => $visualInfo) {
-        $fromToParts = explode("-", $astNodeIdentifier);
+        $positionsAndPostFix = explode("_", $astNodeIdentifier);
+        $positions = $positionsAndPostFix[0];
+        $postFix = null;
+        if (count($positionsAndPostFix) > 1) {
+            $postFix = $positionsAndPostFix[1];
+        }        
+        $fromToParts = explode("-", $positionsAndPostFix[0]);
 
         $fromPosition = $fromToParts[0];
         $toPosition = $fromToParts[1];
@@ -184,6 +190,9 @@ function getVisualInfosForNewPositions($visualInfos, $oldToNewPositions) {
             $newToPosition = $oldToNewPositions[$toPosition];
 
             $newAstNodeIdentifier = $newFromPosition . "-" . $newToPosition;
+            if ($postFix !== null) {
+                $newAstNodeIdentifier . "_" . $postFix;
+            }
             $newVisualInfos[$newAstNodeIdentifier] = $visualInfo;
         }
         else {
