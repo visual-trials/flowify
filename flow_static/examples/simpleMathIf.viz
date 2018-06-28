@@ -31,7 +31,8 @@
         "y": 230,
         "isPositionOf": "center",
         "width": 350,
-        "height": 250
+        "height": 250,
+        "relativeScale": 1
     },
     "7:1-9:1_IfCond": {
         "x": 80,
@@ -41,13 +42,13 @@
         "height": 120
     },
     "7:10-7:11": {
-        "x": 30,
-        "y": 30,
+        "x": 50,
+        "y": 20,
         "isPositionOf": "center"
     },
     "7:5-7:11": {
-        "x": 90,
-        "y": 70,
+        "x": 80,
+        "y": 80,
         "isPositionOf": "center",
         "width": 100,
         "height": 80

@@ -422,6 +422,9 @@ ZUI.layout = function () {
 
         var containerAbsoluteSize = sliceContainer.newLayout.absoluteSize
 
+        var width = containerAbsoluteSize.width
+        var height = containerAbsoluteSize.height
+
         var centerPosition = my.findPositionInShape(containerAbsolutePosition, sliceContainer.newLayout.isPositionOf, containerProperties.shape, containerAbsoluteSize, 'center')
 
         var centerX = centerPosition.x

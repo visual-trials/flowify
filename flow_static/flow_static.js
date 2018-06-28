@@ -106,6 +106,7 @@ var containerTypeProperties = {
         paddingLeft: 20,
         paddingRight: 20,
         paddingBetweenChildren: 20,
+        connectIncomingTo: "4-directions",
         childrenLayoutFunction: "horizontalLeftToRight",
         dataItemGroups: {
             basicInfo: [
