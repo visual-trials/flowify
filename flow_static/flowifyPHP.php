@@ -491,32 +491,9 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
             
             addFlowElementToParent($condFlowElement, $forFlowElement);  // Note: do not call this before flowifyExpression, because this COPIES $condFlowElement, so changes to it will not be in the parent!
             
-
-            
-            // == UPDATE ==
-            
-            // FIXME: hardcoded to 1 statement/expression!
-            $updateExpression = $forStatement['loop'][0];
-            
-            // Because the position in the code of $updateExpression always corresponds to the forUpdate,
-            // we create a separate astNodeIdentifier for the forUpdate by postFixing the identifier of the 
-            // for-statement with "_ForUpdate". 
-            $updateAstNodeIdentifier = $forAstNodeIdentifier . "_ForUpdate";
-            // FIXME: replace ifCond with forUpdate
-            $updateFlowElement = createFlowElement('ifCond', 'update', null, $updateAstNodeIdentifier);
-            
-            // FIXME: we should do this when creating the FlowElement (getting these from the parent, or better: referring to the parent from within the child)
-            $updateFlowElement['varsInScope'] = &$varsInScope;
-            $updateFlowElement['functionsInScope'] = &$functionsInScope;
-            $flowElement = flowifyExpression($updateExpression, $updateFlowElement);
-            
-            // TODO: the flowElement coming from the updateExpression is a boolean and determines 
-            //       whether the iter-statements are executed. How to should we visualize this?
-            
-            addFlowElementToParent($updateFlowElement, $forFlowElement);  // Note: do not call this before flowifyExpression, because this COPIES $updateFlowElement, so changes to it will not be in the parent!
         }
         
-        // FIXME: implement iterBody
+        // iterBody
         
         {
             $iterStatements = $forStatement['stmts'];
@@ -538,13 +515,10 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
             
             addFlowElementToParent($iterBodyFlowElement, $forFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $iterBodyFlowElement, so changes to it will not be in the parent!
 
-
-            // TODO: add iterBody 3 times
-            // TODO: add iterBody 3 times
-            // TODO: add iterBody 3 times
-            // TODO: what to do with conditionalVariableAstNodeIdentifier if there are 3 of them? Since they use the variableName for the Identifier
-            //       maybe _1, _2, _3? (or is it a relative position, and are they actually the same (but a copy inside their parent?)
             
+            
+            
+
 
             $doneBodyFlowElement = null;
             $varsInScopeParent = &$parentFlowElement['varsInScope'];
@@ -623,6 +597,39 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
             
             
         }
+        
+        {           
+            
+            // == UPDATE ==
+            
+            // FIXME: hardcoded to 1 statement/expression!
+            $updateExpression = $forStatement['loop'][0];
+            
+            // Because the position in the code of $updateExpression always corresponds to the forUpdate,
+            // we create a separate astNodeIdentifier for the forUpdate by postFixing the identifier of the 
+            // for-statement with "_ForUpdate". 
+            $updateAstNodeIdentifier = $forAstNodeIdentifier . "_ForUpdate";
+            // FIXME: replace ifCond with forUpdate
+            $updateFlowElement = createFlowElement('ifCond', 'update', null, $updateAstNodeIdentifier);
+            
+            // FIXME: we should do this when creating the FlowElement (getting these from the parent, or better: referring to the parent from within the child)
+            $updateFlowElement['varsInScope'] = &$varsInScope;
+            $updateFlowElement['functionsInScope'] = &$functionsInScope;
+            $flowElement = flowifyExpression($updateExpression, $updateFlowElement);
+            
+            // TODO: the flowElement coming from the updateExpression is a boolean and determines 
+            //       whether the iter-statements are executed. How to should we visualize this?
+            
+            addFlowElementToParent($updateFlowElement, $forFlowElement);  // Note: do not call this before flowifyExpression, because this COPIES $updateFlowElement, so changes to it will not be in the parent!
+        }
+        
+        
+        // TODO: add condBody AND iterBody AND updateBody 3 times
+        // TODO: add condBody AND iterBody AND updateBody 3 times
+        // TODO: add condBody AND iterBody AND updateBody 3 times
+        // TODO: what to do with conditionalVariableAstNodeIdentifier if there are 3 of them? Since they use the variableName for the Identifier
+        //       maybe _1, _2, _3? (or is it a relative position, and are they actually the same (but a copy inside their parent?)
+            
         
         
         // TODO: implement continue statement (inside flowifyStatements)
