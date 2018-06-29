@@ -525,11 +525,12 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
                 }
             }
             
+            $thenVariableFlowElement = null;
+            $elseVariableFlowElement = null;
             if ($varReplacedInThenBody && $varReplacedInElseBody) {
                 // We overwrite the parent's varInScope and adding them both using a conditionalVariableFlowElement.
                 $thenVariableFlowElement = $varsInScopeThenBody[$variableName];  // copy!
                 $elseVariableFlowElement = $varsInScopeElseBody[$variableName];  // copy!
-                $varsInScopeParent[$variableName] = createConditionalVariableElement($thenVariableFlowElement, $elseVariableFlowElement);
             }
             else if ($varReplacedInThenBody) {
                 // Only the thenBody has replaced the variable. We use the parent's variable as the (default) else variable
@@ -563,7 +564,6 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
                 $thenVariableFlowElement = $varsInScopeThenBody[$variableName];  // copy!
                 // TODO: this is without passthrough variable: $elseVariableFlowElement = $varsInScopeParent[$variableName];  // copy!
                 $elseVariableFlowElement = $passThroughVariableFlowElement;  // copy!
-                $varsInScopeParent[$variableName] = createConditionalVariableElement($thenVariableFlowElement, $elseVariableFlowElement);
             }
             else if ($varReplacedInElseBody) {
                 // Only the elseBody has replaced the variable. We use the parent's variable as the (default) then variable
@@ -587,11 +587,25 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
                 // TODO: this is without passthrough variable: $thenVariableFlowElement = $varsInScopeParent[$variableName];  // copy!
                 $thenVariableFlowElement = $passThroughVariableFlowElement;  // copy!
                 $elseVariableFlowElement = $varsInScopeElseBody[$variableName];  // copy!
-                $varsInScopeParent[$variableName] = createConditionalVariableElement($thenVariableFlowElement, $elseVariableFlowElement);
             }
             else {
                 // The variable wasn't replaced by either the thenBody or the elseBody, so nothing to do here
             }
+            
+            // The variable was replaced in either the thenBody or the elseBody.
+            // This means we should create a conditionalVariableFlowElement and add it to the ifFlowElement
+            // and also connect this conditionalVariable with the then- and else- variable.
+            // In additional, it should be added to the varsInScope of the parent, so if the variable is used 
+            // by another flowElement, it can connect to this conditionalVariable
+            if ($varReplacedInThenBody || $varReplacedInElseBody) {
+                $conditionalVariableAstNodeIdentifier = $ifAstNodeIdentifier . "_" . $variableName;
+                // FIXME: make this type 'conditionalVariable'
+                $conditionalVariableFlowElement = createAndAddFlowElementToParent('variable', $variableName, null, $conditionalVariableAstNodeIdentifier, $ifFlowElement);
+                addFlowConnection($thenVariableFlowElement, $conditionalVariableFlowElement);
+                addFlowConnection($elseVariableFlowElement, $conditionalVariableFlowElement);
+                $varsInScopeParent[$variableName] = &$conditionalVariableFlowElement;
+            }
+            
         }
         if ($implicitElseBodyWasCreated) {
             addFlowElementToParent($elseBodyFlowElement, $ifFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $elseBodyFlowElement, so changes to it will not be in the parent!
@@ -648,47 +662,7 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
 function addFlowConnection ($fromFlowElement, $toFlowElement) {
     global $flowConnections;
 
-    // TODO: we probably don't want it this way. We want either of these:
-    // 1) place each conditionalVariableFlowElement and connect with it's then- and else- flowElements.
-    //    You do this at in the flowifyIfStatement and don't need to know anything in addFlowConnection about conditionalVariable
-    // 2) don't place each conditionalVariableFlowElement, but connect with all flowElementa
-    //    You do this by recursively get a list of all then- and else- flowElements
-    // TODO: For now we do 2, but 1 is probably the better way
-    
-    if ($fromFlowElement['type'] === 'conditionalVariable') {
-        $fromVariableList = getVariableListRecursively($fromFlowElement);
-        foreach ($fromVariableList as $fromVariableFlowElement) {
-            array_push($flowConnections, [ 'from' => $fromVariableFlowElement['id'], 'to' => $toFlowElement['id']]);
-        }
-    }
-    else {
-        array_push($flowConnections, [ 'from' => $fromFlowElement['id'], 'to' => $toFlowElement['id']]);
-    }
-}
-
-function getVariableListRecursively ($conditionalVariableFlowElement) {
-    $variableList = [];
-    
-    $thenFlowElement = $conditionalVariableFlowElement['then'];
-    $elseFlowElement = $conditionalVariableFlowElement['else'];
-    
-    if ($thenFlowElement['type'] === 'conditionalVariable') {
-        $thenVariableList = getVariableListRecursively($thenFlowElement);
-        $variableList = array_merge($variableList, $thenVariableList);
-    }
-    else {
-        array_push($variableList, $thenFlowElement);
-    }
-    
-    if ($elseFlowElement['type'] === 'conditionalVariable') {
-        $elseVariableList = getVariableListRecursively($elseFlowElement);
-        $variableList = array_merge($variableList, $elseVariableList);
-    }
-    else {
-        array_push($variableList, $elseFlowElement);
-    }
-    
-    return $variableList;
+    array_push($flowConnections, [ 'from' => $fromFlowElement['id'], 'to' => $toFlowElement['id']]);
 }
 
 function addFlowElementToParent (&$flowElement, &$parentFlowElement) {
@@ -715,24 +689,6 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
     }
 
     return $flowElement;
-}
-
-function createConditionalVariableElement (&$thenFlowElement, &$elseFlowElement, $astNodeIdentifier = null) {
-    
-    global $flowElementId;
-
-    $conditionalVariableFlowElement = [];
-    $conditionalVariableFlowElement['id'] = $flowElementId++;
-    $conditionalVariableFlowElement['type'] = 'conditionalVariable';
-    $conditionalVariableFlowElement['then'] = &$thenFlowElement;
-    $conditionalVariableFlowElement['else'] = &$elseFlowElement;
-    
-    // If given, also give the conditionalVariableFlowElement an astNodeIdentifier
-    if ($astNodeIdentifier !== null) {
-        $conditionalVariableFlowElement['astNodeIdentifier'] = $astNodeIdentifier;
-    }
-    
-    return $conditionalVariableFlowElement;
 }
 
 function createAndAddFlowElementToParent ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, &$parentFlowElement, $canHaveChildren = false, $hasScope = false) {
