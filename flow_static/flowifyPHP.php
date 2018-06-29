@@ -445,8 +445,6 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
     $forFlowElement = createFlowElement('ifMain', 'for', null, $forAstNodeIdentifier);
 
     {
-        // FIXME: implement forCondition (3 expressions)
-        
         {
             // == INIT ==
             
@@ -464,11 +462,16 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
             $initFlowElement['varsInScope'] = &$varsInScope;
             $initFlowElement['functionsInScope'] = &$functionsInScope;
             $flowElement = flowifyExpression($initExpression, $initFlowElement);
-            // TODO: the flowElement coming from the initExpression is ignored for now. Is that ok?
+            // TODO: the flowElement comingh from the initExpression is ignored for now. Is that ok?
             
             addFlowElementToParent($initFlowElement, $forFlowElement);  // Note: do not call this before flowifyExpression, because this COPIES $condFlowElement, so changes to it will not be in the parent!
+        }
             
-            
+        // TODO: repeat this 3 times:
+        // - we need to keep varsInScope from the previous iteration and give it to the next condition and iteration.
+        // - we need to either make a unique identifier for each of these 3 (somehow repeating it visualy, without identifiers it tricky I think)
+        // - we need to make sure that the condition might not be met, so we need to connect each iteration with the done element.
+        {
             // == COND ==
             
             // FIXME: hardcoded to 1 statement/expression!
@@ -491,11 +494,9 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
             
             addFlowElementToParent($condFlowElement, $forFlowElement);  // Note: do not call this before flowifyExpression, because this COPIES $condFlowElement, so changes to it will not be in the parent!
             
-        }
         
-        // iterBody
+            // iterBody
         
-        {
             $iterStatements = $forStatement['stmts'];
             
             $iterAstNodeIdentifier = getAstNodeIdentifier($iterStatements);
@@ -515,11 +516,8 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
             
             addFlowElementToParent($iterBodyFlowElement, $forFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $iterBodyFlowElement, so changes to it will not be in the parent!
 
-            
-            
-            
 
-
+            
             $doneBodyFlowElement = null;
             $varsInScopeParent = &$parentFlowElement['varsInScope'];
             $varsInScopeIterBody = &$iterBodyFlowElement['varsInScope'];
@@ -595,10 +593,6 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
                 addFlowElementToParent($doneBodyFlowElement, $forFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $doneBodyFlowElement, so changes to it will not be in the parent!
             }
             
-            
-        }
-        
-        {           
             
             // == UPDATE ==
             
