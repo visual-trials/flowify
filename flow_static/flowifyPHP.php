@@ -523,7 +523,7 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
             
             $iterAstNodeIdentifier = getAstNodeIdentifier($iterStatements);
             // FIXME: replace ifThen with iterBody
-            $iterBodyFlowElement = createFlowElement('ifThen', 'for', null, $iterAstNodeIdentifier);
+            $iterBodyFlowElement = createFlowElement('ifThen', 'iter', null, $iterAstNodeIdentifier);
             
             // Note: we *copy* the varsInScope here. This is because the iterBody might replace vars in it's scope,
             //       These are however conditional-replacement when it comes to the for-statement. 
@@ -623,13 +623,6 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
             
             
         }
-        
-        // FIXME: implement for"Else" (aka done/break)
-
-        {
-
-        
-        }        
         
         
         // TODO: implement continue statement (inside flowifyStatements)
