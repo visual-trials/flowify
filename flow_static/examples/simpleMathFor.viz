@@ -81,6 +81,11 @@
         "y": 30,
         "isPositionOf": "center"
     },
+    "8:2-8:13": {
+        "x": 230,
+        "y": 0,
+        "isPositionOf": "center"
+    },
     "8:12-8:12": {
         "x": 0,
         "y": -100,
