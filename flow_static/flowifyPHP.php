@@ -7,6 +7,11 @@ $flowElementId = 0;
 $flowConnections = [];
 $code = null;  // TODO: we should make a file-based struct (or array) that contains the $code
 
+
+// FIXME: when you have only ONE statement/expression, the ONE expression will have the SAME astNodeIdentifier as the LIST of statements!
+
+
+
 handleRequest();
 
 function handleRequest() {
@@ -466,7 +471,10 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
             
             addFlowElementToParent($initFlowElement, $forFlowElement);  // Note: do not call this before flowifyExpression, because this COPIES $condFlowElement, so changes to it will not be in the parent!
         }
-            
+        
+        // FIXME: is this correct?
+        $varsInScopeLoop = $parentFlowElement['varsInScope'];  // copy!
+        
         // TODO: repeat this 3 times:
         // - we need to keep varsInScope from the previous iteration and give it to the next condition and iteration.
         // - we need to either make a unique identifier for each of these 3 (somehow repeating it visualy, without identifiers it tricky I think)
@@ -485,7 +493,7 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
             $condFlowElement = createFlowElement('ifCond', 'cond', null, $condAstNodeIdentifier);
             
             // FIXME: we should do this when creating the FlowElement (getting these from the parent, or better: referring to the parent from within the child)
-            $condFlowElement['varsInScope'] = &$varsInScope;
+            $condFlowElement['varsInScope'] = &$varsInScopeLoop;
             $condFlowElement['functionsInScope'] = &$functionsInScope;
             $flowElement = flowifyExpression($conditionExpression, $condFlowElement);
             
@@ -508,7 +516,7 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
             //       Instead of the iterBody letting the vars in the for-scope to be replaced, we *add* it later to our varsInScope,
             //       by using a conditionalFlowElement.
             
-            $iterBodyFlowElement['varsInScope'] = $varsInScope;  // copy!
+            $iterBodyFlowElement['varsInScope'] = &$varsInScopeLoop;
             $iterBodyFlowElement['functionsInScope'] = &$functionsInScope;
             
             // TODO: we don't have a return statement in iter-bodies, so we call it $noReturnFlowElement here (but we shouldn't get it at all)
@@ -560,6 +568,7 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
                         // FIXME: this should be of type 'passthroughVariable'
                         $passThroughVariableFlowElement = createAndAddFlowElementToParent('variable', $variableName, null, $passThroughVariableAstNodeIdentifier, $doneBodyFlowElement);
 
+                        // FIXME: should this be the parents scope or the done scope?
                         // Connecting the variable in the parent to the passthrough variable (inside the iterBody)
                         addFlowConnection($varsInScopeParent[$variableName], $passThroughVariableFlowElement);
 
@@ -582,16 +591,21 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
                 if ($varReplacedInIterBody) {
                     $conditionalVariableAstNodeIdentifier = $forAstNodeIdentifier . "_" . $variableName;
                     // FIXME: make this type 'conditionalVariable'
-                    $conditionalVariableFlowElement = createAndAddFlowElementToParent('variable', $variableName, null, $conditionalVariableAstNodeIdentifier, $forFlowElement);
+                    // FIXME: is this correct? $conditionalVariableFlowElement = createAndAddFlowElementToParent('variable', $variableName, null, $conditionalVariableAstNodeIdentifier, $forFlowElement);
+                    $conditionalVariableFlowElement = createAndAddFlowElementToParent('variable', $variableName, null, $conditionalVariableAstNodeIdentifier, $doneBodyFlowElement);
                     addFlowConnection($iterVariableFlowElement, $conditionalVariableFlowElement);
                     addFlowConnection($doneVariableFlowElement, $conditionalVariableFlowElement);
-                    $varsInScopeParent[$variableName] = &$conditionalVariableFlowElement;
+                    // FIXME: is this correct? $varsInScopeParent[$variableName] = &$conditionalVariableFlowElement;
+                    $doneBodyFlowElement['varsInScope'][$variableName] = &$conditionalVariableFlowElement;
                 }
                 
             }
+            /*
+             NOTE: don't do this here YET! if you do, other changes will not take effect!
             if ($implicitDoneBodyWasCreated) {
                 addFlowElementToParent($doneBodyFlowElement, $forFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $doneBodyFlowElement, so changes to it will not be in the parent!
             }
+            */
             
             
             // == UPDATE ==
@@ -607,7 +621,7 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
             $updateFlowElement = createFlowElement('ifCond', 'update', null, $updateAstNodeIdentifier);
             
             // FIXME: we should do this when creating the FlowElement (getting these from the parent, or better: referring to the parent from within the child)
-            $updateFlowElement['varsInScope'] = &$varsInScope;
+            $updateFlowElement['varsInScope'] = &$varsInScopeLoop;
             $updateFlowElement['functionsInScope'] = &$functionsInScope;
             $flowElement = flowifyExpression($updateExpression, $updateFlowElement);
             
@@ -618,6 +632,141 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
         }
         
         
+        {
+            // == COND2 ==
+            
+            // FIXME: hardcoded to 1 statement/expression!
+            $conditionExpression = $forStatement['cond'][0];
+            
+            // Because the position in the code of $conditionExpression always corresponds to the forCondition,
+            // we create a separate astNodeIdentifier for the forCondition by postFixing the identifier of the 
+            // for-statement with "_ForCond". 
+            $condAstNodeIdentifier = $forAstNodeIdentifier . "_ForCond_2";
+            // FIXME: replace ifCond with forCond
+            $condFlowElement = createFlowElement('ifCond', 'cond', null, $condAstNodeIdentifier);
+            
+            // FIXME: we should do this when creating the FlowElement (getting these from the parent, or better: referring to the parent from within the child)
+            $condFlowElement['varsInScope'] = &$varsInScopeLoop;
+            $condFlowElement['functionsInScope'] = &$functionsInScope;
+            $flowElement = flowifyExpression($conditionExpression, $condFlowElement);
+            
+            // TODO: the flowElement coming from the conditionExpression is a boolean and determines 
+            //       whether the iter-statements are executed. How to should we visualize this?
+            
+            addFlowElementToParent($condFlowElement, $forFlowElement);  // Note: do not call this before flowifyExpression, because this COPIES $condFlowElement, so changes to it will not be in the parent!
+            
+            
+            // iterBody2
+        
+            $iterStatements = $forStatement['stmts'];
+            
+            $iterAstNodeIdentifier = getAstNodeIdentifier($iterStatements) . "_2";
+            // FIXME: replace ifThen with iterBody
+            $iterBodyFlowElement2 = createFlowElement('ifThen', 'iter', null, $iterAstNodeIdentifier);
+            
+            // Note: we *copy* the varsInScope here. This is because the iterBody might replace vars in it's scope,
+            //       These are however conditional-replacement when it comes to the for-statement. 
+            //       Instead of the iterBody letting the vars in the for-scope to be replaced, we *add* it later to our varsInScope,
+            //       by using a conditionalFlowElement.
+            
+            // NOTE FIXME: copy here, but not ABOVE!
+            $iterBodyFlowElement2['varsInScope'] = $varsInScopeLoop;  // copy!
+            $iterBodyFlowElement2['functionsInScope'] = &$functionsInScope;
+            
+            // TODO: we don't have a return statement in iter-bodies, so we call it $noReturnFlowElement here (but we shouldn't get it at all)
+            $noReturnFlowElement = flowifyStatements($iterStatements, $iterBodyFlowElement2);
+            
+            addFlowElementToParent($iterBodyFlowElement2, $forFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $iterBodyFlowElement2, so changes to it will not be in the parent!
+            
+            // END OF LOOP...
+            
+            $varsInScopeParent = &$parentFlowElement['varsInScope'];
+            $varsInScopeDoneBody = &$doneBodyFlowElement['varsInScope'];
+            $varsInScopeIterBody2 = &$iterBodyFlowElement2['varsInScope'];
+            
+            // $implicitDoneBodyWasCreated = false;
+            // NOT RIGHT We loop through all the varsInScope of the parentFlowElement
+            foreach ($varsInScopeLoop as $variableName => $loopVarInScopeElement) {
+                
+                $varReplacedInIterBody = false;
+                
+                // We check if we have the same variable in our iterBody scope
+                if (array_key_exists($variableName, $varsInScopeIterBody2)) {
+                    // The var exists both in iterBodyFlowElement2 and in the loop's scope
+                    if ($varsInScopeIterBody2[$variableName]['id'] !== $varsInScopeLoop[$variableName]['id']) {
+                        // The vars differ, so it must have been replaced (or extended) inside the iterBody. 
+                        $varReplacedInIterBody = true;
+                    }
+                }
+                
+                $iterVariableFlowElement = null;
+                $doneVariableFlowElement = null;
+                if ($varReplacedInIterBody) {
+                    // The iterBody has replaced the variable. We use the parent's variable as the (default) done variable
+                    
+                    // Add an doneBody if it doesn't exist yet
+                    /*
+                    if ($doneBodyFlowElement === null) {
+                        
+                        $doneAstNodeIdentifier = $forAstNodeIdentifier . "_ImplicitDone";
+                        // FIXME: this should be of type: 'forDoneImplicit'
+                        $doneBodyFlowElement = createFlowElement('ifElse', 'done', null, $doneAstNodeIdentifier);
+                        $implicitDoneBodyWasCreated = true;
+                    }
+                    */
+                    
+                    {
+                        // Adding the variable to the doneBody as a passthrough variable
+                        
+                        // TODO: should we really use the variable name in the identifier?
+                        $passThroughVariableAstNodeIdentifier = $doneAstNodeIdentifier . "_" . $variableName . "_2";
+
+                        // FIXME: this should be of type 'passthroughVariable'
+                        $passThroughVariableFlowElement = createAndAddFlowElementToParent('variable', $variableName, null, $passThroughVariableAstNodeIdentifier, $doneBodyFlowElement);
+
+                        // FIXME: should this be the parents scope or the done scope?
+                        // Connecting the variable in the parent to the passthrough variable (inside the iterBody)
+                        addFlowConnection($varsInScopeDoneBody[$variableName], $passThroughVariableFlowElement);
+
+                        // TODO: do we need to add this passthrough variable to the scope of the DoneBody? 
+                        // $varsInScopeDoneBody[$parameterName] = $passThroughVariableFlowElement;
+                    }
+                    
+                    $iterVariableFlowElement = $varsInScopeIterBody2[$variableName];  // copy!
+                    // TODO: this is without passthrough variable: $doneVariableFlowElement = $varsInScopeParent[$variableName];  // copy!
+                    $doneVariableFlowElement = $passThroughVariableFlowElement;  // copy!
+                }
+                
+                
+                
+                // The variable was replaced in the iterBody.
+                // This means we should create a conditionalVariableFlowElement and add it to the forFlowElement
+                // and also connect this conditionalVariable with the iter- and done- variable.
+                // In additional, it should be added to the varsInScope of the parent, so if the variable is used 
+                // by another flowElement, it can connect to this conditionalVariable
+                if ($varReplacedInIterBody) {
+                    $conditionalVariableAstNodeIdentifier = $forAstNodeIdentifier . "_" . $variableName . "_2";
+                    // FIXME: make this type 'conditionalVariable'
+                    $conditionalVariableFlowElement = createAndAddFlowElementToParent('variable', $variableName, null, $conditionalVariableAstNodeIdentifier, $forFlowElement);
+                    // FIXME: is this correct? $conditionalVariableFlowElement = createAndAddFlowElementToParent('variable', $variableName, null, $conditionalVariableAstNodeIdentifier, $doneBodyFlowElement);
+                    addFlowConnection($iterVariableFlowElement, $conditionalVariableFlowElement);
+                    addFlowConnection($doneVariableFlowElement, $conditionalVariableFlowElement);
+                    $varsInScopeParent[$variableName] = &$conditionalVariableFlowElement;
+                    // FIXME: is this correct? $doneBodyFlowElement['varsInScope'][$variableName] = &$conditionalVariableFlowElement;
+                }
+                
+            }
+            
+            if ($implicitDoneBodyWasCreated) {
+                addFlowElementToParent($doneBodyFlowElement, $forFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $doneBodyFlowElement, so changes to it will not be in the parent!
+            }
+           
+            
+        }
+
+
+
+
         // TODO: add condBody AND iterBody AND updateBody 3 times
         // TODO: add condBody AND iterBody AND updateBody 3 times
         // TODO: add condBody AND iterBody AND updateBody 3 times
