@@ -1,81 +1,84 @@
 {
     "0:0-0:0": {
-        "x": 1400,
-        "y": 190,
+        "x": 1450,
+        "y": 210,
         "isPositionOf": "center",
-        "width": 1500,
+        "width": 1800,
         "height": 600
     },
     "3:10-3:11": {
-        "x": 1250,
-        "y": 360,
+        "x": 1540,
+        "y": 340,
         "isPositionOf": "center"
     },
     "3:1-3:11": {
-        "x": 1330,
-        "y": 360,
+        "x": 1620,
+        "y": 340,
         "isPositionOf": "center"
     },
     "5:6-5:7": {
-        "x": 60,
-        "y": 460,
+        "x": 70,
+        "y": 430,
         "isPositionOf": "center"
     },
     "5:1-5:7": {
         "x": 160,
-        "y": 460,
+        "y": 430,
         "isPositionOf": "center"
     },
     "7:1-9:1": {
-        "x": 700,
-        "y": 330,
+        "x": 860,
+        "y": 320,
         "isPositionOf": "center",
-        "width": 1000,
+        "width": 1300,
         "height": 450,
         "relativeScale": 1
     },
     "7:1-9:1_ForInit": {
         "x": 90,
-        "y": 70,
+        "y": 60,
         "isPositionOf": "center",
         "width": 120,
-        "height": 80
+        "height": 60
     },
     "7:11-7:11": {
         "x": 30,
-        "y": 40,
+        "y": 20,
         "isPositionOf": "center"
     },
     "7:6-7:11": {
-        "x": 80,
-        "y": 40,
+        "x": 90,
+        "y": 20,
         "isPositionOf": "center"
     },
     "7:1-9:1_1": {
-        "x": 190,
-        "y": 30,
-        "isPositionOf": "center"
+        "x": 440,
+        "y": 230,
+        "isPositionOf": "center",
+        "width": 500,
+        "height": 400,
+        "relativeScale": 1
     },
     "7:1-9:1_ForCond": {
-        "x": 170,
-        "y": 300,
+        "x": 70,
+        "y": 330,
         "isPositionOf": "center",
         "width": 120,
         "height": 80
     },
     "7:19-7:20": {
-        "x": -40,
-        "y": 90,
+        "x": 20,
+        "y": 30,
         "isPositionOf": "center"
     },
     "7:14-7:20": {
-        "x": 40,
-        "y": 60,
+        "x": 90,
+        "y": 10,
         "isPositionOf": "center"
     },
     "8:2-8:13": {
-        "x": 330,
-        "y": 250,
+        "x": 240,
+        "y": 210,
         "isPositionOf": "center",
         "width": 200,
         "height": 150,
@@ -83,22 +86,22 @@
     },
     "8:12-8:12": {
         "x": 50,
-        "y": -20,
+        "y": 40,
         "isPositionOf": "center"
     },
     "8:7-8:12": {
         "x": 90,
-        "y": 50,
+        "y": 100,
         "isPositionOf": "center"
     },
     "8:2-8:12": {
-        "x": 150,
-        "y": 30,
+        "x": 160,
+        "y": 90,
         "isPositionOf": "center"
     },
     "7:1-9:1_ForUpdate": {
-        "x": 490,
-        "y": 190,
+        "x": 360,
+        "y": 120,
         "isPositionOf": "center",
         "width": 120,
         "height": 80,
@@ -120,43 +123,48 @@
         "isPositionOf": "center"
     },
     "7:1-9:1_ImplicitDone": {
-        "x": 220,
-        "y": 400,
-        "isPositionOf": "center"
+        "x": 290,
+        "y": 350,
+        "isPositionOf": "center",
+        "width": 300,
+        "height": 40
     },
     "7:1-9:1_ImplicitDone_b": {
-        "x": 50,
-        "y": -10,
+        "x": 60,
+        "y": 20,
         "isPositionOf": "center"
     },
     "7:1-9:1_b": {
-        "x": 390,
-        "y": -10,
+        "x": 260,
+        "y": 20,
         "isPositionOf": "center"
     },
     "7:1-9:1_ImplicitDone_i": {
-        "x": 60,
-        "y": -320,
+        "x": 50,
+        "y": -290,
         "isPositionOf": "center"
     },
     "7:1-9:1_i": {
-        "x": 420,
-        "y": -320,
+        "x": 340,
+        "y": -290,
         "isPositionOf": "center"
     },
     "7:1-9:1_2": {
-        "x": 850,
-        "y": 30,
-        "isPositionOf": "center"
+        "x": 970,
+        "y": 230,
+        "isPositionOf": "center",
+        "width": 500,
+        "height": 400,
+        "relativeScale": 1
     },
     "11:6-11:16": {
-        "x": 1370,
-        "y": 470,
+        "x": 1680,
+        "y": 450,
         "isPositionOf": "center"
     },
     "11:1-11:16": {
-        "x": 1450,
-        "y": 450,
+        "x": 1760,
+        "y": 440,
         "isPositionOf": "center"
     }
 }
