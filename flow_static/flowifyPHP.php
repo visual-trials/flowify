@@ -476,17 +476,17 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
         }
         
         
-        $varsInScopeLoop = $parentFlowElement['varsInScope'];  // copy!
-        $varsInScopeDoneBody = $parentFlowElement['varsInScope']; // copy!
-
-        $functionsInScope = $parentFlowElement['functionsInScope'];  // copy!
-        
         // FIXME: hardcoded to 1 statement/expression!
         $conditionExpression = $forStatement['cond'][0];
         $iterStatements = $forStatement['stmts'];
         // FIXME: hardcoded to 1 statement/expression!
         $updateExpression = $forStatement['loop'][0];
             
+        
+        $varsInScopeLoop = $parentFlowElement['varsInScope'];  // copy!
+        $varsInScopeDoneBody = $parentFlowElement['varsInScope']; // copy!
+
+        $functionsInScope = $parentFlowElement['functionsInScope'];  // copy!
         
         /*
         list($varsInScopeLoop, ) = flowifyForIteration(
@@ -646,15 +646,14 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
             }
             
             $varsInScopeLoop = $updateFlowElement['varsInScope']; // copy back!
-            /*
-             NOTE: don't do this here YET! if you do, other changes will not take effect!
+
             if ($implicitDoneBodyWasCreated) {
                 addFlowElementToParent($doneBodyFlowElement, $forFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $doneBodyFlowElement, so changes to it will not be in the parent!
             }
-            */
             
         }
 
+        $varsInScopeDoneBody = &$doneBodyFlowElement['varsInScope']; // FIXME: still needed to do this?
         
         {
             // == COND2 ==
@@ -726,8 +725,7 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
             
             // Checking if the loop vars were changed by the iterBody
             
-            $varsInScopeDoneBody = &$doneBodyFlowElement['varsInScope']; // FIXME: still needed to do this?
-            // $varsInScopeParent = &$parentFlowElement['varsInScope'];
+            $doneBodyFlowElement = null;
             $varsInScopeIterBody = &$updateFlowElement['varsInScope']; // FIXME: naming can probably be better here: iter AND update.
             
             $implicitDoneBodyWasCreated = true;
