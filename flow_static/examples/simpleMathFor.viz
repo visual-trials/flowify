@@ -160,8 +160,8 @@
         "y": -390,
         "isPositionOf": "center"
     },
-    "7:1-9:1_ImplicitDone_b_2": {
-        "x": 590,
+    "7:1-9:1_ImplicitDone_2_b_2": {
+        "x": 600,
         "y": 30,
         "isPositionOf": "center"
     },
@@ -170,8 +170,8 @@
         "y": 30,
         "isPositionOf": "center"
     },
-    "7:1-9:1_ImplicitDone_i_2": {
-        "x": 590,
+    "7:1-9:1_ImplicitDone_2_i_2": {
+        "x": 630,
         "y": -390,
         "isPositionOf": "center"
     },
