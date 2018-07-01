@@ -636,7 +636,6 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
                 if ($varReplacedInIterBody) {
                     $conditionalVariableAstNodeIdentifier = $forAstNodeIdentifier . "_" . $variableName;
                     // FIXME: make this type 'conditionalVariable'
-                    // FIXME: is this correct? $conditionalVariableFlowElement = createAndAddFlowElementToParent('variable', $variableName, null, $conditionalVariableAstNodeIdentifier, $forFlowElement);
                     $conditionalVariableFlowElement = createAndAddFlowElementToParent('variable', $variableName, null, $conditionalVariableAstNodeIdentifier, $doneBodyFlowElement);
                     addFlowConnection($iterVariableFlowElement, $conditionalVariableFlowElement);
                     addFlowConnection($doneVariableFlowElement, $conditionalVariableFlowElement);
@@ -800,25 +799,17 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
             
             $varsInScopeLoop = $updateFlowElement['varsInScope']; // copy back!
 
-
-
-
-            $parentFlowElement['varsInScope'] = $doneBodyFlowElement['varsInScope']; // copy back!
-            
-            
             if ($implicitDoneBodyWasCreated) {
                 addFlowElementToParent($doneBodyFlowElement, $forFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $doneBodyFlowElement, so changes to it will not be in the parent!
             }
-           
             
         }
 
+        $parentFlowElement['varsInScope'] = $doneBodyFlowElement['varsInScope']; // copy back!
+        
+        
 
 
-
-        // TODO: add condBody AND iterBody AND updateBody 3 times
-        // TODO: add condBody AND iterBody AND updateBody 3 times
-        // TODO: add condBody AND iterBody AND updateBody 3 times
         // TODO: what to do with conditionalVariableAstNodeIdentifier if there are 3 of them? Since they use the variableName for the Identifier
         //       maybe _1, _2, _3? (or is it a relative position, and are they actually the same (but a copy inside their parent?)
             
