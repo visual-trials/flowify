@@ -115,17 +115,26 @@
         "isPositionOf": "center"
     },
     "7:1-9:1_ForCond_2": {
-        "x": 630,
-        "y": 210,
-        "isPositionOf": "center"
+        "x": 620,
+        "y": 260,
+        "isPositionOf": "center",
+        "width": 120,
+        "height": 80
     },
     "8:2-8:13_2": {
-        "x": 710,
-        "y": 160,
+        "x": 780,
+        "y": 190,
+        "isPositionOf": "center",
+        "width": 120,
+        "height": 80
+    },
+    "7:1-9:1_ForUpdate_2": {
+        "x": 880,
+        "y": 40,
         "isPositionOf": "center"
     },
     "7:1-9:1_ImplicitDone": {
-        "x": 360,
+        "x": 340,
         "y": 370,
         "isPositionOf": "center",
         "width": 350,
