@@ -462,6 +462,7 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
             $updateExpression,
             $forAstNodeIdentifier,
             $doneBodyFlowElement,
+            $doneBodyFlowElement,  // the last conditionalVariable should be put into the doneBodyFlowElement
             $forStepAstNodeIdentifier1,
             $forStepFlowElement1
         );
@@ -483,6 +484,7 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
             $updateExpression,
             $forAstNodeIdentifier,
             $doneBodyFlowElement,
+            $forFlowElement,  // the last conditionalVariable should be put into the forFlowElement (not in the doneBodyFlowElement)
             $forStepAstNodeIdentifier2,
             $forStepFlowElement2
         );
@@ -491,10 +493,6 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
         
 
         addFlowElementToParent($doneBodyFlowElement, $forFlowElement);  // Note: do not call this before the calls to the other addFlowElementToParent, because this COPIES $doneBodyFlowElement, so changes to it will not be in the parent!
-        
-        $forFlowElement['varsInScope'] = $doneBodyFlowElement['varsInScope']; // copy back!
-        $forFlowElement['functionsInScope'] = $doneBodyFlowElement['functionsInScope']; // copy back!
-
         
         // TODO: implement continue statement (inside flowifyStatements)
         // TODO: implement break statement (inside flowifyStatements)
@@ -514,6 +512,7 @@ function flowifyForIteration (
         $updateExpression,
         $forAstNodeIdentifier,
         &$doneBodyFlowElement,
+        &$doneBodyOrForFlowElement,
         $forStepAstNodeIdentifier,
         &$forStepFlowElement
     ) {
@@ -597,7 +596,7 @@ function flowifyForIteration (
         }
         
         // The variable was replaced in the forStep.
-        // This means we should create a conditionalVariableFlowElement and add it to the doneBodyFlowElement
+        // This means we should create a conditionalVariableFlowElement and add it to the doneBodyOrForFlowElement
         // and also connect this conditionalVariable with the forStep- and doneBody- variable.
         // In additional, it should be added to the varsInScope of the doneBody, so if the variable is used 
         // by another flowElement, it can connect to this conditionalVariable
@@ -605,10 +604,10 @@ function flowifyForIteration (
             // FIXME: double check: we are using the forStepIdentifier inside the for element (with a varname) is this ok?
             $conditionalVariableAstNodeIdentifier = $forStepAstNodeIdentifier . "_Cond_" . $variableName;
             // FIXME: make this type 'conditionalVariable'
-            $conditionalVariableFlowElement = createAndAddFlowElementToParent('variable', $variableName, null, $conditionalVariableAstNodeIdentifier, $doneBodyFlowElement);
+            $conditionalVariableFlowElement = createAndAddFlowElementToParent('variable', $variableName, null, $conditionalVariableAstNodeIdentifier, $doneBodyOrForFlowElement);
             addFlowConnection($forStepVariableFlowElement, $conditionalVariableFlowElement);
             addFlowConnection($doneBodyVariableFlowElement, $conditionalVariableFlowElement);
-            $doneBodyFlowElement['varsInScope'][$variableName] = $conditionalVariableFlowElement; // NOTE: a ref doesn't work here for some reason
+            $doneBodyOrForFlowElement['varsInScope'][$variableName] = $conditionalVariableFlowElement; // NOTE: a ref doesn't work here for some reason
         }
         
     }
