@@ -224,6 +224,7 @@ ZUI.layout = function () {
             var containerTextFontHeight = containerProperties.containerTextFontHeight
             var containerTextColor = containerProperties.containerTextColor
             var containerTextFont = containerProperties.containerTextFont
+            var showContainerText = containerProperties.showContainerText
 
             currentSliceContainer.textLines = []
             // FIXME: we are assuming only ONE text line here!
@@ -233,22 +234,28 @@ ZUI.layout = function () {
                 x: paddingLeft,
                 y: paddingBottom
             }
-            var textLineWidth = my.measureTextWidth(textLine, containerTextFontHeight, containerTextFont)
-            currentSliceContainer.textLines.push({
-                text: containerText,
-                baseFont: containerTextFont,
-                fontColor: containerTextColor,
-                fontHeight: containerTextFontHeight,
-                textWidth: textLineWidth,
-                position: textPosition
-                // align: "TODO"
-            })
-            // TODO: isPositionOf and/or positionOriginatesFrom?
+            if (showContainerText) {
+                var textLineWidth = my.measureTextWidth(textLine, containerTextFontHeight, containerTextFont)
+                currentSliceContainer.textLines.push({
+                    text: containerText,
+                    baseFont: containerTextFont,
+                    fontColor: containerTextColor,
+                    fontHeight: containerTextFontHeight,
+                    textWidth: textLineWidth,
+                    position: textPosition
+                    // align: "TODO"
+                })
+                // TODO: isPositionOf and/or positionOriginatesFrom?
 
-            // TODO: var textPaddingBetween/lineDistance for multilines
+                // TODO: var textPaddingBetween/lineDistance for multilines
 
-            currentSliceContainer.newLayout.size.width = paddingLeft + textLineWidth + paddingRight
-            currentSliceContainer.newLayout.size.height = paddingTop + containerTextFontHeight + paddingBottom
+                currentSliceContainer.newLayout.size.width = paddingLeft + textLineWidth + paddingRight
+                currentSliceContainer.newLayout.size.height = paddingTop + containerTextFontHeight + paddingBottom
+            }
+            else {
+                currentSliceContainer.newLayout.size.width = paddingLeft + paddingRight
+                currentSliceContainer.newLayout.size.height = paddingTop + paddingBottom
+            }
 
             return { width: currentSliceContainer.newLayout.size.width * currentSliceContainer.newLayout.relativeScale,
                      height: currentSliceContainer.newLayout.size.height * currentSliceContainer.newLayout.relativeScale }

@@ -289,10 +289,10 @@ var containerTypeProperties = {
         containerBorderColor: {r: 150, g: 150, b: 150, a: 1},
         shape: "ellipse",
         showContainerText: false,
-        paddingTop: 0,
-        paddingBottom: 0,
-        paddingLeft: 0,
-        paddingRight: 0,
+        paddingTop: 4,
+        paddingBottom: 4,
+        paddingLeft: 4,
+        paddingRight: 4,
         childrenLayoutFunction: "none",
         dataItemGroups: {
             basicInfo: [
