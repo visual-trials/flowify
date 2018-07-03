@@ -165,13 +165,19 @@ function flowifyExpression ($expression, &$parentFlowElement) {
     else if ($expressionType === 'Scalar_LNumber') {
         $flowElement = createAndAddFlowElementToParent('constant', null, $expression['value'], $astNodeIdentifier, $parentFlowElement);
     }
-    else if ($expressionType === 'Expr_PreInc') {
-        die('Expr_PreInc'); // FIXME
-    }
-    else if ($expressionType === 'Expr_PreDec') {
-        die ('Expr_PreDec'); // FIXME
-    }
-    else if ($expressionType === 'Expr_PostInc') {
+    else if ($expressionType === 'Expr_PreInc'  ||
+             $expressionType === 'Expr_PreDec'  ||
+             $expressionType === 'Expr_PostInc' ||
+             $expressionType === 'Expr_PostDec') {
+        
+        $preChange = false;
+        if ($expressionType === 'Expr_PreInc' || $expressionType === 'Expr_PreDec') {
+            $preChange = true;
+        }
+        $opertaionName = '--';
+        if ($expressionType === 'Expr_PreInc' || $expressionType === 'Expr_PostInc') {
+            $opertaionName = '++';
+        }
         
         $expressionVariable = $expression['var'];
         $variableName = $expressionVariable['name'];
@@ -182,7 +188,7 @@ function flowifyExpression ($expression, &$parentFlowElement) {
         //       Since the old and the new variable will have the same astNodeIdentifier! 
         $flowOldVariable = flowifyExpression($expressionVariable, $parentFlowElement);
 
-        $flowPrimitiveFunction = createAndAddFlowElementToParent('primitiveFunction', '++', null, $astNodeIdentifier, $parentFlowElement);
+        $flowPrimitiveFunction = createAndAddFlowElementToParent('primitiveFunction', $opertaionName, null, $astNodeIdentifier, $parentFlowElement);
 
         addFlowConnection($flowOldVariable, $flowPrimitiveFunction);
 
@@ -194,7 +200,12 @@ function flowifyExpression ($expression, &$parentFlowElement) {
         // TODO: add a 'identity'-connection between the newly assigned variable and the variable it overwrote (or multiple if there is more than one) 
 
         $varsInScope[$variableName] = $flowVariableAssigned;
-        $flowElement = $flowOldVariable;  // We take the flowOldVariable as output if is is a Post inc or decr
+        if ($preChange) {
+            $flowElement = $flowVariableAssigned;  // We take the flowVariableAssigned as output if is is a Pre inc or decr
+        }
+        else {
+            $flowElement = $flowOldVariable;  // We take the flowOldVariable as output if is is a Post inc or decr
+        }
         
     }
     else if ($expressionType === 'Expr_PostDec') {
