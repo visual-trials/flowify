@@ -564,25 +564,14 @@ function flowifyForIteration (
     
     // == UPDATE ==
     
-    // Because the position in the code of $updateExpression always corresponds to the forUpdate,
-    // we create a separate astNodeIdentifier for the forUpdate by postFixing the identifier of the 
-    // for-statement with "_ForUpdate". 
-    $updateAstNodeIdentifier = $forAstNodeIdentifier . "_ForUpdate";
     // FIXME: replace ifCond with forUpdate
-    $updateFlowElement = createFlowElement('ifCond', 'update', null, $updateAstNodeIdentifier);
-    
-    // FIXME: we should do this when creating the FlowElement (getting these from the parent, or better: referring to the parent from within the child)
-    $updateFlowElement['varsInScope'] = $forStepFlowElement['varsInScope'];  // copy!
-    $updateFlowElement['functionsInScope'] = $forStepFlowElement['functionsInScope'];  // copy!
-    $flowElement = flowifyExpression($updateExpression, $updateFlowElement);
-    
-    // TODO: the flowElement coming from the updateExpression is a boolean and determines 
-    //       whether the iter-statements are executed. How to should we visualize this?
-    
-    addFlowElementToParent($updateFlowElement, $forStepFlowElement);  // Note: do not call this before flowifyExpression, because this COPIES $updateFlowElement, so changes to it will not be in the parent!
-    
-    $forStepFlowElement['varsInScope'] = $updateFlowElement['varsInScope']; // copy back!
-    
+    $flowElement = flowifyExpressionWithWrappingContainer(
+        $updateExpression, 
+        'ifCond', 
+        'update', 
+        $forAstNodeIdentifier . "_ForUpdate", 
+        $forStepFlowElement
+    );
     
     
     // Checking if the loop vars were changed by the iterBody
