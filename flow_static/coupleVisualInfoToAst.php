@@ -207,6 +207,8 @@ function getAstNodeIdentifier ($astNode) {
 
     global $code;
 
+    $isListOfStatements = false;
+    
     $startAstNode = $astNode;
     $endAstNode = $astNode;
     // For statements, you get a list of statements, so we need the start positions of the first statement and the end position of the last statement
@@ -215,6 +217,7 @@ function getAstNodeIdentifier ($astNode) {
             $startAstNode = $astNode[0];
             $endAstNode = $astNode[count($astNode) - 1];
         }
+        $isListOfStatements = true;
     }
     
     $startLine = 0;
@@ -248,6 +251,10 @@ function getAstNodeIdentifier ($astNode) {
     }
 
     $astNodeIdentifier = $startLine . ':' . $startingColumnNumber . '-' . $endLine . ':' . $endColumnNumber;
+    
+    if ($isListOfStatements) {
+        $astNodeIdentifier = $astNodeIdentifier . '_Stmts';
+    }
 
     return $astNodeIdentifier;
 }

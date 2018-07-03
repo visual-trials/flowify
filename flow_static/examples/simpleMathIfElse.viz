@@ -53,7 +53,7 @@
         "width": 120,
         "height": 150
     },
-    "8:2-8:9": {
+    "8:2-8:9_Stmts": {
         "x": 240,
         "y": 60,
         "isPositionOf": "center",
@@ -70,7 +70,7 @@
         "y": 40,
         "isPositionOf": "center"
     },
-    "11:5-11:12": {
+    "11:5-11:12_Stmts": {
         "x": 240,
         "y": 180,
         "isPositionOf": "center",
