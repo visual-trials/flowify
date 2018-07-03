@@ -168,74 +168,25 @@ function flowifyExpression ($expression, &$parentFlowElement) {
     else if ($expressionType === 'Scalar_LNumber') {
         $flowElement = createAndAddFlowElementToParent('constant', null, $expression['value'], $astNodeIdentifier, $parentFlowElement);
     }
-    else if ($expressionType === 'Expr_BinaryOp_Plus') {
+    else if ('Expr_BinaryOp_' === substr($expressionType, 0, strlen('Expr_BinaryOp_'))) {
+        $binaryOps = [
+            'Expr_BinaryOp_Plus'    => '+',
+            'Expr_BinaryOp_Minus'   => '-',
+            'Expr_BinaryOp_Mul'     => '*',
+            'Expr_BinaryOp_Div'     => '/',
+            'Expr_BinaryOp_Greater' => '>',
+            'Expr_BinaryOp_Smaller' => '<',
+        ];
+        
+        $binaryOpName = $binaryOps[$expressionType];
+        
         $leftExpression = $expression['left'];
         $rightExpression = $expression['right'];
 
         $leftFlow = flowifyExpression($leftExpression, $parentFlowElement);
         $rightFlow = flowifyExpression($rightExpression, $parentFlowElement);
 
-        $flowElement = createAndAddFlowElementToParent('primitiveFunction', '+', null, $astNodeIdentifier, $parentFlowElement);
-
-        addFlowConnection($leftFlow, $flowElement);
-        addFlowConnection($rightFlow, $flowElement);
-    }
-    else if ($expressionType === 'Expr_BinaryOp_Minus') {
-        $leftExpression = $expression['left'];
-        $rightExpression = $expression['right'];
-
-        $leftFlow = flowifyExpression($leftExpression, $parentFlowElement);
-        $rightFlow = flowifyExpression($rightExpression, $parentFlowElement);
-
-        $flowElement = createAndAddFlowElementToParent('primitiveFunction', '-', null, $astNodeIdentifier, $parentFlowElement);
-
-        addFlowConnection($leftFlow, $flowElement);
-        addFlowConnection($rightFlow, $flowElement);
-    }
-    else if ($expressionType === 'Expr_BinaryOp_Mul') {
-        $leftExpression = $expression['left'];
-        $rightExpression = $expression['right'];
-
-        $leftFlow = flowifyExpression($leftExpression, $parentFlowElement);
-        $rightFlow = flowifyExpression($rightExpression, $parentFlowElement);
-
-        $flowElement = createAndAddFlowElementToParent('primitiveFunction', '*', null, $astNodeIdentifier, $parentFlowElement);
-
-        addFlowConnection($leftFlow, $flowElement);
-        addFlowConnection($rightFlow, $flowElement);
-    }
-    else if ($expressionType === 'Expr_BinaryOp_Div') {  // TODO: unduplcate this from other BinaryOps!
-        $leftExpression = $expression['left'];
-        $rightExpression = $expression['right'];
-
-        $leftFlow = flowifyExpression($leftExpression, $parentFlowElement);
-        $rightFlow = flowifyExpression($rightExpression, $parentFlowElement);
-
-        $flowElement = createAndAddFlowElementToParent('primitiveFunction', '/', null, $astNodeIdentifier, $parentFlowElement);
-
-        addFlowConnection($leftFlow, $flowElement);
-        addFlowConnection($rightFlow, $flowElement);
-    }
-    else if ($expressionType === 'Expr_BinaryOp_Greater') {  // TODO: unduplcate this from other BinaryOps!
-        $leftExpression = $expression['left'];
-        $rightExpression = $expression['right'];
-
-        $leftFlow = flowifyExpression($leftExpression, $parentFlowElement);
-        $rightFlow = flowifyExpression($rightExpression, $parentFlowElement);
-
-        $flowElement = createAndAddFlowElementToParent('primitiveFunction', '>', null, $astNodeIdentifier, $parentFlowElement);
-
-        addFlowConnection($leftFlow, $flowElement);
-        addFlowConnection($rightFlow, $flowElement);
-    }
-    else if ($expressionType === 'Expr_BinaryOp_Smaller') {  // TODO: unduplcate this from other BinaryOps!
-        $leftExpression = $expression['left'];
-        $rightExpression = $expression['right'];
-
-        $leftFlow = flowifyExpression($leftExpression, $parentFlowElement);
-        $rightFlow = flowifyExpression($rightExpression, $parentFlowElement);
-
-        $flowElement = createAndAddFlowElementToParent('primitiveFunction', '<', null, $astNodeIdentifier, $parentFlowElement);
+        $flowElement = createAndAddFlowElementToParent('primitiveFunction', $binaryOpName, null, $astNodeIdentifier, $parentFlowElement);
 
         addFlowConnection($leftFlow, $flowElement);
         addFlowConnection($rightFlow, $flowElement);
