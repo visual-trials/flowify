@@ -123,13 +123,13 @@
         "isPositionOf": "center"
     },
     "7:1-9:1_2_Cond_b": {
-        "x": 1240,
+        "x": 1250,
         "y": 500,
         "isPositionOf": "center"
     },
     "7:1-9:1_2_Cond_i": {
-        "x": 1270,
-        "y": 100,
+        "x": 1240,
+        "y": 110,
         "isPositionOf": "center"
     },
     "7:1-9:1_2": {
