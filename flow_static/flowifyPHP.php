@@ -573,6 +573,9 @@ function flowifyForIteration (
         $forStepFlowElement
     );
     
+    // TODO: we are not doing anything with the flowElement coming from the updateBody. Is this ok?
+    
+    
     
     // Checking if the loop vars were changed by the iterBody
     
