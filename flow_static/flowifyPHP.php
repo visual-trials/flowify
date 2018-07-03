@@ -384,8 +384,18 @@ function flowifyExpression ($expression, &$parentFlowElement) {
             $flowElement = $primitiveFunctionCallFlowElement;
         }
         else {
+            // Unknown function call (or at least a function we don't have the body from and is not a known primitive function)
+
             // TODO: we might want to allow non existing function for the time being (and mark them as non-existing)
-            die("The function $functionName could not be found!\n");
+            // We use the 'primitiveFunction' for now.
+            
+            $primitiveFunctionCallFlowElement = createAndAddFlowElementToParent('primitiveFunction', $functionName, null, $astNodeIdentifier, $parentFlowElement);
+            foreach ($flowCallArguments as $flowCallArgument) {
+                addFlowConnection($flowCallArgument, $primitiveFunctionCallFlowElement);
+            }
+            $flowElement = $primitiveFunctionCallFlowElement;
+            
+            // die("The function $functionName could not be found!\n");
         }
 
     }
@@ -410,6 +420,8 @@ function flowifyFunction ($functionStatement, $flowCallArguments, &$functionCall
     
     $functionCallFlowElement['varsInScope'] = [];
     $functionCallFlowElement['functionsInScope'] = [];
+    
+    // TODO: in order for recursion to be possible, the function itself should be available in functionsInScope! (currently not the case to prevent never ending recursion)
     
     $functionName = $functionCallFlowElement['name'];
     
