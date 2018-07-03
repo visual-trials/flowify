@@ -178,7 +178,7 @@ function getVisualInfosForNewPositions($visualInfos, $oldToNewPositions) {
         $positions = $positionsAndPostFix[0];
         $postFix = null;
         if (count($positionsAndPostFix) > 1) {
-            $postFix = $positionsAndPostFix[1];
+            $postFix = implode('_', array_shift($positionsAndPostFix));
         }        
         $fromToParts = explode("-", $positionsAndPostFix[0]);
 

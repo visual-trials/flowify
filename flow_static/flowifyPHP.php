@@ -6,9 +6,6 @@ $flowElementId = 0;
 $flowConnections = [];
 $code = null;
 
-// FIXME: when you have only ONE statement/expression, the ONE expression will have the SAME astNodeIdentifier as the LIST of statements!
-// FIXME: when using multiple underscores in the astNodeIdentifier, the old-to-new mapping will probably go wrong, because it looks at the LAST underscore!
-
 handleRequest();
 
 function handleRequest() {
