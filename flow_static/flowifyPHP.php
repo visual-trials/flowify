@@ -409,6 +409,12 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
     //       of the for's scope right now, because we do a copy-back inside
     //       flowifyExpressionWithWrappingContainer.
     
+    $initExpression = $forStatement['init'][0]; // FIXME: hardcoded to 1 statement/expression! Make sure there is always one!
+    $conditionExpression = $forStatement['cond'][0]; // FIXME: hardcoded to 1 statement/expression! Make sure there is always one!
+    $iterStatements = $forStatement['stmts'];
+    $updateExpression = $forStatement['loop'][0]; // FIXME: hardcoded to 1 statement/expression! Make sure there is always one!
+    
+    
     $forAstNodeIdentifier = getAstNodeIdentifier($forStatement);
     // FIXME: change this from a ifMain for a forMain
     $forFlowElement = createFlowElement('ifMain', 'for', null, $forAstNodeIdentifier);
@@ -419,8 +425,6 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
             
         // == INIT ==
         
-        // FIXME: hardcoded to 1 statement/expression! Make sure there is always one!
-        $initExpression = $forStatement['init'][0];
         $initAstNodeIdentifier = $forAstNodeIdentifier . "_ForInit";
         
         // FIXME: replace ifCond with forInit
@@ -434,15 +438,6 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
                        
         // == COND / ITER / UPDATE ==
         
-        // FIXME: hardcoded to 1 statement/expression! Make sure there is always one!
-        $conditionExpression = $forStatement['cond'][0];
-        $iterStatements = $forStatement['stmts'];
-        // FIXME: hardcoded to 1 statement/expression! Make sure there is always one!
-        $updateExpression = $forStatement['loop'][0];
-            
-        // $varsInScopeLoop = $forFlowElement['varsInScope'];  // copy!
-        // $varsInScopeDoneBody = $forFlowElement['varsInScope']; // copy!
-        // $functionsInScope = $forFlowElement['functionsInScope'];  // copy!
         
         // STEP 1
         
@@ -451,16 +446,11 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
         $forStepFlowElement1 = createFlowElement('ifThen', '#1', null, $forStepAstNodeIdentifier1);
         $forStepFlowElement1['varsInScope'] = $forFlowElement['varsInScope'];  // copy!
         $forStepFlowElement1['functionsInScope'] = $forFlowElement['functionsInScope'];  // copy!
-
         
-        // list($varsInScopeLoop, $varsInScopeDoneBody) = 
         flowifyForIteration(
             $conditionExpression, 
             $iterStatements, 
             $updateExpression,
-            // $varsInScopeLoop,
-            // $varsInScopeDoneBody,
-            // $functionsInScope,
             $forAstNodeIdentifier,
             $forFlowElement,
             $forStepAstNodeIdentifier1,
@@ -478,14 +468,10 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
         $forStepFlowElement2['varsInScope'] = $forStepFlowElement1['varsInScope'];  // copy!
         $forStepFlowElement2['functionsInScope'] = $forStepFlowElement1['functionsInScope'];  // copy!
         
-        // list($varsInScopeLoop, $varsInScopeDoneBody) = 
         flowifyForIteration(
             $conditionExpression, 
             $iterStatements, 
             $updateExpression,
-            // $varsInScopeLoop,
-            // $varsInScopeDoneBody,
-            // $functionsInScope,
             $forAstNodeIdentifier,
             $forFlowElement,
             $forStepAstNodeIdentifier2,
@@ -494,9 +480,6 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
         
         addFlowElementToParent($forStepFlowElement2, $forFlowElement);  // Note: do not call this before the calls to the other addFlowElementToParent, because this COPIES $forStepFlowElement, so changes to it will not be in the parent!
         
-        // $forFlowElement['varsInScope'] = $varsInScopeDoneBody; // copy back!
-        
-
         
         // TODO: implement continue statement (inside flowifyStatements)
         // TODO: implement break statement (inside flowifyStatements)
@@ -529,19 +512,12 @@ function flowifyForIteration (
         $conditionExpression, 
         $iterStatements, 
         $updateExpression,
-        // $varsInScopeLoop,
-        // $varsInScopeDoneBody,
-        // $functionsInScope,
         $forAstNodeIdentifier,
         &$forFlowElement,
         $forStepAstNodeIdentifier,
         &$forStepFlowElement
     ) {
 
-    // $varsInScopeLoop = $forFlowElement['varsInScope'];  // copy!
-    // $varsInScopeDoneBody = $forFlowElement['varsInScope']; // copy!
-    // $functionsInScope = $forFlowElement['functionsInScope'];  // copy!
-    
     // == COND ==
         
         /*
