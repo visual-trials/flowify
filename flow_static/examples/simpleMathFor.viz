@@ -27,8 +27,8 @@
         "isPositionOf": "center"
     },
     "7:1-9:1": {
-        "x": 850,
-        "y": 320,
+        "x": 840,
+        "y": 330,
         "isPositionOf": "center",
         "width": 1300,
         "height": 450,
@@ -47,26 +47,6 @@
     "7:6-7:11": {
         "x": 90,
         "y": -10,
-        "isPositionOf": "center"
-    },
-    "7:1-9:1_1_Pass_b": {
-        "x": 310,
-        "y": 460,
-        "isPositionOf": "center"
-    },
-    "7:1-9:1_1_Cond_b": {
-        "x": 640,
-        "y": 460,
-        "isPositionOf": "center"
-    },
-    "7:1-9:1_1_Pass_i": {
-        "x": 320,
-        "y": -30,
-        "isPositionOf": "center"
-    },
-    "7:1-9:1_1_Cond_i": {
-        "x": 740,
-        "y": -30,
         "isPositionOf": "center"
     },
     "7:1-9:1_1": {
@@ -140,14 +120,44 @@
         "y": 30,
         "isPositionOf": "center"
     },
+    "7:1-9:1_2": {
+        "x": 770,
+        "y": 40,
+        "isPositionOf": "center"
+    },
+    "7:1-9:1_ImplicitDone": {
+        "x": 140,
+        "y": 0,
+        "isPositionOf": "center"
+    },
+    "7:1-9:1_1_Pass_b": {
+        "x": 70,
+        "y": -10,
+        "isPositionOf": "center"
+    },
+    "7:1-9:1_1_Cond_b": {
+        "x": 700,
+        "y": 0,
+        "isPositionOf": "center"
+    },
+    "7:1-9:1_1_Pass_i": {
+        "x": 140,
+        "y": -40,
+        "isPositionOf": "center"
+    },
+    "7:1-9:1_1_Cond_i": {
+        "x": 740,
+        "y": -30,
+        "isPositionOf": "center"
+    },
     "7:1-9:1_2_Pass_b": {
-        "x": 910,
-        "y": 460,
+        "x": 880,
+        "y": 0,
         "isPositionOf": "center"
     },
     "7:1-9:1_2_Cond_b": {
-        "x": 1280,
-        "y": 460,
+        "x": 1260,
+        "y": 0,
         "isPositionOf": "center"
     },
     "7:1-9:1_2_Pass_i": {
@@ -158,11 +168,6 @@
     "7:1-9:1_2_Cond_i": {
         "x": 1320,
         "y": -30,
-        "isPositionOf": "center"
-    },
-    "7:1-9:1_2": {
-        "x": 770,
-        "y": 40,
         "isPositionOf": "center"
     },
     "11:6-11:16": {
