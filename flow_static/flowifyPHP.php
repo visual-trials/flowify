@@ -1,15 +1,12 @@
-<?php declare(strict_types=1);
-// #!/usr/bin/env php
+<?php
 
 require "coupleVisualInfoToAst.php";
 
 $flowElementId = 0;
 $flowConnections = [];
-$code = null;  // TODO: we should make a file-based struct (or array) that contains the $code
-
+$code = null;
 
 // FIXME: when you have only ONE statement/expression, the ONE expression will have the SAME astNodeIdentifier as the LIST of statements!
-
 // FIXME: when using multiple underscores in the astNodeIdentifier, the old-to-new mapping will probably go wrong, because it looks at the LAST underscore!
 
 handleRequest();
@@ -69,22 +66,11 @@ function flowifyPhpAndAttachVisualInfo($fileToFlowifyWithoutExtention)
     $flowifiedPhp['visualInfos'] = $visualInfos;
     $flowifiedPhp['usedVisualInfos'] = $usedVisualInfos;
 
-    // $flowifiedPhp['tokens'] = $tokens;
-    // $flowifiedPhp['tokensWithPosInfo'] = $tokensWithPosInfo;
-
-    // $flowifiedPhp['diffResult'] = $diffResult;
-    // $flowifiedPhp['oldToNewPositions'] = $oldToNewPositions;
-
-    //$flowifiedPhp['lengthCode'] = strlen($newCode);
-
     return $flowifiedPhp;
 }
 
 function flowifyProgram($statements) {
     
-    // $varsInScope = [];
-    // $functionsInScope = [];
-
     $astNodeIdentifier = getAstNodeIdentifier(null);
 
     $rootFlowElement = createFlowElement('root', 'root', null, $astNodeIdentifier);
@@ -97,12 +83,7 @@ function flowifyProgram($statements) {
     
 function flowifyStatements ($statements, &$bodyFlowElement) {
 
-    $varsInScope = &$bodyFlowElement['varsInScope'];
-    $functionsInScope = &$bodyFlowElement['functionsInScope'];
-    
     $returnFlowElement = null;
-
-    // $localFunctions = [];
 
     // 1)    First find all defined functions, so we known the nodes of them, when they are called
     foreach ($statements as $statement) {
@@ -113,8 +94,7 @@ function flowifyStatements ($statements, &$bodyFlowElement) {
             $identifierNode = $statement['name']; // TODO: we are assuming 'name' is always present
 
             if ($identifierNode['nodeType'] === 'Identifier') {
-                // $localFunctions[$identifierNode['name']] = $statement;
-                $functionsInScope[$identifierNode['name']] = $statement;
+                $bodyFlowElement['functionsInScope'][$identifierNode['name']] = $statement;
             }
             else {
                 echo "Found '" . $identifierNode['nodeType'] . "' as nodeType inside 'name' of 'Stmt_Function'\n";
@@ -178,10 +158,7 @@ function flowifyExpression ($expression, &$parentFlowElement) {
 
         $name = $expression['name'];
         if (array_key_exists($name, $varsInScope)) {
-            // TODO: in the beginning of flowifyExpression you should check if it's a variable. 
-            //       If it already exists, you should return a ref to the flow object representing that variable (AT THAT POINT, because it could be overwritten)
-            
-            // Note: this could be a conditionalVariableFlowElement (containing multiple flowElements)
+            // Note: this could be a conditionalVariableFlowElement
             $flowElement = &$varsInScope[$name];
         }
         else {
@@ -265,8 +242,6 @@ function flowifyExpression ($expression, &$parentFlowElement) {
     }
     else if ($expressionType === 'Expr_Assign') {
 
-        // TODO: if you get an assigment of a variable, you should overwrite (or better: stack?) the variable in the vars-array with a new Flow-object!
-
         $variable = $expression['var'];
 
         if ($variable['nodeType'] !== 'Expr_Variable') {
@@ -275,7 +250,7 @@ function flowifyExpression ($expression, &$parentFlowElement) {
 
         $variableName = $variable['name'];
 
-        // TODO: the expression (that is assigned) might be constant, which can be used to directly fill the variable (so no connection is needed towards to variable)
+        // Note: the expression (that is assigned) might be constant, which can be used to directly fill the variable (so no connection is needed towards to variable)
         //       but you COULD make the constant its own FlowElements and make the assigment iself a 'function' that combines the empty variable
         //       with the constant, resulting in a variable (header) with a value (body)
 
@@ -332,16 +307,14 @@ function flowifyExpression ($expression, &$parentFlowElement) {
 
         // We try to find the statement of the function in scope
         if (array_key_exists($functionName, $functionsInScope)) {
-            // call to known function (that we have the body-AST of
+            // Call to known function (that we have the body-AST of)
 
             $functionStatement = $functionsInScope[$functionName];
 
             $functionCallFlowElement = createFlowElement('function', $functionName, null, $astNodeIdentifier);
 
             // Flowify the body of the functions (including the return value) and use that  return value as our own output
-            // FIXME: what if function has no return value? Should we return a null-flowElement?
-            $localVars = [];  // FIXME: what should we pass as localVars to the called function?
-            $flowElement = flowifyFunction($functionStatement, /*$localVars, $functionsInScope,*/ $flowCallArguments, $functionCallFlowElement);
+            $flowElement = flowifyFunction($functionStatement, $flowCallArguments, $functionCallFlowElement);
 
             addFlowElementToParent($functionCallFlowElement, $parentFlowElement);  // Note: do not call this before flowifyFunction, because this COPIES $flowFunctionCallElement, so changes to it will not be in the parent!
         }
@@ -355,7 +328,7 @@ function flowifyExpression ($expression, &$parentFlowElement) {
             $flowElement = $primitiveFunctionCallFlowElement;
         }
         else {
-            // FIXME: we might want to allow non existing function for the time being (and mark them as non-existing)
+            // TODO: we might want to allow non existing function for the time being (and mark them as non-existing)
             die("The function $functionName could not be found!\n");
         }
 
@@ -371,16 +344,19 @@ function flowifyExpression ($expression, &$parentFlowElement) {
 
 function flowifyFunction ($functionStatement, $flowCallArguments, &$functionCallFlowElement) { 
 
+    // With a body: (maybe make this work) 
+    //    - the parameters should be in the function-input
+    //    - the statements should be in the function-body
+    //    - the return variable(s) should be in the function-output
+
+    // Without body:(current)
+    //    - Everything should be inside the function-call (no input/body/output)
+    
     $functionCallFlowElement['varsInScope'] = [];
     $functionCallFlowElement['functionsInScope'] = [];
-    $varsInScope = &$functionCallFlowElement['varsInScope'];
-    $functionsInScope = &$functionCallFlowElement['functionsInScope'];
     
     $functionName = $functionCallFlowElement['name'];
     
-    // NO BODY $astNodeIdentifier = getAstNodeIdentifier($functionStatement); // FIXME: shouldnt this be attached to the 'stmts' inside the $functionStatement? Also see 'stmts' in the if-statement (similar problem)
-    // NO BODY $functionBodyFlowElement = createFlowElement('body', null, null, $astNodeIdentifier);
-
     $argumentNumber = 0;
     foreach ($flowCallArguments as $flowCallArgument) {
 
@@ -401,17 +377,14 @@ function flowifyFunction ($functionStatement, $flowCallArguments, &$functionCall
 
             $astNodeIdentifier = getAstNodeIdentifier($parameterVar);
 
-            // FIXME: we should put all input-parameters inside an 'input' container
-
             // Adding the parameter to the function
-            // NO BODY $parameterFlowElement = createAndAddFlowElementToParent('variable', $parameterName, null, $astNodeIdentifier, $functionBodyFlowElement);
             $parameterFlowElement = createAndAddFlowElementToParent('variable', $parameterName, null, $astNodeIdentifier, $functionCallFlowElement);
 
             // Connecting the callArgument (outside the function) to the parameter (inside the function)
             addFlowConnection($flowCallArgument, $parameterFlowElement);
 
             // Setting the parameter as a local var within the function body
-            $varsInScope[$parameterName] = $parameterFlowElement;
+            $functionCallFlowElement['varsInScope'][$parameterName] = $parameterFlowElement;
 
         }
         else {
@@ -423,18 +396,7 @@ function flowifyFunction ($functionStatement, $flowCallArguments, &$functionCall
 
     $statements = $functionStatement['stmts'];
 
-    // WITH BODY: maybe make this work: 
-    //    - the parameters should be in the function-input
-    //    - the statements should be in the function-body
-    //    - the return variable(s) should be in the function-output
-    // $returnFlowElement = flowifyStatements($statements, $functionBodyFlowElement);
-
-    // OR WITHOUT BODY:
-    //    - Everything should be inside the function-call (no input/body/output)
-    // TODO: don't we need the astNodeIdentifier of the functionStatement for some visualInfo?
     $returnFlowElement = flowifyStatements($statements, $functionCallFlowElement);
-
-    // addFlowElementToParent($functionBodyFlowElement, $functionCallFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $functionBodyFlowElement, so changes to it will not be in the parent!
 
     return $returnFlowElement;
 
