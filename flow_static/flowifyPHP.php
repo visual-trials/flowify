@@ -492,9 +492,9 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
 
         addFlowElementToParent($doneBodyFlowElement, $forFlowElement);  // Note: do not call this before the calls to the other addFlowElementToParent, because this COPIES $doneBodyFlowElement, so changes to it will not be in the parent!
         
-        
         $forFlowElement['varsInScope'] = $doneBodyFlowElement['varsInScope']; // copy back!
         $forFlowElement['functionsInScope'] = $doneBodyFlowElement['functionsInScope']; // copy back!
+
         
         // TODO: implement continue statement (inside flowifyStatements)
         // TODO: implement break statement (inside flowifyStatements)
@@ -506,36 +506,6 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
     $parentFlowElement['varsInScope'] = $forFlowElement['varsInScope']; // copy back!
     $parentFlowElement['functionsInScope'] = $forFlowElement['functionsInScope']; // copy back!
     
-}
-
-function flowifyExpressionWithWrappingContainer ($wrapperExpression, $containerType, $containerName, $wrapperAstNodeIdentifier, &$parentFlowElement) {
-    
-    $wrapperFlowElement = createFlowElement($containerType, $containerName, null, $wrapperAstNodeIdentifier);
-    
-    $wrapperFlowElement['varsInScope'] = $parentFlowElement['varsInScope']; // copy!
-    $wrapperFlowElement['functionsInScope'] = $parentFlowElement['functionsInScope']; // copy!
-    $flowElement = flowifyExpression($wrapperExpression, $wrapperFlowElement);
-    
-    addFlowElementToParent($wrapperFlowElement, $parentFlowElement);  // Note: do not call this before flowifyExpression, because this COPIES $wrapperFlowElement, so changes to it will not be in the parent!
-    
-    $parentFlowElement['varsInScope'] = $wrapperFlowElement['varsInScope'];  // copy back!
-    
-    return $flowElement;
-}
-
-function flowifyStatementsWithWrappingContainer ($wrapperStatements, $containerType, $containerName, $wrapperAstNodeIdentifier, &$parentFlowElement) {
-    
-    $wrapperFlowElement = createFlowElement($containerType, $containerName, null, $wrapperAstNodeIdentifier);
-    
-    $wrapperFlowElement['varsInScope'] = $parentFlowElement['varsInScope']; // copy!
-    $wrapperFlowElement['functionsInScope'] = $parentFlowElement['functionsInScope']; // copy!
-    $flowElement = flowifyStatements($wrapperStatements, $wrapperFlowElement);
-    
-    addFlowElementToParent($wrapperFlowElement, $parentFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $wrapperFlowElement, so changes to it will not be in the parent!
-    
-    $parentFlowElement['varsInScope'] = $wrapperFlowElement['varsInScope'];  // copy back!
-    
-    return $flowElement;
 }
 
 function flowifyForIteration (
@@ -936,6 +906,36 @@ function createAndAddFlowElementToParent ($flowElementType, $flowElementName, $f
     $flowElement = createFlowElement ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $canHaveChildren, $hasScope);
     addFlowElementToParent($flowElement, $parentFlowElement);
 
+    return $flowElement;
+}
+
+function flowifyExpressionWithWrappingContainer ($wrapperExpression, $containerType, $containerName, $wrapperAstNodeIdentifier, &$parentFlowElement) {
+    
+    $wrapperFlowElement = createFlowElement($containerType, $containerName, null, $wrapperAstNodeIdentifier);
+    
+    $wrapperFlowElement['varsInScope'] = $parentFlowElement['varsInScope']; // copy!
+    $wrapperFlowElement['functionsInScope'] = $parentFlowElement['functionsInScope']; // copy!
+    $flowElement = flowifyExpression($wrapperExpression, $wrapperFlowElement);
+    
+    addFlowElementToParent($wrapperFlowElement, $parentFlowElement);  // Note: do not call this before flowifyExpression, because this COPIES $wrapperFlowElement, so changes to it will not be in the parent!
+    
+    $parentFlowElement['varsInScope'] = $wrapperFlowElement['varsInScope'];  // copy back!
+    
+    return $flowElement;
+}
+
+function flowifyStatementsWithWrappingContainer ($wrapperStatements, $containerType, $containerName, $wrapperAstNodeIdentifier, &$parentFlowElement) {
+    
+    $wrapperFlowElement = createFlowElement($containerType, $containerName, null, $wrapperAstNodeIdentifier);
+    
+    $wrapperFlowElement['varsInScope'] = $parentFlowElement['varsInScope']; // copy!
+    $wrapperFlowElement['functionsInScope'] = $parentFlowElement['functionsInScope']; // copy!
+    $flowElement = flowifyStatements($wrapperStatements, $wrapperFlowElement);
+    
+    addFlowElementToParent($wrapperFlowElement, $parentFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $wrapperFlowElement, so changes to it will not be in the parent!
+    
+    $parentFlowElement['varsInScope'] = $wrapperFlowElement['varsInScope'];  // copy back!
+    
     return $flowElement;
 }
 
