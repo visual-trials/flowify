@@ -34,6 +34,21 @@
         "height": 450,
         "relativeScale": 1
     },
+    "7:1-9:1_ForInit": {
+        "x": 60,
+        "y": 80,
+        "isPositionOf": "center"
+    },
+    "7:11-7:11": {
+        "x": 30,
+        "y": -10,
+        "isPositionOf": "center"
+    },
+    "7:6-7:11": {
+        "x": 90,
+        "y": -10,
+        "isPositionOf": "center"
+    },
     "7:1-9:1_1": {
         "x": 440,
         "y": 230,
