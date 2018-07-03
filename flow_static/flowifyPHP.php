@@ -173,23 +173,28 @@ function flowifyExpression ($expression, &$parentFlowElement) {
     }
     else if ($expressionType === 'Expr_PostInc') {
         
-        $expressionOldVariable = $expression['var'];
-        $variableName = $expressionOldVariable['name'];
+        $expressionVariable = $expression['var'];
+        $variableName = $expressionVariable['name'];
 
-        $flowOldVariable = flowifyExpression($expressionOldVariable, $parentFlowElement);
+        // Note: This will normally find the variable declaration (or an earlier assignment). 
+        //       We call this flowOldVariable since this oldVariable is now being re-assigned.
+        // TODO: What if the variable was not yet declared? Would that not cause an issue?
+        //       Since the old and the new variable will have the same astNodeIdentifier! 
+        $flowOldVariable = flowifyExpression($expressionVariable, $parentFlowElement);
 
         $flowPrimitiveFunction = createAndAddFlowElementToParent('primitiveFunction', '++', null, $astNodeIdentifier, $parentFlowElement);
 
         addFlowConnection($flowOldVariable, $flowPrimitiveFunction);
 
-        $flowVariableAssigned = createAndAddFlowElementToParent('variable', $variableName, null, $astNodeIdentifier, $parentFlowElement);
+        $variableAstNodeIdentifier = getAstNodeIdentifier($expressionVariable);
+        $flowVariableAssigned = createAndAddFlowElementToParent('variable', $variableName, null, $variableAstNodeIdentifier, $parentFlowElement);
 
         addFlowConnection($flowPrimitiveFunction, $flowVariableAssigned);
         
         // TODO: add a 'identity'-connection between the newly assigned variable and the variable it overwrote (or multiple if there is more than one) 
 
         $varsInScope[$variableName] = $flowVariableAssigned;
-        $flowElement = $flowOldVariable;
+        $flowElement = $flowOldVariable;  // We take the flowOldVariable as output if is is a Post inc or decr
         
     }
     else if ($expressionType === 'Expr_PostDec') {
@@ -213,12 +218,16 @@ function flowifyExpression ($expression, &$parentFlowElement) {
         
         $assignOpName = $assignOps[$expressionType];
         
-        $expressionOldVariable = $expression['var'];
+        $expressionVariable = $expression['var'];
         $expressionAssign = $expression['expr'];
         
-        $variableName = $expressionOldVariable['name'];
+        $variableName = $expressionVariable['name'];
 
-        $flowOldVariable = flowifyExpression($expressionOldVariable, $parentFlowElement);
+        // Note: This will normally find the variable declaration (or an earlier assignment). 
+        //       We call this flowOldVariable since this oldVariable is now being re-assigned.
+        // TODO: What if the variable was not yet declared? Would that not cause an issue?
+        //       Since the old and the new variable will have the same astNodeIdentifier! 
+        $flowOldVariable = flowifyExpression($expressionVariable, $parentFlowElement);
         $flowAssign = flowifyExpression($expressionAssign, $parentFlowElement);
 
         $flowPrimitiveFunction = createAndAddFlowElementToParent('primitiveFunction', $assignOpName, null, $astNodeIdentifier, $parentFlowElement);
@@ -226,7 +235,8 @@ function flowifyExpression ($expression, &$parentFlowElement) {
         addFlowConnection($flowOldVariable, $flowPrimitiveFunction);
         addFlowConnection($flowAssign, $flowPrimitiveFunction);
 
-        $flowVariableAssigned = createAndAddFlowElementToParent('variable', $variableName, null, $astNodeIdentifier, $parentFlowElement);
+        $variableAstNodeIdentifier = getAstNodeIdentifier($expressionVariable);
+        $flowVariableAssigned = createAndAddFlowElementToParent('variable', $variableName, null, $variableAstNodeIdentifier, $parentFlowElement);
 
         addFlowConnection($flowPrimitiveFunction, $flowVariableAssigned);
         
