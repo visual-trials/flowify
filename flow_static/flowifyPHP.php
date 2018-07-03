@@ -554,8 +554,7 @@ function flowifyForIteration (
             // TODO: should we really use the variable name in the identifier?
             $passThroughVariableAstNodeIdentifier = $forStepAstNodeIdentifier . "_Pass_" . $variableName;
 
-            // FIXME: this should be of type 'passthroughVariable'
-            $passThroughVariableFlowElement = createAndAddFlowElementToParent('variable', $variableName, null, $passThroughVariableAstNodeIdentifier, $doneBodyFlowElement);
+            $passThroughVariableFlowElement = createAndAddFlowElementToParent('passThroughVariable', $variableName, null, $passThroughVariableAstNodeIdentifier, $doneBodyFlowElement);
 
             // Connecting the variable in the doneBody to the passthrough variable (inside the doneBody)
             addFlowConnection($doneBodyFlowElement['varsInScope'][$variableName], $passThroughVariableFlowElement);
@@ -572,8 +571,7 @@ function flowifyForIteration (
         if ($varReplacedInForStep) {
             // FIXME: double check: we are using the forStepIdentifier inside the for element (with a varname) is this ok?
             $conditionalVariableAstNodeIdentifier = $forStepAstNodeIdentifier . "_Cond_" . $variableName;
-            // FIXME: make this type 'conditionalVariable'
-            $conditionalVariableFlowElement = createAndAddFlowElementToParent('variable', $variableName, null, $conditionalVariableAstNodeIdentifier, $doneBodyOrForFlowElement);
+            $conditionalVariableFlowElement = createAndAddFlowElementToParent('conditionalVariable', $variableName, null, $conditionalVariableAstNodeIdentifier, $doneBodyOrForFlowElement);
             addFlowConnection($forStepVariableFlowElement, $conditionalVariableFlowElement, 'conditional');
             addFlowConnection($doneBodyVariableFlowElement, $conditionalVariableFlowElement, 'conditional');
             $doneBodyOrForFlowElement['varsInScope'][$variableName] = $conditionalVariableFlowElement; // NOTE: a ref doesn't work here for some reason
@@ -729,8 +727,7 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
                     // TODO: should we really use the variable name in the identifier?
                     $passThroughVariableAstNodeIdentifier = $elseAstNodeIdentifier . "_" . $variableName;
 
-                    // FIXME: this should be of type 'passthroughVariable'
-                    $passThroughVariableFlowElement = createAndAddFlowElementToParent('variable', $variableName, null, $passThroughVariableAstNodeIdentifier, $elseBodyFlowElement);
+                    $passThroughVariableFlowElement = createAndAddFlowElementToParent('passThroughVariable', $variableName, null, $passThroughVariableAstNodeIdentifier, $elseBodyFlowElement);
 
                     // Connecting the variable in the parent to the passthrough variable (inside the thenBody)
                     addFlowConnection($varsInScopeParent[$variableName], $passThroughVariableFlowElement);
@@ -752,8 +749,7 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
                     // TODO: should we really use the variable name in the identifier?
                     $passThroughVariableAstNodeIdentifier = $thenAstNodeIdentifier . "_" . $variableName;
 
-                    // FIXME: this should be of type 'passthroughVariable'
-                    $passThroughVariableFlowElement = createAndAddFlowElementToParent('variable', $variableName, null, $passThroughVariableAstNodeIdentifier, $thenBodyFlowElement);
+                    $passThroughVariableFlowElement = createAndAddFlowElementToParent('passThroughVariable', $variableName, null, $passThroughVariableAstNodeIdentifier, $thenBodyFlowElement);
 
                     // Connecting the variable in the parent to the passthrough variable (inside the thenBody)
                     addFlowConnection($varsInScopeParent[$variableName], $passThroughVariableFlowElement);
@@ -777,8 +773,7 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
             // by another flowElement, it can connect to this conditionalVariable
             if ($varReplacedInThenBody || $varReplacedInElseBody) {
                 $conditionalVariableAstNodeIdentifier = $ifAstNodeIdentifier . "_" . $variableName;
-                // FIXME: make this type 'conditionalVariable'
-                $conditionalVariableFlowElement = createAndAddFlowElementToParent('variable', $variableName, null, $conditionalVariableAstNodeIdentifier, $ifFlowElement);
+                $conditionalVariableFlowElement = createAndAddFlowElementToParent('conditionalVariable', $variableName, null, $conditionalVariableAstNodeIdentifier, $ifFlowElement);
                 addFlowConnection($thenVariableFlowElement, $conditionalVariableFlowElement, 'conditional');
                 addFlowConnection($elseVariableFlowElement, $conditionalVariableFlowElement, 'conditional');
                 $varsInScopeParent[$variableName] = &$conditionalVariableFlowElement;

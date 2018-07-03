@@ -351,8 +351,8 @@ ZUI.world = function () {
         }
 
         var defaultConnectionProperties = {
-            arrowLineColor: {r: 100, g: 100, b: 100, a: 0.6},
-            arrowHeadColor: {r: 100, g: 100, b: 100, a: 0.6},
+            arrowLineColor: {r: 150, g: 150, b: 150, a: 1},
+            arrowHeadColor: {r: 150, g: 150, b: 150, a: 1},
             dashStyle: null,
             lineNormalizedWidth: null,
             arrowPointNormalizedLength: null

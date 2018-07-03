@@ -263,6 +263,45 @@ var containerTypeProperties = {
             ]
         }
     },
+    passThroughVariable: {
+        drawContainer: true,
+        showContainerBody: true,
+        containerColor: {r: 210, g: 230, b: 255, a: 0.3},
+        containerBorderColor: {r: 180, g: 200, b: 255, a: 0.3},
+        showContainerText: true,
+        paddingTop: 10,
+        paddingBottom: 10,
+        paddingLeft: 10,
+        paddingRight: 10,
+        childrenLayoutFunction: "none",
+        dataItemGroups: {
+            basicInfo: [
+                { containerKey: "identifier", displayName: "identifier" },
+                { containerKey: "type", displayName: "type" },
+                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" }
+            ]
+        }
+    },
+    conditionalVariable: {
+        drawContainer: true,
+        showContainerBody: true,
+        containerColor: {r: 150, g: 150, b: 150, a: 1},
+        containerBorderColor: {r: 150, g: 150, b: 150, a: 1},
+        shape: "ellipse",
+        showContainerText: false,
+        paddingTop: 0,
+        paddingBottom: 0,
+        paddingLeft: 0,
+        paddingRight: 0,
+        childrenLayoutFunction: "none",
+        dataItemGroups: {
+            basicInfo: [
+                { containerKey: "identifier", displayName: "identifier" },
+                { containerKey: "type", displayName: "type" },
+                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" }
+            ]
+        }
+    },
     constant: {
         drawContainer: true,
         showContainerBody: true,
@@ -385,6 +424,12 @@ function convertFlowDataToZUIContainers (world, flowData) {
         var headerText = null
 
         if (flowElement.type === 'variable') {
+            containerText = flowElement.name
+        }
+        else if (flowElement.type === 'passThroughVariable') {
+            containerText = flowElement.name
+        }
+        else if (flowElement.type === 'conditionalVariable') {
             containerText = flowElement.name
         }
         else if (flowElement.type === 'constant') {
