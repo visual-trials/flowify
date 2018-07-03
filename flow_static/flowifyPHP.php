@@ -478,7 +478,6 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
         $forStepFlowElement2['varsInScope'] = $forStepFlowElement1['varsInScope'];  // copy!
         $forStepFlowElement2['functionsInScope'] = $forStepFlowElement1['functionsInScope'];  // copy!
         
-        /*
         // list($varsInScopeLoop, $varsInScopeDoneBody) = 
         flowifyForIteration(
             $conditionExpression, 
@@ -492,7 +491,6 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
             $forStepAstNodeIdentifier2,
             $forStepFlowElement2
         );
-        */
         
         addFlowElementToParent($forStepFlowElement2, $forFlowElement);  // Note: do not call this before the calls to the other addFlowElementToParent, because this COPIES $forStepFlowElement, so changes to it will not be in the parent!
         
