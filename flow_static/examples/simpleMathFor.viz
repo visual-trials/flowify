@@ -60,13 +60,13 @@
         "isPositionOf": "center"
     },
     "7:1-9:1_1_Pass_i": {
-        "x": 440,
-        "y": -10,
+        "x": 320,
+        "y": -30,
         "isPositionOf": "center"
     },
     "7:1-9:1_1_Cond_i": {
-        "x": 920,
-        "y": -10,
+        "x": 740,
+        "y": -30,
         "isPositionOf": "center"
     },
     "7:1-9:1_1": {
@@ -151,13 +151,13 @@
         "isPositionOf": "center"
     },
     "7:1-9:1_2_Pass_i": {
-        "x": 1290,
-        "y": 0,
+        "x": 930,
+        "y": -30,
         "isPositionOf": "center"
     },
     "7:1-9:1_2_Cond_i": {
-        "x": 1440,
-        "y": 110,
+        "x": 1320,
+        "y": -30,
         "isPositionOf": "center"
     },
     "7:1-9:1_2": {
