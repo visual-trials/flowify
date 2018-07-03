@@ -404,9 +404,16 @@ function flowifyFunction ($functionStatement, $flowCallArguments, &$functionCall
 
 function flowifyForStatement($forStatement, &$parentFlowElement) {
     
+    // Note: We are assuming a programming language with FUNCTION scope here!
+    //       The variables declared inside the init-statement will be part
+    //       of the for's scope right now, because we do a copy-back inside
+    //       flowifyExpressionWithWrappingContainer.
+    
     $forAstNodeIdentifier = getAstNodeIdentifier($forStatement);
     // FIXME: change this from a ifMain for a forMain
     $forFlowElement = createFlowElement('ifMain', 'for', null, $forAstNodeIdentifier);
+    $forFlowElement['varsInScope'] = $parentFlowElement['varsInScope']; // copy!
+    $forFlowElement['functionsInScope'] = $parentFlowElement['functionsInScope']; // copy!
 
     {
         {
@@ -416,25 +423,18 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
             // FIXME: hardcoded to 1 statement/expression!
             $initExpression = $forStatement['init'][0];
             
-            // Because the position in the code of $initExpression always corresponds to the forInit,
-            // we create a separate astNodeIdentifier for the forInit by postFixing the identifier of the 
-            // for-statement with "_ForInit". 
             $initAstNodeIdentifier = $forAstNodeIdentifier . "_ForInit";
+            
             // FIXME: replace ifCond with forInit
-            $initFlowElement = createFlowElement('ifCond', 'init', null, $initAstNodeIdentifier);
-            
-            // FIXME: we should do this when creating the FlowElement (getting these from the parent, or better: referring to the parent from within the child)
-            $initFlowElement['varsInScope'] = $parentFlowElement['varsInScope']; // copy!
-            $initFlowElement['functionsInScope'] = $parentFlowElement['functionsInScope']; // copy!
-            $flowElement = flowifyExpression($initExpression, $initFlowElement);
-            // TODO: the flowElement comingh from the initExpression is ignored for now. Is that ok?
-            
-            addFlowElementToParent($initFlowElement, $forFlowElement);  // Note: do not call this before flowifyExpression, because this COPIES $condFlowElement, so changes to it will not be in the parent!
-            
-            // NOTE: We are assuming a programming language with FUNCTION scope here!
-            //       The variables declared inside the init-statement will be part
-            //       of the parent's scope right now.
-            $parentFlowElement['varsInScope'] = $initFlowElement['varsInScope'];  // copy back!
+            $flowElement = flowifyExpressionWithWrappingContainer(
+                                $initExpression, 
+                                'ifCond', 
+                                'init', 
+                                $forAstNodeIdentifier . "_ForInit", 
+                                $forFlowElement
+                           );
+                           
+            // Note: the flowElement coming from the initExpression is ignored for now. Is that ok?
         }
         
         
@@ -445,10 +445,10 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
         $updateExpression = $forStatement['loop'][0];
             
         
-        $varsInScopeLoop = $parentFlowElement['varsInScope'];  // copy!
-        $varsInScopeDoneBody = $parentFlowElement['varsInScope']; // copy!
+        $varsInScopeLoop = $forFlowElement['varsInScope'];  // copy!
+        $varsInScopeDoneBody = $forFlowElement['varsInScope']; // copy!
 
-        $functionsInScope = $parentFlowElement['functionsInScope'];  // copy!
+        $functionsInScope = $forFlowElement['functionsInScope'];  // copy!
         
         $forStepAstNodeIdentifier = $forAstNodeIdentifier . "_1";
         // FIXME: change this from a ifThen for a forStep
@@ -485,7 +485,7 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
         
         addFlowElementToParent($forStepFlowElement, $forFlowElement);  // Note: do not call this before the calls to the other addFlowElementToParent, because this COPIES $forStepFlowElement, so changes to it will not be in the parent!
         
-        $parentFlowElement['varsInScope'] = $varsInScopeDoneBody; // copy back!
+        $forFlowElement['varsInScope'] = $varsInScopeDoneBody; // copy back!
 
         
         // TODO: implement continue statement (inside flowifyStatements)
@@ -495,9 +495,25 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
     }    
     
     addFlowElementToParent($forFlowElement, $parentFlowElement);  // Note: do not call this before the calls to the other addFlowElementToParent, because this COPIES $forFlowElement, so changes to it will not be in the parent!
+    $parentFlowElement['varsInScope'] = $forFlowElement['varsInScope']; // copy back!
+    $parentFlowElement['functionsInScope'] = $forFlowElement['functionsInScope']; // copy back!
     
 }
 
+function flowifyExpressionWithWrappingContainer ($wrapperExpression, $containerType, $containerName, $wrapperAstNodeIdentifier, &$parentFlowElement) {
+    
+    $wrapperFlowElement = createFlowElement($containerType, $containerName, null, $wrapperAstNodeIdentifier);
+    
+    $wrapperFlowElement['varsInScope'] = $parentFlowElement['varsInScope']; // copy!
+    $wrapperFlowElement['functionsInScope'] = $parentFlowElement['functionsInScope']; // copy!
+    $flowElement = flowifyExpression($wrapperExpression, $wrapperFlowElement);
+    
+    addFlowElementToParent($wrapperFlowElement, $parentFlowElement);  // Note: do not call this before flowifyExpression, because this COPIES $wrapperFlowElement, so changes to it will not be in the parent!
+    
+    $parentFlowElement['varsInScope'] = $wrapperFlowElement['varsInScope'];  // copy back!
+    
+    return $flowElement;
+}
 
 function flowifyForIteration (
         $conditionExpression, 
