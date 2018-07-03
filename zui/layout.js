@@ -789,7 +789,7 @@ ZUI.layout = function () {
                 var arrowPointLength = 10
                 if (connectionProperties.arrowPointNormalizedLength != null) {
                     // FIXME: whould we really use the toSliceContainer this way here?
-                    arrowPointLength = connectionProperties.arrowPointNormalizedLength * (toAbsoluteSize.height / toSliceContainer.worldContainer.normalizedSize.height)
+                    arrowPointLength = connectionProperties.arrowPointNormalizedLength * toSliceContainer.newLayout.absoluteScale
                 }
 
                 var toArrowPointLeftSide = null
@@ -840,6 +840,7 @@ ZUI.layout = function () {
                     var percentageOfCurve = worldChildContainer.positionAsPercentageOfCurve
                     var childContainerPosition = my.getPointOnBezierCurve(percentageOfCurve, fromAttachmentPoint, fromBendingPoint, toBendingPoint, toLineEndPoint)
 
+                    // FIXME: still using normalizedSize here!
                     var childContainerWidth = worldChildContainer.normalizedSize.width * worldSliceChildContainer.newLayout.absoluteScale
                     var childContainerHeight = worldChildContainer.normalizedSize.height * worldSliceChildContainer.newLayout.absoluteScale
                     worldSliceChildContainer.newLayout.absoluteSize.width = childContainerWidth

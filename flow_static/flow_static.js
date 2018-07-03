@@ -521,6 +521,10 @@ function convertFlowDataToZUIContainers (world, flowData) {
         var flowConnection = flowConnections[loopIndex]
 
         var overrulingConnectionProperties = {}
+
+        // FIXME: these should be properties of the connnectionType
+        overrulingConnectionProperties['lineNormalizedWidth'] = 2;
+        overrulingConnectionProperties['arrowPointNormalizedLength'] = 12;
         
         if (flowConnection.type === 'conditional') {
             overrulingConnectionProperties['dashStyle'] = [5,2]

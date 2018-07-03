@@ -1247,7 +1247,7 @@ ZUI.render = function () {
                 var lineWidth = 2
                 if (connectionProperties.lineNormalizedWidth != null) {
                     // FIXME: should we really use the rootWorldSliceContainer of the camera like this?
-                    lineWidth = connectionProperties.lineNormalizedWidth * (camera.rootWorldSliceContainer.size.height / camera.rootWorldSliceContainer.worldContainer.normalizedSize.height)
+                    lineWidth = connectionProperties.lineNormalizedWidth * camera.rootWorldSliceContainer.newLayout.absoluteScale
                 }
 
                 var lineColor = connectionProperties.arrowLineColor
