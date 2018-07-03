@@ -378,10 +378,14 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
     //       of the for's scope right now, because we do a copy-back inside
     //       flowifyExpressionWithWrappingContainer.
     
-    $initExpression = $forStatement['init'][0]; // FIXME: hardcoded to 1 statement/expression! Make sure there is always one!
-    $conditionExpression = $forStatement['cond'][0]; // FIXME: hardcoded to 1 statement/expression! Make sure there is always one!
+    // Note: Php allows comma separated expressions (but ONLY inside the for-statement):
+    //    http://php.net/manual/en/language.expressions.php#90327
+    // TODO: make sure more than 1 expression is used for the 'init', 'cond' and 'loop' segments 
+    
+    $initExpression = $forStatement['init'][0]; // TODO: hardcoded to 1 statement/expression! Make sure there is always one!
+    $conditionExpression = $forStatement['cond'][0]; // TODO: hardcoded to 1 statement/expression! Make sure there is always one!
+    $updateExpression = $forStatement['loop'][0]; // TODO: hardcoded to 1 statement/expression! Make sure there is always one!
     $iterStatements = $forStatement['stmts'];
-    $updateExpression = $forStatement['loop'][0]; // FIXME: hardcoded to 1 statement/expression! Make sure there is always one!
     
     
     $forAstNodeIdentifier = getAstNodeIdentifier($forStatement);
