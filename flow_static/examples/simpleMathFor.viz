@@ -49,6 +49,26 @@
         "y": -10,
         "isPositionOf": "center"
     },
+    "7:1-9:1_1_Pass_b": {
+        "x": 270,
+        "y": 460,
+        "isPositionOf": "center"
+    },
+    "7:1-9:1_1_Cond_b": {
+        "x": 640,
+        "y": 460,
+        "isPositionOf": "center"
+    },
+    "7:1-9:1_1_Pass_i": {
+        "x": 270,
+        "y": 0,
+        "isPositionOf": "center"
+    },
+    "7:1-9:1_1_Cond_i": {
+        "x": 710,
+        "y": 0,
+        "isPositionOf": "center"
+    },
     "7:1-9:1_1": {
         "x": 440,
         "y": 230,
@@ -119,41 +139,6 @@
         "x": 120,
         "y": 30,
         "isPositionOf": "center"
-    },
-    "7:1-9:1_ImplicitDone": {
-        "x": 290,
-        "y": 350,
-        "isPositionOf": "center",
-        "width": 300,
-        "height": 40
-    },
-    "7:1-9:1_ImplicitDone_b": {
-        "x": 60,
-        "y": 20,
-        "isPositionOf": "center"
-    },
-    "7:1-9:1_b": {
-        "x": 260,
-        "y": 20,
-        "isPositionOf": "center"
-    },
-    "7:1-9:1_ImplicitDone_i": {
-        "x": 50,
-        "y": -290,
-        "isPositionOf": "center"
-    },
-    "7:1-9:1_i": {
-        "x": 340,
-        "y": -290,
-        "isPositionOf": "center"
-    },
-    "7:1-9:1_2": {
-        "x": 970,
-        "y": 230,
-        "isPositionOf": "center",
-        "width": 500,
-        "height": 400,
-        "relativeScale": 1
     },
     "11:6-11:16": {
         "x": 1680,
