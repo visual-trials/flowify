@@ -574,8 +574,8 @@ function flowifyForIteration (
             $conditionalVariableAstNodeIdentifier = $forStepAstNodeIdentifier . "_Cond_" . $variableName;
             // FIXME: make this type 'conditionalVariable'
             $conditionalVariableFlowElement = createAndAddFlowElementToParent('variable', $variableName, null, $conditionalVariableAstNodeIdentifier, $doneBodyOrForFlowElement);
-            addFlowConnection($forStepVariableFlowElement, $conditionalVariableFlowElement);
-            addFlowConnection($doneBodyVariableFlowElement, $conditionalVariableFlowElement);
+            addFlowConnection($forStepVariableFlowElement, $conditionalVariableFlowElement, 'conditional');
+            addFlowConnection($doneBodyVariableFlowElement, $conditionalVariableFlowElement, 'conditional');
             $doneBodyOrForFlowElement['varsInScope'][$variableName] = $conditionalVariableFlowElement; // NOTE: a ref doesn't work here for some reason
         }
         
@@ -779,8 +779,8 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
                 $conditionalVariableAstNodeIdentifier = $ifAstNodeIdentifier . "_" . $variableName;
                 // FIXME: make this type 'conditionalVariable'
                 $conditionalVariableFlowElement = createAndAddFlowElementToParent('variable', $variableName, null, $conditionalVariableAstNodeIdentifier, $ifFlowElement);
-                addFlowConnection($thenVariableFlowElement, $conditionalVariableFlowElement);
-                addFlowConnection($elseVariableFlowElement, $conditionalVariableFlowElement);
+                addFlowConnection($thenVariableFlowElement, $conditionalVariableFlowElement, 'conditional');
+                addFlowConnection($elseVariableFlowElement, $conditionalVariableFlowElement, 'conditional');
                 $varsInScopeParent[$variableName] = &$conditionalVariableFlowElement;
             }
             
@@ -837,10 +837,10 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
 
 // Helper functions
 
-function addFlowConnection ($fromFlowElement, $toFlowElement) {
+function addFlowConnection ($fromFlowElement, $toFlowElement, $connectionType = null) {
     global $flowConnections;
 
-    array_push($flowConnections, [ 'from' => $fromFlowElement['id'], 'to' => $toFlowElement['id']]);
+    array_push($flowConnections, [ 'from' => $fromFlowElement['id'], 'to' => $toFlowElement['id'], 'type' => $connectionType]);
 }
 
 function addFlowElementToParent (&$flowElement, &$parentFlowElement) {

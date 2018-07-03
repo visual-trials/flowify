@@ -475,8 +475,14 @@ function convertFlowDataToZUIContainers (world, flowData) {
     for (loopIndex = 0; loopIndex < flowConnections.length; loopIndex++) {
         var flowConnection = flowConnections[loopIndex]
 
+        var overrulingConnectionProperties = {}
+        
+        if (flowConnection.type === 'conditional') {
+            overrulingConnectionProperties['dashStyle'] = [5,2]
+        }
+
         // TODO: connection.type?
-        ZUI.addWorldConnection(world, flowConnection.from, flowConnection.to, 'dataFlow')
+        ZUI.addWorldConnection(world, flowConnection.from, flowConnection.to, 'dataFlow', overrulingConnectionProperties)
     }
 
 }

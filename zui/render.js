@@ -266,7 +266,7 @@ ZUI.render = function () {
 
     }
 
-    my.drawBezierCurve = function (camera, fromX, fromY, fromBendingX, fromBendingY, toBendingX, toBendingY, toX, toY, lineColor, lineWidth, opacity) {
+    my.drawBezierCurve = function (camera, fromX, fromY, fromBendingX, fromBendingY, toBendingX, toBendingY, toX, toY, lineColor, lineWidth, opacity, dashStyle) {
         var context2d = camera.context2d
 
         // FIXME: only draw the portion that fits inside the camera!
@@ -294,6 +294,10 @@ ZUI.render = function () {
         var lineWidthPx = lineWidth * camera.pixelsPerMeter
 
         if (lineColor != null) {
+            if (dashStyle != null) {
+                var dashStylePx = dashStyle.map(function(x) { return x * lineWidthPx })
+                context2d.setLineDash(dashStylePx)
+            }
             context2d.lineWidth = lineWidthPx
             context2d.strokeStyle = my.getCanvasRGBAColor(lineColor, opacity)
 
@@ -301,6 +305,10 @@ ZUI.render = function () {
             context2d.moveTo(fromLeftPx, fromTopPx)
             context2d.bezierCurveTo(fromBendingLeftPx, fromBendingTopPx, toBendingLeftPx, toBendingTopPx, toLeftPx, toTopPx)
             context2d.stroke()
+            
+            if (dashStyle != null) {
+                context2d.setLineDash([])
+            }            
         }
     }
 
@@ -1243,6 +1251,7 @@ ZUI.render = function () {
                 }
 
                 var lineColor = connectionProperties.arrowLineColor
+                var dashStyle = connectionProperties.dashStyle
 /*
                 var lineWidthPx = lineWidth * camera.pixelsPerMeter
                 context2d.lineWidth = lineWidthPx
@@ -1250,7 +1259,7 @@ ZUI.render = function () {
 */
 
                 if (lineColor != null) {
-                    my.drawBezierCurve(camera, fromAttachmentPoint.x, fromAttachmentPoint.y, fromBendingPoint.x, fromBendingPoint.y, toBendingPoint.x, toBendingPoint.y, toLineEndPoint.x, toLineEndPoint.y, lineColor, lineWidth, opacity)
+                    my.drawBezierCurve(camera, fromAttachmentPoint.x, fromAttachmentPoint.y, fromBendingPoint.x, fromBendingPoint.y, toBendingPoint.x, toBendingPoint.y, toLineEndPoint.x, toLineEndPoint.y, lineColor, lineWidth, opacity, dashStyle)
 
                     var childIndex
                     for (childIndex = 0; childIndex < sliceConnection.sliceChildren.length; childIndex++) {

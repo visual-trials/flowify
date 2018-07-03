@@ -231,16 +231,16 @@ ZUI.world = function () {
             alertDuration: 1000   // 1000 = 1 second
         }
 
-        for (connectionPropertyKey in defaultContainerProperties) {
-            if (!containerProperties.hasOwnProperty(connectionPropertyKey)) {
-                containerProperties[connectionPropertyKey] = defaultContainerProperties[connectionPropertyKey]
+        for (containerPropertyKey in defaultContainerProperties) {
+            if (!containerProperties.hasOwnProperty(containerPropertyKey)) {
+                containerProperties[containerPropertyKey] = defaultContainerProperties[containerPropertyKey]
             }
         }
 
         if (overrulingContainerProperties !== null) {
-            for (connectionPropertyKey in overrulingContainerProperties) {
-                if (overrulingContainerProperties.hasOwnProperty(connectionPropertyKey)) {
-                    containerProperties[connectionPropertyKey] = overrulingContainerProperties[connectionPropertyKey]
+            for (containerPropertyKey in overrulingContainerProperties) {
+                if (overrulingContainerProperties.hasOwnProperty(containerPropertyKey)) {
+                    containerProperties[containerPropertyKey] = overrulingContainerProperties[containerPropertyKey]
                 }
             }
         }
@@ -353,6 +353,7 @@ ZUI.world = function () {
         var defaultConnectionProperties = {
             arrowLineColor: {r: 100, g: 100, b: 100, a: 0.6},
             arrowHeadColor: {r: 100, g: 100, b: 100, a: 0.6},
+            dashStyle: null,
             lineNormalizedWidth: null,
             arrowPointNormalizedLength: null
 
