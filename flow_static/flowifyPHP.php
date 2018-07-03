@@ -165,6 +165,77 @@ function flowifyExpression ($expression, &$parentFlowElement) {
     else if ($expressionType === 'Scalar_LNumber') {
         $flowElement = createAndAddFlowElementToParent('constant', null, $expression['value'], $astNodeIdentifier, $parentFlowElement);
     }
+    else if ($expressionType === 'Expr_PreInc') {
+        die('Expr_PreInc'); // FIXME
+    }
+    else if ($expressionType === 'Expr_PreDec') {
+        die ('Expr_PreDec'); // FIXME
+    }
+    else if ($expressionType === 'Expr_PostInc') {
+        
+        $expressionOldVariable = $expression['var'];
+        $variableName = $expressionOldVariable['name'];
+
+        $flowOldVariable = flowifyExpression($expressionOldVariable, $parentFlowElement);
+
+        $flowPrimitiveFunction = createAndAddFlowElementToParent('primitiveFunction', '++', null, $astNodeIdentifier, $parentFlowElement);
+
+        addFlowConnection($flowOldVariable, $flowPrimitiveFunction);
+
+        $flowVariableAssigned = createAndAddFlowElementToParent('variable', $variableName, null, $astNodeIdentifier, $parentFlowElement);
+
+        addFlowConnection($flowPrimitiveFunction, $flowVariableAssigned);
+        
+        // TODO: add a 'identity'-connection between the newly assigned variable and the variable it overwrote (or multiple if there is more than one) 
+
+        $varsInScope[$variableName] = $flowVariableAssigned;
+        $flowElement = $flowOldVariable;
+        
+    }
+    else if ($expressionType === 'Expr_PostDec') {
+        die ('Expr_PostDec'); // FIXME
+    }
+    else if ('Expr_AssignOp_' === substr($expressionType, 0, strlen('Expr_AssignOp_'))) {
+        $assignOps = [
+            'Expr_AssignOp_Plus'        => '+',
+            'Expr_AssignOp_Minus'       => '-',
+            'Expr_AssignOp_Mul'         => '*',
+            'Expr_AssignOp_Div'         => '/',
+            'Expr_AssignOp_Concat'      => '.',
+            'Expr_AssignOp_Mod'         => '%',
+            'Expr_AssignOp_BitwiseAnd'  => '&',
+            'Expr_AssignOp_BitwiseOr'   => '|',
+            'Expr_AssignOp_BitwiseXor'  => '^',
+            'Expr_AssignOp_ShiftLeft'   => '<<',
+            'Expr_AssignOp_ShiftRight'  => '>>',
+            'Expr_AssignOp_Pow' => '**',
+        ];
+        
+        $assignOpName = $assignOps[$expressionType];
+        
+        $expressionOldVariable = $expression['var'];
+        $expressionAssign = $expression['expr'];
+        
+        $variableName = $expressionOldVariable['name'];
+
+        $flowOldVariable = flowifyExpression($expressionOldVariable, $parentFlowElement);
+        $flowAssign = flowifyExpression($expressionAssign, $parentFlowElement);
+
+        $flowPrimitiveFunction = createAndAddFlowElementToParent('primitiveFunction', $assignOpName, null, $astNodeIdentifier, $parentFlowElement);
+
+        addFlowConnection($flowOldVariable, $flowPrimitiveFunction);
+        addFlowConnection($flowAssign, $flowPrimitiveFunction);
+
+        $flowVariableAssigned = createAndAddFlowElementToParent('variable', $variableName, null, $astNodeIdentifier, $parentFlowElement);
+
+        addFlowConnection($flowPrimitiveFunction, $flowVariableAssigned);
+        
+        // TODO: add a 'identity'-connection between the newly assigned variable and the variable it overwrote (or multiple if there is more than one) 
+
+        $varsInScope[$variableName] = $flowVariableAssigned;
+        $flowElement = $flowVariableAssigned;
+        
+    }
     else if ('Expr_BinaryOp_' === substr($expressionType, 0, strlen('Expr_BinaryOp_'))) {
         $binaryOps = [
             'Expr_BinaryOp_BitwiseAnd'      => '&',
@@ -211,13 +282,8 @@ function flowifyExpression ($expression, &$parentFlowElement) {
     }
     else if ($expressionType === 'Expr_Assign') {
 
-        $variable = $expression['var'];
-
-        if ($variable['nodeType'] !== 'Expr_Variable') {
-            die("Found" . $variable['nodeType'] . " as nodeType inside 'var' of 'Expr_Assign'\n");
-        }
-
-        $variableName = $variable['name'];
+        $variableExpression = $expression['var'];
+        $variableName = $variableExpression['name'];
 
         // Note: the expression (that is assigned) might be constant, which can be used to directly fill the variable (so no connection is needed towards to variable)
         //       but you COULD make the constant its own FlowElements and make the assigment iself a 'function' that combines the empty variable
