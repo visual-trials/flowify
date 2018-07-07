@@ -323,6 +323,10 @@ function flowifyExpression ($expression, $parentFlowElement) {
         addFlowConnection($flowAssign, $flowElement);
         
         // TODO: add a 'identity'-connection between the newly assigned variable and the variable it overwrote (or multiple if there is more than one) 
+        // FIXME: is it correct to check for array_key_exists and is_null here?
+        if (array_key_exists($variableName, $varsInScope) && !is_null($varsInScope[$variableName])) {
+            addFlowConnection($varsInScope[$variableName], $flowElement, 'identity');
+        }
 
         $varsInScope[$variableName] = $flowElement;
     }
@@ -939,19 +943,19 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                                     }
                                     else {
                                         // The connectionId is before or equal to the last connectionId in ELSE PASSTHROUGH so this must be connected to the THEN PASSTHROUGH
-                                        echo print_r(['$connectionIdFromVariable THEN PASSTHROUGH' => $connectionIdFromVariable],true);
+                                        // echo print_r(['$connectionIdFromVariable THEN PASSTHROUGH' => $connectionIdFromVariable],true);
                                     }
                                 }
                             }
                             else {
                                 // The connectionId is after the last connectionId in THEN and before or equal to the last connectionId in ELSE,
                                 // so this must be connected to the ELSE
-                                echo print_r(['$connectionIdFromVariable ELSE' => $connectionIdFromVariable],true);
+                                // echo print_r(['$connectionIdFromVariable ELSE' => $connectionIdFromVariable],true);
                             }
                         }
                         else {
                             // The connectionId is before or equal to the last connectionId in THEN, so this must be connected to the THEN
-                            echo print_r(['$connectionIdFromVariable THEN' => $connectionIdFromVariable],true);
+                            // echo print_r(['$connectionIdFromVariable THEN' => $connectionIdFromVariable],true);
                         }
                         
                         

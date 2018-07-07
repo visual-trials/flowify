@@ -529,6 +529,9 @@ function convertFlowDataToZUIContainers (world, flowData) {
         if (flowConnection.type === 'conditional') {
             overrulingConnectionProperties['dashStyle'] = [5,2]
         }
+        if (flowConnection.type === 'indentity') {
+            overrulingConnectionProperties['dashStyle'] = [1,10]
+        }
 
         // TODO: connection.type?
         ZUI.addWorldConnection(world, flowConnection.from, flowConnection.to, 'dataFlow', overrulingConnectionProperties)
