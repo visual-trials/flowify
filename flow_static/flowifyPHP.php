@@ -924,30 +924,13 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         
                 foreach ($variableAfterCondBody->connectionIdsFromThisElement as $connectionIdFromVariable) {
                     if ($connectionIdFromVariable > $lastConnectionIdAfterCondition) {
+                        
                         if ($connectionIdFromVariable > $lastConnectionIdAfterThen) {
                             if ($connectionIdFromVariable > $lastConnectionIdAfterElse) {
                                 if ($connectionIdFromVariable > $lastConnectionIdAfterThenPassThrough) {
                                     // The connectionId is after the last connectionId in THEN PASSTHROUGH so this must be connected to the ELSE PASSTHROUGH
                                     //echo print_r(['$connectionIdFromVariable ELSE PASSTHROUGH' => $connectionIdFromVariable],true);
                                     
-                                    $connectionToBeChanged = $flowConnections[$connectionIdFromVariable];
-                                    
-                                    // FIXME: is this AST Identifier correct?
-                                    $conditionalSplitVariableAstNodeIdentifier = $ifAstNodeIdentifier . "_" . $variableName . "_SPLIT";
-                                    // FIXME: change type to 'conditionalSplitVariable'?
-                                    // FIXME: should this be put into the ifBody or the condBody?
-                                    $conditionalSplitVariableFlowElement = createAndAddFlowElementToParent('conditionalVariable', $variableName, null, $conditionalSplitVariableAstNodeIdentifier, $ifFlowElement);
-                                    
-                                    // FIXME: HACK!
-                                    $toElementHACK = new FlowElement;
-                                    $toElementHACK->id = $connectionToBeChanged->to;   // we use the old to-container to connect to with the splitconditional
-                                    
-                                    addFlowConnection($conditionalSplitVariableFlowElement, $toElementHACK, 'conditional');
-                                    $connectionToBeChanged->to = $conditionalSplitVariableFlowElement->id; // FIXME: should we do it this way?
-                                    //echo print_r(['$connectionToBeChanged' => $connectionToBeChanged],true);
-                                    
-                                    // TODO: because we didn't change the connectionId of the original element
-                                    // we dont have to update connectionIdsFromThisElement. Do we really want to do it this way?
                                 }
                                 else {
                                     if ($connectionIdFromVariable > $lastConnectionIdAfterElsePassThrough) {
@@ -970,6 +953,29 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                             // The connectionId is before or equal to the last connectionId in THEN, so this must be connected to the THEN
                             echo print_r(['$connectionIdFromVariable THEN' => $connectionIdFromVariable],true);
                         }
+                        
+                        
+                        
+                        $connectionToBeChanged = $flowConnections[$connectionIdFromVariable];
+                        
+                        // FIXME: is this AST Identifier correct?
+                        $conditionalSplitVariableAstNodeIdentifier = $ifAstNodeIdentifier . "_" . $variableName . "_SPLIT";
+                        // FIXME: change type to 'conditionalSplitVariable'?
+                        // FIXME: should this be put into the ifBody or the condBody?
+                        $conditionalSplitVariableFlowElement = createAndAddFlowElementToParent('conditionalVariable', $variableName, null, $conditionalSplitVariableAstNodeIdentifier, $ifFlowElement);
+                        
+                        // FIXME: we should add to which SIDE the connection is connected: true-side or false-side (depending on THEN or ELSE)
+                        // FIXME: HACK!
+                        $toElementHACK = new FlowElement;
+                        $toElementHACK->id = $connectionToBeChanged->to;   // we use the old to-container to connect to with the splitconditional
+                        
+                        addFlowConnection($conditionalSplitVariableFlowElement, $toElementHACK, 'conditional');
+                        $connectionToBeChanged->to = $conditionalSplitVariableFlowElement->id; // FIXME: should we do it this way?
+                        //echo print_r(['$connectionToBeChanged' => $connectionToBeChanged],true);
+                        
+                        // TODO: because we didn't change the connectionId of the original element
+                        // we dont have to update connectionIdsFromThisElement. Do we really want to do it this way?
+                        
                         
                     }
                 }
