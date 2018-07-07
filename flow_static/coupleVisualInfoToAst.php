@@ -92,19 +92,19 @@ function getAstFromPhpCode($code) {
     return $statements;
 }
 
-function extendFlowElementsWithVisualInfo (&$flowElement, &$visualInfos, &$usedVisualInfos) {
+function extendFlowElementsWithVisualInfo (&$flowElementArray, &$visualInfos, &$usedVisualInfos) {
     
-    $visualInfo = getVisualInfo($flowElement['astNodeIdentifier'], $visualInfos, $usedVisualInfos);
-    extendFlowElementWithVisualInfo($flowElement, $visualInfo);
+    $visualInfo = getVisualInfo($flowElementArray['astNodeIdentifier'], $visualInfos, $usedVisualInfos);
+    extendFlowElementWithVisualInfo($flowElementArray, $visualInfo);
     
-    if (array_key_exists('children', $flowElement)) {
-        foreach ($flowElement['children'] as &$childFlowElement) {
-            extendFlowElementsWithVisualInfo($childFlowElement, $visualInfos, $usedVisualInfos);
+    if (array_key_exists('children', $flowElementArray)) {
+        foreach ($flowElementArray['children'] as &$childflowElementArray) {
+            extendFlowElementsWithVisualInfo($childflowElementArray, $visualInfos, $usedVisualInfos);
         }
     }
 }
 
-function extendFlowElementWithVisualInfo (&$flowElement, $visualInfo) {
+function extendFlowElementWithVisualInfo (&$flowElementArray, $visualInfo) {
 
     // TODO: maybe set only certain visual attributes given certain FlowElement types? Or simply check if the attributes exists and/or is null?
 
@@ -113,22 +113,22 @@ function extendFlowElementWithVisualInfo (&$flowElement, $visualInfo) {
     }
 
     if (array_key_exists('x', $visualInfo) && $visualInfo['x'] !== null) {
-        $flowElement['x'] = $visualInfo['x'];
+        $flowElementArray['x'] = $visualInfo['x'];
     }
     if (array_key_exists('y', $visualInfo) && $visualInfo['y'] !== null) {
-        $flowElement['y'] = $visualInfo['y'];
+        $flowElementArray['y'] = $visualInfo['y'];
     }
     if (array_key_exists('isPositionOf', $visualInfo) && $visualInfo['isPositionOf'] !== null) {
-        $flowElement['isPositionOf'] = $visualInfo['isPositionOf'];
+        $flowElementArray['isPositionOf'] = $visualInfo['isPositionOf'];
     }
     if (array_key_exists('width', $visualInfo) && $visualInfo['width'] !== null) {
-        $flowElement['width'] = $visualInfo['width'];
+        $flowElementArray['width'] = $visualInfo['width'];
     }
     if (array_key_exists('height', $visualInfo) && $visualInfo['height'] !== null) {
-        $flowElement['height'] = $visualInfo['height'];
+        $flowElementArray['height'] = $visualInfo['height'];
     }
     if (array_key_exists('relativeScale', $visualInfo) && $visualInfo['relativeScale'] !== null) {
-        $flowElement['relativeScale'] = $visualInfo['relativeScale'];
+        $flowElementArray['relativeScale'] = $visualInfo['relativeScale'];
     }
 
 }

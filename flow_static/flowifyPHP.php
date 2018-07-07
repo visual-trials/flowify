@@ -45,10 +45,13 @@ function flowifyPhpAndAttachVisualInfo($fileToFlowifyWithoutExtention)
 
     $rootFlowElement = flowifyProgram($statements);
     
-    stripScope($rootFlowElement);
+    $rootFlowElementArray = arrayfyFlowElements($rootFlowElement);
+    
+    $flowConnectionsArray = arrayfyFlowConnections($flowConnections);
     
     $usedVisualInfos = [];
-    extendFlowElementsWithVisualInfo($rootFlowElement, $visualInfos, $usedVisualInfos);
+    // TODO: maybe we should give extendFlowElementsWithVisualInfo the flowElements as objects?
+    extendFlowElementsWithVisualInfo($rootFlowElementArray, $visualInfos, $usedVisualInfos);
 
     // TODO: If we use at least part of the nr of visualInfos we had, we store it (think of something better!)
     if (count($visualInfos) > 0 && count($usedVisualInfos) / count($visualInfos) > 0.5) {
@@ -58,8 +61,8 @@ function flowifyPhpAndAttachVisualInfo($fileToFlowifyWithoutExtention)
 
     $flowifiedPhp = [];
     $flowifiedPhp['code'] = explode("\n", $code);;
-    $flowifiedPhp['rootFlowElement'] = $rootFlowElement;
-    $flowifiedPhp['flowConnections'] = array_values($flowConnections);
+    $flowifiedPhp['rootFlowElement'] = $rootFlowElementArray;
+    $flowifiedPhp['flowConnections'] = $flowConnectionsArray;
     $flowifiedPhp['statements'] = $statements;
     $flowifiedPhp['visualInfos'] = $visualInfos;
     $flowifiedPhp['usedVisualInfos'] = $usedVisualInfos;
@@ -79,7 +82,7 @@ function flowifyProgram($statements) {
     return $rootFlowElement;
 }
     
-function flowifyStatements ($statements, &$bodyFlowElement) {
+function flowifyStatements ($statements, $bodyFlowElement) {
 
     $returnFlowElement = null;
 
@@ -92,7 +95,7 @@ function flowifyStatements ($statements, &$bodyFlowElement) {
             $identifierNode = $statement['name']; // TODO: we are assuming 'name' is always present
 
             if ($identifierNode['nodeType'] === 'Identifier') {
-                $bodyFlowElement['functionsInScope'][$identifierNode['name']] = $statement;
+                $bodyFlowElement->functionsInScope[$identifierNode['name']] = $statement;
             }
             else {
                 echo "Found '" . $identifierNode['nodeType'] . "' as nodeType inside 'name' of 'Stmt_Function'\n";
@@ -141,10 +144,10 @@ function flowifyStatements ($statements, &$bodyFlowElement) {
     return $returnFlowElement;
 }
 
-function &flowifyExpression ($expression, &$parentFlowElement) {  
+function flowifyExpression ($expression, $parentFlowElement) {  
 
-    $varsInScope = &$parentFlowElement['varsInScope'];
-    $functionsInScope = &$parentFlowElement['functionsInScope'];
+    $varsInScope = &$parentFlowElement->varsInScope;
+    $functionsInScope = &$parentFlowElement->functionsInScope;
     
     $expressionType = $expression['nodeType'];
 
@@ -157,7 +160,7 @@ function &flowifyExpression ($expression, &$parentFlowElement) {
         $name = $expression['name'];
         if (array_key_exists($name, $varsInScope)) {
             // Note: this could be a conditionalVariableFlowElement
-            $flowElement = &$varsInScope[$name];
+            $flowElement = $varsInScope[$name];
         }
         else {
             $flowElement = createAndAddFlowElementToParent('variable', $name, null, $astNodeIdentifier, $parentFlowElement);
@@ -294,8 +297,8 @@ function &flowifyExpression ($expression, &$parentFlowElement) {
         $leftExpression = $expression['left'];
         $rightExpression = $expression['right'];
 
-        $leftFlow = &flowifyExpression($leftExpression, $parentFlowElement);
-        $rightFlow = &flowifyExpression($rightExpression, $parentFlowElement);
+        $leftFlow = flowifyExpression($leftExpression, $parentFlowElement);
+        $rightFlow = flowifyExpression($rightExpression, $parentFlowElement);
 
         $flowElement = createAndAddFlowElementToParent('primitiveFunction', $binaryOpName, null, $astNodeIdentifier, $parentFlowElement);
 
@@ -404,12 +407,12 @@ function &flowifyExpression ($expression, &$parentFlowElement) {
         echo "expressionType '" . $expression['nodeType'] ."', but not supported!\n";
     }
 
-    // FIXME: if no elements found/created, do this?            $flowElement['name'] = '<unknown>';
+    // FIXME: if no elements found/created, do this?            $flowElement->name = '<unknown>';
 
     return $flowElement;
 }
 
-function flowifyFunction ($functionStatement, $flowCallArguments, &$functionCallFlowElement) { 
+function flowifyFunction ($functionStatement, $flowCallArguments, $functionCallFlowElement) { 
 
     // With a body: (maybe make this work) 
     //    - the parameters should be in the function-input
@@ -419,12 +422,12 @@ function flowifyFunction ($functionStatement, $flowCallArguments, &$functionCall
     // Without body:(current)
     //    - Everything should be inside the function-call (no input/body/output)
     
-    $functionCallFlowElement['varsInScope'] = [];
-    $functionCallFlowElement['functionsInScope'] = [];
+    $functionCallFlowElement->varsInScope = [];
+    $functionCallFlowElement->functionsInScope = [];
     
     // TODO: in order for recursion to be possible, the function itself should be available in functionsInScope! (currently not the case to prevent never ending recursion)
     
-    $functionName = $functionCallFlowElement['name'];
+    $functionName = $functionCallFlowElement->name;
     
     $argumentNumber = 0;
     foreach ($flowCallArguments as $flowCallArgument) {
@@ -453,7 +456,7 @@ function flowifyFunction ($functionStatement, $flowCallArguments, &$functionCall
             addFlowConnection($flowCallArgument, $parameterFlowElement);
 
             // Setting the parameter as a local var within the function body
-            $functionCallFlowElement['varsInScope'][$parameterName] = $parameterFlowElement;
+            $functionCallFlowElement->varsInScope[$parameterName] = $parameterFlowElement;
 
         }
         else {
@@ -471,7 +474,7 @@ function flowifyFunction ($functionStatement, $flowCallArguments, &$functionCall
 
 }
 
-function flowifyForStatement($forStatement, &$parentFlowElement) {
+function flowifyForStatement($forStatement, $parentFlowElement) {
     
     // Note: We are assuming a programming language with FUNCTION scope here!
     //       The variables declared inside the init-statement will be part
@@ -491,8 +494,8 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
     $forAstNodeIdentifier = getAstNodeIdentifier($forStatement);
     // FIXME: change this from a ifMain for a forMain
     $forFlowElement = createFlowElement('ifMain', 'for', null, $forAstNodeIdentifier);
-    $forFlowElement['varsInScope'] = $parentFlowElement['varsInScope']; // copy!
-    $forFlowElement['functionsInScope'] = $parentFlowElement['functionsInScope']; // copy!
+    $forFlowElement->varsInScope = $parentFlowElement->varsInScope; // copy!
+    $forFlowElement->functionsInScope = $parentFlowElement->functionsInScope; // copy!
 
     {
             
@@ -514,8 +517,8 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
         $doneAstNodeIdentifier = $forAstNodeIdentifier . "_ImplicitDone";
         // FIXME: this should be of type: 'forDoneImplicit'
         $doneBodyFlowElement = createFlowElement('ifElse', 'done', null, $doneAstNodeIdentifier);
-        $doneBodyFlowElement['varsInScope'] = $forFlowElement['varsInScope']; // copy!
-        $doneBodyFlowElement['functionsInScope'] = $forFlowElement['functionsInScope']; // copy!
+        $doneBodyFlowElement->varsInScope = $forFlowElement->varsInScope; // copy!
+        $doneBodyFlowElement->functionsInScope = $forFlowElement->functionsInScope; // copy!
         
                        
         // == COND / ITER / UPDATE ==
@@ -526,8 +529,8 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
         $forStepAstNodeIdentifier1 = $forAstNodeIdentifier . "_1";
         // FIXME: change this from a ifThen for a forStep
         $forStepFlowElement1 = createFlowElement('ifThen', '#1', null, $forStepAstNodeIdentifier1);
-        $forStepFlowElement1['varsInScope'] = $forFlowElement['varsInScope'];  // copy!
-        $forStepFlowElement1['functionsInScope'] = $forFlowElement['functionsInScope'];  // copy!
+        $forStepFlowElement1->varsInScope = $forFlowElement->varsInScope;  // copy!
+        $forStepFlowElement1->functionsInScope = $forFlowElement->functionsInScope;  // copy!
         
         flowifyForIteration(
             $conditionExpression, 
@@ -548,8 +551,8 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
         $forStepAstNodeIdentifier2 = $forAstNodeIdentifier . "_2";
         // FIXME: change this from a ifThen for a forStep
         $forStepFlowElement2 = createFlowElement('ifThen', '#2', null, $forStepAstNodeIdentifier2);
-        $forStepFlowElement2['varsInScope'] = $forStepFlowElement1['varsInScope'];  // copy!
-        $forStepFlowElement2['functionsInScope'] = $forStepFlowElement1['functionsInScope'];  // copy!
+        $forStepFlowElement2->varsInScope = $forStepFlowElement1->varsInScope;  // copy!
+        $forStepFlowElement2->functionsInScope = $forStepFlowElement1->functionsInScope;  // copy!
         
         flowifyForIteration(
             $conditionExpression, 
@@ -574,8 +577,8 @@ function flowifyForStatement($forStatement, &$parentFlowElement) {
     }    
     
     addFlowElementToParent($forFlowElement, $parentFlowElement);  // Note: do not call this before the calls to the other addFlowElementToParent, because this COPIES $forFlowElement, so changes to it will not be in the parent!
-    $parentFlowElement['varsInScope'] = $forFlowElement['varsInScope']; // copy back!
-    $parentFlowElement['functionsInScope'] = $forFlowElement['functionsInScope']; // copy back!
+    $parentFlowElement->varsInScope = $forFlowElement->varsInScope; // copy back!
+    $parentFlowElement->functionsInScope = $forFlowElement->functionsInScope; // copy back!
     
 }
 
@@ -584,10 +587,10 @@ function flowifyForIteration (
         $iterStatements, 
         $updateExpression,
         $forAstNodeIdentifier,
-        &$doneBodyFlowElement,
-        &$doneBodyOrForFlowElement,
+        $doneBodyFlowElement,
+        $doneBodyOrForFlowElement,
         $forStepAstNodeIdentifier,
-        &$forStepFlowElement
+        $forStepFlowElement
     ) {
 
     // == COND ==
@@ -637,14 +640,14 @@ function flowifyForIteration (
     // Checking if the loop vars were changed in the forStep (that is: cond/iter/update)
     
     // We loop through all the varsInScope of the doneBody
-    foreach ($doneBodyFlowElement['varsInScope'] as $variableName => $doneVarInScopeElement) {
+    foreach ($doneBodyFlowElement->varsInScope as $variableName => $doneVarInScopeElement) {
         
         $varReplacedInForStep = false;
         
         // We check if we have the same variable in our forStep scope
-        if (array_key_exists($variableName, $forStepFlowElement['varsInScope'])) {
+        if (array_key_exists($variableName, $forStepFlowElement->varsInScope)) {
             // The var exists both in doneBody and in the forStep's scope
-            if ($forStepFlowElement['varsInScope'][$variableName]['id'] !== $doneBodyFlowElement['varsInScope'][$variableName]['id']) {
+            if ($forStepFlowElement->varsInScope[$variableName]->id !== $doneBodyFlowElement->varsInScope[$variableName]->id) {
                 // The vars differ, so it must have been replaced (or extended) inside the forStep. 
                 $varReplacedInForStep = true;
             }
@@ -661,10 +664,10 @@ function flowifyForIteration (
             $passThroughVariableFlowElement = createAndAddFlowElementToParent('passThroughVariable', $variableName, null, $passThroughVariableAstNodeIdentifier, $doneBodyFlowElement);
 
             // Connecting the variable in the doneBody to the passthrough variable (inside the doneBody)
-            addFlowConnection($doneBodyFlowElement['varsInScope'][$variableName], $passThroughVariableFlowElement);
+            addFlowConnection($doneBodyFlowElement->varsInScope[$variableName], $passThroughVariableFlowElement);
             
-            $forStepVariableFlowElement = $forStepFlowElement['varsInScope'][$variableName];  // copy!
-            $doneBodyVariableFlowElement = $passThroughVariableFlowElement;  // copy!
+            $forStepVariableFlowElement = $forStepFlowElement->varsInScope[$variableName];  // NOT A copy ANYMORE!
+            $doneBodyVariableFlowElement = $passThroughVariableFlowElement;  // NOT A copy ANYMORE!
         }
         
         // The variable was replaced in the forStep.
@@ -678,7 +681,7 @@ function flowifyForIteration (
             $conditionalVariableFlowElement = createAndAddFlowElementToParent('conditionalVariable', $variableName, null, $conditionalVariableAstNodeIdentifier, $doneBodyOrForFlowElement);
             addFlowConnection($forStepVariableFlowElement, $conditionalVariableFlowElement, 'conditional');
             addFlowConnection($doneBodyVariableFlowElement, $conditionalVariableFlowElement, 'conditional');
-            $doneBodyOrForFlowElement['varsInScope'][$variableName] = $conditionalVariableFlowElement; // NOTE: a ref doesn't work here for some reason
+            $doneBodyOrForFlowElement->varsInScope[$variableName] = $conditionalVariableFlowElement; // NOTE: a ref doesn't work here for some reason
         }
         
     }
@@ -686,12 +689,12 @@ function flowifyForIteration (
 }
 
 
-function flowifyIfStatement($ifStatement, &$parentFlowElement) {
+function flowifyIfStatement($ifStatement, $parentFlowElement) {
     
     global $flowConnectionId;
     
-    $varsInScope = &$parentFlowElement['varsInScope'];
-    $functionsInScope = &$parentFlowElement['functionsInScope'];
+    $varsInScope = &$parentFlowElement->varsInScope;
+    $functionsInScope = &$parentFlowElement->functionsInScope;
     
     $ifAstNodeIdentifier = getAstNodeIdentifier($ifStatement);
     $ifFlowElement = createFlowElement('ifMain', 'if', null, $ifAstNodeIdentifier);
@@ -708,8 +711,8 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
         $condFlowElement = createFlowElement('ifCond', 'cond', null, $condAstNodeIdentifier);
         
         // FIXME: we should do this when creating the FlowElement (getting these from the parent, or better: referring to the parent from within the child)
-        $condFlowElement['varsInScope'] = &$varsInScope;
-        $condFlowElement['functionsInScope'] = &$functionsInScope;
+        $condFlowElement->varsInScope = &$varsInScope;
+        $condFlowElement->functionsInScope = &$functionsInScope;
         $flowElement = flowifyExpression($conditionExpression, $condFlowElement);
         
         // TODO: the flowElement coming from the conditionExpression is a boolean and determines 
@@ -728,9 +731,9 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
 //        connected to this coditional-point (and set the 'side' to which thet are connected: then=true-side, else=false-side)
 
         $lastConnectionIdAfterCondition = $flowConnectionId;
-        $varsInScopeAfterCondBody = $condFlowElement['varsInScope']; // copy!
+        $varsInScopeAfterCondBody = $condFlowElement->varsInScope; // copy!
         // echo print_r(['flowConnectionId_after_THEN' => $lastConnectionIdAfterCondition],true);
-        // echo print_r(['varsInScope_condFlowElement' => $condFlowElement['varsInScope']],true);
+        // echo print_r(['varsInScope_condFlowElement' => $condFlowElement->varsInScope],true);
         
         // == THEN ==
         
@@ -744,8 +747,8 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
         //       Instead of the thenBody letting the vars in the if-scope to be replaced, we *add* it later to our varsInScope,
         //       by using a conditionalFlowElement.
         
-        $thenBodyFlowElement['varsInScope'] = $varsInScope;  // copy!
-        $thenBodyFlowElement['functionsInScope'] = &$functionsInScope;
+        $thenBodyFlowElement->varsInScope = $varsInScope;  // copy!
+        $thenBodyFlowElement->functionsInScope = &$functionsInScope;
         
         // TODO: we don't have a return statement in then-bodies, so we call it $noReturnFlowElement here (but we shouldn't get it at all)
         $noReturnFlowElement = flowifyStatements($thenStatements, $thenBodyFlowElement);
@@ -753,7 +756,7 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
         addFlowElementToParent($thenBodyFlowElement, $ifFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $thenBodyFlowElement, so changes to it will not be in the parent!
         
         // echo print_r(['flowConnectionId_after_THEN' => $flowConnectionId],true);
-        // echo print_r(['varsInScope_thenBodyFlowElement' => $thenBodyFlowElement['varsInScope']],true);
+        // echo print_r(['varsInScope_thenBodyFlowElement' => $thenBodyFlowElement->varsInScope],true);
 
         $lastConnectionIdAfterThen = $flowConnectionId;
         
@@ -779,8 +782,8 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
             //       Instead of the elseBody letting the vars in the if-scope to be replaced, we *add* it later to our varsInScope,
             //       by using a conditionalFlowElement.
             
-            $elseBodyFlowElement['varsInScope'] = $varsInScope;  // copy!
-            $elseBodyFlowElement['functionsInScope'] = &$functionsInScope;
+            $elseBodyFlowElement->varsInScope = $varsInScope;  // copy!
+            $elseBodyFlowElement->functionsInScope = &$functionsInScope;
             
             // TODO: we don't have a return statement in then-bodies, so we call it $noReturnFlowElement here (but we shouldn't get it at all)
             $noReturnFlowElement = flowifyStatements($elseStatements, $elseBodyFlowElement);
@@ -789,17 +792,17 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
         }
         
         // echo print_r(['flowConnectionId_after_ELSE' => $flowConnectionId],true);
-        // echo print_r(['varsInScope_elseBodyFlowElement' => $elseBodyFlowElement['varsInScope']],true);
+        // echo print_r(['varsInScope_elseBodyFlowElement' => $elseBodyFlowElement->varsInScope],true);
         $lastConnectionIdAfterElse = $flowConnectionId;
         
         // Note: we are comparing the varsInScope from the parentFlowElement with the varsInScope of the then/elseBodyFlowElement. 
         //       We don't compare with the varsInScope of the ifFlowElement, because its only a wrapper-element, and doesn't contain varsInScope
         
-        $varsInScopeParent = &$parentFlowElement['varsInScope'];
-        $varsInScopeThenBody = &$thenBodyFlowElement['varsInScope'];
+        $varsInScopeParent = &$parentFlowElement->varsInScope;
+        $varsInScopeThenBody = &$thenBodyFlowElement->varsInScope;
         $varsInScopeElseBody = [];
         if ($elseBodyFlowElement !== null) {
-            $varsInScopeElseBody = &$elseBodyFlowElement['varsInScope'];
+            $varsInScopeElseBody = &$elseBodyFlowElement->varsInScope;
         }
 
         $implicitElseBodyWasCreated = false;
@@ -812,7 +815,7 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
             // We check if we have the same variable in our thenBody scope
             if (array_key_exists($variableName, $varsInScopeThenBody)) {
                 // The var exists both in thenBodyFlowElement and in the parent's scope
-                if ($varsInScopeThenBody[$variableName]['id'] !== $varsInScopeParent[$variableName]['id']) {
+                if ($varsInScopeThenBody[$variableName]->id !== $varsInScopeParent[$variableName]->id) {
                     // The vars differ, so it must have been replaced (or extended) inside the thenBody. 
                     $varReplacedInThenBody = true;
                 }
@@ -821,7 +824,7 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
             // We check if we have the same variable in our elseBody scope
             if (array_key_exists($variableName, $varsInScopeElseBody)) {
                 // The var exists both in elseBodyFlowElement and in the parent's scope
-                if ($varsInScopeElseBody[$variableName]['id'] !== $varsInScopeParent[$variableName]['id']) {
+                if ($varsInScopeElseBody[$variableName]->id !== $varsInScopeParent[$variableName]->id) {
                     // The vars differ, so it must have been replaced (or extended) inside the elseBody. 
                     $varReplacedInElseBody = true;
                 }
@@ -831,8 +834,8 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
             $elseVariableFlowElement = null;
             if ($varReplacedInThenBody && $varReplacedInElseBody) {
                 // We overwrite the parent's varInScope and adding them both using a conditionalVariableFlowElement.
-                $thenVariableFlowElement = $varsInScopeThenBody[$variableName];  // copy!
-                $elseVariableFlowElement = $varsInScopeElseBody[$variableName];  // copy!
+                $thenVariableFlowElement = $varsInScopeThenBody[$variableName];  // NOT A copy ANYMORE!
+                $elseVariableFlowElement = $varsInScopeElseBody[$variableName];  // NOT A copy ANYMORE!
             }
             else if ($varReplacedInThenBody) {
                 // Only the thenBody has replaced the variable. We use the parent's variable as the (default) else variable
@@ -862,9 +865,9 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
                     // $varsInScopeElseBody[$parameterName] = $passThroughVariableFlowElement;
                 }
                 
-                $thenVariableFlowElement = $varsInScopeThenBody[$variableName];  // copy!
-                // TODO: this is without passthrough variable: $elseVariableFlowElement = $varsInScopeParent[$variableName];  // copy!
-                $elseVariableFlowElement = $passThroughVariableFlowElement;  // copy!
+                $thenVariableFlowElement = $varsInScopeThenBody[$variableName];  // NOT A copy ANYMORE!
+                // TODO: this is without passthrough variable: $elseVariableFlowElement = $varsInScopeParent[$variableName];  // NOT A copy ANYMORE!
+                $elseVariableFlowElement = $passThroughVariableFlowElement;  // NOT A copy ANYMORE!
             }
             else if ($varReplacedInElseBody) {
                 // Only the elseBody has replaced the variable. We use the parent's variable as the (default) then variable
@@ -884,9 +887,9 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
                     // $varsInScopeThenBody[$parameterName] = $passThroughVariableFlowElement;
                 }
                 
-                // TODO: this is without passthrough variable: $thenVariableFlowElement = $varsInScopeParent[$variableName];  // copy!
-                $thenVariableFlowElement = $passThroughVariableFlowElement;  // copy!
-                $elseVariableFlowElement = $varsInScopeElseBody[$variableName];  // copy!
+                // TODO: this is without passthrough variable: $thenVariableFlowElement = $varsInScopeParent[$variableName];  // NOT A copy ANYMORE!
+                $thenVariableFlowElement = $passThroughVariableFlowElement;  // NOT A copy ANYMORE!
+                $elseVariableFlowElement = $varsInScopeElseBody[$variableName];  // NOT A copy ANYMORE!
             }
             else {
                 // The variable wasn't replaced by either the thenBody or the elseBody, so nothing to do here
@@ -902,7 +905,7 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
                 $conditionalVariableFlowElement = createAndAddFlowElementToParent('conditionalVariable', $variableName, null, $conditionalVariableAstNodeIdentifier, $ifFlowElement);
                 addFlowConnection($thenVariableFlowElement, $conditionalVariableFlowElement, 'conditional');
                 addFlowConnection($elseVariableFlowElement, $conditionalVariableFlowElement, 'conditional');
-                $varsInScopeParent[$variableName] = &$conditionalVariableFlowElement;
+                $varsInScopeParent[$variableName] = $conditionalVariableFlowElement;
                 
                 
                 // We also want to create a conditional element between the cond and then, and between the cond and else
@@ -967,49 +970,49 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
 
 // Helper functions
 
-function addFlowConnection (&$fromFlowElement, &$toFlowElement, $connectionType = null) {
+function addFlowConnection ($fromFlowElement, $toFlowElement, $connectionType = null) {
     global $flowConnections, $flowConnectionId;
 
-    $flowConnection = [];
-    $flowConnection['id'] = $flowConnectionId;
-    $flowConnection['from'] = $fromFlowElement['id'];
-    $flowConnection['to'] = $toFlowElement['id'];
-    $flowConnection['type'] = $connectionType;
+    $flowConnection = new FlowConnection;
+    $flowConnection->id = $flowConnectionId;
+    $flowConnection->from = $fromFlowElement->id;
+    $flowConnection->to = $toFlowElement->id;
+    $flowConnection->type = $connectionType;
     
     $flowConnections[$flowConnectionId] = $flowConnection;
-    array_push($fromFlowElement['connectionsFromThisElement'], $flowConnectionId);
+    array_push($fromFlowElement->connectionsFromThisElement, $flowConnectionId);
 
     $flowConnectionId++;
 }
 
-function addFlowElementToParent (&$flowElement, &$parentFlowElement) {
-    array_push($parentFlowElement['children'], $flowElement);
+function addFlowElementToParent ($flowElement, $parentFlowElement) {
+    array_push($parentFlowElement->children, $flowElement);
 }
 
 function createFlowElement ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $canHaveChildren = true, $hasScope = true) {
 
     global $flowElementId;
 
-    $flowElement = [];
-    $flowElement['id'] = $flowElementId++;
-    $flowElement['type'] = $flowElementType;
-    $flowElement['name'] = $flowElementName;
-    $flowElement['value'] = $flowElementValue;
-    $flowElement['connectionsFromThisElement'] = [];
+    $flowElement = new FlowElement;
+    $flowElement->id = $flowElementId++;
+    $flowElement->type = $flowElementType;
+    $flowElement->name = $flowElementName;
+    $flowElement->value = $flowElementValue;
+    $flowElement->connectionsFromThisElement = [];
     if ($canHaveChildren) {
-        $flowElement['children'] = [];
+        $flowElement->children = [];
     }
-    $flowElement['astNodeIdentifier'] = $astNodeIdentifier;
+    $flowElement->astNodeIdentifier = $astNodeIdentifier;
     
     if ($hasScope) {
-        $flowElement['varsInScope'] = [];
-        $flowElement['functionsInScope'] = [];
+        $flowElement->varsInScope = [];
+        $flowElement->functionsInScope = [];
     }
 
     return $flowElement;
 }
 
-function createAndAddFlowElementToParent ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, &$parentFlowElement, $canHaveChildren = false, $hasScope = false) {
+function createAndAddFlowElementToParent ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $parentFlowElement, $canHaveChildren = false, $hasScope = false) {
 
     $flowElement = createFlowElement ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $canHaveChildren, $hasScope);
     addFlowElementToParent($flowElement, $parentFlowElement);
@@ -1017,52 +1020,69 @@ function createAndAddFlowElementToParent ($flowElementType, $flowElementName, $f
     return $flowElement;
 }
 
-function flowifyExpressionWithWrappingContainer ($wrapperExpression, $containerType, $containerName, $wrapperAstNodeIdentifier, &$parentFlowElement) {
+function flowifyExpressionWithWrappingContainer ($wrapperExpression, $containerType, $containerName, $wrapperAstNodeIdentifier, $parentFlowElement) {
     
     $wrapperFlowElement = createFlowElement($containerType, $containerName, null, $wrapperAstNodeIdentifier);
     
-    $wrapperFlowElement['varsInScope'] = $parentFlowElement['varsInScope']; // copy!
-    $wrapperFlowElement['functionsInScope'] = $parentFlowElement['functionsInScope']; // copy!
+    $wrapperFlowElement->varsInScope = $parentFlowElement->varsInScope; // copy!
+    $wrapperFlowElement->functionsInScope = $parentFlowElement->functionsInScope; // copy!
     $flowElement = flowifyExpression($wrapperExpression, $wrapperFlowElement);
     
     addFlowElementToParent($wrapperFlowElement, $parentFlowElement);  // Note: do not call this before flowifyExpression, because this COPIES $wrapperFlowElement, so changes to it will not be in the parent!
     
-    $parentFlowElement['varsInScope'] = $wrapperFlowElement['varsInScope'];  // copy back!
+    $parentFlowElement->varsInScope = $wrapperFlowElement->varsInScope;  // copy back!
     
     return $flowElement;
 }
 
-function flowifyStatementsWithWrappingContainer ($wrapperStatements, $containerType, $containerName, $wrapperAstNodeIdentifier, &$parentFlowElement) {
+function flowifyStatementsWithWrappingContainer ($wrapperStatements, $containerType, $containerName, $wrapperAstNodeIdentifier, $parentFlowElement) {
     
     $wrapperFlowElement = createFlowElement($containerType, $containerName, null, $wrapperAstNodeIdentifier);
     
-    $wrapperFlowElement['varsInScope'] = $parentFlowElement['varsInScope']; // copy!
-    $wrapperFlowElement['functionsInScope'] = $parentFlowElement['functionsInScope']; // copy!
+    $wrapperFlowElement->varsInScope = $parentFlowElement->varsInScope; // copy!
+    $wrapperFlowElement->functionsInScope = $parentFlowElement->functionsInScope; // copy!
     $flowElement = flowifyStatements($wrapperStatements, $wrapperFlowElement);
     
     addFlowElementToParent($wrapperFlowElement, $parentFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $wrapperFlowElement, so changes to it will not be in the parent!
     
-    $parentFlowElement['varsInScope'] = $wrapperFlowElement['varsInScope'];  // copy back!
+    $parentFlowElement->varsInScope = $wrapperFlowElement->varsInScope;  // copy back!
     
     return $flowElement;
 }
 
-function stripScope (&$flowElement) {
-    if (array_key_exists('connectionsFromThisElement', $flowElement)) {
-        unset($flowElement['connectionsFromThisElement']);
+function arrayfyFlowElements ($flowElement) {
+    
+    $flowElementArray = [];
+    
+    $flowElementArray['id'] = $flowElement->id;
+    $flowElementArray['type'] = $flowElement->type;
+    $flowElementArray['name'] = $flowElement->name;
+    $flowElementArray['value'] = $flowElement->value;
+    $flowElementArray['astNodeIdentifier'] = $flowElement->astNodeIdentifier;
+    
+    if (!is_null($flowElement->children)) {
+        $flowElementChildrenArray = [];
+        foreach ($flowElement->children as $childFlowElement) {
+            array_push($flowElementChildrenArray, arrayfyFlowElements($childFlowElement));
+        }
+        $flowElementArray['children'] = $flowElementChildrenArray;
     }
     
-    if (array_key_exists('varsInScope', $flowElement)) {
-        unset($flowElement['varsInScope']);
+    return $flowElementArray;
+}
+
+function arrayfyFlowConnections($flowConnections) {
+    $flowConnectionsArray = [];
+    foreach ($flowConnections as $flowConnectionIdNow => $flowConnection) {
+        $flowConnectionArray = [];
+        $flowConnectionArray['id'] = $flowConnection->id;
+        $flowConnectionArray['type'] = $flowConnection->type;
+        $flowConnectionArray['from'] = $flowConnection->from;
+        $flowConnectionArray['to'] = $flowConnection->to;
+        
+        array_push($flowConnectionsArray, $flowConnectionArray);
     }
-    if (array_key_exists('functionsInScope', $flowElement)) {
-        unset($flowElement['functionsInScope']);
-    }
-    if (array_key_exists('children', $flowElement)) {
-        foreach ($flowElement['children'] as &$childFlowElement) {
-            stripScope($childFlowElement);
-        }
-    }    
+    return $flowConnectionsArray;
 }
 
 class FlowElement { 
