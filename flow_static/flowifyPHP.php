@@ -141,7 +141,7 @@ function flowifyStatements ($statements, &$bodyFlowElement) {
     return $returnFlowElement;
 }
 
-function flowifyExpression ($expression, &$parentFlowElement) {  
+function &flowifyExpression ($expression, &$parentFlowElement) {  
 
     $varsInScope = &$parentFlowElement['varsInScope'];
     $functionsInScope = &$parentFlowElement['functionsInScope'];
@@ -294,8 +294,8 @@ function flowifyExpression ($expression, &$parentFlowElement) {
         $leftExpression = $expression['left'];
         $rightExpression = $expression['right'];
 
-        $leftFlow = flowifyExpression($leftExpression, $parentFlowElement);
-        $rightFlow = flowifyExpression($rightExpression, $parentFlowElement);
+        $leftFlow = &flowifyExpression($leftExpression, $parentFlowElement);
+        $rightFlow = &flowifyExpression($rightExpression, $parentFlowElement);
 
         $flowElement = createAndAddFlowElementToParent('primitiveFunction', $binaryOpName, null, $astNodeIdentifier, $parentFlowElement);
 
@@ -716,6 +716,15 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
         
         addFlowElementToParent($condFlowElement, $ifFlowElement);  // Note: do not call this before flowifyExpression, because this COPIES $condFlowElement, so changes to it will not be in the parent!
         
+// FIXME: after calling flowifyExpression on the COND, we should record the flowConnectionId
+//        We then know what connections will be old (all the have equal or lower than that id)
+//        If new connections are added they will have an higher id
+//        AFTER calling the THEN and ELSE flowifiers, we determine which variables have been changed by them
+//        For each variable that has been changed, we check the varsInScope of the condition and get the variable from there
+//        We check which NEW connections have been made with THAT variable. For each of these connections,
+//        we add an conditional-point in-between. If we have both an ELSE and a THEN, we have to make sure thet are BOTH
+//        connected to this coditional-point (and set the 'side' to which thet are connected: then=true-side, else=false-side)
+
         
         // == THEN ==
         
@@ -936,10 +945,10 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
 
 // Helper functions
 
-function addFlowConnection ($fromFlowElement, $toFlowElement, $connectionType = null) {
+function addFlowConnection (&$fromFlowElement, &$toFlowElement, $connectionType = null) {
     global $flowConnections, $flowConnectionId;
 
-    $flowConnections[$flowConnectionId] = [ 'from' => $fromFlowElement['id'], 'to' => $toFlowElement['id'], 'type' => $connectionType];
+    $flowConnections[$flowConnectionId] = [ 'id' => $flowConnectionId, 'from' => $fromFlowElement['id'], 'to' => $toFlowElement['id'], 'type' => $connectionType];
     array_push($fromFlowElement['connectionsFromThisElement'], $flowConnectionId);
 
     $flowConnectionId++;
