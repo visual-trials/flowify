@@ -970,7 +970,13 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
 function addFlowConnection (&$fromFlowElement, &$toFlowElement, $connectionType = null) {
     global $flowConnections, $flowConnectionId;
 
-    $flowConnections[$flowConnectionId] = [ 'id' => $flowConnectionId, 'from' => $fromFlowElement['id'], 'to' => $toFlowElement['id'], 'type' => $connectionType];
+    $flowConnection = [];
+    $flowConnection['id'] = $flowConnectionId;
+    $flowConnection['from'] = $fromFlowElement['id'];
+    $flowConnection['to'] = $toFlowElement['id'];
+    $flowConnection['type'] = $connectionType;
+    
+    $flowConnections[$flowConnectionId] = $flowConnection;
     array_push($fromFlowElement['connectionsFromThisElement'], $flowConnectionId);
 
     $flowConnectionId++;
