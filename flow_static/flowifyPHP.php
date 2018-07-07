@@ -959,6 +959,8 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                         }
                         
                         
+                        // FIXME: IF THERE ARE TWO CONNECTIONS, THIS CODE WILL NOT MERGE THEM. INSTEAD IT WILL CREATE TWO SPLITS!
+                        
                         
                         $connectionToBeChanged = $flowConnections[$connectionIdFromVariable];
                         
@@ -973,7 +975,9 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                         $toElementHACK = new FlowElement;
                         $toElementHACK->id = $connectionToBeChanged->to;   // we use the old to-container to connect to with the splitconditional
                         
+                        // FIXME: we add a 'conditional' connection type here. Is this correct?
                         addFlowConnection($conditionalSplitVariableFlowElement, $toElementHACK, 'conditional');
+                        // FIXME: should we change/check the type of this connection too?
                         $connectionToBeChanged->to = $conditionalSplitVariableFlowElement->id; // FIXME: should we do it this way?
                         //echo print_r(['$connectionToBeChanged' => $connectionToBeChanged],true);
                         
