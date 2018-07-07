@@ -940,6 +940,8 @@ function addFlowConnection ($fromFlowElement, $toFlowElement, $connectionType = 
     global $flowConnections, $flowConnectionId;
 
     $flowConnections[$flowConnectionId] = [ 'from' => $fromFlowElement['id'], 'to' => $toFlowElement['id'], 'type' => $connectionType];
+    array_push($fromFlowElement['connectionsFromThisElement'], $flowConnectionId);
+
     $flowConnectionId++;
 }
 
@@ -956,6 +958,7 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
     $flowElement['type'] = $flowElementType;
     $flowElement['name'] = $flowElementName;
     $flowElement['value'] = $flowElementValue;
+    $flowElement['connectionsFromThisElement'] = [];
     if ($canHaveChildren) {
         $flowElement['children'] = [];
     }
@@ -1008,6 +1011,10 @@ function flowifyStatementsWithWrappingContainer ($wrapperStatements, $containerT
 }
 
 function stripScope (&$flowElement) {
+    if (array_key_exists('connectionsFromThisElement', $flowElement)) {
+        unset($flowElement['connectionsFromThisElement']);
+    }
+    
     if (array_key_exists('varsInScope', $flowElement)) {
         unset($flowElement['varsInScope']);
     }
