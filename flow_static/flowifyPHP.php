@@ -688,6 +688,8 @@ function flowifyForIteration (
 
 function flowifyIfStatement($ifStatement, &$parentFlowElement) {
     
+    global $flowConnectionId;
+    
     $varsInScope = &$parentFlowElement['varsInScope'];
     $functionsInScope = &$parentFlowElement['functionsInScope'];
     
@@ -725,6 +727,10 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
 //        we add an conditional-point in-between. If we have both an ELSE and a THEN, we have to make sure thet are BOTH
 //        connected to this coditional-point (and set the 'side' to which thet are connected: then=true-side, else=false-side)
 
+        $lastConnectionIdAfterCondition = $flowConnectionId;
+        $varsInScopeAfterCondBody = $condFlowElement['varsInScope']; // copy!
+        // echo print_r(['flowConnectionId_after_THEN' => $lastConnectionIdAfterCondition],true);
+        // echo print_r(['varsInScope_condFlowElement' => $condFlowElement['varsInScope']],true);
         
         // == THEN ==
         
@@ -746,6 +752,10 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
         
         addFlowElementToParent($thenBodyFlowElement, $ifFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $thenBodyFlowElement, so changes to it will not be in the parent!
         
+        // echo print_r(['flowConnectionId_after_THEN' => $flowConnectionId],true);
+        // echo print_r(['varsInScope_thenBodyFlowElement' => $thenBodyFlowElement['varsInScope']],true);
+
+        $lastConnectionIdAfterThen = $flowConnectionId;
         
         // == ELSE ==
         
@@ -777,7 +787,10 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
             
             addFlowElementToParent($elseBodyFlowElement, $ifFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $elseBodyFlowElement, so changes to it will not be in the parent!
         }
-
+        
+        // echo print_r(['flowConnectionId_after_ELSE' => $flowConnectionId],true);
+        // echo print_r(['varsInScope_elseBodyFlowElement' => $elseBodyFlowElement['varsInScope']],true);
+        $lastConnectionIdAfterElse = $flowConnectionId;
         
         // Note: we are comparing the varsInScope from the parentFlowElement with the varsInScope of the then/elseBodyFlowElement. 
         //       We don't compare with the varsInScope of the ifFlowElement, because its only a wrapper-element, and doesn't contain varsInScope
@@ -890,6 +903,15 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
                 addFlowConnection($thenVariableFlowElement, $conditionalVariableFlowElement, 'conditional');
                 addFlowConnection($elseVariableFlowElement, $conditionalVariableFlowElement, 'conditional');
                 $varsInScopeParent[$variableName] = &$conditionalVariableFlowElement;
+                
+                
+                // We also want to create a conditional element between the cond and then, and between the cond and else
+                // We need to know the connections from the condBody into the thenBody
+                // We do this by looping all the connections from the condBody for this variables (in its 'connectionsFromThisElement')
+                $variableAfterCondBody = $varsInScopeAfterCondBody[$variableName];
+                // echo print_r(['variableAfterCondBody' => $variableAfterCondBody],true);
+
+                
             }
             
         }
@@ -1035,4 +1057,23 @@ function stripScope (&$flowElement) {
             stripScope($childFlowElement);
         }
     }    
+}
+
+class FlowElement { 
+    public $id;
+    public $type;
+    public $name; 
+    public $value; 
+    public $connectionsFromThisElement;
+    public $children;
+    public $astNodeIdentifier;
+    public $varsInScope;
+    public $functionsInScope;    
+}
+
+class FlowConnection { 
+    public $id;
+    public $from;
+    public $to; 
+    public $type; 
 }
