@@ -3,6 +3,7 @@
 require "coupleVisualInfoToAst.php";
 
 $flowElementId = 0;
+$flowConnectionId = 0;
 $flowConnections = [];
 $code = null;
 
@@ -58,7 +59,7 @@ function flowifyPhpAndAttachVisualInfo($fileToFlowifyWithoutExtention)
     $flowifiedPhp = [];
     $flowifiedPhp['code'] = explode("\n", $code);;
     $flowifiedPhp['rootFlowElement'] = $rootFlowElement;
-    $flowifiedPhp['flowConnections'] = $flowConnections;
+    $flowifiedPhp['flowConnections'] = array_values($flowConnections);
     $flowifiedPhp['statements'] = $statements;
     $flowifiedPhp['visualInfos'] = $visualInfos;
     $flowifiedPhp['usedVisualInfos'] = $usedVisualInfos;
@@ -936,9 +937,10 @@ function flowifyIfStatement($ifStatement, &$parentFlowElement) {
 // Helper functions
 
 function addFlowConnection ($fromFlowElement, $toFlowElement, $connectionType = null) {
-    global $flowConnections;
+    global $flowConnections, $flowConnectionId;
 
-    array_push($flowConnections, [ 'from' => $fromFlowElement['id'], 'to' => $toFlowElement['id'], 'type' => $connectionType]);
+    $flowConnections[$flowConnectionId] = [ 'from' => $fromFlowElement['id'], 'to' => $toFlowElement['id'], 'type' => $connectionType];
+    $flowConnectionId++;
 }
 
 function addFlowElementToParent (&$flowElement, &$parentFlowElement) {
