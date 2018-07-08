@@ -925,6 +925,8 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                 // We do this by looping all the connections from the condBody for this variable (in its 'connectionIdsFromThisElement')
                 $variableAfterCondBody = $varsInScopeAfterCondBody[$variableName];
                 $conditionalSplitVariableFlowElement = null;
+                $connectionIdToConditionalSplitVariable = null;
+                $connectionTypeToConditionalSplitVariable = null;
                 foreach ($variableAfterCondBody->connectionIdsFromThisElement as $connectionIdFromVariable) {
                     if ($connectionIdFromVariable > $lastConnectionIdAfterCondition) {  // FIXME: we dont need to care for this (performance wise) right now
                         
@@ -964,16 +966,13 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                         }
                         
                         
-                        // FIXME: IF THERE ARE TWO CONNECTIONS, THIS CODE WILL NOT MERGE THEM. INSTEAD IT WILL CREATE TWO SPLITS!
-                        
-                        
                         $connectionToBeChanged = $flowConnections[$connectionIdFromVariable];
                         
                         $flowElementIdInThenOrElseBody = $connectionToBeChanged->to;
                         if ($conditionalSplitVariableFlowElement === null) {
                             // Adding the conditionalSplitVariableFlowElement and using the first connection to connect to it
                             // FIXME: we should keep a list of connection-types and choose which connectionType this should be!
-                            $connectionType = $connectionToBeChanged->type;
+                            $connectionTypeToConditionalSplitVariable = $connectionToBeChanged->type;
                             
                             // FIXME: is this AST Identifier correct?
                             $conditionalSplitVariableAstNodeIdentifier = $ifAstNodeIdentifier . "_" . $variableName . "_SPLIT";
@@ -985,6 +984,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                             // Changing the connection to connect to the conditionalSplitVariableFlowElement
                             // FIXME: should we change/check the type of this connection too?
                             $connectionToBeChanged->to = $conditionalSplitVariableFlowElement->id; // FIXME: should we do it this way?
+                            $connectionIdToConditionalSplitVariable = $connectionToBeChanged->id;
                             
                             // Adding a connection from the conditionalSplitVariableFlowElement to the flowElement inside the Then or Else body
                             // FIXME: we should add to which SIDE the connection is connected: true-side or false-side (depending on THEN or ELSE)
@@ -992,7 +992,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                             $toElementHACK = new FlowElement;
                             $toElementHACK->id = $flowElementIdInThenOrElseBody;
                             
-                            addFlowConnection($conditionalSplitVariableFlowElement, $toElementHACK, $connectionType);
+                            addFlowConnection($conditionalSplitVariableFlowElement, $toElementHACK, $connectionToBeChanged->type); // Note: we use the original type
                         }
                         else {
                             // FIXME: set the from in the connection to the flowElementIdInThenOrElseBody
@@ -1000,6 +1000,11 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                             $connectionToBeChanged->from = $conditionalSplitVariableFlowElement->id; // FIXME: should we do it this way?
                             // FIXME: extend the connectionIdsFromThisElement of the conditionalSplitVariableFlowElement with this connectionId
                             // FIXME: remove the connectionId from: $variableAfterCondBody->connectionIdsFromThisElement
+                            // FIXME: right now null means 'normal' (which should overrule). We should change the default to 'dataflow' or something
+                            if ($connectionToBeChanged->type === null) {
+                                // TODO: should we keep a prio number for each type of connection and check if the prio is higher here?
+                                $connectionTypeToConditionalSplitVariable = null; 
+                            }
                         }
                         
                         
@@ -1010,6 +1015,9 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                     }
                 }
 
+                // Setting the connectionType of the connection to the connectionToConditionalSplitVariable
+                $connectionToConditionalSplitVariable = $flowConnections[$connectionIdToConditionalSplitVariable];
+                $connectionToConditionalSplitVariable->type = $connectionTypeToConditionalSplitVariable;
                 
             }
             
@@ -1079,6 +1087,8 @@ function addFlowConnection ($fromFlowElement, $toFlowElement, $connectionType = 
     array_push($fromFlowElement->connectionIdsFromThisElement, $flowConnectionId);
 
     $flowConnectionId++;
+    
+    return $flowConnection->id;
 }
 
 function addFlowElementToParent ($flowElement, $parentFlowElement) {
