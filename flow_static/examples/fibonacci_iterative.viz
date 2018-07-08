@@ -1,6 +1,6 @@
 {
     "3:28-3:29": {
-        "x": -630,
+        "x": -650,
         "y": -260,
         "isPositionOf": "center"
     },
@@ -10,7 +10,7 @@
         "isPositionOf": "center"
     },
     "5:30-5:31": {
-        "x": -40,
+        "x": -50,
         "y": -60,
         "isPositionOf": "center"
     },
@@ -60,8 +60,8 @@
         "isPositionOf": "center"
     },
     "9:5-13:5_ForCond": {
-        "x": -40,
-        "y": 130,
+        "x": -80,
+        "y": 190,
         "isPositionOf": "center"
     },
     "9:18-9:24": {
@@ -69,119 +69,99 @@
         "y": 60,
         "isPositionOf": "center"
     },
-    "10:9-12:17_Stmts": {
+    "9:5-13:5_1_Cond_a": {
+        "x": 30,
+        "y": 310,
+        "isPositionOf": "center"
+    },
+    "9:5-13:5_1_a_SPLIT": {
         "x": 130,
-        "y": 290,
+        "y": 310,
+        "isPositionOf": "center"
+    },
+    "9:5-13:5_1_Cond_b": {
+        "x": 20,
+        "y": 150,
+        "isPositionOf": "center"
+    },
+    "9:5-13:5_1_b_SPLIT": {
+        "x": 120,
+        "y": 150,
+        "isPositionOf": "center"
+    },
+    "9:5-13:5_1_Cond_i": {
+        "x": 200,
+        "y": -130,
+        "isPositionOf": "center"
+    },
+    "9:5-13:5_1_i_SPLIT": {
+        "x": 290,
+        "y": -140,
+        "isPositionOf": "center"
+    },
+    "10:9-12:17_Stmts": {
+        "x": 40,
+        "y": 540,
         "isPositionOf": "center"
     },
     "10:9-10:15": {
         "x": 150,
-        "y": -50,
+        "y": -100,
         "isPositionOf": "center"
     },
     "11:9-11:15": {
-        "x": 150,
-        "y": 70,
-        "isPositionOf": "center"
-    },
-    "12:9-12:16": {
-        "x": 230,
-        "y": 20,
-        "isPositionOf": "center"
-    },
-    "12:9-12:10": {
-        "x": 320,
-        "y": 80,
-        "isPositionOf": "center"
-    },
-    "9:5-13:5_ForUpdate": {
-        "x": 320,
-        "y": 210,
-        "isPositionOf": "center"
-    },
-    "9:27-9:30": {
-        "x": 60,
-        "y": -140,
-        "isPositionOf": "center"
-    },
-    "9:27-9:28": {
-        "x": 130,
-        "y": -150,
-        "isPositionOf": "center"
-    },
-    "9:5-13:5_2_Cond_a": {
-        "x": 1250,
-        "y": 490,
-        "isPositionOf": "center"
-    },
-    "9:5-13:5_2_Cond_b": {
-        "x": 1250,
-        "y": 420,
-        "isPositionOf": "center"
-    },
-    "9:5-13:5_2_Cond_i": {
-        "x": 1250,
-        "y": 20,
-        "isPositionOf": "center"
-    },
-    "9:5-13:5_2": {
-        "x": 740,
+        "x": 360,
         "y": 0,
         "isPositionOf": "center"
     },
-    "9:5-13:5_ImplicitDone": {
+    "12:9-12:16": {
+        "x": 270,
+        "y": -110,
+        "isPositionOf": "center"
+    },
+    "12:9-12:10": {
+        "x": 370,
+        "y": -160,
+        "isPositionOf": "center"
+    },
+    "9:5-13:5_ForUpdate": {
+        "x": 270,
+        "y": 160,
+        "isPositionOf": "center"
+    },
+    "9:27-9:30": {
+        "x": 50,
+        "y": -40,
+        "isPositionOf": "center"
+    },
+    "9:27-9:28": {
         "x": 120,
-        "y": 480,
+        "y": -60,
+        "isPositionOf": "center"
+    },
+    "9:5-13:5_ImplicitDone": {
+        "x": 650,
+        "y": 510,
         "isPositionOf": "center"
     },
     "9:5-13:5_1_Pass_a": {
-        "x": 330,
-        "y": 20,
-        "isPositionOf": "center"
-    },
-    "9:5-13:5_1_Cond_a": {
-        "x": 600,
-        "y": 20,
+        "x": 50,
+        "y": -20,
         "isPositionOf": "center"
     },
     "9:5-13:5_1_Pass_b": {
-        "x": 330,
-        "y": -50,
-        "isPositionOf": "center"
-    },
-    "9:5-13:5_1_Cond_b": {
-        "x": 600,
-        "y": -50,
+        "x": 50,
+        "y": -180,
         "isPositionOf": "center"
     },
     "9:5-13:5_1_Pass_i": {
-        "x": 190,
-        "y": -590,
-        "isPositionOf": "center"
-    },
-    "9:5-13:5_1_Cond_i": {
-        "x": 620,
-        "y": -590,
-        "isPositionOf": "center"
-    },
-    "9:5-13:5_2_Pass_a": {
-        "x": 800,
-        "y": 20,
-        "isPositionOf": "center"
-    },
-    "9:5-13:5_2_Pass_b": {
-        "x": 800,
-        "y": -50,
-        "isPositionOf": "center"
-    },
-    "9:5-13:5_2_Pass_i": {
-        "x": 790,
-        "y": -590,
+        "x": 60,
+        "y": -460,
         "isPositionOf": "center"
     },
     "3:1-3:30": {
-        "x": 1130,
-        "y": 240,
+        "x": 550,
+        "y": 230,
         "isPositionOf": "center"
     }
 }
