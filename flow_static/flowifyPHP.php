@@ -927,7 +927,11 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                 $conditionalSplitVariableFlowElement = null;
                 $connectionIdToConditionalSplitVariable = null;
                 $connectionTypeToConditionalSplitVariable = null;
+                $updatedConnectionIdsFromThisElement = [];
                 foreach ($variableAfterCondBody->connectionIdsFromThisElement as $connectionIdFromVariable) {
+                    // By default we want to keep the connections, so we take over the id in the loop
+                    $currentConnectionIdFromThisElement = $connectionIdFromVariable;
+                    
                     if ($connectionIdFromVariable > $lastConnectionIdAfterCondition) {  // FIXME: we dont need to care for this (performance wise) right now
                         
                         $variableConnectedWithThenBody = false;
@@ -982,38 +986,31 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                             // FIXME: should this be put into the ifBody or the condBody?
                             $conditionalSplitVariableFlowElement = createAndAddFlowElementToParent('conditionalVariable', $variableName, null, $conditionalSplitVariableAstNodeIdentifier, $ifFlowElement);
                             
-                            
-                            // Changing the connection to connect to the conditionalSplitVariableFlowElement
-                            $connectionToBeChanged->to = $conditionalSplitVariableFlowElement->id; // FIXME: should we do it this way?
-                            $connectionIdToConditionalSplitVariable = $connectionToBeChanged->id;
-                            
                             // Adding a connection from the conditionalSplitVariableFlowElement to the flowElement inside the Then or Else body
-                            // FIXME: we should add to which SIDE the connection is connected: true-side or false-side (depending on THEN or ELSE)
-                            // FIXME: HACK! Get the element instead, using the id (helper function)
-                            $toElementHACK = new FlowElement;
-                            $toElementHACK->id = $flowElementIdInThenOrElseBody;
-                            
-                            addFlowConnection($conditionalSplitVariableFlowElement, $toElementHACK, $connectionToBeChanged->type); // Note: we use the original type
+                            $connectionIdToConditionalSplitVariable = addFlowConnection($variableAfterCondBody, $conditionalSplitVariableFlowElement, $connectionToBeChanged->type); // Note: we use the original type
                         }
-                        else {
-                            // We set the from in the connection to the flowElementIdInThenOrElseBody
-                            // FIXME: we should add to which SIDE the connection is connected: true-side or false-side (depending on THEN or ELSE)
-                            $connectionToBeChanged->from = $conditionalSplitVariableFlowElement->id; // FIXME: should we do it this way?
-                            // FIXME: extend the connectionIdsFromThisElement of the conditionalSplitVariableFlowElement with this connectionId
-                            // FIXME: remove the connectionId from: $variableAfterCondBody->connectionIdsFromThisElement
                             
-                            // FIXME: right now null means 'normal' (which should overrule). We should change the default to 'dataflow' or something
-                            if ($connectionToBeChanged->type === null) {
-                                // TODO: should we keep a prio number for each type of connection and check if the prio is higher here?
-                                $connectionTypeToConditionalSplitVariable = null; 
-                            }
+                        // We set the from in the connection to the flowElementIdInThenOrElseBody
+                        // FIXME: we should add to which SIDE the connection is connected: true-side or false-side (depending on THEN or ELSE)
+                        $connectionToBeChanged->from = $conditionalSplitVariableFlowElement->id; // FIXME: should we do it this way?
+                        // FIXME: extend the connectionIdsFromThisElement of the conditionalSplitVariableFlowElement with this connectionId
+                        // FIXME: remove the connectionId from: $variableAfterCondBody->connectionIdsFromThisElement
+                        
+                        // FIXME: right now null means 'normal' (which should overrule). We should change the default to 'dataflow' or something
+                        if ($connectionToBeChanged->type === null) {
+                            // TODO: should we keep a prio number for each type of connection and check if the prio is higher here?
+                            $connectionTypeToConditionalSplitVariable = null; 
                         }
                         
                         // TODO: because we didn't change the connectionId of the original element
                         // we dont have to update connectionIdsFromThisElement. Do we really want to do it this way?
                         
                     }
+                    if ($currentConnectionIdFromThisElement !== null) {
+                        array_push($updatedConnectionIdsFromThisElement, $currentConnectionIdFromThisElement);
+                    }
                 }
+                $variableAfterCondBody->connectionIdsFromThisElement = $updatedConnectionIdsFromThisElement;
 
                 // Setting the connectionType of the connection to the connectionToConditionalSplitVariable
                 $connectionToConditionalSplitVariable = $flowConnections[$connectionIdToConditionalSplitVariable];
