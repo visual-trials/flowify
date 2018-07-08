@@ -920,8 +920,8 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                 $varsInScopeParent[$variableName] = $conditionalVariableFlowElement;
                 
                 
-                // We also want to create a conditional element between the cond and then, and between the cond and else
-                // We need to know the connections from the condBody into the thenBody
+                // We also want to create a split conditional element between the cond and then, and between the cond and else
+                // We need to know the connections going from the condBody into the thenBody (for this variable)
                 // We do this by looping all the connections from the condBody for this variable (in its 'connectionIdsFromThisElement')
                 $variableAfterCondBody = $varsInScopeAfterCondBody[$variableName];
                 $conditionalSplitVariableFlowElement = null;
@@ -932,6 +932,10 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                         
                         $variableConnectedWithThenBody = false;
                         $variableConnectedWithElseBody = false;
+                        
+                        // FIXME: replace this by calling (BEFORE THIS FOREACH) the function getContainerIdsIn(FlowElement) twice (once for the thenBody, once for the elseBody)
+                        //        so you keep a hashmap of all flowElements inside the thenBody and elseBody.
+                        //        Here we then simply check whether the flowElement which is connected to, is in which body.
                         
                         if ($connectionIdFromVariable > $lastConnectionIdAfterThen) {
                             if ($connectionIdFromVariable > $lastConnectionIdAfterElse) {
@@ -964,7 +968,6 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                             // echo print_r(['$connectionIdFromVariable THEN' => $connectionIdFromVariable],true);
                             $variableConnectedWithThenBody = true;
                         }
-                        
                         
                         $connectionToBeChanged = $flowConnections[$connectionIdFromVariable];
                         
