@@ -325,7 +325,7 @@ function flowifyExpression ($expression, $parentFlowElement) {
         // TODO: add a 'identity'-connection between the newly assigned variable and the variable it overwrote (or multiple if there is more than one) 
         // FIXME: is it correct to check for array_key_exists and is_null here?
         if (array_key_exists($variableName, $varsInScope) && !is_null($varsInScope[$variableName])) {
-            addFlowConnection($varsInScope[$variableName], $flowElement, 'identity');
+            // addFlowConnection($varsInScope[$variableName], $flowElement, 'identity');
         }
 
         $varsInScope[$variableName] = $flowElement;
@@ -542,14 +542,15 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
             $updateExpression,
             $forAstNodeIdentifier,
             $doneBodyFlowElement,
-            $doneBodyFlowElement,  // the last conditionalVariable should be put into the doneBodyFlowElement
+            $forFlowElement,  // the last conditionalVariable should be put into the forFlowElement (not in the doneBodyFlowElement)
+            //$doneBodyFlowElement,  // the last conditionalVariable should be put into the doneBodyFlowElement
             $forStepAstNodeIdentifier1,
             $forStepFlowElement1
         );
         
         addFlowElementToParent($forStepFlowElement1, $forFlowElement);  // Note: do not call this before the calls to the other addFlowElementToParent, because this COPIES $forStepFlowElement, so changes to it will not be in the parent!
 
-        
+        /*
         // STEP 2
         
         $forStepAstNodeIdentifier2 = $forAstNodeIdentifier . "_2";
@@ -570,7 +571,7 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
         );
         
         addFlowElementToParent($forStepFlowElement2, $forFlowElement);  // Note: do not call this before the calls to the other addFlowElementToParent, because this COPIES $forStepFlowElement, so changes to it will not be in the parent!
-        
+        */
 
         addFlowElementToParent($doneBodyFlowElement, $forFlowElement);  // Note: do not call this before the calls to the other addFlowElementToParent, because this COPIES $doneBodyFlowElement, so changes to it will not be in the parent!
         
