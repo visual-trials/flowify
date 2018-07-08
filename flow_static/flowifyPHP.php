@@ -971,7 +971,6 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                         $flowElementIdInThenOrElseBody = $connectionToBeChanged->to;
                         if ($conditionalSplitVariableFlowElement === null) {
                             // Adding the conditionalSplitVariableFlowElement and using the first connection to connect to it
-                            // FIXME: we should keep a list of connection-types and choose which connectionType this should be!
                             $connectionTypeToConditionalSplitVariable = $connectionToBeChanged->type;
                             
                             // FIXME: is this AST Identifier correct?
@@ -982,7 +981,6 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                             
                             
                             // Changing the connection to connect to the conditionalSplitVariableFlowElement
-                            // FIXME: should we change/check the type of this connection too?
                             $connectionToBeChanged->to = $conditionalSplitVariableFlowElement->id; // FIXME: should we do it this way?
                             $connectionIdToConditionalSplitVariable = $connectionToBeChanged->id;
                             
@@ -995,11 +993,12 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                             addFlowConnection($conditionalSplitVariableFlowElement, $toElementHACK, $connectionToBeChanged->type); // Note: we use the original type
                         }
                         else {
-                            // FIXME: set the from in the connection to the flowElementIdInThenOrElseBody
+                            // We set the from in the connection to the flowElementIdInThenOrElseBody
                             // FIXME: we should add to which SIDE the connection is connected: true-side or false-side (depending on THEN or ELSE)
                             $connectionToBeChanged->from = $conditionalSplitVariableFlowElement->id; // FIXME: should we do it this way?
                             // FIXME: extend the connectionIdsFromThisElement of the conditionalSplitVariableFlowElement with this connectionId
                             // FIXME: remove the connectionId from: $variableAfterCondBody->connectionIdsFromThisElement
+                            
                             // FIXME: right now null means 'normal' (which should overrule). We should change the default to 'dataflow' or something
                             if ($connectionToBeChanged->type === null) {
                                 // TODO: should we keep a prio number for each type of connection and check if the prio is higher here?
@@ -1007,10 +1006,8 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                             }
                         }
                         
-                        
                         // TODO: because we didn't change the connectionId of the original element
                         // we dont have to update connectionIdsFromThisElement. Do we really want to do it this way?
-                        
                         
                     }
                 }
