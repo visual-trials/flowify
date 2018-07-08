@@ -599,15 +599,18 @@ function flowifyForIteration (
     ) {
 
     // == COND ==
-        
+    
+    $varsInScopeBeforeCondBody = $forStepFlowElement->varsInScope; // copy!
     // FIXME: replace ifCond with forCond
-    $flowElement = flowifyExpressionWithWrappingContainer(
+    list($flowElement, $condBodyFlowElement) = flowifyExpressionWithWrappingContainer(
         $conditionExpression, 
         'ifCond', 
         'cond', 
         $forAstNodeIdentifier . "_ForCond", 
         $forStepFlowElement
     );
+    $varsInScopeAfterCondBody = $forStepFlowElement->varsInScope; //copy!
+
 
     // TODO: the flowElement coming from the conditionExpression is a boolean and determines 
     //       whether the iter-statements are executed. How to should we visualize this?
@@ -617,7 +620,7 @@ function flowifyForIteration (
     $iterAstNodeIdentifier = getAstNodeIdentifier($iterStatements);
     
     // FIXME: replace ifThen with iterBody
-    $noReturnFlowElement = flowifyStatementsWithWrappingContainer (
+    list($noReturnFlowElement, $iterBodyFlowElement) = flowifyStatementsWithWrappingContainer (
         $iterStatements, 
         'ifThen', 
         'iter', 
@@ -630,7 +633,7 @@ function flowifyForIteration (
     // == UPDATE ==
     
     // FIXME: replace ifCond with forUpdate
-    $flowElement = flowifyExpressionWithWrappingContainer(
+    list($flowElement, $updateBodyFlowElement) = flowifyExpressionWithWrappingContainer(
         $updateExpression, 
         'ifCond', 
         'update', 
@@ -658,6 +661,7 @@ function flowifyForIteration (
             }
         }
         
+        /*
         $forStepVariableFlowElement = null;
         $doneBodyVariableFlowElement = null;
         if ($varReplacedInForStep) {
@@ -674,6 +678,7 @@ function flowifyForIteration (
             $forStepVariableFlowElement = $forStepFlowElement->varsInScope[$variableName];  // NOT A copy ANYMORE!
             $doneBodyVariableFlowElement = $passThroughVariableFlowElement;  // NOT A copy ANYMORE!
         }
+        */
         
         // The variable was replaced in the forStep.
         // This means we should create a conditionalVariableFlowElement and add it to the doneBodyOrForFlowElement
@@ -681,12 +686,121 @@ function flowifyForIteration (
         // In additional, it should be added to the varsInScope of the doneBody, so if the variable is used 
         // by another flowElement, it can connect to this conditionalVariable
         if ($varReplacedInForStep) {
-            // FIXME: double check: we are using the forStepIdentifier inside the for element (with a varname) is this ok?
-            $conditionalVariableAstNodeIdentifier = $forStepAstNodeIdentifier . "_Cond_" . $variableName;
-            $conditionalVariableFlowElement = createAndAddFlowElementToParent('conditionalVariable', $variableName, null, $conditionalVariableAstNodeIdentifier, $doneBodyOrForFlowElement);
-            addFlowConnection($forStepVariableFlowElement, $conditionalVariableFlowElement, 'conditional');
-            addFlowConnection($doneBodyVariableFlowElement, $conditionalVariableFlowElement, 'conditional');
-            $doneBodyOrForFlowElement->varsInScope[$variableName] = $conditionalVariableFlowElement; // NOTE: a ref doesn't work here for some reason
+            
+            $variableBeforeCondBody = $varsInScopeBeforeCondBody[$variableName];
+            $variableAfterCondBody = $varsInScopeAfterCondBody[$variableName];
+            $variableAfterIterAndUpdateBody = $forStepFlowElement->varsInScope[$variableName];
+            
+            // FIXME: we need better names for distinguising these two!
+            $conditionalVariableFlowElement = null;
+            $conditionalSplitVariableFlowElement = null;
+
+            // TODO: could this be moved outside the foreach of the $varsInScopeParent? Or are we adding elements to the thenBody and elseBody in this loop?
+            // TODO: we should probably use a hashmap of all flowElements inside the thenBody and elseBody.
+            $elementIdsInCondBody = getElementsIdsIn($condBodyFlowElement);
+            $elementIdsInIterBody = getElementsIdsIn($iterBodyFlowElement);
+            $elementIdsInUpdateBody = getElementsIdsIn($updateBodyFlowElement);
+            
+            $updatedConnectionIdsFromThisElement = [];
+
+            // IMPORTANT NOTE: right now we are assuming that the condBody doesn't reassign
+            //                 the variable! If it does, then the code below will not give the proper result!
+            
+            foreach ($variableBeforeCondBody->connectionIdsFromThisElement as $connectionIdFromVariable) {
+                // By default we want to keep the connections, so we take over the id in the loop
+                $currentConnectionIdFromThisElement = $connectionIdFromVariable;
+                
+                $connectionToBeChanged = getConnectionById($connectionIdFromVariable);
+                $flowElementIdInCondOrIterOrUpdateBody = $connectionToBeChanged->to;
+
+                // Here we check whether the flowElement to which the variableAfterCondBody is connected to, is in the iterBody or updateBody.
+                $variableConnectedWithCondBody = false;
+                $variableConnectedWithIterBody = false;
+                $variableConnectedWithUpdateBody = false;
+                if (in_array($flowElementIdInCondOrIterOrUpdateBody, $elementIdsInCondBody)) {
+                    $variableConnectedWithCondBody = true;
+                }
+                if (in_array($flowElementIdInCondOrIterOrUpdateBody, $elementIdsInIterBody)) {
+                    $variableConnectedWithIterBody = true;
+                }
+                if (in_array($flowElementIdInCondOrIterOrUpdateBody, $elementIdsInUpdateBody)) {
+                    $variableConnectedWithUpdateBody = true;
+                }
+                
+                if ($variableConnectedWithCondBody ||
+                    $variableConnectedWithIterBody ||
+                    $variableConnectedWithUpdateBody) {
+                       
+                    if ($conditionalVariableFlowElement === null) {
+                        // Note: this also assumes conditionalSplitVariableFlowElement is null!
+                        
+                        
+                        // FIXME: double check: we are using the forStepIdentifier inside the for element (with a varname) is this ok?
+                        // FIXME: should we not use the ast of the condition body itself + variable name?
+                        $conditionalVariableAstNodeIdentifier = $forStepAstNodeIdentifier . "_Cond_" . $variableName;
+                        // TODO: should we put this conditionalVariable into the condBody or the stepBody or the forBody?
+                        $conditionalVariableFlowElement = createAndAddFlowElementToParent('conditionalVariable', $variableName, null, $conditionalVariableAstNodeIdentifier, $condBodyFlowElement);
+                        addFlowConnection($variableBeforeCondBody, $conditionalVariableFlowElement, 'conditional');
+                        addFlowConnection($variableAfterIterAndUpdateBody, $conditionalVariableFlowElement, 'conditional');
+                        
+                        
+                        // Adding the conditionalSplitVariableFlowElement and adding a connection to connect from the conditionalVariableFlowElement to it
+                        $connectionTypeToConditionalSplitVariable = $connectionToBeChanged->type;
+                        
+                        // FIXME: is this AST Identifier correct?
+                        $conditionalSplitVariableAstNodeIdentifier = $forStepAstNodeIdentifier . "_" . $variableName . "_SPLIT";
+                        // FIXME: change type to 'conditionalSplitVariable'?
+                        // FIXME: should this be put into the forBody, forStepBody or the condBody?
+                        $conditionalSplitVariableFlowElement = createAndAddFlowElementToParent('conditionalVariable', $variableName, null, $conditionalSplitVariableAstNodeIdentifier, $condBodyFlowElement);
+                       
+                        // Adding a connection from the conditionalVariableFlowElement to the conditionalSplitVariableFlowElement
+                        $connectionIdToConditionalSplitVariable = addFlowConnection($conditionalVariableFlowElement, $conditionalSplitVariableFlowElement, $connectionToBeChanged->type); // Note: we use the original type
+                        
+                        
+                        
+                        // Adding the variable to the doneBody as a passthrough variable
+                        
+                        // TODO: should we really use the variable name in the identifier?
+                        $passThroughVariableAstNodeIdentifier = $forStepAstNodeIdentifier . "_Pass_" . $variableName;
+
+                        $passThroughVariableFlowElement = createAndAddFlowElementToParent('passThroughVariable', $variableName, null, $passThroughVariableAstNodeIdentifier, $doneBodyFlowElement);
+
+                        // Connecting the conditionalSplitVariableFlowElement to the passthrough variable (inside the doneBody)
+                        // FIXME: choose a SIDE!
+                        addFlowConnection($conditionalSplitVariableFlowElement, $passThroughVariableFlowElement);
+                        
+                        // Making sure the variable will be picked up (as output) after the for-loop
+                        $doneBodyOrForFlowElement->varsInScope[$variableName] = $passThroughVariableFlowElement;
+                    }
+
+                    if ($variableConnectedWithIterBody || $variableConnectedWithUpdateBody) {
+                        // We set the from in the connection to the flowElementIdInThenOrElseBody
+                        // FIXME: we should add to which SIDE the connection is connected: true-side or false-side (depending on THEN or ELSE)
+                        $connectionToBeChanged->from = $conditionalSplitVariableFlowElement->id; // TODO: should we do it this way?
+                        
+                        // FIXME: change/set-null currentConnectionIdFromThisElement!
+                        
+                        /* FIXME: do this too!
+                        // FIXME: right now null means 'normal' (which should overrule). We should change the default to 'dataflow' or something
+                        if ($connectionToBeChanged->type === null) {
+                            // TODO: should we keep a prio number for each type of connection and check if the prio is higher here?
+                            $connectionTypeToConditionalSplitVariable = null; 
+                        }
+                        */
+                        
+                    }
+   
+                }
+                if ($currentConnectionIdFromThisElement !== null) {
+                    array_push($updatedConnectionIdsFromThisElement, $currentConnectionIdFromThisElement);
+                }
+            }
+            $variableBeforeCondBody->connectionIdsFromThisElement = $updatedConnectionIdsFromThisElement;
+                
+            
+
+            
+            
         }
         
     }
@@ -935,13 +1049,15 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                             // FIXME: should this be put into the ifBody or the condBody?
                             $conditionalSplitVariableFlowElement = createAndAddFlowElementToParent('conditionalVariable', $variableName, null, $conditionalSplitVariableAstNodeIdentifier, $ifFlowElement);
                             
-                            // Adding a connection from the conditionalSplitVariableFlowElement to the flowElement inside the Then or Else body
+                            // Adding a connection from the variableAfterCondBody to the conditionalSplitVariableFlowElement
                             $connectionIdToConditionalSplitVariable = addFlowConnection($variableAfterCondBody, $conditionalSplitVariableFlowElement, $connectionToBeChanged->type); // Note: we use the original type
                         }
                             
                         // We set the from in the connection to the flowElementIdInThenOrElseBody
                         // FIXME: we should add to which SIDE the connection is connected: true-side or false-side (depending on THEN or ELSE)
                         $connectionToBeChanged->from = $conditionalSplitVariableFlowElement->id; // TODO: should we do it this way?
+                        
+                        // FIXME: change/set-null currentConnectionIdFromThisElement!
                         
                         // FIXME: right now null means 'normal' (which should overrule). We should change the default to 'dataflow' or something
                         if ($connectionToBeChanged->type === null) {
@@ -1100,7 +1216,7 @@ function flowifyExpressionWithWrappingContainer ($wrapperExpression, $containerT
     
     $parentFlowElement->varsInScope = $wrapperFlowElement->varsInScope;  // copy back!
     
-    return $flowElement;
+    return [$flowElement, $wrapperFlowElement];
 }
 
 function flowifyStatementsWithWrappingContainer ($wrapperStatements, $containerType, $containerName, $wrapperAstNodeIdentifier, $parentFlowElement) {
@@ -1115,7 +1231,7 @@ function flowifyStatementsWithWrappingContainer ($wrapperStatements, $containerT
     
     $parentFlowElement->varsInScope = $wrapperFlowElement->varsInScope;  // copy back!
     
-    return $flowElement;
+    return [$flowElement, $wrapperFlowElement];
 }
 
 function arrayfyFlowElements ($flowElement) {
