@@ -898,6 +898,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                 $connectionTypeToConditionalSplitVariable = null;
                 $updatedConnectionIdsFromThisElement = [];
                 
+                // TODO: could this be moved outside the foreach of the $varsInScopeParent? Or are we adding elements to the thenBody and elseBody in this loop?
                 // TODO: we should probably use a hashmap of all flowElements inside the thenBody and elseBody.
                 $elementIdsInThenBody = getElementsIdsIn($thenBodyFlowElement);
                 $elementIdsInElseBody = [];
