@@ -695,9 +695,6 @@ function flowifyForIteration (
 
 function flowifyIfStatement($ifStatement, $parentFlowElement) {
     
-    // FIXME: are these used here? Should they be?
-    global $flowConnections, $flowConnectionId;
-    
     $varsInScope = &$parentFlowElement->varsInScope;
     $functionsInScope = &$parentFlowElement->functionsInScope;
     
@@ -726,19 +723,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         
         addFlowElementToParent($condFlowElement, $ifFlowElement);  // Note: do not call this before flowifyExpression, because this COPIES $condFlowElement, so changes to it will not be in the parent!
         
-// FIXME: after calling flowifyExpression on the COND, we should record the flowConnectionId
-//        We then know what connections will be old (all the have equal or lower than that id)
-//        If new connections are added they will have an higher id
-//        AFTER calling the THEN and ELSE flowifiers, we determine which variables have been changed by them
-//        For each variable that has been changed, we check the varsInScope of the condition and get the variable from there
-//        We check which NEW connections have been made with THAT variable. For each of these connections,
-//        we add an conditional-point in-between. If we have both an ELSE and a THEN, we have to make sure thet are BOTH
-//        connected to this coditional-point (and set the 'side' to which thet are connected: then=true-side, else=false-side)
-
-        $lastConnectionIdAfterCondition = $flowConnectionId - 1; // TODO: minus 1 is not pretty
         $varsInScopeAfterCondBody = $condFlowElement->varsInScope; // copy!
-        //echo print_r(['flowConnectionId_after_COND' => $lastConnectionIdAfterCondition],true);
-        //echo print_r(['varsInScope_condFlowElement' => $condFlowElement->varsInScope],true);
         
         // == THEN ==
         
@@ -759,13 +744,6 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         $noReturnFlowElement = flowifyStatements($thenStatements, $thenBodyFlowElement);
         
         addFlowElementToParent($thenBodyFlowElement, $ifFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $thenBodyFlowElement, so changes to it will not be in the parent!
-        
-        //echo print_r(['flowConnectionId_after_THEN' => $flowConnectionId - 1],true); // TODO: minus 1 is not pretty
-        //echo print_r(['$flowConnections' => $flowConnections],true);
-        
-        //echo print_r(['varsInScope_thenBodyFlowElement' => $thenBodyFlowElement->varsInScope],true);
-
-        $lastConnectionIdAfterThen = $flowConnectionId - 1; // TODO: minus 1 is not pretty
         
         // == ELSE ==
         
@@ -797,10 +775,6 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
             
             addFlowElementToParent($elseBodyFlowElement, $ifFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $elseBodyFlowElement, so changes to it will not be in the parent!
         }
-        
-        //echo print_r(['flowConnectionId_after_ELSE' => $flowConnectionId - 1],true); // TODO: minus 1 is not pretty
-        //echo print_r(['varsInScope_elseBodyFlowElement' => $elseBodyFlowElement->varsInScope],true);
-        $lastConnectionIdAfterElse = $flowConnectionId - 1; // TODO: minus 1 is not pretty
         
         // Note: we are comparing the varsInScope from the parentFlowElement with the varsInScope of the then/elseBodyFlowElement. 
         //       We don't compare with the varsInScope of the ifFlowElement, because its only a wrapper-element, and doesn't contain varsInScope
@@ -837,9 +811,6 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                 }
             }
 
-            // TODO: if there is no passthrough we should still set the (not pretty)
-            $lastConnectionIdAfterThenPassThrough = $flowConnectionId - 1; // TODO: minus 1 is not pretty
-            $lastConnectionIdAfterElsePassThrough = $flowConnectionId - 1; // TODO: minus 1 is not pretty
             $thenVariableFlowElement = null;
             $elseVariableFlowElement = null;
             if ($varReplacedInThenBody && $varReplacedInElseBody) {
@@ -870,7 +841,6 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
 
                     // Connecting the variable in the parent to the passthrough variable (inside the thenBody)
                     addFlowConnection($varsInScopeParent[$variableName], $passThroughVariableFlowElement);
-                    $lastConnectionIdAfterElsePassThrough = $flowConnectionId - 1; // TODO: minus 1 is not pretty
 
                     // TODO: do we need to add this passthrough variable to the scope of the ElseBody? 
                     // $varsInScopeElseBody[$parameterName] = $passThroughVariableFlowElement;
@@ -893,7 +863,6 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
 
                     // Connecting the variable in the parent to the passthrough variable (inside the thenBody)
                     addFlowConnection($varsInScopeParent[$variableName], $passThroughVariableFlowElement);
-                    $lastConnectionIdAfterThenPassThrough = $flowConnectionId - 1; // TODO: minus 1 is not pretty
 
                     // TODO: do we need to add this passthrough variable to the scope of the ThenBody? 
                     // $varsInScopeThenBody[$parameterName] = $passThroughVariableFlowElement;
@@ -920,64 +889,42 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                 $varsInScopeParent[$variableName] = $conditionalVariableFlowElement;
                 
                 
-                // We also want to create a split conditional element between the cond and then, and between the cond and else
-                // We need to know the connections going from the condBody into the thenBody (for this variable)
+                // We also want to create a conditional *split* element between the condBody and thenBody, and between the condBody and elseBody
+                // We need to know the connections going from the condBody into the thenBody and elseBody (for this variable)
                 // We do this by looping all the connections from the condBody for this variable (in its 'connectionIdsFromThisElement')
                 $variableAfterCondBody = $varsInScopeAfterCondBody[$variableName];
                 $conditionalSplitVariableFlowElement = null;
                 $connectionIdToConditionalSplitVariable = null;
                 $connectionTypeToConditionalSplitVariable = null;
                 $updatedConnectionIdsFromThisElement = [];
+                
+                // TODO: we should probably use a hashmap of all flowElements inside the thenBody and elseBody.
+                $elementIdsInThenBody = getElementsIdsIn($thenBodyFlowElement);
+                $elementIdsInElseBody = [];
+                if ($elseBodyFlowElement !== null) {
+                    $elementIdsInElseBody = getElementsIdsIn($elseBodyFlowElement);
+                }
+                    
                 foreach ($variableAfterCondBody->connectionIdsFromThisElement as $connectionIdFromVariable) {
                     // By default we want to keep the connections, so we take over the id in the loop
                     $currentConnectionIdFromThisElement = $connectionIdFromVariable;
                     
-                    if ($connectionIdFromVariable > $lastConnectionIdAfterCondition) {  // FIXME: we dont need to care for this (performance wise) right now
+                    $connectionToBeChanged = getConnectionById($connectionIdFromVariable);
+                    $flowElementIdInThenOrElseBody = $connectionToBeChanged->to;
+                    
+                    // Here we check whether the flowElement to which the variableAfterCondBody is connected to, is in the thenBody or elseBody.
+                    $variableConnectedWithThenBody = false;
+                    $variableConnectedWithElseBody = false;
+                    if (in_array($flowElementIdInThenOrElseBody, $elementIdsInThenBody)) {
+                        $variableConnectedWithThenBody = true;
+                    }
+                    if (in_array($flowElementIdInThenOrElseBody, $elementIdsInElseBody)) {
+                        $variableConnectedWithElseBody = true;
+                    }
                         
-                        $variableConnectedWithThenBody = false;
-                        $variableConnectedWithElseBody = false;
-                        
-                        // FIXME: replace this by calling (BEFORE THIS FOREACH) the function getContainerIdsIn(FlowElement) twice (once for the thenBody, once for the elseBody)
-                        //        so you keep a hashmap of all flowElements inside the thenBody and elseBody.
-                        //        Here we then simply check whether the flowElement which is connected to, is in which body.
-                        
-                        if ($connectionIdFromVariable > $lastConnectionIdAfterThen) {
-                            if ($connectionIdFromVariable > $lastConnectionIdAfterElse) {
-                                if ($connectionIdFromVariable > $lastConnectionIdAfterThenPassThrough) {
-                                    // The connectionId is after the last connectionId in THEN PASSTHROUGH 
-                                    // so this must be connected to the ELSE PASSTHROUGH
-                                    $variableConnectedWithElseBody = true;
-                                }
-                                else {
-                                    if ($connectionIdFromVariable > $lastConnectionIdAfterElsePassThrough) {
-                                        // FIXME: make this nicer (or remove if you are sure)
-                                        die("This should never happen!");
-                                    }
-                                    else {
-                                        // The connectionId is before or equal to the last connectionId in ELSE PASSTHROUGH 
-                                        // so this must be connected to the THEN PASSTHROUGH
-                                        $variableConnectedWithThenBody = true;
-                                    }
-                                }
-                            }
-                            else {
-                                // The connectionId is after the last connectionId in THEN and before or equal to the last connectionId in ELSE,
-                                // so this must be connected to the ELSE
-                                $variableConnectedWithElseBody = true;
-                                // echo print_r(['$connectionIdFromVariable ELSE' => $connectionIdFromVariable],true);
-                            }
-                        }
-                        else {
-                            // The connectionId is before or equal to the last connectionId in THEN, so this must be connected to the THEN
-                            // echo print_r(['$connectionIdFromVariable THEN' => $connectionIdFromVariable],true);
-                            $variableConnectedWithThenBody = true;
-                        }
-                        
-                        $connectionToBeChanged = $flowConnections[$connectionIdFromVariable];
-                        
-                        $flowElementIdInThenOrElseBody = $connectionToBeChanged->to;
+                    if ($variableConnectedWithThenBody || $variableConnectedWithElseBody) {
                         if ($conditionalSplitVariableFlowElement === null) {
-                            // Adding the conditionalSplitVariableFlowElement and using the first connection to connect to it
+                            // Adding the conditionalSplitVariableFlowElement and adding a connection to connect from the variableAfterCondBody to it
                             $connectionTypeToConditionalSplitVariable = $connectionToBeChanged->type;
                             
                             // FIXME: is this AST Identifier correct?
@@ -992,18 +939,13 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                             
                         // We set the from in the connection to the flowElementIdInThenOrElseBody
                         // FIXME: we should add to which SIDE the connection is connected: true-side or false-side (depending on THEN or ELSE)
-                        $connectionToBeChanged->from = $conditionalSplitVariableFlowElement->id; // FIXME: should we do it this way?
-                        // FIXME: extend the connectionIdsFromThisElement of the conditionalSplitVariableFlowElement with this connectionId
-                        // FIXME: remove the connectionId from: $variableAfterCondBody->connectionIdsFromThisElement
+                        $connectionToBeChanged->from = $conditionalSplitVariableFlowElement->id; // TODO: should we do it this way?
                         
                         // FIXME: right now null means 'normal' (which should overrule). We should change the default to 'dataflow' or something
                         if ($connectionToBeChanged->type === null) {
                             // TODO: should we keep a prio number for each type of connection and check if the prio is higher here?
                             $connectionTypeToConditionalSplitVariable = null; 
                         }
-                        
-                        // TODO: because we didn't change the connectionId of the original element
-                        // we dont have to update connectionIdsFromThisElement. Do we really want to do it this way?
                         
                     }
                     if ($currentConnectionIdFromThisElement !== null) {
@@ -1012,9 +954,11 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                 }
                 $variableAfterCondBody->connectionIdsFromThisElement = $updatedConnectionIdsFromThisElement;
 
-                // Setting the connectionType of the connection to the connectionToConditionalSplitVariable
-                $connectionToConditionalSplitVariable = $flowConnections[$connectionIdToConditionalSplitVariable];
-                $connectionToConditionalSplitVariable->type = $connectionTypeToConditionalSplitVariable;
+                if ($connectionIdToConditionalSplitVariable !== null) {
+                    // Setting the connectionType of the connection to the connectionToConditionalSplitVariable
+                    $connectionToConditionalSplitVariable = getConnectionById($connectionIdToConditionalSplitVariable);
+                    $connectionToConditionalSplitVariable->type = $connectionTypeToConditionalSplitVariable;
+                }
                 
             }
             
@@ -1121,6 +1065,25 @@ function createAndAddFlowElementToParent ($flowElementType, $flowElementName, $f
     addFlowElementToParent($flowElement, $parentFlowElement);
 
     return $flowElement;
+}
+
+function getConnectionById ($connectionId) {
+    global $flowConnections;
+    
+    return $flowConnections[$connectionId];
+}
+
+function getElementsIdsIn($flowElement) {
+    $containerIdsInFlowElement = [$flowElement->id];
+    
+    foreach ($flowElement->children as $childFlowElement) {
+        // TODO: we should not go into a function when we are trying to find connection to elements inside a flowElement.
+        //       This is because a function(call) reset its varsInScope, so no variables *outside* its scope could 
+        //       connect (directly) with one of its children.
+        $containerIdsInChildFlowElement = getElementsIdsIn($childFlowElement);
+        $containerIdsInFlowElement = array_merge($containerIdsInFlowElement, $containerIdsInChildFlowElement);
+    }
+    return $containerIdsInFlowElement;
 }
 
 function flowifyExpressionWithWrappingContainer ($wrapperExpression, $containerType, $containerName, $wrapperAstNodeIdentifier, $parentFlowElement) {
