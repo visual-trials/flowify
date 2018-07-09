@@ -282,6 +282,27 @@ var containerTypeProperties = {
             ]
         }
     },
+    passBackVariable: {
+        drawContainer: true,
+        showContainerBody: true,
+        containerColor: {r: 210, g: 230, b: 255, a: 0.3},
+        containerBorderColor: {r: 180, g: 200, b: 255, a: 0.3},
+        showContainerText: true,
+        paddingTop: 10,
+        paddingBottom: 10,
+        paddingLeft: 10,
+        paddingRight: 10,
+        connectIncomingTo: "right",
+        connectOutgoingTo: "left",
+        childrenLayoutFunction: "none",
+        dataItemGroups: {
+            basicInfo: [
+                { containerKey: "identifier", displayName: "identifier" },
+                { containerKey: "type", displayName: "type" },
+                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" }
+            ]
+        }
+    },
     conditionalVariable: {
         drawContainer: true,
         showContainerBody: true,
@@ -448,6 +469,9 @@ function convertFlowDataToZUIContainers (world, flowData) {
             containerText = flowElement.name
         }
         else if (flowElement.type === 'passThroughVariable') {
+            containerText = flowElement.name
+        }
+        else if (flowElement.type === 'passBackVariable') {
             containerText = flowElement.name
         }
         else if (flowElement.type === 'conditionalVariable') {

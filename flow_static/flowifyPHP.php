@@ -752,7 +752,13 @@ function flowifyForIteration (
                         // TODO: should we put this conditionalVariable into the condBody or the stepBody or the forBody?
                         $conditionalVariableFlowElement = createAndAddFlowElementToParent('conditionalVariable', $variableName, null, $conditionalVariableAstNodeIdentifier, $condBodyFlowElement);
                         addFlowConnection($variableBeforeCondBody, $conditionalVariableFlowElement, 'conditional');
-                        addFlowConnection($variableAfterIterAndUpdateBody, $conditionalVariableFlowElement, 'conditional');
+                        
+                        $passBackVariableAstNodeIdentifier = $forStepAstNodeIdentifier . "_PassBack_" . $variableName;
+
+                        $passBackVariableFlowElement = createAndAddFlowElementToParent('passBackVariable', $variableName, null, $passBackVariableAstNodeIdentifier, $backBodyFlowElement);
+
+                        addFlowConnection($variableAfterIterAndUpdateBody, $passBackVariableFlowElement, 'conditional');
+                        addFlowConnection($passBackVariableFlowElement, $conditionalVariableFlowElement, 'conditional');
                         
                         
                         // Adding the conditionalSplitVariableFlowElement and adding a connection to connect from the conditionalVariableFlowElement to it

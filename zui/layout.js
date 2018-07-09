@@ -742,6 +742,16 @@ ZUI.layout = function () {
                         fromAttachmentPoint = my.getContainerAttachmentPointByAngle(fromSliceContainer, fromAttachAngle)
                     }
                 }
+                else if (fromContainerProperties.connectOutgoingTo == "left") {
+                    fromAttachAngle = Math.PI
+                    fromAttachmentPoint.x = fromCenterX - fromAbsoluteSize.width / 2
+                    fromAttachmentPoint.y = fromDefaultAttachementY
+                }
+                else if (fromContainerProperties.connectOutgoingTo == "right") {
+                    fromAttachAngle = 0
+                    fromAttachmentPoint.x = fromCenterX + fromAbsoluteSize.width / 2
+                    fromAttachmentPoint.y = fromDefaultAttachementY
+                }
                 else {
                     // TODO: now defaulting to left-to-right, better to default to all-directions?
                     fromAttachAngle = 0
@@ -812,6 +822,16 @@ ZUI.layout = function () {
                         toAttachAngle = Math.PI
                         toAttachmentPoint = my.getContainerAttachmentPointByAngle(toSliceContainer, toAttachAngle)
                     }
+                }
+                else if (toContainerProperties.connectIncomingTo == "left") {
+                    toAttachAngle = Math.PI
+                    toAttachmentPoint.x = toCenterX - toAbsoluteSize.width / 2
+                    toAttachmentPoint.y = toDefaultAttachementY
+                }
+                else if (toContainerProperties.connectIncomingTo == "right") {
+                    toAttachAngle = 0
+                    toAttachmentPoint.x = toCenterX + toAbsoluteSize.width / 2
+                    toAttachmentPoint.y = toDefaultAttachementY
                 }
                 else {
                     // TODO: now defaulting to left-to-right, better to default to all-directions?
