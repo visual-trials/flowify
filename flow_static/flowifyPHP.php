@@ -789,6 +789,11 @@ function flowifyForIteration (
                         // Making sure the variable will be picked up (as output) after the for-loop
                         $doneBodyOrForFlowElement->varsInScope[$variableName] = $passThroughVariableFlowElement;
                     }
+                    
+                    if ($variableConnectedWithCondBody) {
+                        // The variable is used in the condBody, which means it should connect from the conditionalVariableFlowElement
+                        $connectionToBeChanged->from = $conditionalVariableFlowElement->id; // TODO: should we do it this way?
+                    }
 
                     if ($variableConnectedWithIterBody || $variableConnectedWithUpdateBody) {
                         // We set the from in the connection to the flowElementIdInThenOrElseBody

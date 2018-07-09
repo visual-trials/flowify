@@ -86,7 +86,7 @@
         "isPositionOf": "center"
     },
     "9:5-13:5_1_Cond_a": {
-        "x": 30,
+        "x": 10,
         "y": 310,
         "isPositionOf": "center"
     },
@@ -96,7 +96,7 @@
         "isPositionOf": "center"
     },
     "9:5-13:5_1_Cond_b": {
-        "x": 20,
+        "x": -10,
         "y": 150,
         "isPositionOf": "center"
     },
@@ -106,7 +106,7 @@
         "isPositionOf": "center"
     },
     "9:5-13:5_1_Cond_i": {
-        "x": 40,
+        "x": -10,
         "y": 0,
         "isPositionOf": "center"
     },
