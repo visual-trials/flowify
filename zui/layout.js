@@ -756,6 +756,40 @@ ZUI.layout = function () {
                     //}
                     toAttachmentPoint = my.getContainerAttachmentPointByAngle(toSliceContainer, toAttachAngle)
                 }
+// FIXME: HACK!
+                else if (toContainerProperties.connectIncomingTo == "3-directions") {
+                    toAttachAngle = angleBetweenCenterOfContainers
+                    if (toAttachAngle > (Math.PI * (-1 / 4)) && toAttachAngle < (Math.PI * (1 / 4))) {
+                        // right-side, FIXME: but doing top or bottom!
+                        //toAttachAngle = 0
+                        //toAttachmentPoint = my.getContainerAttachmentPointByAngle(toSliceContainer, toAttachAngle)
+                        if (toAttachAngle < 0) {
+                            // doing top
+                            toAttachAngle = Math.PI * (1 / 2)
+                            toAttachmentPoint = my.getContainerAttachmentPointByAngle(toSliceContainer, toAttachAngle)
+                        }
+                        else {
+                            // doing bottom
+                            toAttachAngle = Math.PI * (-1 / 2)
+                            toAttachmentPoint = my.getContainerAttachmentPointByAngle(toSliceContainer, toAttachAngle)
+                        }
+                    }
+                    else if (toAttachAngle > (Math.PI * (1 / 4)) && toAttachAngle < (Math.PI * (3 / 4))) {
+                        // top-side
+                        toAttachAngle = Math.PI * (1 / 2)
+                        toAttachmentPoint = my.getContainerAttachmentPointByAngle(toSliceContainer, toAttachAngle)
+                    }
+                    else if (toAttachAngle > (Math.PI * (-3 / 4)) && toAttachAngle < (Math.PI * (-1 / 4))) {
+                        // bottom-side
+                        toAttachAngle = Math.PI * (-1 / 2)
+                        toAttachmentPoint = my.getContainerAttachmentPointByAngle(toSliceContainer, toAttachAngle)
+                    }
+                    else {
+                        // left-side
+                        toAttachAngle = Math.PI
+                        toAttachmentPoint = my.getContainerAttachmentPointByAngle(toSliceContainer, toAttachAngle)
+                    }
+                }
                 else if (toContainerProperties.connectIncomingTo == "4-directions") {
                     toAttachAngle = angleBetweenCenterOfContainers
                     if (toAttachAngle > (Math.PI * (-1 / 4)) && toAttachAngle < (Math.PI * (1 / 4))) {

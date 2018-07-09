@@ -293,6 +293,27 @@ var containerTypeProperties = {
         paddingBottom: 4,
         paddingLeft: 4,
         paddingRight: 4,
+        connectIncomingTo: "3-directions",
+        childrenLayoutFunction: "none",
+        dataItemGroups: {
+            basicInfo: [
+                { containerKey: "identifier", displayName: "identifier" },
+                { containerKey: "type", displayName: "type" },
+                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" }
+            ]
+        }
+    },
+    conditionalSplitVariable: {
+        drawContainer: true,
+        showContainerBody: true,
+        containerColor: {r: 150, g: 150, b: 150, a: 0},
+        containerBorderColor: {r: 150, g: 150, b: 150, a: 1},
+        shape: "ellipse",
+        showContainerText: false,
+        paddingTop: 4,
+        paddingBottom: 4,
+        paddingLeft: 4,
+        paddingRight: 4,
         childrenLayoutFunction: "none",
         dataItemGroups: {
             basicInfo: [
@@ -430,6 +451,9 @@ function convertFlowDataToZUIContainers (world, flowData) {
             containerText = flowElement.name
         }
         else if (flowElement.type === 'conditionalVariable') {
+            containerText = flowElement.name
+        }
+        else if (flowElement.type === 'conditionalSplitVariable') {
             containerText = flowElement.name
         }
         else if (flowElement.type === 'constant') {

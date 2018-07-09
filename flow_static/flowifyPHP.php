@@ -751,7 +751,7 @@ function flowifyForIteration (
                         $conditionalSplitVariableAstNodeIdentifier = $forStepAstNodeIdentifier . "_" . $variableName . "_SPLIT";
                         // FIXME: change type to 'conditionalSplitVariable'?
                         // FIXME: should this be put into the forBody, forStepBody or the condBody?
-                        $conditionalSplitVariableFlowElement = createAndAddFlowElementToParent('conditionalVariable', $variableName, null, $conditionalSplitVariableAstNodeIdentifier, $condBodyFlowElement);
+                        $conditionalSplitVariableFlowElement = createAndAddFlowElementToParent('conditionalSplitVariable', $variableName, null, $conditionalSplitVariableAstNodeIdentifier, $condBodyFlowElement);
                        
                         // Adding a connection from the conditionalVariableFlowElement to the conditionalSplitVariableFlowElement
                         $connectionIdToConditionalSplitVariable = addFlowConnection($conditionalVariableFlowElement, $conditionalSplitVariableFlowElement, $connectionToBeChanged->type); // Note: we use the original type
@@ -1047,7 +1047,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                             $conditionalSplitVariableAstNodeIdentifier = $ifAstNodeIdentifier . "_" . $variableName . "_SPLIT";
                             // FIXME: change type to 'conditionalSplitVariable'?
                             // FIXME: should this be put into the ifBody or the condBody?
-                            $conditionalSplitVariableFlowElement = createAndAddFlowElementToParent('conditionalVariable', $variableName, null, $conditionalSplitVariableAstNodeIdentifier, $ifFlowElement);
+                            $conditionalSplitVariableFlowElement = createAndAddFlowElementToParent('conditionalSplitVariable', $variableName, null, $conditionalSplitVariableAstNodeIdentifier, $ifFlowElement);
                             
                             // Adding a connection from the variableAfterCondBody to the conditionalSplitVariableFlowElement
                             $connectionIdToConditionalSplitVariable = addFlowConnection($variableAfterCondBody, $conditionalSplitVariableFlowElement, $connectionToBeChanged->type); // Note: we use the original type
