@@ -44,7 +44,8 @@
         "y": 300,
         "isPositionOf": "center",
         "width": 800,
-        "height": 500
+        "height": 500,
+        "relativeScale": 1
     },
     "9:5-13:5_ForInit": {
         "x": 100,
@@ -76,7 +77,8 @@
         "y": 90,
         "isPositionOf": "center",
         "width": 150,
-        "height": 100
+        "height": 100,
+        "relativeScale": 1
     },
     "9:18-9:24": {
         "x": 60,
@@ -89,7 +91,7 @@
         "isPositionOf": "center"
     },
     "9:5-13:5_1_a_SPLIT": {
-        "x": 130,
+        "x": 110,
         "y": 310,
         "isPositionOf": "center"
     },
@@ -99,25 +101,25 @@
         "isPositionOf": "center"
     },
     "9:5-13:5_1_b_SPLIT": {
-        "x": 120,
+        "x": 110,
         "y": 150,
         "isPositionOf": "center"
     },
     "9:5-13:5_1_Cond_i": {
-        "x": 100,
+        "x": 40,
         "y": 0,
         "isPositionOf": "center"
     },
     "9:5-13:5_1_i_SPLIT": {
-        "x": 160,
+        "x": 120,
         "y": 0,
         "isPositionOf": "center"
     },
     "10:9-12:17_Stmts": {
-        "x": 280,
+        "x": 320,
         "y": 280,
         "isPositionOf": "center",
-        "width": 200,
+        "width": 300,
         "height": 200
     },
     "10:9-10:15": {
@@ -141,19 +143,19 @@
         "isPositionOf": "center"
     },
     "9:5-13:5_ForUpdate": {
-        "x": 290,
+        "x": 330,
         "y": 90,
         "isPositionOf": "center",
         "width": 150,
         "height": 100
     },
     "9:27-9:30": {
-        "x": 60,
-        "y": 60,
+        "x": 50,
+        "y": 50,
         "isPositionOf": "center"
     },
     "9:27-9:28": {
-        "x": 140,
+        "x": 110,
         "y": 40,
         "isPositionOf": "center"
     },
@@ -173,8 +175,8 @@
         "isPositionOf": "center"
     },
     "9:5-13:5_1_PassBack_i": {
-        "x": 50,
-        "y": -610,
+        "x": 30,
+        "y": -600,
         "isPositionOf": "center"
     },
     "9:5-13:5_ImplicitDone": {
@@ -195,7 +197,7 @@
         "isPositionOf": "center"
     },
     "9:5-13:5_1_Pass_i": {
-        "x": 20,
+        "x": 30,
         "y": 20,
         "isPositionOf": "center"
     },
