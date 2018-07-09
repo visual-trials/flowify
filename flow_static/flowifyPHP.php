@@ -524,6 +524,13 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
         $doneBodyFlowElement->varsInScope = $forFlowElement->varsInScope; // copy!
         $doneBodyFlowElement->functionsInScope = $forFlowElement->functionsInScope; // copy!
         
+        // == BACK ==
+        
+        $backAstNodeIdentifier = $forAstNodeIdentifier . "_ImplicitBack";
+        // FIXME: this should be of type: 'forBackImplicit'
+        $backBodyFlowElement = createFlowElement('ifElse', 'back', null, $backAstNodeIdentifier);
+        $backBodyFlowElement->varsInScope = $forFlowElement->varsInScope; // copy!
+        $backBodyFlowElement->functionsInScope = $forFlowElement->functionsInScope; // copy!
                        
         // == COND / ITER / UPDATE ==
         
@@ -542,6 +549,7 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
             $updateExpression,
             $forAstNodeIdentifier,
             $doneBodyFlowElement,
+            $backBodyFlowElement,
             $forFlowElement,  // the last conditionalVariable should be put into the forFlowElement (not in the doneBodyFlowElement)
             //$doneBodyFlowElement,  // the last conditionalVariable should be put into the doneBodyFlowElement
             $forStepAstNodeIdentifier1,
@@ -565,6 +573,7 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
             $updateExpression,
             $forAstNodeIdentifier,
             $doneBodyFlowElement,
+            $backBodyFlowElement,
             $forFlowElement,  // the last conditionalVariable should be put into the forFlowElement (not in the doneBodyFlowElement)
             $forStepAstNodeIdentifier2,
             $forStepFlowElement2
@@ -573,6 +582,7 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
         addFlowElementToParent($forStepFlowElement2, $forFlowElement);  // Note: do not call this before the calls to the other addFlowElementToParent, because this COPIES $forStepFlowElement, so changes to it will not be in the parent!
         */
 
+        addFlowElementToParent($backBodyFlowElement, $forFlowElement);  // Note: do not call this before the calls to the other addFlowElementToParent, because this COPIES $backBodyFlowElement, so changes to it will not be in the parent!
         addFlowElementToParent($doneBodyFlowElement, $forFlowElement);  // Note: do not call this before the calls to the other addFlowElementToParent, because this COPIES $doneBodyFlowElement, so changes to it will not be in the parent!
         
         // TODO: implement continue statement (inside flowifyStatements)
@@ -593,6 +603,7 @@ function flowifyForIteration (
         $updateExpression,
         $forAstNodeIdentifier,
         $doneBodyFlowElement,
+        $backBodyFlowElement,
         $doneBodyOrForFlowElement,
         $forStepAstNodeIdentifier,
         $forStepFlowElement
