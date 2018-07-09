@@ -165,12 +165,12 @@
         "isPositionOf": "center"
     },
     "9:5-13:5_1_PassBack_a": {
-        "x": -20,
+        "x": -30,
         "y": -80,
         "isPositionOf": "center"
     },
     "9:5-13:5_1_PassBack_b": {
-        "x": -50,
+        "x": -30,
         "y": -10,
         "isPositionOf": "center"
     },
