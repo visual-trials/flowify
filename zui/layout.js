@@ -763,7 +763,7 @@ ZUI.layout = function () {
                         // right-side, FIXME: but doing top or bottom!
                         //toAttachAngle = 0
                         //toAttachmentPoint = my.getContainerAttachmentPointByAngle(toSliceContainer, toAttachAngle)
-                        if (toAttachAngle < 0) {
+                        if (toAttachAngle > 0) {
                             // doing top
                             toAttachAngle = Math.PI * (1 / 2)
                             toAttachmentPoint = my.getContainerAttachmentPointByAngle(toSliceContainer, toAttachAngle)
