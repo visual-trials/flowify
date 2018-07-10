@@ -1,162 +1,185 @@
 {
     "3:28-3:29": {
-        "x": -640,
-        "y": 10,
-        "isPositionOf": "center"
+        "x": -790,
+        "y": 20,
+        "isPositionOf": "center",
+        "width": 1500,
+        "height": 700
     },
     "3:8-3:30": {
-        "x": -370,
-        "y": -340,
-        "isPositionOf": "center"
+        "x": 0,
+        "y": -10,
+        "isPositionOf": "center",
+        "width": 1400,
+        "height": 700,
+        "relativeScale": 1
     },
     "5:30-5:31": {
-        "x": -60,
-        "y": 370,
+        "x": 50,
+        "y": 390,
         "isPositionOf": "center"
     },
     "7:10-7:10": {
-        "x": -60,
-        "y": 180,
+        "x": 50,
+        "y": 140,
         "isPositionOf": "center"
     },
     "7:5-7:10": {
-        "x": 20,
-        "y": 180,
+        "x": 110,
+        "y": 140,
         "isPositionOf": "center"
     },
     "8:5-18:5": {
-        "x": 70,
-        "y": 90,
-        "isPositionOf": "center"
+        "x": 750,
+        "y": 360,
+        "isPositionOf": "center",
+        "width": 1200,
+        "height": 600,
+        "relativeScale": 1
     },
     "8:5-18:5_IfCond": {
-        "x": 120,
-        "y": 0,
-        "isPositionOf": "center"
+        "x": 90,
+        "y": 80,
+        "isPositionOf": "center",
+        "width": 150,
+        "height": 100
     },
     "8:15-8:15": {
-        "x": 20,
-        "y": 40,
-        "isPositionOf": "center"
-    },
-    "8:9-8:15": {
-        "x": 110,
-        "y": 80,
-        "isPositionOf": "center"
-    },
-    "9:9-9:15_Stmts": {
-        "x": 390,
-        "y": 50,
-        "isPositionOf": "center"
-    },
-    "9:14-9:14": {
-        "x": 50,
-        "y": 50,
-        "isPositionOf": "center"
-    },
-    "9:9-9:14": {
-        "x": 120,
-        "y": 50,
-        "isPositionOf": "center"
-    },
-    "12:9-17:9_Stmts": {
-        "x": 80,
-        "y": 150,
-        "isPositionOf": "center"
-    },
-    "12:9-17:9": {
-        "x": 100,
-        "y": 90,
-        "isPositionOf": "center"
-    },
-    "12:9-17:9_IfCond": {
-        "x": 120,
-        "y": 40,
-        "isPositionOf": "center"
-    },
-    "12:19-12:19": {
-        "x": -100,
-        "y": 10,
-        "isPositionOf": "center"
-    },
-    "12:13-12:19": {
-        "x": 100,
-        "y": 60,
-        "isPositionOf": "center"
-    },
-    "13:13-13:19_Stmts": {
-        "x": 160,
-        "y": -50,
-        "isPositionOf": "center"
-    },
-    "13:18-13:18": {
         "x": 40,
         "y": 40,
         "isPositionOf": "center"
     },
+    "8:9-8:15": {
+        "x": 100,
+        "y": 50,
+        "isPositionOf": "center"
+    },
+    "9:9-9:15_Stmts": {
+        "x": 630,
+        "y": 80,
+        "isPositionOf": "center",
+        "width": 890,
+        "height": 60
+    },
+    "9:14-9:14": {
+        "x": 50,
+        "y": 30,
+        "isPositionOf": "center"
+    },
+    "9:9-9:14": {
+        "x": 130,
+        "y": 30,
+        "isPositionOf": "center"
+    },
+    "12:9-17:9_Stmts": {
+        "x": 630,
+        "y": 370,
+        "isPositionOf": "center",
+        "width": 890,
+        "height": 410
+    },
+    "12:9-17:9": {
+        "x": 440,
+        "y": 200,
+        "isPositionOf": "center",
+        "width": 850,
+        "height": 350,
+        "relativeScale": 1
+    },
+    "12:9-17:9_IfCond": {
+        "x": 90,
+        "y": 80,
+        "isPositionOf": "center",
+        "width": 150,
+        "height": 100
+    },
+    "12:19-12:19": {
+        "x": 40,
+        "y": 70,
+        "isPositionOf": "center"
+    },
+    "12:13-12:19": {
+        "x": 110,
+        "y": 50,
+        "isPositionOf": "center"
+    },
+    "13:13-13:19_Stmts": {
+        "x": 460,
+        "y": 50,
+        "isPositionOf": "center",
+        "width": 550,
+        "height": 60
+    },
+    "13:18-13:18": {
+        "x": 50,
+        "y": 30,
+        "isPositionOf": "center"
+    },
     "13:13-13:18": {
         "x": 140,
-        "y": 40,
+        "y": 30,
         "isPositionOf": "center"
     },
     "16:13-16:75_Stmts": {
-        "x": 100,
-        "y": 160,
-        "isPositionOf": "center"
+        "x": 460,
+        "y": 220,
+        "isPositionOf": "center",
+        "width": 550,
+        "height": 200
     },
     "16:43-16:43": {
-        "x": -70,
-        "y": 60,
+        "x": 60,
+        "y": 70,
         "isPositionOf": "center"
     },
     "16:38-16:43": {
-        "x": 90,
-        "y": 80,
+        "x": 130,
+        "y": 50,
         "isPositionOf": "center"
     },
     "16:18-16:44": {
-        "x": 360,
-        "y": 10,
+        "x": 260,
+        "y": 50,
         "isPositionOf": "center"
     },
     "16:73-16:73": {
-        "x": -80,
-        "y": 230,
+        "x": 60,
+        "y": 160,
         "isPositionOf": "center"
     },
     "16:68-16:73": {
-        "x": 60,
-        "y": 210,
+        "x": 130,
+        "y": 140,
         "isPositionOf": "center"
     },
     "16:48-16:74": {
-        "x": 360,
-        "y": 200,
+        "x": 260,
+        "y": 140,
         "isPositionOf": "center"
     },
     "16:18-16:74": {
-        "x": 550,
-        "y": 100,
-        "isPositionOf": "center"
-    },
-    "16:13-16:74": {
-        "x": 660,
+        "x": 410,
         "y": 90,
         "isPositionOf": "center"
     },
+    "16:13-16:74": {
+        "x": 480,
+        "y": 70,
+        "isPositionOf": "center"
+    },
     "12:9-17:9_f": {
-        "x": 960,
-        "y": 150,
+        "x": 790,
+        "y": 40,
         "isPositionOf": "center"
     },
     "8:5-18:5_f": {
-        "x": 1230,
-        "y": 250,
+        "x": 1100,
+        "y": 70,
         "isPositionOf": "center"
     },
     "3:1-3:30": {
-        "x": 950,
-        "y": -30,
+        "x": 760,
+        "y": -260,
         "isPositionOf": "center"
     }
 }
