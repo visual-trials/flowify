@@ -21,17 +21,17 @@
     },
     "7:10-7:10": {
         "x": 30,
-        "y": 250,
+        "y": 260,
         "isPositionOf": "center"
     },
     "7:5-7:10": {
         "x": 110,
-        "y": 250,
+        "y": 260,
         "isPositionOf": "center"
     },
     "8:5-18:5": {
-        "x": 750,
-        "y": 360,
+        "x": 760,
+        "y": 370,
         "isPositionOf": "center",
         "width": 1200,
         "height": 600,
@@ -179,12 +179,12 @@
     },
     "12:9-17:9_f_SPLIT": {
         "x": 160,
-        "y": 210,
+        "y": 200,
         "isPositionOf": "center"
     },
     "8:5-18:5_n_SPLIT": {
         "x": 120,
-        "y": 220,
+        "y": 240,
         "isPositionOf": "center"
     },
     "8:5-18:5_f": {
@@ -194,7 +194,7 @@
     },
     "8:5-18:5_f_SPLIT": {
         "x": 120,
-        "y": 200,
+        "y": 210,
         "isPositionOf": "center"
     },
     "3:1-3:30": {
