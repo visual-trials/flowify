@@ -333,7 +333,7 @@ function flowifyExpression ($expression, $parentFlowElement) {
         // TODO: add a 'identity'-connection between the newly assigned variable and the variable it overwrote (or multiple if there is more than one) 
         // FIXME: is it correct to check for array_key_exists and is_null here?
         if (array_key_exists($variableName, $varsInScope) && !is_null($varsInScope[$variableName])) {
-            // addFlowConnection($varsInScope[$variableName], $flowElement, 'identity');
+            addFlowConnection($varsInScope[$variableName], $flowElement, 'identity');
         }
 
         $varsInScope[$variableName] = $flowElement;
