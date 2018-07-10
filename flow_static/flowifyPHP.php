@@ -87,6 +87,14 @@ function flowifyStatements ($statements, $bodyFlowElement) {
     $returnFlowElement = null;
 
     // 1)    First find all defined functions, so we known the nodes of them, when they are called
+    
+    // TODO: function definitions actually work a little different in PHP:
+    //          http://www.php.net/manual/en/functions.user-defined.php
+    //         - they are globally defined
+    //         - when in a condition, the condition has to be 'run'/processed before it's use
+    //         - can be defined inside functions (but then have to be run prior to use?)
+    //         - can be in a namespace
+    
     foreach ($statements as $statement) {
 
         $statementType = $statement['nodeType'];
