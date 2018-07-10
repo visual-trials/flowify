@@ -1059,6 +1059,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                 foreach ($variableAfterCondBody->connectionIdsFromThisElement as $connectionIdFromVariable) {
                     // By default we want to keep the connections, so we take over the id in the loop
                     $currentConnectionIdFromThisElement = $connectionIdFromVariable;
+                    $newlyAddedConnectionIdFromThisElement = null;
                     
                     $connectionToBeChanged = getConnectionById($connectionIdFromVariable);
                     $flowElementIdInThenOrElseBody = $connectionToBeChanged->to;
@@ -1086,13 +1087,15 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                             
                             // Adding a connection from the variableAfterCondBody to the conditionalSplitVariableFlowElement
                             $connectionIdToConditionalSplitVariable = addFlowConnection($variableAfterCondBody, $conditionalSplitVariableFlowElement, $connectionToBeChanged->type); // Note: we use the original type
+                            // This connection will effectively be added to $variableAfterCondBody->connectionIdsFromThisElement
+                            $newlyAddedConnectionIdFromThisElement = $connectionIdToConditionalSplitVariable;
                         }
-                            
+
                         // We set the from in the connection to the flowElementIdInThenOrElseBody
                         // FIXME: we should add to which SIDE the connection is connected: true-side or false-side (depending on THEN or ELSE)
                         $connectionToBeChanged->from = $conditionalSplitVariableFlowElement->id; // TODO: should we do it this way?
-                        
-                        // FIXME: change/set-null currentConnectionIdFromThisElement!
+                        // Seting currentConnectionIdFromThisElement to null, so it won't be added again to (effectively removed from) $variableAfterCondBody->connectionIdsFromThisElement
+                        $currentConnectionIdFromThisElement = null;
                         
                         // FIXME: right now null means 'normal' (which should overrule). We should change the default to 'dataflow' or something
                         if ($connectionToBeChanged->type === null) {
@@ -1103,6 +1106,9 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                     }
                     if ($currentConnectionIdFromThisElement !== null) {
                         array_push($updatedConnectionIdsFromThisElement, $currentConnectionIdFromThisElement);
+                    }
+                    if ($newlyAddedConnectionIdFromThisElement !== null) {
+                        array_push($updatedConnectionIdsFromThisElement, $newlyAddedConnectionIdFromThisElement);
                     }
                 }
                 $variableAfterCondBody->connectionIdsFromThisElement = $updatedConnectionIdsFromThisElement;
