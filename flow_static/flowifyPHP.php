@@ -711,6 +711,8 @@ function flowifyForIteration (
         // by another flowElement, it can connect to this conditionalVariable
         if ($varReplacedInForStep) {
             
+            // FIXME: also we we haven't replaced anything we should create split conditionals for variables we ONLY USE!
+            
             $variableBeforeCondBody = $varsInScopeBeforeCondBody[$variableName];
             $variableAfterCondBody = $varsInScopeAfterCondBody[$variableName];
             $variableAfterIterAndUpdateBody = $forStepFlowElement->varsInScope[$variableName];
@@ -1044,7 +1046,9 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                 addFlowConnection($thenVariableFlowElement, $conditionalVariableFlowElement, 'conditional');
                 addFlowConnection($elseVariableFlowElement, $conditionalVariableFlowElement, 'conditional');
                 $varsInScopeParent[$variableName] = $conditionalVariableFlowElement;
-                
+            }
+
+            {            
                 
                 // We also want to create a conditional *split* element between the condBody and thenBody, and between the condBody and elseBody
                 // We need to know the connections going from the condBody into the thenBody and elseBody (for this variable)
