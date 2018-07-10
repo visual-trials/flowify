@@ -733,6 +733,7 @@ function flowifyForIteration (
             foreach ($variableBeforeCondBody->connectionIdsFromThisElement as $connectionIdFromVariable) {
                 // By default we want to keep the connections, so we take over the id in the loop
                 $currentConnectionIdFromThisElement = $connectionIdFromVariable;
+                $newlyAddedConnectionIdFromThisElement = null;
                 
                 $connectionToBeChanged = getConnectionById($connectionIdFromVariable);
                 $flowElementIdInCondOrIterOrUpdateBody = $connectionToBeChanged->to;
@@ -764,7 +765,9 @@ function flowifyForIteration (
                         $conditionalVariableAstNodeIdentifier = $forStepAstNodeIdentifier . "_Cond_" . $variableName;
                         // TODO: should we put this conditionalVariable into the condBody or the stepBody or the forBody?
                         $conditionalVariableFlowElement = createAndAddFlowElementToParent('conditionalVariable', $variableName, null, $conditionalVariableAstNodeIdentifier, $condBodyFlowElement);
-                        addFlowConnection($variableBeforeCondBody, $conditionalVariableFlowElement, 'conditional');
+                        $connectionIdToConditionalVariable = addFlowConnection($variableBeforeCondBody, $conditionalVariableFlowElement, 'conditional');
+                        // This connection will effectively be added to $variableAfterCondBody->connectionIdsFromThisElement
+                        $newlyAddedConnectionIdFromThisElement = $connectionIdToConditionalVariable;
                         
                         $passBackVariableAstNodeIdentifier = $forStepAstNodeIdentifier . "_PassBack_" . $variableName;
 
@@ -813,7 +816,8 @@ function flowifyForIteration (
                         // FIXME: we should add to which SIDE the connection is connected: true-side or false-side (depending on THEN or ELSE)
                         $connectionToBeChanged->from = $conditionalSplitVariableFlowElement->id; // TODO: should we do it this way?
                         
-                        // FIXME: change/set-null currentConnectionIdFromThisElement!
+                        // Seting currentConnectionIdFromThisElement to null, so it won't be added again to (effectively removed from) $variableAfterCondBody->connectionIdsFromThisElement
+                        $currentConnectionIdFromThisElement = null;
                         
                         /* FIXME: do this too!
                         // FIXME: right now null means 'normal' (which should overrule). We should change the default to 'dataflow' or something
@@ -828,6 +832,9 @@ function flowifyForIteration (
                 }
                 if ($currentConnectionIdFromThisElement !== null) {
                     array_push($updatedConnectionIdsFromThisElement, $currentConnectionIdFromThisElement);
+                }
+                if ($newlyAddedConnectionIdFromThisElement !== null) {
+                    array_push($updatedConnectionIdsFromThisElement, $newlyAddedConnectionIdFromThisElement);
                 }
             }
             $variableBeforeCondBody->connectionIdsFromThisElement = $updatedConnectionIdsFromThisElement;
