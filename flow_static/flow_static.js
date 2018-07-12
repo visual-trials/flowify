@@ -303,7 +303,7 @@ var containerTypeProperties = {
             ]
         }
     },
-    conditionalVariable: {
+    conditionalJoinVariable: {
         drawContainer: true,
         showContainerBody: true,
         containerColor: {r: 150, g: 150, b: 150, a: 1},
@@ -474,7 +474,7 @@ function convertFlowDataToZUIContainers (world, flowData) {
         else if (flowElement.type === 'passBackVariable') {
             containerText = flowElement.name
         }
-        else if (flowElement.type === 'conditionalVariable') {
+        else if (flowElement.type === 'conditionalJoinVariable') {
             containerText = flowElement.name
         }
         else if (flowElement.type === 'conditionalSplitVariable') {

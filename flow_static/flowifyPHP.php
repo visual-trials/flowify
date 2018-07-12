@@ -167,7 +167,7 @@ function flowifyExpression ($expression, $parentFlowElement) {
 
         $name = $expression['name'];
         if (array_key_exists($name, $varsInScope)) {
-            // Note: this could be a conditionalVariableFlowElement
+            // Note: this could be a conditionalJoinVariableFlowElement
             $flowElement = $varsInScope[$name];
         }
         else {
@@ -687,8 +687,7 @@ function flowifyForIteration (
             $variableAfterCondBody = $varsInScopeAfterCondBody[$variableName];
             $variableAfterIterAndUpdateBody = $forStepFlowElement->varsInScope[$variableName];
             
-            // FIXME: we need better names for distinguising these two!
-            $conditionalVariableFlowElement = null;
+            $conditionalJoinVariableFlowElement = null;
             $conditionalSplitVariableFlowElement = null;
 
             // TODO: could this be moved outside the foreach of the $varsInScopeParent? Or are we adding elements to the thenBody and elseBody in this loop?
@@ -728,28 +727,28 @@ function flowifyForIteration (
                     $variableConnectedWithIterBody ||
                     $variableConnectedWithUpdateBody) {
                        
-                    if ($conditionalVariableFlowElement === null) {
+                    if ($conditionalJoinVariableFlowElement === null) {
                         // Note: this also assumes conditionalSplitVariableFlowElement is null!
                         
                         
                         // FIXME: double check: we are using the forStepIdentifier inside the for element (with a varname) is this ok?
                         // FIXME: should we not use the ast of the condition body itself + variable name?
-                        $conditionalVariableAstNodeIdentifier = $forStepAstNodeIdentifier . "_Cond_" . $variableName;
-                        // TODO: should we put this conditionalVariable into the condBody or the stepBody or the forBody?
-                        $conditionalVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalVariable', $variableName, null, $conditionalVariableAstNodeIdentifier, $condBodyFlowElement);
-                        $connectionIdToConditionalVariable = addFlowConnection($variableBeforeCondBody, $conditionalVariableFlowElement, 'conditional');
+                        $conditionalJoinVariableAstNodeIdentifier = $forStepAstNodeIdentifier . "_Cond_" . $variableName;
+                        // TODO: should we put this conditionalJoinVariable into the condBody or the stepBody or the forBody?
+                        $conditionalJoinVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalJoinVariable', $variableName, null, $conditionalJoinVariableAstNodeIdentifier, $condBodyFlowElement);
+                        $connectionIdToConditionalJoinVariable = addFlowConnection($variableBeforeCondBody, $conditionalJoinVariableFlowElement, 'conditional');
                         // This connection will effectively be added to $variableAfterCondBody->connectionIdsFromThisElement
-                        $newlyAddedConnectionIdFromThisElement = $connectionIdToConditionalVariable;
+                        $newlyAddedConnectionIdFromThisElement = $connectionIdToConditionalJoinVariable;
                         
                         $passBackVariableAstNodeIdentifier = $forStepAstNodeIdentifier . "_PassBack_" . $variableName;
 
                         $passBackVariableFlowElement = createAndAddChildlessFlowElementToParent('passBackVariable', $variableName, null, $passBackVariableAstNodeIdentifier, $backBodyFlowElement);
 
                         addFlowConnection($variableAfterIterAndUpdateBody, $passBackVariableFlowElement, 'conditional');
-                        addFlowConnection($passBackVariableFlowElement, $conditionalVariableFlowElement, 'conditional');
+                        addFlowConnection($passBackVariableFlowElement, $conditionalJoinVariableFlowElement, 'conditional');
                         
                         
-                        // Adding the conditionalSplitVariableFlowElement and adding a connection to connect from the conditionalVariableFlowElement to it
+                        // Adding the conditionalSplitVariableFlowElement and adding a connection to connect from the conditionalJoinVariableFlowElement to it
                         $connectionTypeToConditionalSplitVariable = $connectionToBeChanged->type;
                         
                         // FIXME: is this AST Identifier correct?
@@ -758,8 +757,8 @@ function flowifyForIteration (
                         // FIXME: should this be put into the forBody, forStepBody or the condBody?
                         $conditionalSplitVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalSplitVariable', $variableName, null, $conditionalSplitVariableAstNodeIdentifier, $condBodyFlowElement);
                        
-                        // Adding a connection from the conditionalVariableFlowElement to the conditionalSplitVariableFlowElement
-                        $connectionIdToConditionalSplitVariable = addFlowConnection($conditionalVariableFlowElement, $conditionalSplitVariableFlowElement, $connectionToBeChanged->type); // Note: we use the original type
+                        // Adding a connection from the conditionalJoinVariableFlowElement to the conditionalSplitVariableFlowElement
+                        $connectionIdToConditionalSplitVariable = addFlowConnection($conditionalJoinVariableFlowElement, $conditionalSplitVariableFlowElement, $connectionToBeChanged->type); // Note: we use the original type
                         
                         
                         
@@ -779,8 +778,8 @@ function flowifyForIteration (
                     }
                     
                     if ($variableConnectedWithCondBody) {
-                        // The variable is used in the condBody, which means it should connect from the conditionalVariableFlowElement
-                        $connectionToBeChanged->from = $conditionalVariableFlowElement->id; // TODO: should we do it this way?
+                        // The variable is used in the condBody, which means it should connect from the conditionalJoinVariableFlowElement
+                        $connectionToBeChanged->from = $conditionalJoinVariableFlowElement->id; // TODO: should we do it this way?
                     }
 
                     if ($variableConnectedWithIterBody || $variableConnectedWithUpdateBody) {
@@ -939,7 +938,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
             $thenVariableFlowElement = null;
             $elseVariableFlowElement = null;
             if ($varReplacedInThenBody && $varReplacedInElseBody) {
-                // We overwrite the parent's varInScope and adding them both using a conditionalVariableFlowElement.
+                // We overwrite the parent's varInScope and adding them both using a conditionalJoinVariableFlowElement.
                 $thenVariableFlowElement = $varsInScopeThenBody[$variableName];  // NOT A copy ANYMORE!
                 $elseVariableFlowElement = $varsInScopeElseBody[$variableName];  // NOT A copy ANYMORE!
             }
@@ -1002,16 +1001,16 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
             }
             
             // The variable was replaced in either the thenBody or the elseBody.
-            // This means we should create a conditionalVariableFlowElement and add it to the ifFlowElement
-            // and also connect this conditionalVariable with the then- and else- variable.
+            // This means we should create a conditionalJoinVariableFlowElement and add it to the ifFlowElement
+            // and also connect this conditionalJoinVariable with the then- and else- variable.
             // In additional, it should be added to the varsInScope of the parent, so if the variable is used 
-            // by another flowElement, it can connect to this conditionalVariable
+            // by another flowElement, it can connect to this conditionalJoinVariable
             if ($varReplacedInThenBody || $varReplacedInElseBody) {
-                $conditionalVariableAstNodeIdentifier = $ifAstNodeIdentifier . "_" . $variableName;
-                $conditionalVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalVariable', $variableName, null, $conditionalVariableAstNodeIdentifier, $ifFlowElement);
-                addFlowConnection($thenVariableFlowElement, $conditionalVariableFlowElement, 'conditional');
-                addFlowConnection($elseVariableFlowElement, $conditionalVariableFlowElement, 'conditional');
-                $varsInScopeParent[$variableName] = $conditionalVariableFlowElement;
+                $conditionalJoinVariableAstNodeIdentifier = $ifAstNodeIdentifier . "_" . $variableName;
+                $conditionalJoinVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalJoinVariable', $variableName, null, $conditionalJoinVariableAstNodeIdentifier, $ifFlowElement);
+                addFlowConnection($thenVariableFlowElement, $conditionalJoinVariableFlowElement, 'conditional');
+                addFlowConnection($elseVariableFlowElement, $conditionalJoinVariableFlowElement, 'conditional');
+                $varsInScopeParent[$variableName] = $conditionalJoinVariableFlowElement;
             }
 
             {            
@@ -1200,8 +1199,8 @@ function createAndAddFlowElementToParent ($flowElementType, $flowElementName, $f
     $flowElement = createFlowElement ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $canHaveChildren = true, $hasScope = true);
     if ($useVarScopeFromParent) {
         $flowElement->varsInScope = &$parentFlowElement->varsInScope;
+        $flowElement->functionsInScope = &$parentFlowElement->functionsInScope;
     }
-    $flowElement->functionsInScope = &$parentFlowElement->functionsInScope;
     addFlowElementToParent($flowElement, $parentFlowElement);
 
     return $flowElement;
