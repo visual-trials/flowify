@@ -545,9 +545,7 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
         
         $forStepAstNodeIdentifier1 = $forAstNodeIdentifier . "_1";
         // FIXME: change this from a ifThen for a forStep
-        $forStepFlowElement1 = createFlowElement('ifThen', '#1', null, $forStepAstNodeIdentifier1);
-        $forStepFlowElement1->varsInScope = $forFlowElement->varsInScope;  // copy!
-        $forStepFlowElement1->functionsInScope = $forFlowElement->functionsInScope;  // copy!
+        $forStepFlowElement1 = createAndAddFlowElementToParent('ifThen', '#1', null, $forStepAstNodeIdentifier1, $forFlowElement);
         
         flowifyForIteration(
             $conditionExpression, 
@@ -562,16 +560,12 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
             $forStepFlowElement1
         );
         
-        addFlowElementToParent($forStepFlowElement1, $forFlowElement);  // Note: do not call this before the calls to the other addFlowElementToParent, because this COPIES $forStepFlowElement, so changes to it will not be in the parent!
-
         /*
         // STEP 2
         
         $forStepAstNodeIdentifier2 = $forAstNodeIdentifier . "_2";
         // FIXME: change this from a ifThen for a forStep
-        $forStepFlowElement2 = createFlowElement('ifThen', '#2', null, $forStepAstNodeIdentifier2);
-        $forStepFlowElement2->varsInScope = $forStepFlowElement1->varsInScope;  // copy!
-        $forStepFlowElement2->functionsInScope = $forStepFlowElement1->functionsInScope;  // copy!
+        $forStepFlowElement2 = createAndAddFlowElementToParent('ifThen', '#2', null, $forStepAstNodeIdentifier2, $forFlowElement);
         
         flowifyForIteration(
             $conditionExpression, 
@@ -585,7 +579,6 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
             $forStepFlowElement2
         );
         
-        addFlowElementToParent($forStepFlowElement2, $forFlowElement);  // Note: do not call this before the calls to the other addFlowElementToParent, because this COPIES $forStepFlowElement, so changes to it will not be in the parent!
         */
 
         // TODO: implement continue statement (inside flowifyStatements)
