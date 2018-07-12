@@ -1,10 +1,10 @@
 Param                           OK1 (TODO: what other uses are there? lambda?)
 Arg                             OK1 (TODO: optional args) 
 Identifier                      OK1 (TODO: where is this used?)
-Const                           ?
-NullableType                    ?
-VarLikeIdentifier               ?
-Name                            ?
+Const                           -/+? ( see http://php.net/manual/en/language.constants.php )
+NullableType                    - ( see https://stackoverflow.com/questions/33608821/nullable-return-types-in-php7/33609210 )
+VarLikeIdentifier               - ( see https://github.com/nikic/PHP-Parser/blob/master/lib/PhpParser/Node/VarLikeIdentifier.php )
+Name                            - ( name can have a namespace, separated by '\'. not yet supported )
 Name_FullyQualified             -
 Name_Relative                   -
 Scalar_MagicConst_Class         -
@@ -16,7 +16,7 @@ Scalar_MagicConst_Method        -
 Scalar_MagicConst_Namespace     -
 Scalar_MagicConst_Trait         -
 Scalar_String                   TODO
-Scalar_Encapsed                 ?
+Scalar_Encapsed                 - (these is constant text separated by '<<<' )
 Scalar_LNumber                  OK
 Scalar_DNumber                  TODO
 Expr_Assign                     OK (TODO: identifier connection when appropiate)
