@@ -77,16 +77,6 @@
         "y": 130,
         "isPositionOf": "center"
     },
-    "7:1-9:1_1_Cond_b": {
-        "x": 20,
-        "y": 210,
-        "isPositionOf": "center"
-    },
-    "7:1-9:1_1_b_SPLIT": {
-        "x": 130,
-        "y": 210,
-        "isPositionOf": "center"
-    },
     "7:1-9:1_1_Cond_i": {
         "x": -40,
         "y": 20,
@@ -150,11 +140,6 @@
         "width": 500,
         "height": 50
     },
-    "7:1-9:1_1_PassBack_b": {
-        "x": 180,
-        "y": 10,
-        "isPositionOf": "center"
-    },
     "7:1-9:1_1_PassBack_i": {
         "x": 180,
         "y": 50,
@@ -167,11 +152,6 @@
         "width": 50,
         "height": 400,
         "relativeScale": 1
-    },
-    "7:1-9:1_1_Pass_b": {
-        "x": 20,
-        "y": 220,
-        "isPositionOf": "center"
     },
     "7:1-9:1_1_Pass_i": {
         "x": 30,

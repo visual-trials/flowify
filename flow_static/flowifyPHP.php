@@ -388,7 +388,7 @@ function flowifyExpression ($expression, $parentFlowElement) {
             $functionStatement = $functionsInScope[$functionName];
 
             // Add the function-call element as the container of the function
-            $functionCallFlowElement = createAndAddFlowElementToParent('function', $functionName, null, $astNodeIdentifier, $parentFlowElement);
+            $functionCallFlowElement = createAndAddFlowElementToParent('function', $functionName, null, $astNodeIdentifier, $parentFlowElement, $useVarScopeFromParent = false);
 
             // Flowify the body of the function (including the return value) and use that return value as our own output
             $flowElement = flowifyFunction($functionStatement, $flowCallArguments, $functionCallFlowElement);
@@ -438,7 +438,7 @@ function flowifyFunction ($functionStatement, $flowCallArguments, $functionCallF
     //    - Everything should be inside the function-call (no input/body/output)
     
     $functionCallFlowElement->varsInScope = [];
-    $functionCallFlowElement->functionsInScope = [];
+    // $functionCallFlowElement->functionsInScope = [];
     
     // TODO: in order for recursion to be possible, the function itself should be available in functionsInScope! (currently not the case to prevent never ending recursion)
     
@@ -508,9 +508,7 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
     
     $forAstNodeIdentifier = getAstNodeIdentifier($forStatement);
     // FIXME: change this from a ifMain for a forMain
-    $forFlowElement = createFlowElement('ifMain', 'for', null, $forAstNodeIdentifier);
-    $forFlowElement->varsInScope = $parentFlowElement->varsInScope; // copy!
-    $forFlowElement->functionsInScope = $parentFlowElement->functionsInScope; // copy!
+    $forFlowElement = createAndAddFlowElementToParent('ifMain', 'for', null, $forAstNodeIdentifier, $parentFlowElement);
 
     {
             
@@ -601,10 +599,6 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
     
 
     }    
-    
-    addFlowElementToParent($forFlowElement, $parentFlowElement);  // Note: do not call this before the calls to the other addFlowElementToParent, because this COPIES $forFlowElement, so changes to it will not be in the parent!
-    $parentFlowElement->varsInScope = $forFlowElement->varsInScope; // copy back!
-    $parentFlowElement->functionsInScope = $forFlowElement->functionsInScope; // copy back!
     
 }
 
@@ -1227,9 +1221,13 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
     return $flowElement;
 }
 
-function createAndAddFlowElementToParent ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $parentFlowElement, $canHaveChildren = true, $hasScope = true) {
-
-    $flowElement = createFlowElement ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $canHaveChildren, $hasScope);
+function createAndAddFlowElementToParent ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $parentFlowElement, $useVarScopeFromParent = true) {
+    
+    $flowElement = createFlowElement ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $canHaveChildren = true, $hasScope = true);
+    if ($useVarScopeFromParent) {
+        $flowElement->varsInScope = &$parentFlowElement->varsInScope;
+    }
+    $flowElement->functionsInScope = &$parentFlowElement->functionsInScope;
     addFlowElementToParent($flowElement, $parentFlowElement);
 
     return $flowElement;
