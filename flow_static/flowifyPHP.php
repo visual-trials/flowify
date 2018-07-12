@@ -555,8 +555,8 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
             $forAstNodeIdentifier,
             $doneBodyFlowElement,
             $backBodyFlowElement,
-            $forFlowElement,  // the last conditionalVariable should be put into the forFlowElement (not in the doneBodyFlowElement)
-            //$doneBodyFlowElement,  // the last conditionalVariable should be put into the doneBodyFlowElement
+            $forFlowElement,
+            //$doneBodyFlowElement,
             $forStepAstNodeIdentifier1,
             $forStepFlowElement1
         );
@@ -575,7 +575,7 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
             $forAstNodeIdentifier,
             $doneBodyFlowElement,
             $backBodyFlowElement,
-            $forFlowElement,  // the last conditionalVariable should be put into the forFlowElement (not in the doneBodyFlowElement)
+            $forFlowElement,
             $forStepAstNodeIdentifier2,
             $forStepFlowElement2
         );
@@ -651,25 +651,34 @@ function flowifyForIteration (
     
     // Checking if the loop vars were changed in the forStep (that is: cond/iter/update)
     
-    // We loop through all the varsInScope of the doneBody
-    foreach ($varsInScopeBeforeCondBody as $variableName => $doneVarInScopeElement) {
+    // We loop through all the varsInScope we had before the condBody
+    foreach ($varsInScopeBeforeCondBody as $variableName => $varInScopeElement) {
         
         $varReplacedInForStep = false;
         
         // We check if we have the same variable in our forStep scope
         if (array_key_exists($variableName, $forStepFlowElement->varsInScope)) {
-            // The var exists both in doneBody and in the forStep's scope
+            // The var exists both in beforeCondBody and in the forStep's scope
             if ($forStepFlowElement->varsInScope[$variableName]->id !== $varsInScopeBeforeCondBody[$variableName]->id) {
                 // The vars differ, so it must have been replaced (or extended) inside the forStep. 
                 $varReplacedInForStep = true;
             }
         }
         
-        // The variable was replaced in the forStep.
-        // This means we should create a conditionalVariableFlowElement and add it to the forFlowElement
-        // and also connect this conditionalVariable with the forStep- and doneBody- variable.
-        // In additional, it should be added to the varsInScope of the doneBody, so if the variable is used 
-        // by another flowElement, it can connect to this conditionalVariable
+        // If the variable is USED inside the iter or update body then a conditionalSplitVariable should be created.
+        // The true-output of the conditionalSplitVariable should get the connection (that is: it's from should now point to it)
+        // that used to be connect the beforeCondBody and the iterBody or updateBody.
+        // The false-output of the conditionalSplitVariable should connect to the passThroughVariable in the done body,
+        // but ONLY if the variable was REPLACED. Otherwise it should not be connected at all.
+        // That way, if the variable is used after the for, it can connect to this false-output of the conditionalSplitVariable
+        // (when it was changed by the for-loop).
+        // 
+        // If the variable was REPLACED in the forStep conditionalJoinVariableFlowElement should be created and added to the forFlowElement
+        // and also connect the inputs of the  conditionalJoinVariable with the beforeCondBody- and forStep- variable.
+        // The output of the conditionalJoinVariable should  be connected to the input of a corresponding (and new) conditionalSplitVariable, 
+        // which in turn should be added to the condBody. In additional, the false-output fo conditionalSplitVariable 
+        // should be added to the varsInScope of the forElement.
+        
         if ($varReplacedInForStep) {
             
             // FIXME: also we we haven't replaced anything we should create split conditionals for variables we ONLY USE!
@@ -801,10 +810,6 @@ function flowifyForIteration (
                 }
             }
             $variableBeforeCondBody->connectionIdsFromThisElement = $updatedConnectionIdsFromThisElement;
-                
-            
-
-            
             
         }
         
