@@ -171,11 +171,11 @@ function flowifyExpression ($expression, $parentFlowElement) {
             $flowElement = $varsInScope[$name];
         }
         else {
-            $flowElement = createAndAddFlowElementToParent('variable', $name, null, $astNodeIdentifier, $parentFlowElement);
+            $flowElement = createAndAddChildlessFlowElementToParent('variable', $name, null, $astNodeIdentifier, $parentFlowElement);
         }
     }
     else if ($expressionType === 'Scalar_LNumber') {
-        $flowElement = createAndAddFlowElementToParent('constant', null, $expression['value'], $astNodeIdentifier, $parentFlowElement);
+        $flowElement = createAndAddChildlessFlowElementToParent('constant', null, $expression['value'], $astNodeIdentifier, $parentFlowElement);
     }
     else if ($expressionType === 'Expr_PreInc'  ||
              $expressionType === 'Expr_PreDec'  ||
@@ -200,12 +200,12 @@ function flowifyExpression ($expression, $parentFlowElement) {
         //       Since the old and the new variable will have the same astNodeIdentifier! 
         $flowOldVariable = flowifyExpression($expressionVariable, $parentFlowElement);
 
-        $flowPrimitiveFunction = createAndAddFlowElementToParent('primitiveFunction', $opertaionName, null, $astNodeIdentifier, $parentFlowElement);
+        $flowPrimitiveFunction = createAndAddChildlessFlowElementToParent('primitiveFunction', $opertaionName, null, $astNodeIdentifier, $parentFlowElement);
 
         addFlowConnection($flowOldVariable, $flowPrimitiveFunction);
 
         $variableAstNodeIdentifier = getAstNodeIdentifier($expressionVariable);
-        $flowVariableAssigned = createAndAddFlowElementToParent('variable', $variableName, null, $variableAstNodeIdentifier, $parentFlowElement);
+        $flowVariableAssigned = createAndAddChildlessFlowElementToParent('variable', $variableName, null, $variableAstNodeIdentifier, $parentFlowElement);
 
         addFlowConnection($flowPrimitiveFunction, $flowVariableAssigned);
         
@@ -256,13 +256,13 @@ function flowifyExpression ($expression, $parentFlowElement) {
         $flowOldVariable = flowifyExpression($expressionVariable, $parentFlowElement);
         $flowAssign = flowifyExpression($expressionAssign, $parentFlowElement);
 
-        $flowPrimitiveFunction = createAndAddFlowElementToParent('primitiveFunction', $assignOpName, null, $astNodeIdentifier, $parentFlowElement);
+        $flowPrimitiveFunction = createAndAddChildlessFlowElementToParent('primitiveFunction', $assignOpName, null, $astNodeIdentifier, $parentFlowElement);
 
         addFlowConnection($flowOldVariable, $flowPrimitiveFunction);
         addFlowConnection($flowAssign, $flowPrimitiveFunction);
 
         $variableAstNodeIdentifier = getAstNodeIdentifier($expressionVariable);
-        $flowVariableAssigned = createAndAddFlowElementToParent('variable', $variableName, null, $variableAstNodeIdentifier, $parentFlowElement);
+        $flowVariableAssigned = createAndAddChildlessFlowElementToParent('variable', $variableName, null, $variableAstNodeIdentifier, $parentFlowElement);
 
         addFlowConnection($flowPrimitiveFunction, $flowVariableAssigned);
         
@@ -314,7 +314,7 @@ function flowifyExpression ($expression, $parentFlowElement) {
         $leftFlow = flowifyExpression($leftExpression, $parentFlowElement);
         $rightFlow = flowifyExpression($rightExpression, $parentFlowElement);
 
-        $flowElement = createAndAddFlowElementToParent('primitiveFunction', $binaryOpName, null, $astNodeIdentifier, $parentFlowElement);
+        $flowElement = createAndAddChildlessFlowElementToParent('primitiveFunction', $binaryOpName, null, $astNodeIdentifier, $parentFlowElement);
 
         addFlowConnection($leftFlow, $flowElement);
         addFlowConnection($rightFlow, $flowElement);
@@ -332,7 +332,7 @@ function flowifyExpression ($expression, $parentFlowElement) {
 
         $flowAssign = flowifyExpression($assignExpression, $parentFlowElement);
 
-        $flowElement = createAndAddFlowElementToParent('variable', $variableName, null, $astNodeIdentifier, $parentFlowElement);
+        $flowElement = createAndAddChildlessFlowElementToParent('variable', $variableName, null, $astNodeIdentifier, $parentFlowElement);
 
         addFlowConnection($flowAssign, $flowElement);
         
@@ -384,21 +384,19 @@ function flowifyExpression ($expression, $parentFlowElement) {
 
         // We try to find the statement of the function in scope
         if (array_key_exists($functionName, $functionsInScope)) {
-            // Call to known function (that we have the body-AST of)
-
+            // This is a call to a known function (that we have the body-AST of)
             $functionStatement = $functionsInScope[$functionName];
 
-            $functionCallFlowElement = createFlowElement('function', $functionName, null, $astNodeIdentifier);
+            // Add the function-call element as the container of the function
+            $functionCallFlowElement = createAndAddFlowElementToParent('function', $functionName, null, $astNodeIdentifier, $parentFlowElement);
 
-            // Flowify the body of the functions (including the return value) and use that  return value as our own output
+            // Flowify the body of the function (including the return value) and use that return value as our own output
             $flowElement = flowifyFunction($functionStatement, $flowCallArguments, $functionCallFlowElement);
-
-            addFlowElementToParent($functionCallFlowElement, $parentFlowElement);  // Note: do not call this before flowifyFunction, because this COPIES $flowFunctionCallElement, so changes to it will not be in the parent!
         }
         else if (array_key_exists($functionName, $knownPrimitiveFunctions)) {
             // Primitive function call (or at least a function we don't have the body from)
 
-            $primitiveFunctionCallFlowElement = createAndAddFlowElementToParent('primitiveFunction', $functionName, null, $astNodeIdentifier, $parentFlowElement);
+            $primitiveFunctionCallFlowElement = createAndAddChildlessFlowElementToParent('primitiveFunction', $functionName, null, $astNodeIdentifier, $parentFlowElement);
             foreach ($flowCallArguments as $flowCallArgument) {
                 addFlowConnection($flowCallArgument, $primitiveFunctionCallFlowElement);
             }
@@ -410,7 +408,7 @@ function flowifyExpression ($expression, $parentFlowElement) {
             // TODO: we might want to allow non existing function for the time being (and mark them as non-existing)
             // We use the 'primitiveFunction' for now.
             
-            $primitiveFunctionCallFlowElement = createAndAddFlowElementToParent('primitiveFunction', $functionName, null, $astNodeIdentifier, $parentFlowElement);
+            $primitiveFunctionCallFlowElement = createAndAddChildlessFlowElementToParent('primitiveFunction', $functionName, null, $astNodeIdentifier, $parentFlowElement);
             foreach ($flowCallArguments as $flowCallArgument) {
                 addFlowConnection($flowCallArgument, $primitiveFunctionCallFlowElement);
             }
@@ -467,7 +465,7 @@ function flowifyFunction ($functionStatement, $flowCallArguments, $functionCallF
             $astNodeIdentifier = getAstNodeIdentifier($parameterVar);
 
             // Adding the parameter to the function
-            $parameterFlowElement = createAndAddFlowElementToParent('variable', $parameterName, null, $astNodeIdentifier, $functionCallFlowElement);
+            $parameterFlowElement = createAndAddChildlessFlowElementToParent('variable', $parameterName, null, $astNodeIdentifier, $functionCallFlowElement);
 
             // Connecting the callArgument (outside the function) to the parameter (inside the function)
             addFlowConnection($flowCallArgument, $parameterFlowElement);
@@ -694,7 +692,7 @@ function flowifyForIteration (
             // TODO: should we really use the variable name in the identifier?
             $passThroughVariableAstNodeIdentifier = $forStepAstNodeIdentifier . "_Pass_" . $variableName;
 
-            $passThroughVariableFlowElement = createAndAddFlowElementToParent('passThroughVariable', $variableName, null, $passThroughVariableAstNodeIdentifier, $doneBodyFlowElement);
+            $passThroughVariableFlowElement = createAndAddChildlessFlowElementToParent('passThroughVariable', $variableName, null, $passThroughVariableAstNodeIdentifier, $doneBodyFlowElement);
 
             // Connecting the variable in the doneBody to the passthrough variable (inside the doneBody)
             addFlowConnection($doneBodyFlowElement->varsInScope[$variableName], $passThroughVariableFlowElement);
@@ -766,14 +764,14 @@ function flowifyForIteration (
                         // FIXME: should we not use the ast of the condition body itself + variable name?
                         $conditionalVariableAstNodeIdentifier = $forStepAstNodeIdentifier . "_Cond_" . $variableName;
                         // TODO: should we put this conditionalVariable into the condBody or the stepBody or the forBody?
-                        $conditionalVariableFlowElement = createAndAddFlowElementToParent('conditionalVariable', $variableName, null, $conditionalVariableAstNodeIdentifier, $condBodyFlowElement);
+                        $conditionalVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalVariable', $variableName, null, $conditionalVariableAstNodeIdentifier, $condBodyFlowElement);
                         $connectionIdToConditionalVariable = addFlowConnection($variableBeforeCondBody, $conditionalVariableFlowElement, 'conditional');
                         // This connection will effectively be added to $variableAfterCondBody->connectionIdsFromThisElement
                         $newlyAddedConnectionIdFromThisElement = $connectionIdToConditionalVariable;
                         
                         $passBackVariableAstNodeIdentifier = $forStepAstNodeIdentifier . "_PassBack_" . $variableName;
 
-                        $passBackVariableFlowElement = createAndAddFlowElementToParent('passBackVariable', $variableName, null, $passBackVariableAstNodeIdentifier, $backBodyFlowElement);
+                        $passBackVariableFlowElement = createAndAddChildlessFlowElementToParent('passBackVariable', $variableName, null, $passBackVariableAstNodeIdentifier, $backBodyFlowElement);
 
                         addFlowConnection($variableAfterIterAndUpdateBody, $passBackVariableFlowElement, 'conditional');
                         addFlowConnection($passBackVariableFlowElement, $conditionalVariableFlowElement, 'conditional');
@@ -786,7 +784,7 @@ function flowifyForIteration (
                         $conditionalSplitVariableAstNodeIdentifier = $forStepAstNodeIdentifier . "_" . $variableName . "_SPLIT";
                         // FIXME: change type to 'conditionalSplitVariable'?
                         // FIXME: should this be put into the forBody, forStepBody or the condBody?
-                        $conditionalSplitVariableFlowElement = createAndAddFlowElementToParent('conditionalSplitVariable', $variableName, null, $conditionalSplitVariableAstNodeIdentifier, $condBodyFlowElement);
+                        $conditionalSplitVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalSplitVariable', $variableName, null, $conditionalSplitVariableAstNodeIdentifier, $condBodyFlowElement);
                        
                         // Adding a connection from the conditionalVariableFlowElement to the conditionalSplitVariableFlowElement
                         $connectionIdToConditionalSplitVariable = addFlowConnection($conditionalVariableFlowElement, $conditionalSplitVariableFlowElement, $connectionToBeChanged->type); // Note: we use the original type
@@ -798,7 +796,7 @@ function flowifyForIteration (
                         // TODO: should we really use the variable name in the identifier?
                         $passThroughVariableAstNodeIdentifier = $forStepAstNodeIdentifier . "_Pass_" . $variableName;
 
-                        $passThroughVariableFlowElement = createAndAddFlowElementToParent('passThroughVariable', $variableName, null, $passThroughVariableAstNodeIdentifier, $doneBodyFlowElement);
+                        $passThroughVariableFlowElement = createAndAddChildlessFlowElementToParent('passThroughVariable', $variableName, null, $passThroughVariableAstNodeIdentifier, $doneBodyFlowElement);
 
                         // Connecting the conditionalSplitVariableFlowElement to the passthrough variable (inside the doneBody)
                         // FIXME: choose a SIDE!
@@ -996,7 +994,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                     // TODO: should we really use the variable name in the identifier?
                     $passThroughVariableAstNodeIdentifier = $elseAstNodeIdentifier . "_" . $variableName;
 
-                    $passThroughVariableFlowElement = createAndAddFlowElementToParent('passThroughVariable', $variableName, null, $passThroughVariableAstNodeIdentifier, $elseBodyFlowElement);
+                    $passThroughVariableFlowElement = createAndAddChildlessFlowElementToParent('passThroughVariable', $variableName, null, $passThroughVariableAstNodeIdentifier, $elseBodyFlowElement);
 
                     // Connecting the variable in the parent to the passthrough variable (inside the thenBody)
                     addFlowConnection($varsInScopeParent[$variableName], $passThroughVariableFlowElement);
@@ -1018,7 +1016,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                     // TODO: should we really use the variable name in the identifier?
                     $passThroughVariableAstNodeIdentifier = $thenAstNodeIdentifier . "_" . $variableName;
 
-                    $passThroughVariableFlowElement = createAndAddFlowElementToParent('passThroughVariable', $variableName, null, $passThroughVariableAstNodeIdentifier, $thenBodyFlowElement);
+                    $passThroughVariableFlowElement = createAndAddChildlessFlowElementToParent('passThroughVariable', $variableName, null, $passThroughVariableAstNodeIdentifier, $thenBodyFlowElement);
 
                     // Connecting the variable in the parent to the passthrough variable (inside the thenBody)
                     addFlowConnection($varsInScopeParent[$variableName], $passThroughVariableFlowElement);
@@ -1042,7 +1040,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
             // by another flowElement, it can connect to this conditionalVariable
             if ($varReplacedInThenBody || $varReplacedInElseBody) {
                 $conditionalVariableAstNodeIdentifier = $ifAstNodeIdentifier . "_" . $variableName;
-                $conditionalVariableFlowElement = createAndAddFlowElementToParent('conditionalVariable', $variableName, null, $conditionalVariableAstNodeIdentifier, $ifFlowElement);
+                $conditionalVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalVariable', $variableName, null, $conditionalVariableAstNodeIdentifier, $ifFlowElement);
                 addFlowConnection($thenVariableFlowElement, $conditionalVariableFlowElement, 'conditional');
                 addFlowConnection($elseVariableFlowElement, $conditionalVariableFlowElement, 'conditional');
                 $varsInScopeParent[$variableName] = $conditionalVariableFlowElement;
@@ -1094,7 +1092,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                             $conditionalSplitVariableAstNodeIdentifier = $ifAstNodeIdentifier . "_" . $variableName . "_SPLIT";
                             // FIXME: change type to 'conditionalSplitVariable'?
                             // FIXME: should this be put into the ifBody or the condBody?
-                            $conditionalSplitVariableFlowElement = createAndAddFlowElementToParent('conditionalSplitVariable', $variableName, null, $conditionalSplitVariableAstNodeIdentifier, $ifFlowElement);
+                            $conditionalSplitVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalSplitVariable', $variableName, null, $conditionalSplitVariableAstNodeIdentifier, $ifFlowElement);
                             
                             // Adding a connection from the variableAfterCondBody to the conditionalSplitVariableFlowElement
                             $connectionIdToConditionalSplitVariable = addFlowConnection($variableAfterCondBody, $conditionalSplitVariableFlowElement, $connectionToBeChanged->type); // Note: we use the original type
@@ -1229,9 +1227,17 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
     return $flowElement;
 }
 
-function createAndAddFlowElementToParent ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $parentFlowElement, $canHaveChildren = false, $hasScope = false) {
+function createAndAddFlowElementToParent ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $parentFlowElement, $canHaveChildren = true, $hasScope = true) {
 
     $flowElement = createFlowElement ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $canHaveChildren, $hasScope);
+    addFlowElementToParent($flowElement, $parentFlowElement);
+
+    return $flowElement;
+}
+
+function createAndAddChildlessFlowElementToParent ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $parentFlowElement) {
+
+    $flowElement = createFlowElement ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $canHaveChildren = false, $hasScope = false);
     addFlowElementToParent($flowElement, $parentFlowElement);
 
     return $flowElement;
