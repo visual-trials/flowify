@@ -118,13 +118,13 @@ ZUI.main = function () {
             ZUI.canvas.pipelinedContext2d.doLogging = true
         }
 
-		if (ZUI.input.keyHasGoneDown && ZUI.input.keyThatIsDown === 83) {  // 's'  (this is the ascii code for 'S' though...)
-			my.showSideBar = !my.showSideBar
-		}
+        if (ZUI.input.keyHasGoneDown && ZUI.input.keyThatIsDown === 83) {  // 's'  (this is the ascii code for 'S' though...)
+            my.showSideBar = !my.showSideBar
+        }
 
-		if (ZUI.input.keyHasGoneDown && ZUI.input.keyThatIsDown === 70) {  // 'f'  (this is the ascii code for 'F' though...)
-			my.showRedrawTimes = !my.showRedrawTimes
-		}
+        if (ZUI.input.keyHasGoneDown && ZUI.input.keyThatIsDown === 70) {  // 'f'  (this is the ascii code for 'F' though...)
+            my.showRedrawTimes = !my.showRedrawTimes
+        }
 
         // TODO: create worlds-config (including cameras on these worlds and their dependencies!
         // FIXME: hardcoded to have only one world!
