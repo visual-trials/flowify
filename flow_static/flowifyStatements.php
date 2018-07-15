@@ -114,15 +114,27 @@ function flowifyStatements ($statements, $bodyFlowElement) {
             continue;
         }
 
-        if ($statementType === 'Stmt_Expression' || $statementType === 'Stmt_Return') {
+        if ($statementType === 'Stmt_Expression') {
 
             $expression = $statement['expr'];
 
             $flowElement = flowifyExpression($expression, $bodyFlowElement);
 
-            if ($statementType === 'Stmt_Return') {
-                $returnFlowElement = $flowElement;
-            }
+            // TODO: should we do anything with this $flowElement?
+            //       if an expression is a statement, where does the output
+            //       of that expesssion/statement go?
+        }
+        else if ($statementType === 'Stmt_Return') {
+
+            $expression = $statement['expr'];
+
+            $returnFlowElement = flowifyExpression($expression, $bodyFlowElement);
+
+            // Note: we are assuming that when we reach a 'return' statement,
+            //       all statements that follow will be unreachable. That's why
+            //       we stop looping through all the left-over statements and
+            //       simply return the returnFlowElement
+            return $returnFlowElement;
         }
         else if($statementType === 'Stmt_If') {
             
