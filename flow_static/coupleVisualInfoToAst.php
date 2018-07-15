@@ -1,96 +1,6 @@
 <?php
 
-require "../../lib/bootstrap_PhpParser.php";
-
-function updateAndGetCodeAndVisualInfoForFile($fileToFlowifyWithoutExtention) {
-    
-    // TODO: the order of the coordinates is now by AST-order, not by horizontal position in the line
-
-    // FIXME: check if php file has been read correctly!
-    $oldCode = file_get_contents($fileToFlowifyWithoutExtention . '.bck');
-    if ($oldCode === false) {
-        $oldCode = "";
-    }
-    $newCode = file_get_contents($fileToFlowifyWithoutExtention . '.php');
-    if ($newCode === false) {
-        // FIXME: give a proper error (through the api) that the file does not exist!
-        exit("The file '{$fileToFlowifyWithoutExtention}.php' does not exist!");
-    }
-
-    $code = $oldCode;
-    $visualInfosJSON = file_get_contents($fileToFlowifyWithoutExtention . '.viz');
-    $visualInfos = array();
-    if ($visualInfosJSON !== false) {
-        $visualInfos = json_decode($visualInfosJSON, true);  // FIXME: what if not valid json?
-    }
-
-    if ($oldCode != $newCode) {
-
-        $path = doDiff($oldCode, $newCode);
-        $oldToNewPositions = getOldToNewPositions($path, $oldCode, $newCode);
-
-        $newVisualInfos = getVisualInfosForNewPositions($visualInfos, $oldToNewPositions);
-
-        if (count($newVisualInfos) == count($visualInfos)) {
-            // If all new positions could be mapped, then we want to copy the php-file over the bck-file and store the new .viz file.
-
-            // FIXME: also check if the new positions line up with the new AST-elements!
-
-            // FIXME: check if this goes right!
-            storeBackupFile ($newCode, $fileToFlowifyWithoutExtention);
-
-            // FIXME: check if this goes right!
-            storeVisualInfos($newVisualInfos, $fileToFlowifyWithoutExtention);
-
-        }
-        else {
-            // FIXME: signal to the front-end that we couldn't store the info!
-        }
-
-        // In all cases we want to SHOW the new code and visualInfos
-        $code = $newCode;
-        $visualInfos = $newVisualInfos;
-    }
-    
-    return array($code, $visualInfos);
-    
-}
-
-function getAstFromPhpCode($code) {
-    
-    $lexer = new PhpParser\Lexer\Emulative(['usedAttributes' => [
-        'startLine', 'endLine', 'startFilePos', 'endFilePos', 'comments'
-    ]]);
-    $parser = (new PhpParser\ParserFactory)->create(
-        PhpParser\ParserFactory::PREFER_PHP7,
-        $lexer
-    );
-
-    /*
-    $tokensWithPosInfo = [];
-    $tokenValue = null;
-    $tokenStartAttributes = null;
-    $tokenEndAttributes = null;
-
-    $lexer->startLexing($code);
-    $tokenId = $lexer->getNextToken($tokenValue, $tokenStartAttributes, $tokenEndAttributes);
-    $tokensWithPosInfo[] = $tokenValue;
-    $tokensWithPosInfo[] = $tokenStartAttributes;
-    $tokensWithPosInfo[] = $tokenEndAttributes;
-    */
-
-    try {
-        $stmts = $parser->parse($code);
-        $tokens = $lexer->getTokens();
-    } catch (PhpParser\Error $error) {
-        die($error->getMessage() . "\n");  // $error->getMessageWithColumnInfo($code)
-    }
-
-    $statementsJSON = json_encode($stmts, JSON_PRETTY_PRINT);
-    $statements = json_decode($statementsJSON, true);
-
-    return $statements;
-}
+// VisualInfo
 
 function extendFlowElementsWithVisualInfo (&$flowElementArray, &$visualInfos, &$usedVisualInfos) {
     
@@ -144,6 +54,62 @@ function getVisualInfo ($astNodeIdentifier, &$visualInfos, &$usedVisualInfos) {
     }
 
     return $currentVisualInfo;
+}
+
+// AttachInfoToAst
+
+function updateAndGetCodeAndVisualInfoForFile($fileToFlowifyWithoutExtention) {
+    
+    // TODO: the order of the coordinates is now by AST-order, not by horizontal position in the line
+
+    // FIXME: check if php file has been read correctly!
+    $oldCode = file_get_contents($fileToFlowifyWithoutExtention . '.bck');
+    if ($oldCode === false) {
+        $oldCode = "";
+    }
+    $newCode = file_get_contents($fileToFlowifyWithoutExtention . '.php');
+    if ($newCode === false) {
+        // FIXME: give a proper error (through the api) that the file does not exist!
+        exit("The file '{$fileToFlowifyWithoutExtention}.php' does not exist!");
+    }
+
+    $code = $oldCode;
+    $visualInfosJSON = file_get_contents($fileToFlowifyWithoutExtention . '.viz');
+    $visualInfos = array();
+    if ($visualInfosJSON !== false) {
+        $visualInfos = json_decode($visualInfosJSON, true);  // FIXME: what if not valid json?
+    }
+
+    if ($oldCode != $newCode) {
+
+        $path = doDiff($oldCode, $newCode);
+        $oldToNewPositions = getOldToNewPositions($path, $oldCode, $newCode);
+
+        $newVisualInfos = getVisualInfosForNewPositions($visualInfos, $oldToNewPositions);
+
+        if (count($newVisualInfos) == count($visualInfos)) {
+            // If all new positions could be mapped, then we want to copy the php-file over the bck-file and store the new .viz file.
+
+            // FIXME: also check if the new positions line up with the new AST-elements!
+
+            // FIXME: check if this goes right!
+            storeBackupFile ($newCode, $fileToFlowifyWithoutExtention);
+
+            // FIXME: check if this goes right!
+            storeVisualInfos($newVisualInfos, $fileToFlowifyWithoutExtention);
+
+        }
+        else {
+            // FIXME: signal to the front-end that we couldn't store the info!
+        }
+
+        // In all cases we want to SHOW the new code and visualInfos
+        $code = $newCode;
+        $visualInfos = $newVisualInfos;
+    }
+    
+    return array($code, $visualInfos);
+    
 }
 
 function updateVisualInfos ($changedVisualInfos, $fileToFlowifyWithoutExtention) {
@@ -203,88 +169,6 @@ function getVisualInfosForNewPositions($visualInfos, $oldToNewPositions) {
     return $newVisualInfos;
 }
 
-function getAstNodeIdentifier ($astNode) {
-
-    global $code;
-
-    $isListOfStatements = false;
-    
-    $startAstNode = $astNode;
-    $endAstNode = $astNode;
-    // For statements, you get a list of statements, so we need the start positions of the first statement and the end position of the last statement
-    if ($astNode !== null && !is_assoc($astNode)) {
-        if (count($astNode) > 0) {
-            $startAstNode = $astNode[0];
-            $endAstNode = $astNode[count($astNode) - 1];
-        }
-        $isListOfStatements = true;
-    }
-    
-    $startLine = 0;
-    $startingColumnNumber = 0;
-    $endLine = 0;
-    $endColumnNumber = 0;
-
-    if ($startAstNode !== null) {
-        if (array_key_exists('attributes', $startAstNode) && array_key_exists('startLine', $startAstNode['attributes'] )) {
-            if (array_key_exists('attributes', $endAstNode) && array_key_exists('startLine', $endAstNode['attributes'] )) {
-                $startLine = $startAstNode['attributes']['startLine'];
-                $endLine = $endAstNode['attributes']['endLine'];
-                $startLineCheck = stringPosToLineNumber($code, $startAstNode['attributes']['startFilePos']);
-                if ($startLine !== $startLineCheck) {
-                    die("startLine: '$startLine'' is not equals to startLineCheck: '$startLineCheck''");
-                }
-                $endLineCheck = stringPosToLineNumber($code, $endAstNode['attributes']['endFilePos']);
-                if ($endLine !== $endLineCheck) {
-                    die("endLine: '$endLine'' is not equals to endLineCheck: '$endLineCheck''");
-                }
-                $startingColumnNumber = stringPosToColumn($code, $startAstNode['attributes']['startFilePos']);
-                $endColumnNumber = stringPosToColumn($code, $endAstNode['attributes']['endFilePos']);
-            }
-            else {
-                die("Could not find attributes in node!\n" . print_r($endAstNode, true));
-            }
-        }
-        else {
-            die("Could not find attributes in node!\n" . print_r($startAstNode, true));
-        }
-    }
-
-    $astNodeIdentifier = $startLine . ':' . $startingColumnNumber . '-' . $endLine . ':' . $endColumnNumber;
-    
-    if ($isListOfStatements) {
-        $astNodeIdentifier = $astNodeIdentifier . '_Stmts';
-    }
-
-    return $astNodeIdentifier;
-}
-
-function stringPosToColumn($code, $pos) {
-    if ($pos > strlen($code)) {
-        die("Invalid position information: $pos\n");
-    }
-    $lineStartPos = strrpos($code, "\n", $pos - strlen($code));
-    if ($lineStartPos === false) {
-        $lineStartPos = -1;
-    }
-    return $pos - $lineStartPos;
-}
-
-function stringPosToLineNumber($code, $pos) {
-    if ($pos > strlen($code)) {
-        die("Invalid position information: $pos\n");
-    }
-    $lineStartPos = strrpos($code, "\n", $pos - strlen($code));
-    if ($lineStartPos === false) {
-        $lineStartPos = 0; // if no newlines can be found, we should be on the first line, so we simply set the position to 0
-    }
-
-    // Note: we do '$lineStartPos + 1' here because we want to include the newline of the current line (so we need to do pos + 1 = count)
-    // Note2: we do + 1 at the end because we want to start counting with lineNumber 1
-    $lineNumber = substr_count($code, "\n", 0 , $lineStartPos + 1) + 1;
-
-    return $lineNumber;
-}
 
 // Diffing
 
