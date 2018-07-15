@@ -7,7 +7,7 @@ function flowifyProgram($statements) {
     $rootFlowElement = createFlowElement('root', 'root', null, $astNodeIdentifier);
 
     // TODO: should we do anything with the return value of the main function?
-    $noReturnFlowElement = flowifyStatements($statements, $rootFlowElement);
+    list($resultType, $noReturnFlowElement) = flowifyStatements($statements, $rootFlowElement);
     
     return $rootFlowElement;
 }
@@ -69,7 +69,10 @@ function flowifyFunction ($functionStatement, $flowCallArguments, $functionCallF
 
     $statements = $functionStatement['stmts'];
 
-    $returnFlowElement = flowifyStatements($statements, $functionCallFlowElement);
+    // TODO: We are assuming that the statements of a function will always have a 'return'-resultType (not 'continue' or 'break')
+    //       If the parser does not gaurd against this, we should.
+    
+    list($resultType, $returnFlowElement) = flowifyStatements($statements, $functionCallFlowElement);
 
     return $returnFlowElement;
 
@@ -134,7 +137,8 @@ function flowifyStatements ($statements, $bodyFlowElement) {
             //       all statements that follow will be unreachable. That's why
             //       we stop looping through all the left-over statements and
             //       simply return the returnFlowElement
-            return $returnFlowElement;
+            
+            return [ 'return', $returnFlowElement ];
         }
         else if($statementType === 'Stmt_If') {
             
@@ -154,7 +158,8 @@ function flowifyStatements ($statements, $bodyFlowElement) {
 
     }
 
-    return $returnFlowElement;
+    return [ 'return', $returnFlowElement ];
+
 }
 
 function flowifyIfStatement($ifStatement, $parentFlowElement) {
@@ -194,7 +199,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         $thenBodyFlowElement->functionsInScope = &$ifFlowElement->functionsInScope;
         
         // TODO: we don't have a return statement in then-bodies, so we call it $noReturnFlowElement here (but we shouldn't get it at all)
-        $noReturnFlowElement = flowifyStatements($thenStatements, $thenBodyFlowElement);
+        list($resultType, $noReturnFlowElement) = flowifyStatements($thenStatements, $thenBodyFlowElement);
         
         // == ELSE ==
         
@@ -222,7 +227,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
             $elseBodyFlowElement->functionsInScope = &$ifFlowElement->functionsInScope;
             
             // TODO: we don't have a return statement in then-bodies, so we call it $noReturnFlowElement here (but we shouldn't get it at all)
-            $noReturnFlowElement = flowifyStatements($elseStatements, $elseBodyFlowElement);
+            list($resultType, $noReturnFlowElement) = flowifyStatements($elseStatements, $elseBodyFlowElement);
         }
         
         // Note: we are comparing the varsInScope from the parentFlowElement with the varsInScope of the then/elseBodyFlowElement. 
@@ -589,7 +594,7 @@ function flowifyForIteration (
     
     // FIXME: replace ifThen with iterBody
     $iterBodyFlowElement = createAndAddFlowElementToParent('ifThen', 'iter', null, $iterAstNodeIdentifier, $forStepFlowElement);
-    $noReturnFlowElement = flowifyStatements($iterStatements, $iterBodyFlowElement);
+    list($resultType, $noReturnFlowElement) = flowifyStatements($iterStatements, $iterBodyFlowElement);
     
     // TODO: we don't have a return statement in iter-bodies, so we call it $noReturnFlowElement here
     
