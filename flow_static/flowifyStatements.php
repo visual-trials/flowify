@@ -69,7 +69,7 @@ function flowifyFunction ($functionStatement, $flowCallArguments, $functionCallF
 
     $statements = $functionStatement['stmts'];
 
-    // TODO: We are assuming that the statements of a function will always have a 'return'-resultType (not 'continue' or 'break')
+    // TODO: We are assuming that the statements of a function will always have a 'none'-resultType or 'return'-resultType (not 'continue' or 'break')
     //       If the parser does not gaurd against this, we should.
     
     list($resultType, $returnFlowElement) = flowifyStatements($statements, $functionCallFlowElement);
@@ -79,8 +79,6 @@ function flowifyFunction ($functionStatement, $flowCallArguments, $functionCallF
 }
 
 function flowifyStatements ($statements, $bodyFlowElement) {
-
-    $returnFlowElement = null;
 
     // 1)    First find all defined functions, so we known the nodes of them, when they are called
     
@@ -158,7 +156,8 @@ function flowifyStatements ($statements, $bodyFlowElement) {
 
     }
 
-    return [ 'return', $returnFlowElement ];
+    // If no 'return', 'break' or 'continue' was encountered, the resultType will be 'none' 
+    return [ 'none', null ];
 
 }
 
