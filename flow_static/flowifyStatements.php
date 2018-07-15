@@ -185,6 +185,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         // == THEN ==
         
         $thenStatements = $ifStatement['stmts'];
+        $thenBodyHasReturn = false;
         
         $thenAstNodeIdentifier = getAstNodeIdentifier($thenStatements);
         $thenBodyFlowElement = createAndAddFlowElementToParent('ifThen', 'then', null, $thenAstNodeIdentifier, $ifFlowElement, $useVarScopeFromParent = false);
@@ -199,7 +200,6 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         
         list($resultType, $returnFlowElement) = flowifyStatements($thenStatements, $thenBodyFlowElement);
         
-        $thenBodyHasReturn = false;
         if ($resultType === 'return' && $returnFlowElement !== null) {
             $thenBodyHasReturn = true;
         }
@@ -207,6 +207,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         // == ELSE ==
         
         $elseStatement = $ifStatement['else'];
+        $elseBodyHasReturn = false;
         
         $elseBodyFlowElement = null;
         if ($elseStatement !== null) {
@@ -231,6 +232,9 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
             
             // TODO: we don't have a return statement in then-bodies, so we call it $noReturnFlowElement here (but we shouldn't get it at all)
             list($resultType, $noReturnFlowElement) = flowifyStatements($elseStatements, $elseBodyFlowElement);
+            if ($resultType === 'return' && $returnFlowElement !== null) {
+                $elseBodyHasReturn = true;
+            }
         }
         
         // Note: we are comparing the varsInScope from the parentFlowElement with the varsInScope of the then/elseBodyFlowElement. 
