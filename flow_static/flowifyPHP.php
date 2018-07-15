@@ -494,8 +494,8 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
     
     // Note: We are assuming a programming language with FUNCTION scope here!
     //       The variables declared inside the init-statement will be part
-    //       of the for's scope right now, because we do a copy-back inside
-    //       flowifyExpressionWithWrappingContainer.
+    //       of the for's scope right now, because it uses the for's scope
+    //       and will simply add it to it's scope.
     
     // Note: Php allows comma separated expressions (but ONLY inside the for-statement):
     //    http://php.net/manual/en/language.expressions.php#90327
@@ -516,15 +516,9 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
         // == INIT ==
         
         $initAstNodeIdentifier = $forAstNodeIdentifier . "_ForInit";
-        
         // FIXME: replace ifCond with forInit
-        flowifyExpressionWithWrappingContainer(
-            $initExpression, 
-            'ifCond', 
-            'init', 
-            $initAstNodeIdentifier, 
-            $forFlowElement
-        );
+        $initFlowElement = createAndAddFlowElementToParent('ifCond', 'init', null, $initAstNodeIdentifier, $forFlowElement);
+        $flowElement = flowifyExpression($initExpression, $initFlowElement);
                        
         // == DONE ==
         
@@ -606,13 +600,9 @@ function flowifyForIteration (
     
     $varsInScopeBeforeCondBody = $forStepFlowElement->varsInScope; // copy!
     // FIXME: replace ifCond with forCond
-    list($flowElement, $condBodyFlowElement) = flowifyExpressionWithWrappingContainer(
-        $conditionExpression, 
-        'ifCond', 
-        'cond', 
-        $forAstNodeIdentifier . "_ForCond", 
-        $forStepFlowElement
-    );
+    $condBodyFlowElement = createAndAddFlowElementToParent('ifCond', 'cond', null, $forAstNodeIdentifier . "_ForCond", $forStepFlowElement);
+    $flowElement = flowifyExpression($conditionExpression, $condBodyFlowElement);
+
     $varsInScopeAfterCondBody = $forStepFlowElement->varsInScope; //copy!
 
 
@@ -624,26 +614,16 @@ function flowifyForIteration (
     $iterAstNodeIdentifier = getAstNodeIdentifier($iterStatements);
     
     // FIXME: replace ifThen with iterBody
-    list($noReturnFlowElement, $iterBodyFlowElement) = flowifyStatementsWithWrappingContainer (
-        $iterStatements, 
-        'ifThen', 
-        'iter', 
-        $iterAstNodeIdentifier, 
-        $forStepFlowElement
-    );
+    $iterBodyFlowElement = createAndAddFlowElementToParent('ifThen', 'iter', null, $iterAstNodeIdentifier, $forStepFlowElement);
+    $noReturnFlowElement = flowifyStatements($iterStatements, $iterBodyFlowElement);
     
     // TODO: we don't have a return statement in iter-bodies, so we call it $noReturnFlowElement here
     
     // == UPDATE ==
     
     // FIXME: replace ifCond with forUpdate
-    list($flowElement, $updateBodyFlowElement) = flowifyExpressionWithWrappingContainer(
-        $updateExpression, 
-        'ifCond', 
-        'update', 
-        $forAstNodeIdentifier . "_ForUpdate", 
-        $forStepFlowElement
-    );
+    $updateBodyFlowElement = createAndAddFlowElementToParent('ifCond', 'update', null, $forAstNodeIdentifier . "_ForUpdate", $forStepFlowElement);
+    $flowElement = flowifyExpression($updateExpression, $updateBodyFlowElement);
     
     // TODO: we are not doing anything with the flowElement coming from the updateBody. Is this ok?
     
@@ -819,9 +799,6 @@ function flowifyForIteration (
 
 function flowifyIfStatement($ifStatement, $parentFlowElement) {
     
-    $varsInScope = &$parentFlowElement->varsInScope;
-    $functionsInScope = &$parentFlowElement->functionsInScope;
-    
     $ifAstNodeIdentifier = getAstNodeIdentifier($ifStatement);
     $ifFlowElement = createAndAddFlowElementToParent('ifMain', 'if', null, $ifAstNodeIdentifier, $parentFlowElement);
     
@@ -830,15 +807,9 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         
         $conditionExpression = $ifStatement['cond'];
         
-        // Because the position in the code of $conditionExpression always corresponds to the ifCondition,
-        // we create a separate astNodeIdentifier for the ifCondition by postFixing the identifier of the 
-        // if-statement with "_IfCond". 
         $condAstNodeIdentifier = $ifAstNodeIdentifier . "_IfCond";
         $condFlowElement = createAndAddFlowElementToParent('ifCond', 'cond', null, $condAstNodeIdentifier, $ifFlowElement);
         
-        // FIXME: we should do this when creating the FlowElement (getting these from the parent, or better: referring to the parent from within the child)
-        // $condFlowElement->varsInScope = &$ifFlowElement->varsInScope;
-        // $condFlowElement->functionsInScope = &$ifFlowElement->functionsInScope;
         $flowElement = flowifyExpression($conditionExpression, $condFlowElement);
         
         // TODO: the flowElement coming from the conditionExpression is a boolean and determines 
@@ -895,7 +866,8 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         }
         
         // Note: we are comparing the varsInScope from the parentFlowElement with the varsInScope of the then/elseBodyFlowElement. 
-        //       We don't compare with the varsInScope of the ifFlowElement, because its only a wrapper-element, and doesn't contain varsInScope
+        //       We don't compare with the varsInScope of the ifFlowElement, because its only a wrapper-element (although it has 
+        //       the same scope as the parent)
         
         $varsInScopeParent = &$parentFlowElement->varsInScope;
         $varsInScopeThenBody = &$thenBodyFlowElement->varsInScope;
@@ -952,7 +924,6 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                     
                     // TODO: should we really use the variable name in the identifier?
                     $passThroughVariableAstNodeIdentifier = $elseAstNodeIdentifier . "_" . $variableName;
-
                     $passThroughVariableFlowElement = createAndAddChildlessFlowElementToParent('passThroughVariable', $variableName, null, $passThroughVariableAstNodeIdentifier, $elseBodyFlowElement);
 
                     // Connecting the variable in the parent to the passthrough variable (inside the thenBody)
@@ -974,7 +945,6 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                     
                     // TODO: should we really use the variable name in the identifier?
                     $passThroughVariableAstNodeIdentifier = $thenAstNodeIdentifier . "_" . $variableName;
-
                     $passThroughVariableFlowElement = createAndAddChildlessFlowElementToParent('passThroughVariable', $variableName, null, $passThroughVariableAstNodeIdentifier, $thenBodyFlowElement);
 
                     // Connecting the variable in the parent to the passthrough variable (inside the thenBody)
@@ -1049,7 +1019,6 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                             
                             // FIXME: is this AST Identifier correct?
                             $conditionalSplitVariableAstNodeIdentifier = $ifAstNodeIdentifier . "_" . $variableName . "_SPLIT";
-                            // FIXME: change type to 'conditionalSplitVariable'?
                             // FIXME: should this be put into the ifBody or the condBody?
                             $conditionalSplitVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalSplitVariable', $variableName, null, $conditionalSplitVariableAstNodeIdentifier, $ifFlowElement);
                             
@@ -1218,22 +1187,6 @@ function getElementsIdsIn($flowElement) {
         $containerIdsInFlowElement = array_merge($containerIdsInFlowElement, $containerIdsInChildFlowElement);
     }
     return $containerIdsInFlowElement;
-}
-
-function flowifyExpressionWithWrappingContainer ($wrapperExpression, $containerType, $containerName, $wrapperAstNodeIdentifier, $parentFlowElement) {
-    
-    $wrapperFlowElement = createAndAddFlowElementToParent($containerType, $containerName, null, $wrapperAstNodeIdentifier, $parentFlowElement);
-    $flowElement = flowifyExpression($wrapperExpression, $wrapperFlowElement);
-    
-    return [$flowElement, $wrapperFlowElement];
-}
-
-function flowifyStatementsWithWrappingContainer ($wrapperStatements, $containerType, $containerName, $wrapperAstNodeIdentifier, $parentFlowElement) {
-    
-    $wrapperFlowElement = createAndAddFlowElementToParent($containerType, $containerName, null, $wrapperAstNodeIdentifier, $parentFlowElement);
-    $flowElement = flowifyStatements($wrapperStatements, $wrapperFlowElement);
-    
-    return [$flowElement, $wrapperFlowElement];
 }
 
 function arrayfyFlowElements ($flowElement) {
