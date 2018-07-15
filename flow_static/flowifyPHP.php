@@ -823,7 +823,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
     $functionsInScope = &$parentFlowElement->functionsInScope;
     
     $ifAstNodeIdentifier = getAstNodeIdentifier($ifStatement);
-    $ifFlowElement = createFlowElement('ifMain', 'if', null, $ifAstNodeIdentifier);
+    $ifFlowElement = createAndAddFlowElementToParent('ifMain', 'if', null, $ifAstNodeIdentifier, $parentFlowElement);
     
     {
         // == COND ==
@@ -834,18 +834,16 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         // we create a separate astNodeIdentifier for the ifCondition by postFixing the identifier of the 
         // if-statement with "_IfCond". 
         $condAstNodeIdentifier = $ifAstNodeIdentifier . "_IfCond";
-        $condFlowElement = createFlowElement('ifCond', 'cond', null, $condAstNodeIdentifier);
+        $condFlowElement = createAndAddFlowElementToParent('ifCond', 'cond', null, $condAstNodeIdentifier, $ifFlowElement);
         
         // FIXME: we should do this when creating the FlowElement (getting these from the parent, or better: referring to the parent from within the child)
-        $condFlowElement->varsInScope = &$varsInScope;
-        $condFlowElement->functionsInScope = &$functionsInScope;
+        // $condFlowElement->varsInScope = &$ifFlowElement->varsInScope;
+        // $condFlowElement->functionsInScope = &$ifFlowElement->functionsInScope;
         $flowElement = flowifyExpression($conditionExpression, $condFlowElement);
         
         // TODO: the flowElement coming from the conditionExpression is a boolean and determines 
         //       whether the then-statements or the else(if)-statements are executed. How to should
         //       we visualize this?
-        
-        addFlowElementToParent($condFlowElement, $ifFlowElement);  // Note: do not call this before flowifyExpression, because this COPIES $condFlowElement, so changes to it will not be in the parent!
         
         $varsInScopeAfterCondBody = $condFlowElement->varsInScope; // copy!
         
@@ -854,20 +852,18 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         $thenStatements = $ifStatement['stmts'];
         
         $thenAstNodeIdentifier = getAstNodeIdentifier($thenStatements);
-        $thenBodyFlowElement = createFlowElement('ifThen', 'then', null, $thenAstNodeIdentifier);
+        $thenBodyFlowElement = createAndAddFlowElementToParent('ifThen', 'then', null, $thenAstNodeIdentifier, $ifFlowElement, $useVarScopeFromParent = false);
         
         // Note: we *copy* the varsInScope here. This is because the thenBody might replace vars in it's scope,
         //       These are however conditional-replacement when it comes to the if-statement. 
         //       Instead of the thenBody letting the vars in the if-scope to be replaced, we *add* it later to our varsInScope,
         //       by using a conditionalFlowElement.
         
-        $thenBodyFlowElement->varsInScope = $varsInScope;  // copy!
-        $thenBodyFlowElement->functionsInScope = &$functionsInScope;
+        $thenBodyFlowElement->varsInScope = $ifFlowElement->varsInScope;  // copy!
+        $thenBodyFlowElement->functionsInScope = &$ifFlowElement->functionsInScope;
         
         // TODO: we don't have a return statement in then-bodies, so we call it $noReturnFlowElement here (but we shouldn't get it at all)
         $noReturnFlowElement = flowifyStatements($thenStatements, $thenBodyFlowElement);
-        
-        addFlowElementToParent($thenBodyFlowElement, $ifFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $thenBodyFlowElement, so changes to it will not be in the parent!
         
         // == ELSE ==
         
@@ -884,20 +880,18 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
             $elseStatements = $elseStatement['stmts'];
             
             $elseAstNodeIdentifier = getAstNodeIdentifier($elseStatements);
-            $elseBodyFlowElement = createFlowElement('ifElse', 'else', null, $elseAstNodeIdentifier);
+            $elseBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'else', null, $elseAstNodeIdentifier, $ifFlowElement, $useVarScopeFromParent = false);
             
             // Note: we *copy* the varsInScope here. This is because the elseBody might replace vars in it's scope,
             //       These are however conditional-replacement when it comes to the if-statement. 
             //       Instead of the elseBody letting the vars in the if-scope to be replaced, we *add* it later to our varsInScope,
             //       by using a conditionalFlowElement.
             
-            $elseBodyFlowElement->varsInScope = $varsInScope;  // copy!
-            $elseBodyFlowElement->functionsInScope = &$functionsInScope;
+            $elseBodyFlowElement->varsInScope = $ifFlowElement->varsInScope;  // copy!
+            $elseBodyFlowElement->functionsInScope = &$ifFlowElement->functionsInScope;
             
             // TODO: we don't have a return statement in then-bodies, so we call it $noReturnFlowElement here (but we shouldn't get it at all)
             $noReturnFlowElement = flowifyStatements($elseStatements, $elseBodyFlowElement);
-            
-            addFlowElementToParent($elseBodyFlowElement, $ifFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $elseBodyFlowElement, so changes to it will not be in the parent!
         }
         
         // Note: we are comparing the varsInScope from the parentFlowElement with the varsInScope of the then/elseBodyFlowElement. 
@@ -910,7 +904,6 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
             $varsInScopeElseBody = &$elseBodyFlowElement->varsInScope;
         }
 
-        $implicitElseBodyWasCreated = false;
         // We loop through all the varsInScope of the parentFlowElement
         foreach ($varsInScopeParent as $variableName => $parentVarInScopeElement) {
             
@@ -951,8 +944,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                     
                     $elseAstNodeIdentifier = $ifAstNodeIdentifier . "_ImplicitElse";
                     // FIXME: this should be of type: 'ifElseImplicit'
-                    $elseBodyFlowElement = createFlowElement('ifElse', 'else', null, $elseAstNodeIdentifier);
-                    $implicitElseBodyWasCreated = true;
+                    $elseBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'else', null, $elseAstNodeIdentifier, $ifFlowElement, $useVarScopeFromParent = false);
                 }
                 
                 {
@@ -1098,9 +1090,6 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
             }
             
         }
-        if ($implicitElseBodyWasCreated) {
-            addFlowElementToParent($elseBodyFlowElement, $ifFlowElement);  // Note: do not call this before flowifyStatements, because this COPIES $elseBodyFlowElement, so changes to it will not be in the parent!
-        }
         
             
         foreach ($varsInScopeThenBody as $variableName => $thenBodyVarInScopeElement) {
@@ -1143,8 +1132,6 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         // TODO: $elseIfStatements = $ifStatement['elseif']
 
     }                
-    
-    addFlowElementToParent($ifFlowElement, $parentFlowElement);  // Note: do not call this before the calls to the other addFlowElementToParent, because this COPIES $ifFlowElement, so changes to it will not be in the parent!
     
 }
 
