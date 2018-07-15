@@ -733,7 +733,6 @@ function flowifyForIteration (
                         
                         // FIXME: is this AST Identifier correct?
                         $conditionalSplitVariableAstNodeIdentifier = $forStepAstNodeIdentifier . "_" . $variableName . "_SPLIT";
-                        // FIXME: change type to 'conditionalSplitVariable'?
                         // FIXME: should this be put into the forBody, forStepBody or the condBody?
                         $conditionalSplitVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalSplitVariable', $variableName, null, $conditionalSplitVariableAstNodeIdentifier, $condBodyFlowElement);
                        
