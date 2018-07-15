@@ -247,6 +247,48 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         if ($elseBodyFlowElement !== null) {
             $varsInScopeElseBody = &$elseBodyFlowElement->varsInScope;
         }
+        
+
+        
+        // TOOD: MAKE THE 'JOINING' OF VARS (BELOW) A FUNCTION
+        
+        // We should not be dependent on the parent to determine whether something is different between
+        // two scopes: when one has replaced a var (from its parent) then the other will still have the one
+        // from it's parent. So we know we have to join them.
+        // We should however know somehow that the one where the variable has not been replaced, is above
+        // variable from it's parent. That way we know we know we have to add a passthrough.
+        // We could do this by setting the 'parentFlowElement' within each flowElement.
+        // They could however have different parent's. So we cannot take the parents vars as
+        // basis for looping through all the possible vars. We should combine all commonly shared vars from both
+        // sides first (probably).
+        // QUESTION: Is there a possibility however that we have to add a passthrough to the parent aswell??
+        
+        // DIFICULTY: how te deal with declaration within children, that are moved up towards function scope?
+        
+        // TODO: MAKE THE 'SPLITTING' OF VARS (BELOW) A FUNCTION
+        
+        // The splitting of vars depends on usages of either side: if a var is used by either side,
+        // a splitter should be added (with one or both outputs connected to one or both children)
+        
+        // Note: We can only add this splitters, if we already added the passthroughs!
+        // This sort of implies that we have to split AFTER the joining! However, the joining may
+        // be delayed, since there could (for example) be a 'return' at the end of one.
+        // The question then is: how do we know to split vars at a (much) later stage?
+        // Will we have enough information to do this properly?
+        
+        // POSSIBLE ASSUMPTION: we assume that THIS condition needs splitters. And this condition
+        // has two children: then and else. We can determine which vars are USED by the then and else.
+        // We can also determine which vars are replaced by the then and else (even though they might not yet be joined here)
+        // Therefore we know which vars to split.
+        // This breaks if there is a 'return' and later on a variable is replaced (and therefor the var should be added as passthrough)
+        // But the assumption is that this condition will not cause (by either the then or the else) that variable
+        // to change, so the variable is simply not affected by the if at all.
+        
+        // BUT what if there is only an IF, which (for example) does not change anything, but returns.
+        // If the rest of the statements (below the if-statement in the code) does affect a variable,
+        // shouldn't there be a passthrough added to this then statement? And if so, shouldn't a splitter
+        // be added to the conditional?
+        
 
         // We loop through all the varsInScope of the parentFlowElement
         foreach ($varsInScopeParent as $variableName => $parentVarInScopeElement) {
