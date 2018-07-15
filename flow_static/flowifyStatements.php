@@ -198,8 +198,12 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         $thenBodyFlowElement->varsInScope = $ifFlowElement->varsInScope;  // copy!
         $thenBodyFlowElement->functionsInScope = &$ifFlowElement->functionsInScope;
         
-        // TODO: we don't have a return statement in then-bodies, so we call it $noReturnFlowElement here (but we shouldn't get it at all)
-        list($resultType, $noReturnFlowElement) = flowifyStatements($thenStatements, $thenBodyFlowElement);
+        list($resultType, $returnFlowElement) = flowifyStatements($thenStatements, $thenBodyFlowElement);
+        
+        $thenBodyHasReturn = false;
+        if ($resultType === 'return' && $returnFlowElement !== null) {
+            $thenBodyHasReturn = true;
+        }
         
         // == ELSE ==
         
@@ -269,8 +273,8 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
             $elseVariableFlowElement = null;
             if ($varReplacedInThenBody && $varReplacedInElseBody) {
                 // We overwrite the parent's varInScope and adding them both using a conditionalJoinVariableFlowElement.
-                $thenVariableFlowElement = $varsInScopeThenBody[$variableName];  // NOT A copy ANYMORE!
-                $elseVariableFlowElement = $varsInScopeElseBody[$variableName];  // NOT A copy ANYMORE!
+                $thenVariableFlowElement = $varsInScopeThenBody[$variableName];
+                $elseVariableFlowElement = $varsInScopeElseBody[$variableName];
             }
             else if ($varReplacedInThenBody) {
                 // Only the thenBody has replaced the variable. We use the parent's variable as the (default) else variable
@@ -298,9 +302,9 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                     // $varsInScopeElseBody[$parameterName] = $passThroughVariableFlowElement;
                 }
                 
-                $thenVariableFlowElement = $varsInScopeThenBody[$variableName];  // NOT A copy ANYMORE!
-                // TODO: this is without passthrough variable: $elseVariableFlowElement = $varsInScopeParent[$variableName];  // NOT A copy ANYMORE!
-                $elseVariableFlowElement = $passThroughVariableFlowElement;  // NOT A copy ANYMORE!
+                $thenVariableFlowElement = $varsInScopeThenBody[$variableName];
+                // TODO: this is without passthrough variable: $elseVariableFlowElement = $varsInScopeParent[$variableName];
+                $elseVariableFlowElement = $passThroughVariableFlowElement;
             }
             else if ($varReplacedInElseBody) {
                 // Only the elseBody has replaced the variable. We use the parent's variable as the (default) then variable
@@ -319,9 +323,9 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
                     // $varsInScopeThenBody[$parameterName] = $passThroughVariableFlowElement;
                 }
                 
-                // TODO: this is without passthrough variable: $thenVariableFlowElement = $varsInScopeParent[$variableName];  // NOT A copy ANYMORE!
-                $thenVariableFlowElement = $passThroughVariableFlowElement;  // NOT A copy ANYMORE!
-                $elseVariableFlowElement = $varsInScopeElseBody[$variableName];  // NOT A copy ANYMORE!
+                // TODO: this is without passthrough variable: $thenVariableFlowElement = $varsInScopeParent[$variableName];
+                $thenVariableFlowElement = $passThroughVariableFlowElement;
+                $elseVariableFlowElement = $varsInScopeElseBody[$variableName];
             }
             else {
                 // The variable wasn't replaced by either the thenBody or the elseBody, so nothing to do here
