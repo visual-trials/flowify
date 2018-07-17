@@ -76,12 +76,25 @@ function flowifyFunction ($functionStatement, $flowCallArguments, $functionCallF
     
     $resultingElements = flowifyStatements($statements, $functionCallFlowElement);
     
-    // FIXME: if there are multiple results, we should JOIN them!
-    $firstResultingElement = reset($resultingElements);  // FIXME: workaround for now
-    $lastResultingElement = end($resultingElements);  // FIXME: workaround for now
-    // $returnFlowElement = $firstResultingElement->returnVar;
-    $returnFlowElement = $lastResultingElement->returnVar;
-
+    // If there are multiple results, we join them
+    if (count($resultingElements) > 1) {
+        $conditionalJoinVariableAstNodeIdentifier = $functionCallFlowElement->astNodeIdentifier . "_RETURN_JOIN";
+        $conditionalJoinVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalJoinVariable', 'return', null, $conditionalJoinVariableAstNodeIdentifier, $functionCallFlowElement);
+        foreach ($resultingElements as $resultingElement) {
+            addFlowConnection($resultingElement->returnVar, $conditionalJoinVariableFlowElement, 'conditional');
+        }
+        $returnFlowElement = $conditionalJoinVariableFlowElement;
+        
+        // TODO: should we add the conditionalJoinVariable/returnFlowElement to our scope?
+        //$functionCallFlowElement->varsInScope[$variableName] = $conditionalJoinVariableFlowElement; 
+    }
+    else {
+        // FIXME: does this ever happen? or can we ignore this case?
+        //echo print_r($resultingElements,true);
+        $resultingElement = reset($resultingElements);
+        $returnFlowElement = $resultingElement->returnVar;
+    }
+    
     return $returnFlowElement;
 
 }
@@ -165,13 +178,23 @@ function flowifyStatements ($statements, $bodyFlowElement) {
             //       should join the vars in them (BUT this should already have been
             //       done in flowifyIfStatement).
             
-            $resultingElements = array_merge($resultingElements, $ifResultingElements);
+            foreach ($ifResultingElements as $ifResultingElement) {
+                if ($ifResultingElement->endsWith !== 'none') {
+                    $resultingElements['id:' . $ifResultingElement->id] = $ifResultingElement;
+                }
+            }
         }
         else if($statementType === 'Stmt_For') {
             
             $forResultingElements = flowifyForStatement($statement, $bodyFlowElement);
             
-            // $resultingElements = array_merge($resultingElements, $forResultingElements);
+            /*
+            foreach ($forResultingElements as $forResultingElement) {
+                if ($forResultingElement->endsWith !== 'none') {
+                    $resultingElements['id:' . $forResultingElement->id] = $forResultingElement;
+                }
+            }
+            */
         }
         else {
             echo "statementType '".$statementType."' found in function body, but not supported!\n";
@@ -184,7 +207,7 @@ function flowifyStatements ($statements, $bodyFlowElement) {
     if (count($resultingElements) == 0) {
         // If no 'return', 'break' or 'continue' was encountered, the endsWith will be 'none' 
         $bodyFlowElement->endsWith = 'none';
-        array_push($resultingElements, $bodyFlowElement);
+        $resultingElements['id:' . $bodyFlowElement->id] = $bodyFlowElement;
     }
     
     return $resultingElements;
