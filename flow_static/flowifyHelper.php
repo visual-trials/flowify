@@ -129,7 +129,9 @@ class FlowElement {
     public $children;
     public $astNodeIdentifier;
     public $varsInScope;
-    public $functionsInScope;    
+    public $functionsInScope;
+    public $endsWith; // null, 'none', 'continue', 'break', 'return'
+    public $returnVar;
 }
 
 class FlowConnection { 

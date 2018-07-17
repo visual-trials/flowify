@@ -7,7 +7,9 @@ function flowifyProgram($statements) {
     $rootFlowElement = createFlowElement('root', 'root', null, $astNodeIdentifier);
 
     // TODO: should we do anything with the return value of the main function?
-    list($resultType, $noReturnFlowElement) = flowifyStatements($statements, $rootFlowElement);
+    $resultingElements = flowifyStatements($statements, $rootFlowElement);
+    
+    // FIXME: we should do something with the resultingElements!
     
     return $rootFlowElement;
 }
@@ -72,7 +74,10 @@ function flowifyFunction ($functionStatement, $flowCallArguments, $functionCallF
     // TODO: We are assuming that the statements of a function will always have a 'none'-resultType or 'return'-resultType (not 'continue' or 'break')
     //       If the parser does not gaurd against this, we should.
     
-    list($resultType, $returnFlowElement) = flowifyStatements($statements, $functionCallFlowElement);
+    $resultingElements = flowifyStatements($statements, $functionCallFlowElement);
+    
+    $firstResultingElement = reset($resultingElements);  // FIXME: workaround for now
+    $returnFlowElement = $firstResultingElement->returnVar;
 
     return $returnFlowElement;
 
@@ -105,6 +110,8 @@ function flowifyStatements ($statements, $bodyFlowElement) {
         }
     }
 
+    $resultingElements = [];
+
     // 2) Then loop through all non-fuctions and do as if they are "executed"...
     foreach ($statements as $statement) {
 
@@ -124,6 +131,7 @@ function flowifyStatements ($statements, $bodyFlowElement) {
             // TODO: should we do anything with this $flowElement?
             //       if an expression is a statement, where does the output
             //       of that expesssion/statement go?
+
         }
         else if ($statementType === 'Stmt_Return') {
 
@@ -136,17 +144,31 @@ function flowifyStatements ($statements, $bodyFlowElement) {
             //       we stop looping through all the left-over statements and
             //       simply return the returnFlowElement
             
-            return [ 'return', $returnFlowElement ];
+            $bodyFlowElement->endsWith = 'return';
+            $bodyFlowElement->returnVar = $returnFlowElement;
+            // TODO: we should use 'id' as identifier here! but that isnt possible right now because its numeric
+            //       and php won't treat it as proper keys!
+            $resultingElements['id:' . $bodyFlowElement->id] = $bodyFlowElement;
+            break;
         }
         else if($statementType === 'Stmt_If') {
             
-            flowifyIfStatement($statement, $bodyFlowElement);
+            $ifResultingElements = flowifyIfStatement($statement, $bodyFlowElement);
             
+            // TODO: we have to check whether the flowifyIfStatement resulted
+            //       in endings other than 'none'. If all of them are not 'none'
+            //       we should stop looping statement and return the result of
+            //       flowifyIfStatement. If more than one of them is 'none' we
+            //       should join the vars in them (BUT this should already have been
+            //       done in flowifyIfStatement).
+            
+            // $resultingElements = array_merge($resultingElements, $ifResultingElements);
         }
         else if($statementType === 'Stmt_For') {
             
-            flowifyForStatement($statement, $bodyFlowElement);
+            $forResultingElements = flowifyForStatement($statement, $bodyFlowElement);
             
+            // $resultingElements = array_merge($resultingElements, $forResultingElements);
         }
         else {
             echo "statementType '".$statementType."' found in function body, but not supported!\n";
@@ -156,8 +178,13 @@ function flowifyStatements ($statements, $bodyFlowElement) {
 
     }
 
-    // If no 'return', 'break' or 'continue' was encountered, the resultType will be 'none' 
-    return [ 'none', null ];
+    if (count($resultingElements) == 0) {
+        // If no 'return', 'break' or 'continue' was encountered, the endsWith will be 'none' 
+        $bodyFlowElement->endsWith = 'none';
+        array_push($resultingElements, $bodyFlowElement);
+    }
+    
+    return $resultingElements;
 
 }
 
@@ -185,7 +212,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         // == THEN ==
         
         $thenStatements = $ifStatement['stmts'];
-        $thenBodyHasReturn = false;
+//        $thenBodyHasReturn = false;
         
         $thenAstNodeIdentifier = getAstNodeIdentifier($thenStatements);
         $thenBodyFlowElement = createAndAddFlowElementToParent('ifThen', 'then', null, $thenAstNodeIdentifier, $ifFlowElement, $useVarScopeFromParent = false);
@@ -198,11 +225,13 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         $thenBodyFlowElement->varsInScope = $ifFlowElement->varsInScope;  // copy!
         $thenBodyFlowElement->functionsInScope = &$ifFlowElement->functionsInScope;
         
-        list($resultType, $returnFlowElement) = flowifyStatements($thenStatements, $thenBodyFlowElement);
+        $resultingElements = flowifyStatements($thenStatements, $thenBodyFlowElement);
         
-        if ($resultType === 'return' && $returnFlowElement !== null) {
-            $thenBodyHasReturn = true;
-        }
+        // FIXME: do something with $resultingElements!
+        
+//        if ($resultType === 'return' && $returnFlowElement !== null) {
+//            $thenBodyHasReturn = true;
+//        }
         
         // == ELSE ==
         
@@ -231,10 +260,12 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
             $elseBodyFlowElement->functionsInScope = &$ifFlowElement->functionsInScope;
             
             // TODO: we don't have a return statement in then-bodies, so we call it $noReturnFlowElement here (but we shouldn't get it at all)
-            list($resultType, $noReturnFlowElement) = flowifyStatements($elseStatements, $elseBodyFlowElement);
-            if ($resultType === 'return' && $returnFlowElement !== null) {
-                $elseBodyHasReturn = true;
-            }
+            $resultingElements = flowifyStatements($elseStatements, $elseBodyFlowElement);
+            // FIXME: do something with $resultingElements!
+            
+//            if ($resultType === 'return' && $returnFlowElement !== null) {
+//                $elseBodyHasReturn = true;
+//            }
         }
         
         // Note: we are comparing the varsInScope from the parentFlowElement with the varsInScope of the then/elseBodyFlowElement. 
@@ -643,8 +674,9 @@ function flowifyForIteration (
     
     // FIXME: replace ifThen with iterBody
     $iterBodyFlowElement = createAndAddFlowElementToParent('ifThen', 'iter', null, $iterAstNodeIdentifier, $forStepFlowElement);
-    list($resultType, $noReturnFlowElement) = flowifyStatements($iterStatements, $iterBodyFlowElement);
-    
+    $resultingElements = flowifyStatements($iterStatements, $iterBodyFlowElement);
+    // FIXME: do something with $resultingElements!
+
     // TODO: we don't have a return statement in iter-bodies, so we call it $noReturnFlowElement here
     
     // == UPDATE ==
