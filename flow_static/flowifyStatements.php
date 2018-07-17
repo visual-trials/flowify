@@ -76,6 +76,7 @@ function flowifyFunction ($functionStatement, $flowCallArguments, $functionCallF
     
     $resultingElements = flowifyStatements($statements, $functionCallFlowElement);
     
+    // FIXME: if there are multiple results, we should JOIN them!
     $firstResultingElement = reset($resultingElements);  // FIXME: workaround for now
     $lastResultingElement = end($resultingElements);  // FIXME: workaround for now
     // $returnFlowElement = $firstResultingElement->returnVar;
@@ -263,7 +264,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
             // TODO: we don't have a return statement in then-bodies, so we call it $noReturnFlowElement here (but we shouldn't get it at all)
             $elseResultingElements = flowifyStatements($elseStatements, $elseBodyFlowElement);
             
-            $resultingElements = array_merge($resultingElements, $thenResultingElements);
+            $resultingElements = array_merge($resultingElements, $elseResultingElements);
             
         }
         
@@ -279,6 +280,9 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         }
         
 
+        // FIXME: we should look at $thenResultingElements and $elseResultingElements and JOIN and SPLIT where needed/possible!
+        //        that is: all 'none'-results should be joined. All others should stay in the $resultingElements
+        
         
         // TOOD: MAKE THE 'JOINING' OF VARS (BELOW) A FUNCTION
         
