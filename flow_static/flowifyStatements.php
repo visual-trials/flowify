@@ -77,7 +77,9 @@ function flowifyFunction ($functionStatement, $flowCallArguments, $functionCallF
     $resultingElements = flowifyStatements($statements, $functionCallFlowElement);
     
     $firstResultingElement = reset($resultingElements);  // FIXME: workaround for now
-    $returnFlowElement = $firstResultingElement->returnVar;
+    $lastResultingElement = end($resultingElements);  // FIXME: workaround for now
+    // $returnFlowElement = $firstResultingElement->returnVar;
+    $returnFlowElement = $lastResultingElement->returnVar;
 
     return $returnFlowElement;
 
@@ -162,7 +164,7 @@ function flowifyStatements ($statements, $bodyFlowElement) {
             //       should join the vars in them (BUT this should already have been
             //       done in flowifyIfStatement).
             
-            // $resultingElements = array_merge($resultingElements, $ifResultingElements);
+            $resultingElements = array_merge($resultingElements, $ifResultingElements);
         }
         else if($statementType === 'Stmt_For') {
             
@@ -190,6 +192,8 @@ function flowifyStatements ($statements, $bodyFlowElement) {
 
 function flowifyIfStatement($ifStatement, $parentFlowElement) {
     
+    $resultingElements = [];
+
     $ifAstNodeIdentifier = getAstNodeIdentifier($ifStatement);
     $ifFlowElement = createAndAddFlowElementToParent('ifMain', 'if', null, $ifAstNodeIdentifier, $parentFlowElement);
     
@@ -225,13 +229,10 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         $thenBodyFlowElement->varsInScope = $ifFlowElement->varsInScope;  // copy!
         $thenBodyFlowElement->functionsInScope = &$ifFlowElement->functionsInScope;
         
-        $resultingElements = flowifyStatements($thenStatements, $thenBodyFlowElement);
+        $thenResultingElements = flowifyStatements($thenStatements, $thenBodyFlowElement);
         
-        // FIXME: do something with $resultingElements!
-        
-//        if ($resultType === 'return' && $returnFlowElement !== null) {
-//            $thenBodyHasReturn = true;
-//        }
+        $resultingElements = array_merge($resultingElements, $thenResultingElements);
+
         
         // == ELSE ==
         
@@ -260,12 +261,10 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
             $elseBodyFlowElement->functionsInScope = &$ifFlowElement->functionsInScope;
             
             // TODO: we don't have a return statement in then-bodies, so we call it $noReturnFlowElement here (but we shouldn't get it at all)
-            $resultingElements = flowifyStatements($elseStatements, $elseBodyFlowElement);
-            // FIXME: do something with $resultingElements!
+            $elseResultingElements = flowifyStatements($elseStatements, $elseBodyFlowElement);
             
-//            if ($resultType === 'return' && $returnFlowElement !== null) {
-//                $elseBodyHasReturn = true;
-//            }
+            $resultingElements = array_merge($resultingElements, $thenResultingElements);
+            
         }
         
         // Note: we are comparing the varsInScope from the parentFlowElement with the varsInScope of the then/elseBodyFlowElement. 
@@ -546,7 +545,8 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         // TODO: $elseIfStatements = $ifStatement['elseif']
 
     }                
-    
+       
+    return $resultingElements;
 }
 
 function flowifyForStatement($forStatement, $parentFlowElement) {
