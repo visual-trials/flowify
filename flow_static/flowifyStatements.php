@@ -89,8 +89,6 @@ function flowifyFunction ($functionStatement, $flowCallArguments, $functionCallF
         //$functionCallFlowElement->varsInScope[$variableName] = $conditionalJoinVariableFlowElement; 
     }
     else {
-        // FIXME: does this ever happen? or can we ignore this case?
-        //echo print_r($resultingElements,true);
         $resultingElement = reset($resultingElements);
         $returnFlowElement = $resultingElement->returnVar;
     }
