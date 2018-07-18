@@ -66,6 +66,16 @@
         "width": 500,
         "height": 50
     },
+    "7:1-9:1_1_PASSBACK_b": {
+        "x": 300,
+        "y": 10,
+        "isPositionOf": "center"
+    },
+    "7:1-9:1_1_PASSBACK_i": {
+        "x": 170,
+        "y": 150,
+        "isPositionOf": "center"
+    },
     "7:1-9:1_1": {
         "x": 420,
         "y": 250,
@@ -139,7 +149,7 @@
         "isPositionOf": "center"
     },
     "7:1-9:1_1_JOINED_b": {
-        "x": 30,
+        "x": 40,
         "y": 320,
         "isPositionOf": "center"
     },

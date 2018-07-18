@@ -665,29 +665,65 @@ function joinVariables($variableName, $differentVariables, $targetElement) {
     return $conditionalJoinVariableFlowElement;
 }
 
-function joinVariablesBasedOnDifference ($flowElementsWithDifferentScope, $targetElement, $addToVarsInScope = true, $updateExistingConnections = false) {
+function joinVariablesBasedOnDifference ($flowElementBodiesWithDifferentScope, $targetElement, $passBackBodyFlowElement = null, $addToVarsInScope = true, $updateExistingConnections = false) {
     
     $differentVariablesPerVariableName = [];
-    foreach ($flowElementsWithDifferentScope as $flowElementWithDifferentScope) {
-        foreach ($flowElementWithDifferentScope->varsInScope as $variableName => $variableElement) {
+    foreach ($flowElementBodiesWithDifferentScope as $flowElementBodyWithDifferentScope) {
+        foreach ($flowElementBodyWithDifferentScope->varsInScope as $variableName => $variableFlowElement) {
             if (!array_key_exists($variableName, $differentVariablesPerVariableName)) {
                 $differentVariablesPerVariableName[$variableName] = [];
             }
+            // If the flowElementWithBodyDifferentScope contains variables that should be passed-back
+            // we set each variable (that is different) to doPassBack to true (or false if it shouldn't be done)
+            $variableFlowElement->doPassBack = $flowElementBodyWithDifferentScope->doPassBack;
             // TODO: workaround for PHP not allowing numbers as keys
-            $differentVariablesPerVariableName[$variableName]['id:' . $variableElement->id] = $variableElement;
+            $differentVariablesPerVariableName[$variableName]['id:' . $variableFlowElement->id] = $variableFlowElement;
         }
     }
 
     foreach ($differentVariablesPerVariableName as $variableName => $differentVariables) {
         // Only if we found more than 1 different variable should we join them
         if (count($differentVariables) > 1) {
-            $conditionalJoinVariableFlowElement = joinVariables($variableName, array_values($differentVariables), $targetElement);
+            
+            $differentVariablesToBeJoined = [];
+            if ($passBackBodyFlowElement !== null) {
+                // We should do pass-back the variables when their doPassBack is set to true
+                foreach (array_values($differentVariables) as $differentVariable) {
+                    if ($differentVariable->doPassBack) {
+                        // We need to pass-back this variable. We first create a pass-back flowElement,
+                        // add it to $passBackBodyFlowElement and connect it with $differentVariable
+                        // we then add the pass-back flowElement to $differentVariablesToBeJoined
+                        
+                        // FIXME: it is conceivable that the SAME variable(name) is pass-backed for more than ONE flowElementBodiesWithDifferentScope
+                        //        we should have a pass-back body for each flowElementBodiesWithDifferentScope, or we need find another
+                        //        way to make sure this passBackVariableAstNodeIdentifier is unique
+                        $passBackVariableAstNodeIdentifier = $targetElement->astNodeIdentifier . "_PASSBACK_" . $variableName;
+                        $passBackVariableFlowElement = createAndAddChildlessFlowElementToParent('passBackVariable', $variableName, null, $passBackVariableAstNodeIdentifier, $passBackBodyFlowElement);
+                        addFlowConnection($differentVariable, $passBackVariableFlowElement, 'conditional');
+                        
+                        array_push($differentVariablesToBeJoined, $passBackVariableFlowElement);
+                    }
+                    else {
+                        // No need to pass-back this variable, so it can be added to differentVariablesToBeJoined
+                        array_push($differentVariablesToBeJoined, $differentVariable);
+                    }
+                }
+                
+            }
+            else {
+                // There is no passBackBodyFlowElement, so no need to check which variables have to be
+                // pass-backed. We simply set differentVariablesToBeJoined to add all 
+                // original ones (without pass-back in between).
+                $differentVariablesToBeJoined = array_values($differentVariables);
+            }
+            
+            $conditionalJoinVariableFlowElement = joinVariables($variableName, $differentVariablesToBeJoined, $targetElement);
             
             if ($addToVarsInScope) {
                 $targetElement->varsInScope[$variableName] = $conditionalJoinVariableFlowElement;
             }
             if ($updateExistingConnections) {
-                foreach (array_values($differentVariables) as $differentVariable) {
+                foreach ($differentVariablesToBeJoined as $differentVariable) {
                     if (count($differentVariable->connectionIdsFromThisElement) > 0) {
                         // There are connections from the variable, we have to update all the connections from it,
                         // since they should now point towards the newly created conditionalJoinVariableFlowElement
@@ -697,11 +733,11 @@ function joinVariablesBasedOnDifference ($flowElementsWithDifferentScope, $targe
                             // We don't want to change the connections we just created by calling joinVariables(). Those
                             // connections were connected to the conditionalJoinVariableFlowElement, so we skip those.
                             if ($connectedToFlowElementId !== $conditionalJoinVariableFlowElement->id) {
+// FIXME: create a new connectionIdsFromThisElement!!                         
                                 $connectionToBeChanged->from = $conditionalJoinVariableFlowElement->id;
                             }
                         }
                     }
-  
                 }
             }
         }
@@ -774,8 +810,9 @@ function flowifyForIteration (
         // FIXME: add passthroughs!
     }
         
+    $forStepFlowElement->doPassBack = true;  // We want variables inside forStepFlowElement to 'loop-back' towards the beginning of for-loop
     $flowElementsWithDifferentScope = [$forFlowElement, $forStepFlowElement];
-    joinVariablesBasedOnDifference($flowElementsWithDifferentScope, $forStepFlowElement, $addToVarsInScope = false, $updateExistingConnections = true);
+    joinVariablesBasedOnDifference($flowElementsWithDifferentScope, $forStepFlowElement, $backBodyFlowElement, $addToVarsInScope = false, $updateExistingConnections = true);
         
         
         

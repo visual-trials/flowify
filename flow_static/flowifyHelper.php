@@ -33,6 +33,7 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
     $flowElement->name = $flowElementName;
     $flowElement->value = $flowElementValue;
     $flowElement->connectionIdsFromThisElement = [];
+    $flowElement->doPassBack = false; // this is used for for-loops
     if ($canHaveChildren) {
         $flowElement->children = [];
     }
