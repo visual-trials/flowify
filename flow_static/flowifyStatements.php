@@ -701,6 +701,8 @@ function joinVariablesBasedOnDifference ($flowElementBodiesWithDifferentScope, $
                         $passBackVariableFlowElement = createAndAddChildlessFlowElementToParent('passBackVariable', $variableName, null, $passBackVariableAstNodeIdentifier, $passBackBodyFlowElement);
                         addFlowConnection($differentVariable, $passBackVariableFlowElement, 'conditional');
                         
+                        // TODO: is it possible that $differentVariable already had connections *from* itself to others? If so, we need to deal with those connections!
+                        
                         array_push($differentVariablesToBeJoined, $passBackVariableFlowElement);
                     }
                     else {
@@ -727,16 +729,26 @@ function joinVariablesBasedOnDifference ($flowElementBodiesWithDifferentScope, $
                     if (count($differentVariable->connectionIdsFromThisElement) > 0) {
                         // There are connections from the variable, we have to update all the connections from it,
                         // since they should now point towards the newly created conditionalJoinVariableFlowElement
+                        $updatedConnectionIdsFromThisElement = [];
                         foreach ($differentVariable->connectionIdsFromThisElement as $connectionIdFromVariable) {
                             $connectionToBeChanged = getConnectionById($connectionIdFromVariable);
                             $connectedToFlowElementId = $connectionToBeChanged->to;
                             // We don't want to change the connections we just created by calling joinVariables(). Those
                             // connections were connected to the conditionalJoinVariableFlowElement, so we skip those.
                             if ($connectedToFlowElementId !== $conditionalJoinVariableFlowElement->id) {
-// FIXME: create a new connectionIdsFromThisElement!!                         
                                 $connectionToBeChanged->from = $conditionalJoinVariableFlowElement->id;
+                                // This connection is now between the $conditionalJoinVariableFlowElement and
+                                // another element inside one of the flowElementBodies. It is *not* connected
+                                // with $differentVariable anymore, so we don't add this connection to 
+                                // $updatedConnectionIdsFromThisElement
+                            }
+                            else {
+                                // We are now changing this connection, so it should stay in connectionIdsFromThisElement
+                                // of $differentVariable. We therefore add it to updatedConnectionIdsFromThisElement.
+                                array_push($updatedConnectionIdsFromThisElement, $connectionToBeChanged->from);
                             }
                         }
+                        $differentVariable->connectionIdsFromThisElement = $updatedConnectionIdsFromThisElement;
                     }
                 }
             }
