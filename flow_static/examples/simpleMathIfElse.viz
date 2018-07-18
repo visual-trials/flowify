@@ -35,8 +35,8 @@
         "relativeScale": 1
     },
     "7:1-12:1_IfCond": {
-        "x": 70,
-        "y": 100,
+        "x": 80,
+        "y": 90,
         "isPositionOf": "center",
         "width": 120,
         "height": 150

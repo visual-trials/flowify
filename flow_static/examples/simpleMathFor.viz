@@ -112,16 +112,6 @@
         "y": 130,
         "isPositionOf": "center"
     },
-    "7:1-9:1_ForCond_b_SPLIT": {
-        "x": 160,
-        "y": 260,
-        "isPositionOf": "center"
-    },
-    "7:1-9:1_ForCond_i_SPLIT": {
-        "x": 160,
-        "y": 30,
-        "isPositionOf": "center"
-    },
     "8:2-8:13_Stmts": {
         "x": 350,
         "y": 290,
@@ -176,6 +166,16 @@
     "7:1-9:1_1_JOINED_i": {
         "x": 20,
         "y": 40,
+        "isPositionOf": "center"
+    },
+    "7:1-9:1_b_SPLIT": {
+        "x": 370,
+        "y": 310,
+        "isPositionOf": "center"
+    },
+    "7:1-9:1_i_SPLIT": {
+        "x": 370,
+        "y": 80,
         "isPositionOf": "center"
     },
     "11:6-11:16": {

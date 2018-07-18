@@ -362,7 +362,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         $flowElementsWithDifferentScope = [$thenBodyFlowElement, $elseBodyFlowElement];
         joinVariablesBasedOnDifference($flowElementsWithDifferentScope, $ifFlowElement);
 
-        splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElement, $elseBodyFlowElement, $ifFlowElement);
+        splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElement, $elseBodyFlowElement, null, $ifFlowElement);
         
             
         foreach ($thenBodyFlowElement->varsInScope as $variableName => $thenBodyVarInScopeElement) {
@@ -476,8 +476,12 @@ function addPassThroughsBasedOnChange($thenBodyFlowElement, $elseBodyFlowElement
     }
 }
 
-function splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElement, $elseBodyFlowElement, $parentFlowElement) {
+function splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElement, $elseBodyFlowElement, $secondElseBodyFlowElement, $parentFlowElement) {
+
+    // FIXME: workaround with 'second' else body
     
+    // FIXME: don't call it then and else, call it left/right or true/false
+        
     foreach ($parentFlowElement->varsInScope as $variableName => $parentVarInScopeElement) {
 
         // We also want to create a conditional *split* element between the condBody and thenBody, and between the condBody and elseBody
@@ -496,6 +500,10 @@ function splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElem
         if ($elseBodyFlowElement !== null) {
             $elementIdsInElseBody = getElementsIdsIn($elseBodyFlowElement);
         }
+        $elementIdsInSecondElseBody = [];
+        if ($secondElseBodyFlowElement !== null) {
+            $elementIdsInSecondElseBody = getElementsIdsIn($secondElseBodyFlowElement);
+        }
             
         foreach ($variableAfterCondBody->connectionIdsFromThisElement as $connectionIdFromVariable) {
             // By default we want to keep the connections, so we take over the id in the loop
@@ -512,6 +520,9 @@ function splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElem
                 $variableConnectedWithThenBody = true;
             }
             if (in_array($flowElementIdInThenOrElseBody, $elementIdsInElseBody)) {
+                $variableConnectedWithElseBody = true;
+            }
+            if (in_array($flowElementIdInThenOrElseBody, $elementIdsInSecondElseBody)) {
                 $variableConnectedWithElseBody = true;
             }
                 
@@ -867,7 +878,10 @@ function flowifyForIteration (
     //              variables that are declared inside the for loop will also be present in that scope
     //              and things go wrong if you allow that to be passed as last argument (see the 'c' variable
     //              in fibonacci_iterative)
-    splitVariablesBasedOnUsage($condBodyFlowElement->varsInScope, $doneBodyFlowElement, $iterBodyFlowElement, $forFlowElement);
+    // FIXME: by giving it the forFlowElement as the last argument, all split variables are now added to the forFlowElement
+    //        this is not what we want, since they either should be added to the condBodyFlowElement or forStepFlowElement
+    
+    splitVariablesBasedOnUsage($condBodyFlowElement->varsInScope, $doneBodyFlowElement, $iterBodyFlowElement, $updateBodyFlowElement, $forFlowElement);
         
         
     // FIXME: we should take the doneBody and copy its varsInScope to the varsInScope of the for(Step)FlowElement!
@@ -962,7 +976,8 @@ function flowifyForIteration (
                         
                         // Adding the conditionalSplitVariableFlowElement and adding a connection to connect from the conditionalJoinVariableFlowElement to it
                         $connectionTypeToConditionalSplitVariable = $connectionToBeChanged->type;
-                        
+    
+                        // FIXME: use "*SPLIT*" and put it BEFORE the variable!
                         // FIXME: is this AST Identifier correct?
                         $conditionalSplitVariableAstNodeIdentifier = $forStepAstNodeIdentifier . "_" . $variableName . "_SPLIT";
                         // FIXME: should this be put into the forBody, forStepBody or the condBody?

@@ -40,7 +40,7 @@
         "isPositionOf": "center"
     },
     "9:5-13:5": {
-        "x": 570,
+        "x": 580,
         "y": 300,
         "isPositionOf": "center",
         "width": 800,
@@ -93,7 +93,7 @@
         "isPositionOf": "center"
     },
     "9:5-13:5_1": {
-        "x": 460,
+        "x": 450,
         "y": 260,
         "isPositionOf": "center",
         "width": 500,
