@@ -341,6 +341,20 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         // shouldn't there be a passthrough added to this then statement? And if so, shouldn't a splitter
         // be added to the conditional?
         
+        
+        
+        // FIXME: what if an implicit else is never needed?
+        // Add an elseBody if it doesn't exist yet
+        if ($elseBodyFlowElement === null) {
+            
+            $elseAstNodeIdentifier = $ifAstNodeIdentifier . "_ImplicitElse";
+            // FIXME: this should be of type: 'ifElseImplicit'
+            $elseBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'else', null, $elseAstNodeIdentifier, $ifFlowElement, $useVarScopeFromParent = false);
+        }
+        
+        
+        // FIXME: implement this! passThroughBasedOnChange($thenBodyFlowElement, $elseBodyFlowElement, $ifFlowElement);
+        
 
         // We loop through all the varsInScope of the parentFlowElement
         foreach ($parentFlowElement->varsInScope as $variableName => $parentVarInScopeElement) {
@@ -348,25 +362,21 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
             $varReplacedInThenBody = false;
             $varReplacedInElseBody = false;
             
-            if ($thenBodyFlowElement !== null) {
-                // We check if we have the same variable in our thenBody scope
-                if (array_key_exists($variableName, $thenBodyFlowElement->varsInScope)) {
-                    // The var exists both in thenBodyFlowElement and in the parent's scope
-                    if ($thenBodyFlowElement->varsInScope[$variableName]->id !== $parentFlowElement->varsInScope[$variableName]->id) {
-                        // The vars differ, so it must have been replaced (or extended) inside the thenBody. 
-                        $varReplacedInThenBody = true;
-                    }
+            // We check if we have the same variable in our thenBody scope
+            if (array_key_exists($variableName, $thenBodyFlowElement->varsInScope)) {
+                // The var exists both in thenBodyFlowElement and in the parent's scope
+                if ($thenBodyFlowElement->varsInScope[$variableName]->id !== $parentFlowElement->varsInScope[$variableName]->id) {
+                    // The vars differ, so it must have been replaced (or extended) inside the thenBody. 
+                    $varReplacedInThenBody = true;
                 }
             }
           
-            if ($elseBodyFlowElement !== null) {          
-                // We check if we have the same variable in our elseBody scope
-                if (array_key_exists($variableName, $elseBodyFlowElement->varsInScope)) {
-                    // The var exists both in elseBodyFlowElement and in the parent's scope
-                    if ($elseBodyFlowElement->varsInScope[$variableName]->id !== $parentFlowElement->varsInScope[$variableName]->id) {
-                        // The vars differ, so it must have been replaced (or extended) inside the elseBody. 
-                        $varReplacedInElseBody = true;
-                    }
+            // We check if we have the same variable in our elseBody scope
+            if (array_key_exists($variableName, $elseBodyFlowElement->varsInScope)) {
+                // The var exists both in elseBodyFlowElement and in the parent's scope
+                if ($elseBodyFlowElement->varsInScope[$variableName]->id !== $parentFlowElement->varsInScope[$variableName]->id) {
+                    // The vars differ, so it must have been replaced (or extended) inside the elseBody. 
+                    $varReplacedInElseBody = true;
                 }
             }
 
@@ -375,14 +385,6 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
             }
             else if ($varReplacedInThenBody) {
                 // Only the thenBody has replaced the variable. We use the parent's variable as the (default) else variable
-                
-                // Add an elseBody if it doesn't exist yet
-                if ($elseBodyFlowElement === null) {
-                    
-                    $elseAstNodeIdentifier = $ifAstNodeIdentifier . "_ImplicitElse";
-                    // FIXME: this should be of type: 'ifElseImplicit'
-                    $elseBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'else', null, $elseAstNodeIdentifier, $ifFlowElement, $useVarScopeFromParent = false);
-                }
                 
                 // Adding the variable to the elseBody as a passthrough variable
                 $passThroughVariableAstNodeIdentifier = $elseAstNodeIdentifier . "_*PASSTHROUGH*_" . $variableName;
@@ -849,8 +851,13 @@ function flowifyForIteration (
     //        of do something smarter than that.
     $condBodyFlowElement->varsInScope = $forStepFlowElement->varsInScope; // copy!
     
-    // FIXME: splitVariablesBasedOnUsage($condBodyFlowElement);
+    // FIXME: we should give it $condBodyFlowElement itself (not it's varsInScope)
+    // FIXME: we also want to give it the updateBody!
+    // FIXME: should we give it the forElement as the last argument?
+    splitVariablesBasedOnUsage($condBodyFlowElement->varsInScope, $doneBodyFlowElement, $iterBodyFlowElement, $condBodyFlowElement);
         
+        
+    // FIXME: we should take the doneBody and copy its varsInScope to the varsInScope of the for(Step)FlowElement!
         
         
     foreach ($varsInScopeBeforeCondBody as $variableName => $varInScopeElement) {

@@ -85,7 +85,7 @@
         "relativeScale": 1
     },
     "7:1-9:1_ForCond": {
-        "x": 130,
+        "x": 90,
         "y": 190,
         "isPositionOf": "center",
         "width": 150,
@@ -100,6 +100,11 @@
     "7:14-7:20": {
         "x": 100,
         "y": 130,
+        "isPositionOf": "center"
+    },
+    "_b_SPLIT": {
+        "x": 200,
+        "y": 310,
         "isPositionOf": "center"
     },
     "8:2-8:13_Stmts": {
@@ -150,7 +155,7 @@
     },
     "7:1-9:1_1_JOINED_b": {
         "x": 40,
-        "y": 320,
+        "y": 310,
         "isPositionOf": "center"
     },
     "7:1-9:1_1_JOINED_i": {
