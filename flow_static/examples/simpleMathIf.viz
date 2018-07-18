@@ -27,8 +27,8 @@
         "isPositionOf": "center"
     },
     "7:1-9:1": {
-        "x": 450,
-        "y": 240,
+        "x": 440,
+        "y": 260,
         "isPositionOf": "center",
         "width": 400,
         "height": 250,
@@ -84,12 +84,12 @@
     },
     "7:1-9:1_JOINED_b": {
         "x": 370,
-        "y": 130,
+        "y": 110,
         "isPositionOf": "center"
     },
-    "_b_SPLIT": {
+    "7:1-9:1_b_SPLIT": {
         "x": 150,
-        "y": 110,
+        "y": 130,
         "isPositionOf": "center"
     },
     "11:6-11:16": {

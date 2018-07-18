@@ -112,13 +112,13 @@
         "y": 130,
         "isPositionOf": "center"
     },
-    "_b_SPLIT": {
+    "7:1-9:1_ForCond_b_SPLIT": {
         "x": 160,
         "y": 260,
         "isPositionOf": "center"
     },
-    "_i_SPLIT": {
-        "x": 170,
+    "7:1-9:1_ForCond_i_SPLIT": {
+        "x": 160,
         "y": 30,
         "isPositionOf": "center"
     },

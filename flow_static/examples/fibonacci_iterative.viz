@@ -113,24 +113,24 @@
         "y": 60,
         "isPositionOf": "center"
     },
-    "_a_SPLIT": {
+    "9:5-13:5_ForCond_a_SPLIT": {
         "x": 120,
-        "y": 300,
+        "y": 310,
         "isPositionOf": "center"
     },
-    "_b_SPLIT": {
+    "9:5-13:5_ForCond_b_SPLIT": {
         "x": 130,
-        "y": 150,
+        "y": 170,
         "isPositionOf": "center"
     },
-    "_i_SPLIT": {
-        "x": 160,
+    "9:5-13:5_ForCond_i_SPLIT": {
+        "x": 150,
         "y": -20,
         "isPositionOf": "center"
     },
-    "_c_SPLIT": {
+    "9:5-13:5_ForCond_c_SPLIT": {
         "x": 200,
-        "y": 70,
+        "y": 100,
         "isPositionOf": "center"
     },
     "10:9-12:17_Stmts": {
