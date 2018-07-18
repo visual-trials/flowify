@@ -101,38 +101,6 @@ function flowifyFunction ($functionStatement, $flowCallArguments, $functionCallF
 
 }
 
-function joinVariables($variableName, $differentVariables, $targetElement) {
-    
-    $conditionalJoinVariableAstNodeIdentifier = $targetElement->astNodeIdentifier . "_JOINED_" . $variableName;
-    $conditionalJoinVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalJoinVariable', $variableName, null, $conditionalJoinVariableAstNodeIdentifier, $targetElement);
-    foreach ($differentVariables as $differentVariableElement) {
-        addFlowConnection($differentVariableElement, $conditionalJoinVariableFlowElement, 'conditional');
-    }
-    return $conditionalJoinVariableFlowElement;
-}
-
-function joinVariablesBasedOnDifference ($flowElementsWithDifferentScope, $targetElement) {
-
-    $differentVariablesPerVariableName = [];
-    foreach ($flowElementsWithDifferentScope as $flowElementWithDifferentScope) {
-        foreach ($flowElementWithDifferentScope->varsInScope as $variableName => $variableElement) {
-            if (!array_key_exists($variableName, $differentVariablesPerVariableName)) {
-                $differentVariablesPerVariableName[$variableName] = [];
-            }
-            // TODO: workaround for PHP not allowing numbers as keys
-            $differentVariablesPerVariableName[$variableName]['id:' . $variableElement->id] = $variableElement;
-        }
-    }
-
-    foreach ($differentVariablesPerVariableName as $variableName => $differentVariables) {
-        // Only if we found more than 1 different variable should we join them
-        if (count($differentVariables) > 1) {
-            $conditionalJoinVariableFlowElement = joinVariables($variableName, array_values($differentVariables), $targetElement);
-            $targetElement->varsInScope[$variableName] = $conditionalJoinVariableFlowElement;
-        }
-    }
-}
-
 function flowifyStatements ($statements, $bodyFlowElement) {
 
     // 1)    First find all defined functions, so we known the nodes of them, when they are called
@@ -637,7 +605,9 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
         
         $forStepAstNodeIdentifier1 = $forAstNodeIdentifier . "_1";
         // FIXME: change this from a ifThen for a forStep
-        $forStepFlowElement1 = createAndAddFlowElementToParent('ifThen', '#1', null, $forStepAstNodeIdentifier1, $forFlowElement);
+        $forStepFlowElement1 = createAndAddFlowElementToParent('ifThen', '#1', null, $forStepAstNodeIdentifier1, $forFlowElement, $useVarScopeFromParent = false);
+        $forStepFlowElement1->varsInScope = $forFlowElement->varsInScope; // copy!
+        $forStepFlowElement1->functionsInScope = &$forFlowElement->functionsInScope;
         
         flowifyForIteration(
             $conditionExpression, 
@@ -651,13 +621,16 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
             $forStepAstNodeIdentifier1,
             $forStepFlowElement1
         );
+        $forFlowElement->varsInScope = $forStepFlowElement1->varsInScope; // copy back!
         
         /*
         // STEP 2
         
         $forStepAstNodeIdentifier2 = $forAstNodeIdentifier . "_2";
         // FIXME: change this from a ifThen for a forStep
-        $forStepFlowElement2 = createAndAddFlowElementToParent('ifThen', '#2', null, $forStepAstNodeIdentifier2, $forFlowElement);
+        $forStepFlowElement2 = createAndAddFlowElementToParent('ifThen', '#2', null, $forStepAstNodeIdentifier2, $forFlowElement, $useVarScopeFromParent = false);
+        $forStepFlowElement2->varsInScope = $forFlowElement->varsInScope; // copy!
+        $forStepFlowElement2->functionsInScope = &$forFlowElement->functionsInScope;
         
         flowifyForIteration(
             $conditionExpression, 
@@ -670,6 +643,7 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
             $forStepAstNodeIdentifier2,
             $forStepFlowElement2
         );
+        $forFlowElement->varsInScope = $forStepFlowElement2->varsInScope; // copy back!
         
         */
 
@@ -679,6 +653,69 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
 
     }    
     
+}
+
+function joinVariables($variableName, $differentVariables, $targetElement) {
+    
+//echo print_r(['$differentVariables' => $differentVariables], true); 
+    $conditionalJoinVariableAstNodeIdentifier = $targetElement->astNodeIdentifier . "_JOINED_" . $variableName;
+    $conditionalJoinVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalJoinVariable', $variableName, null, $conditionalJoinVariableAstNodeIdentifier, $targetElement);
+    foreach ($differentVariables as $differentVariableElement) {
+//echo print_r(['$differentVariableElement->id' => $differentVariableElement->id], true); 
+//echo print_r(['$conditionalJoinVariableFlowElement->id' => $conditionalJoinVariableFlowElement->id], true); 
+        $flowConntectionId = addFlowConnection($differentVariableElement, $conditionalJoinVariableFlowElement, 'conditional');
+//echo print_r(['$flowConntectionId' => $flowConntectionId], true); 
+    }
+    return $conditionalJoinVariableFlowElement;
+}
+
+function joinVariablesBasedOnDifference ($flowElementsWithDifferentScope, $targetElement, $addToVarsInScope = true, $updateExistingConnections = false) {
+    
+    // FIXME: you also want to INSERT the JOIN vars in between the connection that already exists!
+    // in other words: if there is a connection FROM the vars (that differ), we want that connection
+    // to be changed so that there is a NEW connection between each variable (to) to the JOIN variable (from)
+    // and the connection that already existed from the variable to some element inside one of the 
+    // is now set so that's it's from is on the JOIN variable
+
+    $differentVariablesPerVariableName = [];
+    foreach ($flowElementsWithDifferentScope as $flowElementWithDifferentScope) {
+        foreach ($flowElementWithDifferentScope->varsInScope as $variableName => $variableElement) {
+            if (!array_key_exists($variableName, $differentVariablesPerVariableName)) {
+                $differentVariablesPerVariableName[$variableName] = [];
+            }
+            // TODO: workaround for PHP not allowing numbers as keys
+            $differentVariablesPerVariableName[$variableName]['id:' . $variableElement->id] = $variableElement;
+        }
+    }
+
+    foreach ($differentVariablesPerVariableName as $variableName => $differentVariables) {
+        // Only if we found more than 1 different variable should we join them
+        if (count($differentVariables) > 1) {
+            $conditionalJoinVariableFlowElement = joinVariables($variableName, array_values($differentVariables), $targetElement);
+            
+            if ($addToVarsInScope) {
+                $targetElement->varsInScope[$variableName] = $conditionalJoinVariableFlowElement;
+            }
+            if ($updateExistingConnections) {
+                foreach (array_values($differentVariables) as $differentVariable) {
+                    if (count($differentVariable->connectionIdsFromThisElement) > 0) {
+                        // There are connections from the variable, we have to update all the connections from it,
+                        // since they should now point towards the newly created conditionalJoinVariableFlowElement
+                        foreach ($differentVariable->connectionIdsFromThisElement as $connectionIdFromVariable) {
+                            $connectionToBeChanged = getConnectionById($connectionIdFromVariable);
+                            $connectedToFlowElementId = $connectionToBeChanged->to;
+                            // We don't want to change the connections we just created by calling joinVariables. Those
+                            // connections were connected to the conditionalJoinVariableFlowElement, so we skip those.
+                            if ($connectedToFlowElementId !== $conditionalJoinVariableFlowElement->id) {
+                                $connectionToBeChanged->from = $conditionalJoinVariableFlowElement->id; // TODO: should we do it this way?
+                            }
+                        }
+                    }
+  
+                }
+            }
+        }
+    }
 }
 
 function flowifyForIteration (
@@ -695,7 +732,8 @@ function flowifyForIteration (
 
     // == COND ==
     
-    $varsInScopeBeforeCondBody = $forStepFlowElement->varsInScope; // copy!
+    // TODO: we probably don't want to the $varsInScopeBeforeCondBody anymore. (we can simply use $forFlowElement->varsInScope)
+    $varsInScopeBeforeCondBody = &$forFlowElement->varsInScope;
     // FIXME: replace ifCond with forCond
     $condBodyFlowElement = createAndAddFlowElementToParent('ifCond', 'cond', null, $forAstNodeIdentifier . "_ForCond", $forStepFlowElement);
     $flowElement = flowifyExpression($conditionExpression, $condBodyFlowElement);
@@ -743,6 +781,18 @@ function flowifyForIteration (
             }
         }
         
+        // FIXME: add passthroughs!
+    }
+        
+    $flowElementsWithDifferentScope = [$forFlowElement, $forStepFlowElement];
+    joinVariablesBasedOnDifference($flowElementsWithDifferentScope, $forStepFlowElement, $addToVarsInScope = false, $updateExistingConnections = true);
+        
+        
+        
+        
+        
+    foreach ($varsInScopeBeforeCondBody as $variableName => $varInScopeElement) {
+        
         // If the variable is USED inside the iter or update body then a conditionalSplitVariable should be created.
         // The true-output of the conditionalSplitVariable should get the connection (that is: it's from should now point to it)
         // that used to be connect the beforeCondBody and the iterBody or updateBody.
@@ -757,7 +807,8 @@ function flowifyForIteration (
         // which in turn should be added to the condBody. In additional, the false-output fo conditionalSplitVariable 
         // should be added to the varsInScope of the forElement.
         
-        if ($varReplacedInForStep) {
+        // FIXME if ($varReplacedInForStep) {
+        if (false) {
             
             // FIXME: also we we haven't replaced anything we should create split conditionals for variables we ONLY USE!
             
