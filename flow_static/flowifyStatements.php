@@ -78,11 +78,15 @@ function flowifyFunction ($functionStatement, $flowCallArguments, $functionCallF
     
     // If there are multiple results, we join them
     if (count($resultingElements) > 1) {
-        $conditionalJoinVariableAstNodeIdentifier = $functionCallFlowElement->astNodeIdentifier . "_RETURN_JOIN";
-        $conditionalJoinVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalJoinVariable', 'return', null, $conditionalJoinVariableAstNodeIdentifier, $functionCallFlowElement);
+        $differentVariables = [];
+        // TODO: how do we really know that all return variables are actually different? Of they are the same,
+        //       should we add a passthrough by the ones who are the same?
         foreach ($resultingElements as $resultingElement) {
-            addFlowConnection($resultingElement->returnVar, $conditionalJoinVariableFlowElement, 'conditional');
+            array_push($differentVariables, $resultingElement->returnVar);
         }
+        
+        // Note: we use '*' to make sure there is no collision with existing variableNames (since they are not allowed in variable-identifiers)
+        $conditionalJoinVariableFlowElement = joinVariables('*RETURN*', $differentVariables, $functionCallFlowElement);
         $returnFlowElement = $conditionalJoinVariableFlowElement;
         
         // TODO: should we add the conditionalJoinVariable/returnFlowElement to our scope?
@@ -95,6 +99,35 @@ function flowifyFunction ($functionStatement, $flowCallArguments, $functionCallF
     
     return $returnFlowElement;
 
+}
+
+function joinVariables($variableName, $differentVariables, $targetElement) {
+    
+    $conditionalJoinVariableAstNodeIdentifier = $targetElement->astNodeIdentifier . "_JOINED_" . $variableName;
+    $conditionalJoinVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalJoinVariable', $variableName, null, $conditionalJoinVariableAstNodeIdentifier, $targetElement);
+    foreach ($differentVariables as $differentVariableElement) {
+        addFlowConnection($differentVariableElement, $conditionalJoinVariableFlowElement, 'conditional');
+    }
+    return $conditionalJoinVariableFlowElement;
+}
+
+function joinVariablesBasedOnDifference ($flowElementsWithDifferentScope, $targetElement) {
+
+    $differentVariablesPerVariableName = [];
+    foreach ($flowElementsWithDifferentScope as $flowElementWithDifferentScope) {
+        foreach ($flowElementWithDifferentScope->varsInScope as $variableName => $variableElement) {
+            if (!array_key_exists($variableName, $differentVariablesPerVariableName)) {
+                $differentVariablesPerVariableName[$variableName] = [];
+            }
+            // TODO: workaround for PHP not allowing numbers as keys
+            $differentVariablesPerVariableName[$variableName]['id:' . $variableElement->id] = $variableElement;
+        }
+    }
+
+    foreach ($differentVariablesPerVariableName as $variableName => $differentVariables) {
+        $conditionalJoinVariableFlowElement = joinVariables($variableName, array_values($differentVariables), $targetElement);
+        $targetElement->varsInScope[$variableName] = $conditionalJoinVariableFlowElement;
+    }
 }
 
 function flowifyStatements ($statements, $bodyFlowElement) {

@@ -109,9 +109,9 @@
         "y": 110,
         "isPositionOf": "center"
     },
-    "3:8-3:30_RETURN_JOIN": {
-        "x": 570,
-        "y": 100,
+    "3:8-3:30_JOINED_*RETURN*": {
+        "x": 560,
+        "y": 90,
         "isPositionOf": "center"
     },
     "3:1-3:30": {
