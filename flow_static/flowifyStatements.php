@@ -862,8 +862,12 @@ function flowifyForIteration (
     
     // FIXME: we should give it $condBodyFlowElement itself (not it's varsInScope)
     // FIXME: we also want to give it the updateBody! (besides the updateElement!)
-    // FIXME: should we give it the forElement as the last argument?
-    splitVariablesBasedOnUsage($condBodyFlowElement->varsInScope, $doneBodyFlowElement, $iterBodyFlowElement, $condBodyFlowElement);
+    // FIXME: should we really give it the forElement as the last argument? Shouldnt it use the varsInScope after the cond?
+    //        note: giving it the condBodyFlowElement as the last variable doesnt really work, since
+    //              variables that are declared inside the for loop will also be present in that scope
+    //              and things go wrong if you allow that to be passed as last argument (see the 'c' variable
+    //              in fibonacci_iterative)
+    splitVariablesBasedOnUsage($condBodyFlowElement->varsInScope, $doneBodyFlowElement, $iterBodyFlowElement, $forFlowElement);
         
         
     // FIXME: we should take the doneBody and copy its varsInScope to the varsInScope of the for(Step)FlowElement!
