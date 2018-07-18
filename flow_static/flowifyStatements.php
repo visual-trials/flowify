@@ -823,14 +823,18 @@ function flowifyForIteration (
             }
         }
         
-        // FIXME: add passthroughs!
+        
+        
+        // FIXME: add passthroughs based on change!
+        // FIXME: add passthroughs based on change!
+        // FIXME: add passthroughs based on change!
+        
+        
     }
         
     $forStepFlowElement->doPassBack = true;  // We want variables inside forStepFlowElement to 'loop-back' towards the beginning of for-loop
     $flowElementsWithDifferentScope = [$forFlowElement, $forStepFlowElement];
     joinVariablesBasedOnDifference($flowElementsWithDifferentScope, $forStepFlowElement, $backBodyFlowElement, $addToVarsInScope = false, $updateExistingConnections = true);
-        
-        
         
         
         
