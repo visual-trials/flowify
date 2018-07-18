@@ -422,93 +422,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         $flowElementsWithDifferentScope = [$thenBodyFlowElement, $elseBodyFlowElement];
         joinVariablesBasedOnDifference($flowElementsWithDifferentScope, $ifFlowElement);
 
-        
-        foreach ($parentFlowElement->varsInScope as $variableName => $parentVarInScopeElement) {
-
-            {            
-                
-                // We also want to create a conditional *split* element between the condBody and thenBody, and between the condBody and elseBody
-                // We need to know the connections going from the condBody into the thenBody and elseBody (for this variable)
-                // We do this by looping all the connections from the condBody for this variable (in its 'connectionIdsFromThisElement')
-                $variableAfterCondBody = $varsInScopeAfterCondBody[$variableName];
-                $conditionalSplitVariableFlowElement = null;
-                $connectionIdToConditionalSplitVariable = null;
-                $connectionTypeToConditionalSplitVariable = null;
-                $updatedConnectionIdsFromThisElement = [];
-                
-                // TODO: could this be moved outside the foreach of the $parentFlowElement->varsInScope? Or are we adding elements to the thenBody and elseBody in this loop?
-                // TODO: we should probably use a hashmap of all flowElements inside the thenBody and elseBody.
-                $elementIdsInThenBody = getElementsIdsIn($thenBodyFlowElement);
-                $elementIdsInElseBody = [];
-                if ($elseBodyFlowElement !== null) {
-                    $elementIdsInElseBody = getElementsIdsIn($elseBodyFlowElement);
-                }
-                    
-                foreach ($variableAfterCondBody->connectionIdsFromThisElement as $connectionIdFromVariable) {
-                    // By default we want to keep the connections, so we take over the id in the loop
-                    $currentConnectionIdFromThisElement = $connectionIdFromVariable;
-                    $newlyAddedConnectionIdFromThisElement = null;
-                    
-                    $connectionToBeChanged = getConnectionById($connectionIdFromVariable);
-                    $flowElementIdInThenOrElseBody = $connectionToBeChanged->to;
-                    
-                    // Here we check whether the flowElement to which the variableAfterCondBody is connected to, is in the thenBody or elseBody.
-                    $variableConnectedWithThenBody = false;
-                    $variableConnectedWithElseBody = false;
-                    if (in_array($flowElementIdInThenOrElseBody, $elementIdsInThenBody)) {
-                        $variableConnectedWithThenBody = true;
-                    }
-                    if (in_array($flowElementIdInThenOrElseBody, $elementIdsInElseBody)) {
-                        $variableConnectedWithElseBody = true;
-                    }
-                        
-                    if ($variableConnectedWithThenBody || $variableConnectedWithElseBody) {
-                        if ($conditionalSplitVariableFlowElement === null) {
-                            // Adding the conditionalSplitVariableFlowElement and adding a connection to connect from the variableAfterCondBody to it
-                            $connectionTypeToConditionalSplitVariable = $connectionToBeChanged->type;
-                            
-                            // FIXME: is this AST Identifier correct?
-                            $conditionalSplitVariableAstNodeIdentifier = $ifAstNodeIdentifier . "_" . $variableName . "_SPLIT";
-                            // FIXME: should this be put into the ifBody or the condBody?
-                            $conditionalSplitVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalSplitVariable', $variableName, null, $conditionalSplitVariableAstNodeIdentifier, $ifFlowElement);
-                            
-                            // Adding a connection from the variableAfterCondBody to the conditionalSplitVariableFlowElement
-                            $connectionIdToConditionalSplitVariable = addFlowConnection($variableAfterCondBody, $conditionalSplitVariableFlowElement, $connectionToBeChanged->type); // Note: we use the original type
-                            // This connection will effectively be added to $variableAfterCondBody->connectionIdsFromThisElement
-                            $newlyAddedConnectionIdFromThisElement = $connectionIdToConditionalSplitVariable;
-                        }
-
-                        // We set the from in the connection to the flowElementIdInThenOrElseBody
-                        // FIXME: we should add to which SIDE the connection is connected: true-side or false-side (depending on THEN or ELSE)
-                        $connectionToBeChanged->from = $conditionalSplitVariableFlowElement->id; // TODO: should we do it this way?
-                        // Seting currentConnectionIdFromThisElement to null, so it won't be added again to (effectively removed from) $variableAfterCondBody->connectionIdsFromThisElement
-                        $currentConnectionIdFromThisElement = null;
-                        
-                        // FIXME: right now null means 'normal' (which should overrule). We should change the default to 'dataflow' or something
-                        if ($connectionToBeChanged->type === null) {
-                            // TODO: should we keep a prio number for each type of connection and check if the prio is higher here?
-                            $connectionTypeToConditionalSplitVariable = null; 
-                        }
-                        
-                    }
-                    if ($currentConnectionIdFromThisElement !== null) {
-                        array_push($updatedConnectionIdsFromThisElement, $currentConnectionIdFromThisElement);
-                    }
-                    if ($newlyAddedConnectionIdFromThisElement !== null) {
-                        array_push($updatedConnectionIdsFromThisElement, $newlyAddedConnectionIdFromThisElement);
-                    }
-                }
-                $variableAfterCondBody->connectionIdsFromThisElement = $updatedConnectionIdsFromThisElement;
-
-                if ($connectionIdToConditionalSplitVariable !== null) {
-                    // Setting the connectionType of the connection to the connectionToConditionalSplitVariable
-                    $connectionToConditionalSplitVariable = getConnectionById($connectionIdToConditionalSplitVariable);
-                    $connectionToConditionalSplitVariable->type = $connectionTypeToConditionalSplitVariable;
-                }
-                
-            }
-            
-        }
+        splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElement, $elseBodyFlowElement, $ifFlowElement);
         
             
         foreach ($thenBodyFlowElement->varsInScope as $variableName => $thenBodyVarInScopeElement) {
@@ -554,6 +468,97 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
        
     return $resultingElements;
 }
+
+function splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElement, $elseBodyFlowElement, $parentFlowElement) {
+    
+    foreach ($parentFlowElement->varsInScope as $variableName => $parentVarInScopeElement) {
+
+        // We also want to create a conditional *split* element between the condBody and thenBody, and between the condBody and elseBody
+        // We need to know the connections going from the condBody into the thenBody and elseBody (for this variable)
+        // We do this by looping all the connections from the condBody for this variable (in its 'connectionIdsFromThisElement')
+        $variableAfterCondBody = $varsInScopeAfterCondBody[$variableName];
+        $conditionalSplitVariableFlowElement = null;
+        $connectionIdToConditionalSplitVariable = null;
+        $connectionTypeToConditionalSplitVariable = null;
+        $updatedConnectionIdsFromThisElement = [];
+        
+        // TODO: could this be moved outside the foreach of the $parentFlowElement->varsInScope? Or are we adding elements to the thenBody and elseBody in this loop?
+        // TODO: we should probably use a hashmap of all flowElements inside the thenBody and elseBody.
+        $elementIdsInThenBody = getElementsIdsIn($thenBodyFlowElement);
+        $elementIdsInElseBody = [];
+        if ($elseBodyFlowElement !== null) {
+            $elementIdsInElseBody = getElementsIdsIn($elseBodyFlowElement);
+        }
+            
+        foreach ($variableAfterCondBody->connectionIdsFromThisElement as $connectionIdFromVariable) {
+            // By default we want to keep the connections, so we take over the id in the loop
+            $currentConnectionIdFromThisElement = $connectionIdFromVariable;
+            $newlyAddedConnectionIdFromThisElement = null;
+            
+            $connectionToBeChanged = getConnectionById($connectionIdFromVariable);
+            $flowElementIdInThenOrElseBody = $connectionToBeChanged->to;
+            
+            // Here we check whether the flowElement to which the variableAfterCondBody is connected to, is in the thenBody or elseBody.
+            $variableConnectedWithThenBody = false;
+            $variableConnectedWithElseBody = false;
+            if (in_array($flowElementIdInThenOrElseBody, $elementIdsInThenBody)) {
+                $variableConnectedWithThenBody = true;
+            }
+            if (in_array($flowElementIdInThenOrElseBody, $elementIdsInElseBody)) {
+                $variableConnectedWithElseBody = true;
+            }
+                
+            if ($variableConnectedWithThenBody || $variableConnectedWithElseBody) {
+                if ($conditionalSplitVariableFlowElement === null) {
+                    // Adding the conditionalSplitVariableFlowElement and adding a connection to connect from the variableAfterCondBody to it
+                    $connectionTypeToConditionalSplitVariable = $connectionToBeChanged->type;
+                    
+                    // FIXME: is this AST Identifier correct?
+                    $conditionalSplitVariableAstNodeIdentifier = $ifAstNodeIdentifier . "_" . $variableName . "_SPLIT";
+                    // FIXME: should this be put into the ifBody or the condBody?
+                    $conditionalSplitVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalSplitVariable', $variableName, null, $conditionalSplitVariableAstNodeIdentifier, $parentFlowElement);
+                    
+                    // Adding a connection from the variableAfterCondBody to the conditionalSplitVariableFlowElement
+                    $connectionIdToConditionalSplitVariable = addFlowConnection($variableAfterCondBody, $conditionalSplitVariableFlowElement, $connectionToBeChanged->type); // Note: we use the original type
+                    // This connection will effectively be added to $variableAfterCondBody->connectionIdsFromThisElement
+                    $newlyAddedConnectionIdFromThisElement = $connectionIdToConditionalSplitVariable;
+                }
+
+                // We set the from in the connection to the flowElementIdInThenOrElseBody
+                // FIXME: we should add to which SIDE the connection is connected: true-side or false-side (depending on THEN or ELSE)
+                $connectionToBeChanged->from = $conditionalSplitVariableFlowElement->id; // TODO: should we do it this way?
+                // we add the connection to the connectionIdsFromThisElement of the $conditionalSplitVariableFlowElement
+                array_push($conditionalSplitVariableFlowElement->connectionIdsFromThisElement, $connectionToBeChanged->id);
+                // Seting currentConnectionIdFromThisElement to null, so it won't be added again to (effectively removed from) $variableAfterCondBody->connectionIdsFromThisElement
+                $currentConnectionIdFromThisElement = null;
+                
+                // FIXME: right now null means 'normal' (which should overrule). We should change the default to 'dataflow' or something
+                if ($connectionToBeChanged->type === null) {
+                    // TODO: should we keep a prio number for each type of connection and check if the prio is higher here?
+                    $connectionTypeToConditionalSplitVariable = null; 
+                }
+                
+            }
+            if ($currentConnectionIdFromThisElement !== null) {
+                array_push($updatedConnectionIdsFromThisElement, $currentConnectionIdFromThisElement);
+            }
+            if ($newlyAddedConnectionIdFromThisElement !== null) {
+                array_push($updatedConnectionIdsFromThisElement, $newlyAddedConnectionIdFromThisElement);
+            }
+        }
+        $variableAfterCondBody->connectionIdsFromThisElement = $updatedConnectionIdsFromThisElement;
+
+        if ($connectionIdToConditionalSplitVariable !== null) {
+            // Setting the connectionType of the connection to the connectionToConditionalSplitVariable
+            $connectionToConditionalSplitVariable = getConnectionById($connectionIdToConditionalSplitVariable);
+            $connectionToConditionalSplitVariable->type = $connectionTypeToConditionalSplitVariable;
+        }
+        
+    }
+    
+    
+}
+
 
 function flowifyForStatement($forStatement, $parentFlowElement) {
     
