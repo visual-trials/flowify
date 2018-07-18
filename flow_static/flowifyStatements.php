@@ -657,26 +657,16 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
 
 function joinVariables($variableName, $differentVariables, $targetElement) {
     
-//echo print_r(['$differentVariables' => $differentVariables], true); 
     $conditionalJoinVariableAstNodeIdentifier = $targetElement->astNodeIdentifier . "_JOINED_" . $variableName;
     $conditionalJoinVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalJoinVariable', $variableName, null, $conditionalJoinVariableAstNodeIdentifier, $targetElement);
     foreach ($differentVariables as $differentVariableElement) {
-//echo print_r(['$differentVariableElement->id' => $differentVariableElement->id], true); 
-//echo print_r(['$conditionalJoinVariableFlowElement->id' => $conditionalJoinVariableFlowElement->id], true); 
         $flowConntectionId = addFlowConnection($differentVariableElement, $conditionalJoinVariableFlowElement, 'conditional');
-//echo print_r(['$flowConntectionId' => $flowConntectionId], true); 
     }
     return $conditionalJoinVariableFlowElement;
 }
 
 function joinVariablesBasedOnDifference ($flowElementsWithDifferentScope, $targetElement, $addToVarsInScope = true, $updateExistingConnections = false) {
     
-    // FIXME: you also want to INSERT the JOIN vars in between the connection that already exists!
-    // in other words: if there is a connection FROM the vars (that differ), we want that connection
-    // to be changed so that there is a NEW connection between each variable (to) to the JOIN variable (from)
-    // and the connection that already existed from the variable to some element inside one of the 
-    // is now set so that's it's from is on the JOIN variable
-
     $differentVariablesPerVariableName = [];
     foreach ($flowElementsWithDifferentScope as $flowElementWithDifferentScope) {
         foreach ($flowElementWithDifferentScope->varsInScope as $variableName => $variableElement) {
@@ -704,10 +694,10 @@ function joinVariablesBasedOnDifference ($flowElementsWithDifferentScope, $targe
                         foreach ($differentVariable->connectionIdsFromThisElement as $connectionIdFromVariable) {
                             $connectionToBeChanged = getConnectionById($connectionIdFromVariable);
                             $connectedToFlowElementId = $connectionToBeChanged->to;
-                            // We don't want to change the connections we just created by calling joinVariables. Those
+                            // We don't want to change the connections we just created by calling joinVariables(). Those
                             // connections were connected to the conditionalJoinVariableFlowElement, so we skip those.
                             if ($connectedToFlowElementId !== $conditionalJoinVariableFlowElement->id) {
-                                $connectionToBeChanged->from = $conditionalJoinVariableFlowElement->id; // TODO: should we do it this way?
+                                $connectionToBeChanged->from = $conditionalJoinVariableFlowElement->id;
                             }
                         }
                     }
