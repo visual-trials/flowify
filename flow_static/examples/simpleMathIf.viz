@@ -1,7 +1,7 @@
 {
     "0:0-0:0": {
-        "x": 1640,
-        "y": 100,
+        "x": 1650,
+        "y": 110,
         "isPositionOf": "center",
         "width": 900,
         "height": 400
@@ -27,7 +27,7 @@
         "isPositionOf": "center"
     },
     "7:1-9:1": {
-        "x": 420,
+        "x": 450,
         "y": 240,
         "isPositionOf": "center",
         "width": 400,
@@ -77,14 +77,14 @@
         "width": 150,
         "height": 60
     },
-    "7:1-9:1_ImplicitElse_b": {
-        "x": 70,
+    "7:1-9:1_ImplicitElse_*PASSTHROUGH*_b": {
+        "x": 80,
         "y": 30,
         "isPositionOf": "center"
     },
-    "7:1-9:1_b": {
+    "7:1-9:1_JOINED_b": {
         "x": 370,
-        "y": 170,
+        "y": 130,
         "isPositionOf": "center"
     },
     "7:1-9:1_b_SPLIT": {

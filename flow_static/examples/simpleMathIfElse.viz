@@ -27,7 +27,7 @@
         "isPositionOf": "center"
     },
     "7:1-12:1": {
-        "x": 430,
+        "x": 440,
         "y": 240,
         "isPositionOf": "center",
         "width": 400,
@@ -87,7 +87,7 @@
         "y": 40,
         "isPositionOf": "center"
     },
-    "7:1-12:1_b": {
+    "7:1-12:1_JOINED_b": {
         "x": 370,
         "y": 110,
         "isPositionOf": "center"
