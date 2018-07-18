@@ -353,69 +353,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         }
         
         
-        // FIXME: implement this! passThroughBasedOnChange($thenBodyFlowElement, $elseBodyFlowElement, $ifFlowElement);
-        
-
-        // We loop through all the varsInScope of the parentFlowElement
-        foreach ($parentFlowElement->varsInScope as $variableName => $parentVarInScopeElement) {
-            
-            $varReplacedInThenBody = false;
-            $varReplacedInElseBody = false;
-            
-            // We check if we have the same variable in our thenBody scope
-            if (array_key_exists($variableName, $thenBodyFlowElement->varsInScope)) {
-                // The var exists both in thenBodyFlowElement and in the parent's scope
-                if ($thenBodyFlowElement->varsInScope[$variableName]->id !== $parentFlowElement->varsInScope[$variableName]->id) {
-                    // The vars differ, so it must have been replaced (or extended) inside the thenBody. 
-                    $varReplacedInThenBody = true;
-                }
-            }
-          
-            // We check if we have the same variable in our elseBody scope
-            if (array_key_exists($variableName, $elseBodyFlowElement->varsInScope)) {
-                // The var exists both in elseBodyFlowElement and in the parent's scope
-                if ($elseBodyFlowElement->varsInScope[$variableName]->id !== $parentFlowElement->varsInScope[$variableName]->id) {
-                    // The vars differ, so it must have been replaced (or extended) inside the elseBody. 
-                    $varReplacedInElseBody = true;
-                }
-            }
-
-            if ($varReplacedInThenBody && $varReplacedInElseBody) {
-                // SInce both of them are replaced. we don't need to add a passthrough, so nothing to do here
-            }
-            else if ($varReplacedInThenBody) {
-                // Only the thenBody has replaced the variable. We use the parent's variable as the (default) else variable
-                
-                // Adding the variable to the elseBody as a passthrough variable
-                $passThroughVariableAstNodeIdentifier = $elseAstNodeIdentifier . "_*PASSTHROUGH*_" . $variableName;
-                $passThroughVariableFlowElement = createAndAddChildlessFlowElementToParent('passThroughVariable', $variableName, null, $passThroughVariableAstNodeIdentifier, $elseBodyFlowElement);
-
-                // Connecting the variable in the parent to the passthrough variable (inside the thenBody)
-                addFlowConnection($parentFlowElement->varsInScope[$variableName], $passThroughVariableFlowElement);
-
-                // We add this passthrough variable to the scope of the elseBody
-                $elseBodyFlowElement->varsInScope[$variableName] = $passThroughVariableFlowElement;
-                
-            }
-            else if ($varReplacedInElseBody) {
-                // Only the elseBody has replaced the variable. We use the parent's variable as the (default) then variable
-                
-                // Adding the variable to the thenBody as a passthrough variable
-                $passThroughVariableAstNodeIdentifier = $thenAstNodeIdentifier . "_*PASSTHROUGH*_" . $variableName;
-                $passThroughVariableFlowElement = createAndAddChildlessFlowElementToParent('passThroughVariable', $variableName, null, $passThroughVariableAstNodeIdentifier, $thenBodyFlowElement);
-
-                // Connecting the variable in the parent to the passthrough variable (inside the thenBody)
-                addFlowConnection($parentFlowElement->varsInScope[$variableName], $passThroughVariableFlowElement);
-
-                // We add this passthrough variable to the scope of the thenBody
-                $thenBodyFlowElement->varsInScope[$variableName] = $passThroughVariableFlowElement;
-                
-            }
-            else {
-                // The variable wasn't replaced by either the thenBody or the elseBody, so nothing to do here
-            }
-            
-        }
+        addPassThroughsBasedOnChange($thenBodyFlowElement, $elseBodyFlowElement, $ifFlowElement);
         
         // If there are differences between variables in the then- and else-scope
         // we should join these variables. For each different variable a 
@@ -469,6 +407,70 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
     }                
        
     return $resultingElements;
+}
+
+function addPassThroughsBasedOnChange($thenBodyFlowElement, $elseBodyFlowElement, $parentFlowElement) {
+    
+    // We loop through all the varsInScope of the parentFlowElement
+    foreach ($parentFlowElement->varsInScope as $variableName => $parentVarInScopeElement) {
+        
+        $varReplacedInThenBody = false;
+        $varReplacedInElseBody = false;
+        
+        // We check if we have the same variable in our thenBody scope
+        if (array_key_exists($variableName, $thenBodyFlowElement->varsInScope)) {
+            // The var exists both in thenBodyFlowElement and in the parent's scope
+            if ($thenBodyFlowElement->varsInScope[$variableName]->id !== $parentFlowElement->varsInScope[$variableName]->id) {
+                // The vars differ, so it must have been replaced (or extended) inside the thenBody. 
+                $varReplacedInThenBody = true;
+            }
+        }
+      
+        // We check if we have the same variable in our elseBody scope
+        if (array_key_exists($variableName, $elseBodyFlowElement->varsInScope)) {
+            // The var exists both in elseBodyFlowElement and in the parent's scope
+            if ($elseBodyFlowElement->varsInScope[$variableName]->id !== $parentFlowElement->varsInScope[$variableName]->id) {
+                // The vars differ, so it must have been replaced (or extended) inside the elseBody. 
+                $varReplacedInElseBody = true;
+            }
+        }
+
+        if ($varReplacedInThenBody && $varReplacedInElseBody) {
+            // SInce both of them are replaced. we don't need to add a passthrough, so nothing to do here
+        }
+        else if ($varReplacedInThenBody) {
+            // Only the thenBody has replaced the variable. We use the parent's variable as the (default) else variable
+            
+            // Adding the variable to the elseBody as a passthrough variable
+            $passThroughVariableAstNodeIdentifier = $elseAstNodeIdentifier . "_*PASSTHROUGH*_" . $variableName;
+            $passThroughVariableFlowElement = createAndAddChildlessFlowElementToParent('passThroughVariable', $variableName, null, $passThroughVariableAstNodeIdentifier, $elseBodyFlowElement);
+
+            // Connecting the variable in the parent to the passthrough variable (inside the thenBody)
+            addFlowConnection($parentFlowElement->varsInScope[$variableName], $passThroughVariableFlowElement);
+
+            // We add this passthrough variable to the scope of the elseBody
+            $elseBodyFlowElement->varsInScope[$variableName] = $passThroughVariableFlowElement;
+            
+        }
+        else if ($varReplacedInElseBody) {
+            // Only the elseBody has replaced the variable. We use the parent's variable as the (default) then variable
+            
+            // Adding the variable to the thenBody as a passthrough variable
+            $passThroughVariableAstNodeIdentifier = $thenAstNodeIdentifier . "_*PASSTHROUGH*_" . $variableName;
+            $passThroughVariableFlowElement = createAndAddChildlessFlowElementToParent('passThroughVariable', $variableName, null, $passThroughVariableAstNodeIdentifier, $thenBodyFlowElement);
+
+            // Connecting the variable in the parent to the passthrough variable (inside the thenBody)
+            addFlowConnection($parentFlowElement->varsInScope[$variableName], $passThroughVariableFlowElement);
+
+            // We add this passthrough variable to the scope of the thenBody
+            $thenBodyFlowElement->varsInScope[$variableName] = $passThroughVariableFlowElement;
+            
+        }
+        else {
+            // The variable wasn't replaced by either the thenBody or the elseBody, so nothing to do here
+        }
+        
+    }
 }
 
 function splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElement, $elseBodyFlowElement, $parentFlowElement) {

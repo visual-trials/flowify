@@ -77,8 +77,8 @@
         "width": 150,
         "height": 60
     },
-    "7:1-9:1_ImplicitElse_*PASSTHROUGH*_b": {
-        "x": 80,
+    "_*PASSTHROUGH*_b": {
+        "x": 70,
         "y": 30,
         "isPositionOf": "center"
     },
