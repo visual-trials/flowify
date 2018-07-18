@@ -741,6 +741,10 @@ function joinVariablesBasedOnDifference ($flowElementBodiesWithDifferentScope, $
                                 // another element inside one of the flowElementBodies. It is *not* connected
                                 // with $differentVariable anymore, so we don't add this connection to 
                                 // $updatedConnectionIdsFromThisElement
+                                
+                                // We do however add this connection to the connectionIdsFromThisElement of
+                                // $conditionalJoinVariableFlowElement
+                                array_push($conditionalJoinVariableFlowElement->connectionIdsFromThisElement, $connectionIdFromVariable);
                             }
                             else {
                                 // We are now changing this connection, so it should stay in connectionIdsFromThisElement
