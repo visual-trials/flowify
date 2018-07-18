@@ -409,8 +409,11 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
     return $resultingElements;
 }
 
-function addPassThroughsBasedOnChange($thenBodyFlowElement, $elseBodyFlowElement, $parentFlowElement) {
+function addPassThroughsBasedOnChange($thenBodyFlowElement, $elseBodyFlowElement, $parentFlowElement, $connectWithVarsInScope = null) {
     
+    if ($connectWithVarsInScope === null) {
+        $connectWithVarsInScope = $parentFlowElement->varsInScope;
+    }
     // We loop through all the varsInScope of the parentFlowElement
     foreach ($parentFlowElement->varsInScope as $variableName => $parentVarInScopeElement) {
         
@@ -446,7 +449,7 @@ function addPassThroughsBasedOnChange($thenBodyFlowElement, $elseBodyFlowElement
             $passThroughVariableFlowElement = createAndAddChildlessFlowElementToParent('passThroughVariable', $variableName, null, $passThroughVariableAstNodeIdentifier, $elseBodyFlowElement);
 
             // Connecting the variable in the parent to the passthrough variable (inside the thenBody)
-            addFlowConnection($parentFlowElement->varsInScope[$variableName], $passThroughVariableFlowElement);
+            addFlowConnection($connectWithVarsInScope[$variableName], $passThroughVariableFlowElement);
 
             // We add this passthrough variable to the scope of the elseBody
             $elseBodyFlowElement->varsInScope[$variableName] = $passThroughVariableFlowElement;
@@ -460,7 +463,7 @@ function addPassThroughsBasedOnChange($thenBodyFlowElement, $elseBodyFlowElement
             $passThroughVariableFlowElement = createAndAddChildlessFlowElementToParent('passThroughVariable', $variableName, null, $passThroughVariableAstNodeIdentifier, $thenBodyFlowElement);
 
             // Connecting the variable in the parent to the passthrough variable (inside the thenBody)
-            addFlowConnection($parentFlowElement->varsInScope[$variableName], $passThroughVariableFlowElement);
+            addFlowConnection($connectWithVarsInScope[$variableName], $passThroughVariableFlowElement);
 
             // We add this passthrough variable to the scope of the thenBody
             $thenBodyFlowElement->varsInScope[$variableName] = $passThroughVariableFlowElement;
@@ -853,13 +856,18 @@ function flowifyForIteration (
     //        of do something smarter than that.
     $condBodyFlowElement->varsInScope = $forStepFlowElement->varsInScope; // copy!
     
+    
+    addPassThroughsBasedOnChange($doneBodyFlowElement, $forStepFlowElement, $forFlowElement, $condBodyFlowElement->varsInScope);
+    
+    
     // FIXME: we should give it $condBodyFlowElement itself (not it's varsInScope)
-    // FIXME: we also want to give it the updateBody!
+    // FIXME: we also want to give it the updateBody! (besides the updateElement!)
     // FIXME: should we give it the forElement as the last argument?
     splitVariablesBasedOnUsage($condBodyFlowElement->varsInScope, $doneBodyFlowElement, $iterBodyFlowElement, $condBodyFlowElement);
         
         
     // FIXME: we should take the doneBody and copy its varsInScope to the varsInScope of the for(Step)FlowElement!
+    $forStepFlowElement->varsInScope = $doneBodyFlowElement->varsInScope; // copy!
         
         
     foreach ($varsInScopeBeforeCondBody as $variableName => $varInScopeElement) {

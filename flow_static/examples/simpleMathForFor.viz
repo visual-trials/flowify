@@ -61,11 +61,6 @@
         "y": -20,
         "isPositionOf": "center"
     },
-    "_j_SPLIT": {
-        "x": 80,
-        "y": 30,
-        "isPositionOf": "center"
-    },
     "4:5-6:5_Stmts": {
         "x": 210,
         "y": 150,
@@ -119,6 +114,11 @@
     "4:18-4:23": {
         "x": 140,
         "y": 160,
+        "isPositionOf": "center"
+    },
+    "_j_SPLIT": {
+        "x": 80,
+        "y": 30,
         "isPositionOf": "center"
     },
     "5:9-5:16_Stmts": {
