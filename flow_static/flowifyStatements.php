@@ -834,7 +834,17 @@ function flowifyForIteration (
         
     $forStepFlowElement->doPassBack = true;  // We want variables inside forStepFlowElement to 'loop-back' towards the beginning of for-loop
     $flowElementsWithDifferentScope = [$forFlowElement, $forStepFlowElement];
-    joinVariablesBasedOnDifference($flowElementsWithDifferentScope, $forStepFlowElement, $backBodyFlowElement, $addToVarsInScope = false, $updateExistingConnections = true);
+    // Note: we ARE updating varsInScope of the forStepFlowElement right now. We do this, so we will have 
+    //       the conditionalJoinVariables in the scope of the forStepFlowElement. We can use that
+    //       to connect to the conditionalSplitVariables after this!
+    joinVariablesBasedOnDifference($flowElementsWithDifferentScope, $forStepFlowElement, $backBodyFlowElement, $addToVarsInScope = true, $updateExistingConnections = true);
+    
+    // FIXME: we now copy the varsInScope of the forStepFlowElement towards the varsInScope of the condBodyFlowElement
+    //        but we don't want to lose the changes the condBodyFlowElement did itself to the scope. So we have to rerun it
+    //        of do something smarter than that.
+    $condBodyFlowElement->varsInScope = $forStepFlowElement->varsInScope; // copy!
+    
+    // FIXME: splitVariablesBasedOnUsage($condBodyFlowElement);
         
         
         
