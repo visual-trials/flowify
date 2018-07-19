@@ -60,8 +60,8 @@
         "relativeScale": 1
     },
     "_*PASSTHROUGH*_b": {
-        "x": 20,
-        "y": 220,
+        "x": 30,
+        "y": 250,
         "isPositionOf": "center"
     },
     "_*PASSTHROUGH*_i": {

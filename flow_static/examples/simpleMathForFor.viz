@@ -56,11 +56,6 @@
         "y": 90,
         "isPositionOf": "center"
     },
-    "_i_SPLIT": {
-        "x": 40,
-        "y": -20,
-        "isPositionOf": "center"
-    },
     "4:5-6:5_Stmts": {
         "x": 210,
         "y": 150,
@@ -116,11 +111,6 @@
         "y": 160,
         "isPositionOf": "center"
     },
-    "_j_SPLIT": {
-        "x": 80,
-        "y": 30,
-        "isPositionOf": "center"
-    },
     "5:9-5:16_Stmts": {
         "x": 270,
         "y": 10,
@@ -146,6 +136,21 @@
         "y": 50,
         "isPositionOf": "center"
     },
+    "4:5-6:5_1_JOINED_j": {
+        "x": 50,
+        "y": 110,
+        "isPositionOf": "center"
+    },
+    "4:5-6:5_i_SPLIT": {
+        "x": 180,
+        "y": -20,
+        "isPositionOf": "center"
+    },
+    "4:5-6:5_j_SPLIT": {
+        "x": 280,
+        "y": 120,
+        "isPositionOf": "center"
+    },
     "3:1-7:1_ForUpdate": {
         "x": 730,
         "y": 170,
@@ -159,6 +164,16 @@
     "3:23-3:24": {
         "x": 170,
         "y": 40,
+        "isPositionOf": "center"
+    },
+    "3:1-7:1_1_JOINED_i": {
+        "x": 30,
+        "y": 70,
+        "isPositionOf": "center"
+    },
+    "3:1-7:1_i_SPLIT": {
+        "x": 330,
+        "y": 110,
         "isPositionOf": "center"
     }
 }
