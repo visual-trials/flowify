@@ -17,13 +17,13 @@
         "isPositionOf": "center"
     },
     "5:6-5:7": {
-        "x": 70,
-        "y": 310,
+        "x": 60,
+        "y": 340,
         "isPositionOf": "center"
     },
     "5:1-5:7": {
         "x": 190,
-        "y": 310,
+        "y": 340,
         "isPositionOf": "center"
     },
     "7:1-9:1": {
@@ -35,7 +35,7 @@
         "relativeScale": 1
     },
     "7:1-9:1_ForInit": {
-        "x": 60,
+        "x": 70,
         "y": 120,
         "isPositionOf": "center",
         "width": 100,
@@ -53,7 +53,7 @@
     },
     "7:1-9:1_ImplicitDone": {
         "x": 700,
-        "y": 240,
+        "y": 250,
         "isPositionOf": "center",
         "width": 50,
         "height": 400,
@@ -61,11 +61,11 @@
     },
     "_*PASSTHROUGH*_b": {
         "x": 30,
-        "y": 250,
+        "y": 230,
         "isPositionOf": "center"
     },
     "_*PASSTHROUGH*_i": {
-        "x": 20,
+        "x": 30,
         "y": 50,
         "isPositionOf": "center"
     },
@@ -77,13 +77,13 @@
         "height": 50
     },
     "7:1-9:1_1_PASSBACK_b": {
-        "x": 300,
-        "y": 10,
+        "x": 220,
+        "y": 40,
         "isPositionOf": "center"
     },
     "7:1-9:1_1_PASSBACK_i": {
-        "x": 170,
-        "y": 150,
+        "x": 210,
+        "y": 130,
         "isPositionOf": "center"
     },
     "7:1-9:1_1": {
@@ -95,8 +95,8 @@
         "relativeScale": 1
     },
     "7:1-9:1_ForCond": {
-        "x": 120,
-        "y": 200,
+        "x": 130,
+        "y": 190,
         "isPositionOf": "center",
         "width": 150,
         "height": 350,
@@ -136,8 +136,8 @@
         "isPositionOf": "center"
     },
     "7:1-9:1_ForUpdate": {
-        "x": 360,
-        "y": 110,
+        "x": 350,
+        "y": 120,
         "isPositionOf": "center",
         "width": 200,
         "height": 100,
@@ -159,8 +159,8 @@
         "isPositionOf": "center"
     },
     "7:1-9:1_1_JOINED_b": {
-        "x": 40,
-        "y": 270,
+        "x": 50,
+        "y": 230,
         "isPositionOf": "center"
     },
     "7:1-9:1_1_JOINED_i": {
@@ -169,12 +169,12 @@
         "isPositionOf": "center"
     },
     "7:1-9:1_b_SPLIT": {
-        "x": 370,
-        "y": 310,
+        "x": 400,
+        "y": 260,
         "isPositionOf": "center"
     },
     "7:1-9:1_i_SPLIT": {
-        "x": 370,
+        "x": 400,
         "y": 80,
         "isPositionOf": "center"
     },
