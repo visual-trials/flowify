@@ -308,9 +308,10 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         addPassThroughsBasedOnChange($thenBodyFlowElement, $elseBodyFlowElement, $varsInScopeAfterCondBody);
         
         // Joining variables between then and else, if they are different
-        joinVariablesBasedOnDifference($thenBodyFlowElement->varsInScope, $elseBodyFlowElement->varsInScope, $ifFlowElement);
+        $varsInScopeAfterJoining = joinVariablesBasedOnDifference($thenBodyFlowElement->varsInScope, $elseBodyFlowElement->varsInScope, $ifFlowElement);
 
         // Splitting variables if either side (then or else) has used it
+        $ifFlowElement->varsInScope = $varsInScopeAfterJoining; // copy!
         splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElement, $elseBodyFlowElement, null, $ifFlowElement);
         
             
@@ -514,7 +515,7 @@ function flowifyForIteration (
     // Note: we ARE updating varsInScope of the forStepFlowElement here (addToVarsInScope = true). We do this, so we will have 
     //       the conditionalJoinVariables in the scope of the forStepFlowElement. We can use that
     //       to connect to the conditionalSplitVariables after this!
-    joinVariablesBasedOnDifference($varsInScopeAfterCondBody, $forStepFlowElement->varsInScope, $forStepFlowElement, $backBodyFlowElement, $addToVarsInScope = true, $updateExistingConnections = true);
+    $varsInScopeAfterJoining = joinVariablesBasedOnDifference($varsInScopeAfterCondBody, $forStepFlowElement->varsInScope, $forStepFlowElement, $backBodyFlowElement, $updateExistingConnections = true);
     
     
     // FIXME: we now copy the varsInScope of the forStepFlowElement towards the varsInScope of the condBodyFlowElement
@@ -523,7 +524,7 @@ function flowifyForIteration (
     // SOLUTION: we should probably create a $condBodyFlowElement_0 and $condBodyFlowElement_1 which indicates
     //           it which *iteration* these $condBodyFlowElements are.
     // OR POSSIBLY BETTER: create varsInScopeAfterCondBodyAfterStep vs varsInScopeAfterCondBodyBeforeStep
-    $condBodyFlowElement->varsInScope = $forStepFlowElement->varsInScope; // copy!
+    $condBodyFlowElement->varsInScope = $varsInScopeAfterJoining; // copy!
     
     
     
@@ -559,11 +560,13 @@ function joinVariables($variableName, $differentVariables, $targetElement) {
     return $conditionalJoinVariableFlowElement;
 }
 
-function joinVariablesBasedOnDifference ($firstVarsInScope, $secondVarsInScope, $targetElement, $passBackBodyFlowElement = null, $addToVarsInScope = true, $updateExistingConnections = false) {
+function joinVariablesBasedOnDifference ($firstVarsInScope, $secondVarsInScope, $targetElement, $passBackBodyFlowElement = null, $updateExistingConnections = false) {
     
     // FIXME: we can most likely simplyfy the code below, since we only have two scopes (not an arbitrary amount anymore)
     //        we can probably get rid of 'doPassBack'
     //        whether we want to keep doPassBack depends on how we implement 'continue' in for loops
+    
+    $varsInScopeAfterJoining = $targetElement->varsInScope; // copy!
     
     $differentVariablesPerVariableName = [];
     foreach ($firstVarsInScope as $variableName => $variableFlowElement) {
@@ -623,9 +626,8 @@ function joinVariablesBasedOnDifference ($firstVarsInScope, $secondVarsInScope, 
             
             $conditionalJoinVariableFlowElement = joinVariables($variableName, $differentVariablesToBeJoined, $targetElement);
             
-            if ($addToVarsInScope) {
-                $targetElement->varsInScope[$variableName] = $conditionalJoinVariableFlowElement;
-            }
+            $varsInScopeAfterJoining[$variableName] = $conditionalJoinVariableFlowElement;
+            
             if ($updateExistingConnections) {
                 foreach ($differentVariablesToBeJoined as $differentVariable) {
                     if (count($differentVariable->connectionIdsFromThisElement) > 0) {
@@ -660,6 +662,8 @@ function joinVariablesBasedOnDifference ($firstVarsInScope, $secondVarsInScope, 
             }
         }
     }
+    
+    return $varsInScopeAfterJoining;
 }
 
 function addPassThroughsBasedOnChange($thenBodyFlowElement, $elseBodyFlowElement, $varsInScopeBeforeChange) {
