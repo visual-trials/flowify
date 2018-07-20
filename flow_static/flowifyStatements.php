@@ -484,7 +484,6 @@ function flowifyForIteration (
 
     $varsInScopeAfterCondBody = $forStepFlowElement->varsInScope; //copy!
 
-
     // TODO: the flowElement coming from the conditionExpression is a boolean and determines 
     //       whether the iter-statements are executed. How to should we visualize this?
     
@@ -504,15 +503,11 @@ function flowifyForIteration (
     $flowElement = flowifyExpression($updateExpression, $updateBodyFlowElement);
     
     
-    // IMPORTANT NOTE: right now we are assuming that the condBody doesn't reassign
-    //                 the variable! If it does, then the code below will not give the proper result!
-    
-    
     // Adding a passthrough variable if the iter/update side has changed a variable: the done-side then needs a passthrough
     addPassThroughsBasedOnChange($doneBodyFlowElement, $forStepFlowElement, $varsInScopeAfterCondBody);
     
-    // Joining variables between afterCondBody and afterForStep, if they are different
-    $varsInScopeAfterJoining = joinVariablesBasedOnDifference($varsInScopeAfterCondBody, $forStepFlowElement->varsInScope, $forStepFlowElement, $backBodyFlowElement, $updateExistingConnections = true);
+    // Joining variables between beforeCondBody and afterForStep, if they are different
+    $varsInScopeAfterJoining = joinVariablesBasedOnDifference($varsInScopeBeforeCondBody, $forStepFlowElement->varsInScope, $forStepFlowElement, $backBodyFlowElement, $updateExistingConnections = true);
 
     // FIXME: removed vars that were CREATED inside the loop! We need a better way to do this!
     $strippedVarsInScopeAfterJoining = [];
