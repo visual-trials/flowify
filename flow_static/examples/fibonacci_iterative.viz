@@ -79,12 +79,12 @@
     },
     "_*PASSTHROUGH*_b": {
         "x": 30,
-        "y": 180,
+        "y": 150,
         "isPositionOf": "center"
     },
     "_*PASSTHROUGH*_i": {
         "x": 30,
-        "y": 10,
+        "y": -30,
         "isPositionOf": "center"
     },
     "9:5-13:5_ImplicitBack": {
@@ -188,7 +188,7 @@
         "isPositionOf": "center"
     },
     "9:5-13:5_a_SPLIT": {
-        "x": 360,
+        "x": 350,
         "y": 370,
         "isPositionOf": "center"
     },

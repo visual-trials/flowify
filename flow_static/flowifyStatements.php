@@ -537,7 +537,13 @@ function flowifyForIteration (
     // FIXME: by giving it the forFlowElement as the last argument, all split variables are now added to the forFlowElement
     //        this is not what we want, since they either should be added to the condBodyFlowElement or forStepFlowElement
     
-    splitVariablesBasedOnUsage($condBodyFlowElement->varsInScope, $doneBodyFlowElement, $iterBodyFlowElement, $updateBodyFlowElement, $forFlowElement);
+    // FIXME: removed vars that were CREATED inside the loop! We need a better way to do this!
+    $strippedVarsInScopeAfterJoining = [];
+    foreach ($varsInScopeAfterCondBody as $variableName => $varInScopeAfterCondBody) {
+        $strippedVarsInScopeAfterJoining[$variableName] = $varsInScopeAfterJoining[$variableName];
+    }
+    
+    splitVariablesBasedOnUsage($strippedVarsInScopeAfterJoining, $doneBodyFlowElement, $iterBodyFlowElement, $updateBodyFlowElement, $forFlowElement);
 
     
     // FIXME: we should take the doneBody and copy its varsInScope to the varsInScope of the for(Step)FlowElement!
@@ -734,12 +740,11 @@ function splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElem
     
     // FIXME: don't call it then and else, call it left/right or true/false
         
-    foreach ($parentFlowElement->varsInScope as $variableName => $parentVarInScopeElement) {
+    foreach ($varsInScopeAfterCondBody as $variableName => $variableAfterCondBody) {
 
         // We also want to create a conditional *split* element between the condBody and thenBody, and between the condBody and elseBody
         // We need to know the connections going from the condBody into the thenBody and elseBody (for this variable)
         // We do this by looping all the connections from the condBody for this variable (in its 'connectionIdsFromThisElement')
-        $variableAfterCondBody = $varsInScopeAfterCondBody[$variableName];
         $conditionalSplitVariableFlowElement = null;
         $connectionIdToConditionalSplitVariable = null;
         $connectionTypeToConditionalSplitVariable = null;
