@@ -507,28 +507,18 @@ function flowifyForIteration (
     // IMPORTANT NOTE: right now we are assuming that the condBody doesn't reassign
     //                 the variable! If it does, then the code below will not give the proper result!
     
+    
     // Adding a passthrough variable if the iter/update side has changed a variable: the done-side then needs a passthrough
     addPassThroughsBasedOnChange($doneBodyFlowElement, $forStepFlowElement, $varsInScopeAfterCondBody);
     
     // Joining variables between afterCondBody and afterForStep, if they are different
     $varsInScopeAfterJoining = joinVariablesBasedOnDifference($varsInScopeAfterCondBody, $forStepFlowElement->varsInScope, $forStepFlowElement, $backBodyFlowElement, $updateExistingConnections = true);
-    
-   
-    // FIXME: we now copy the varsInScope of the forStepFlowElement towards the varsInScope of the condBodyFlowElement
-    //        but we don't want to lose the changes the condBodyFlowElement did itself to the scope. So we have to rerun it
-    //        of do something smarter than that.
-    // SOLUTION: we should probably create a $condBodyFlowElement_0 and $condBodyFlowElement_1 which indicates
-    //           it which *iteration* these $condBodyFlowElements are.
-    // OR POSSIBLY BETTER: create varsInScopeAfterCondBodyAfterStep vs varsInScopeAfterCondBodyBeforeStep
-    $condBodyFlowElement->varsInScope = $varsInScopeAfterJoining; // copy!
-    
-    
+
     // FIXME: removed vars that were CREATED inside the loop! We need a better way to do this!
     $strippedVarsInScopeAfterJoining = [];
     foreach ($varsInScopeAfterCondBody as $variableName => $varInScopeAfterCondBody) {
         $strippedVarsInScopeAfterJoining[$variableName] = $varsInScopeAfterJoining[$variableName];
     }
-    
     splitVariablesBasedOnUsage($strippedVarsInScopeAfterJoining, $doneBodyFlowElement, $iterBodyFlowElement, $updateBodyFlowElement, $forStepFlowElement);
     
 }
