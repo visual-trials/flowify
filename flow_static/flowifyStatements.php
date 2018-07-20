@@ -427,8 +427,9 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
             $forStepAstNodeIdentifier1,
             $forStepFlowElement1
         );
-        $forFlowElement->varsInScope = $forStepFlowElement1->varsInScope; // copy back!
-        
+        // Since we now consider the loop to be finished, we take the doneBody and copy its varsInScope back to the varsInScope of the forStepFlowElement
+        $forFlowElement->varsInScope = $doneBodyFlowElement->varsInScope; // copy back!
+
         /*
         // STEP 2
         
@@ -506,7 +507,6 @@ function flowifyForIteration (
     // IMPORTANT NOTE: right now we are assuming that the condBody doesn't reassign
     //                 the variable! If it does, then the code below will not give the proper result!
     
-    
     // Adding a passthrough variable if the iter/update side has changed a variable: the done-side then needs a passthrough
     addPassThroughsBasedOnChange($doneBodyFlowElement, $forStepFlowElement, $varsInScopeAfterCondBody);
     
@@ -523,7 +523,6 @@ function flowifyForIteration (
     $condBodyFlowElement->varsInScope = $varsInScopeAfterJoining; // copy!
     
     
-    
     // FIXME: removed vars that were CREATED inside the loop! We need a better way to do this!
     $strippedVarsInScopeAfterJoining = [];
     foreach ($varsInScopeAfterCondBody as $variableName => $varInScopeAfterCondBody) {
@@ -532,9 +531,6 @@ function flowifyForIteration (
     
     splitVariablesBasedOnUsage($strippedVarsInScopeAfterJoining, $doneBodyFlowElement, $iterBodyFlowElement, $updateBodyFlowElement, $forStepFlowElement);
     
-    // FIXME: we should take the doneBody and copy its varsInScope to the varsInScope of the for(Step)FlowElement!
-    $forStepFlowElement->varsInScope = $doneBodyFlowElement->varsInScope; // copy!
-
 }
 
 
