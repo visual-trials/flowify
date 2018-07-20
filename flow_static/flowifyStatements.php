@@ -510,11 +510,7 @@ function flowifyForIteration (
     // Adding a passthrough variable if the iter/update side has changed a variable: the done-side then needs a passthrough
     addPassThroughsBasedOnChange($doneBodyFlowElement, $forStepFlowElement, $varsInScopeAfterCondBody);
     
-    
     // Joining variables between afterCondBody and afterForStep, if they are different
-    // Note: we ARE updating varsInScope of the forStepFlowElement here (addToVarsInScope = true). We do this, so we will have 
-    //       the conditionalJoinVariables in the scope of the forStepFlowElement. We can use that
-    //       to connect to the conditionalSplitVariables after this!
     $varsInScopeAfterJoining = joinVariablesBasedOnDifference($varsInScopeAfterCondBody, $forStepFlowElement->varsInScope, $forStepFlowElement, $backBodyFlowElement, $updateExistingConnections = true);
     
     
