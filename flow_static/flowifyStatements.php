@@ -310,8 +310,10 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         // Joining variables between then and else, if they are different
         $varsInScopeAfterJoining = joinVariablesBasedOnDifference($thenBodyFlowElement->varsInScope, $elseBodyFlowElement->varsInScope, $ifFlowElement);
 
-        // Splitting variables if either side (then or else) has used it
+        // After joining, the ifFlowElement should get the joinedVars in it's scope, so elements after that can connect to the joinedVars
         $ifFlowElement->varsInScope = $varsInScopeAfterJoining; // copy!
+
+        // Splitting variables if either side (then or else) has used it
         splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElement, $elseBodyFlowElement, null, $ifFlowElement);
         
             
