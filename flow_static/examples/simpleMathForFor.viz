@@ -174,14 +174,14 @@
         "y": 60,
         "isPositionOf": "center"
     },
-    "4:5-6:5_i_SPLIT": {
-        "x": 300,
-        "y": 40,
+    "4:5-6:5_1_i_SPLIT": {
+        "x": 210,
+        "y": 20,
         "isPositionOf": "center"
     },
-    "4:5-6:5_j_SPLIT": {
-        "x": 300,
-        "y": 90,
+    "4:5-6:5_1_j_SPLIT": {
+        "x": 210,
+        "y": 60,
         "isPositionOf": "center"
     },
     "3:1-7:1_ForUpdate": {
@@ -206,9 +206,9 @@
         "y": 30,
         "isPositionOf": "center"
     },
-    "3:1-7:1_i_SPLIT": {
-        "x": 350,
-        "y": 160,
+    "3:1-7:1_1_i_SPLIT": {
+        "x": 200,
+        "y": 30,
         "isPositionOf": "center"
     }
 }

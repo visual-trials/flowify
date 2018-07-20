@@ -242,7 +242,6 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         // == THEN ==
         
         $thenStatements = $ifStatement['stmts'];
-//        $thenBodyHasReturn = false;
         
         $thenAstNodeIdentifier = getAstNodeIdentifier($thenStatements);
         $thenBodyFlowElement = createAndAddFlowElementToParent('ifThen', 'then', null, $thenAstNodeIdentifier, $ifFlowElement, $useVarScopeFromParent = false);
@@ -503,7 +502,6 @@ function flowifyForIteration (
     $updateBodyFlowElement = createAndAddFlowElementToParent('ifCond', 'update', null, $forAstNodeIdentifier . "_ForUpdate", $forStepFlowElement);
     $flowElement = flowifyExpression($updateExpression, $updateBodyFlowElement);
     
-
     
     // IMPORTANT NOTE: right now we are assuming that the condBody doesn't reassign
     //                 the variable! If it does, then the code below will not give the proper result!
@@ -526,29 +524,16 @@ function flowifyForIteration (
     
     
     
-    
-    // FIXME: we should give it $condBodyFlowElement itself (not it's varsInScope)
-    // FIXME: we also want to give it the updateBody! (besides the updateElement!)
-    // FIXME: should we really give it the forElement as the last argument? Shouldnt it use the varsInScope after the cond?
-    //        note: giving it the condBodyFlowElement as the last variable doesnt really work, since
-    //              variables that are declared inside the for loop will also be present in that scope
-    //              and things go wrong if you allow that to be passed as last argument (see the 'c' variable
-    //              in fibonacci_iterative)
-    // FIXME: by giving it the forFlowElement as the last argument, all split variables are now added to the forFlowElement
-    //        this is not what we want, since they either should be added to the condBodyFlowElement or forStepFlowElement
-    
     // FIXME: removed vars that were CREATED inside the loop! We need a better way to do this!
     $strippedVarsInScopeAfterJoining = [];
     foreach ($varsInScopeAfterCondBody as $variableName => $varInScopeAfterCondBody) {
         $strippedVarsInScopeAfterJoining[$variableName] = $varsInScopeAfterJoining[$variableName];
     }
     
-    splitVariablesBasedOnUsage($strippedVarsInScopeAfterJoining, $doneBodyFlowElement, $iterBodyFlowElement, $updateBodyFlowElement, $forFlowElement);
-
+    splitVariablesBasedOnUsage($strippedVarsInScopeAfterJoining, $doneBodyFlowElement, $iterBodyFlowElement, $updateBodyFlowElement, $forStepFlowElement);
     
     // FIXME: we should take the doneBody and copy its varsInScope to the varsInScope of the for(Step)FlowElement!
     $forStepFlowElement->varsInScope = $doneBodyFlowElement->varsInScope; // copy!
-        
 
 }
 
@@ -758,7 +743,7 @@ function splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElem
         $connectionTypeToConditionalSplitVariable = null;
         $updatedConnectionIdsFromThisElement = [];
         
-        // TODO: could this be moved outside the foreach of the $parentFlowElement->varsInScope? Or are we adding elements to the thenBody and elseBody in this loop?
+        // TODO: could this be moved outside the foreach of the $varsInScopeAfterCondBody? Or are we adding elements to the thenBody and elseBody in this loop?
         // TODO: we should probably use a hashmap of all flowElements inside the thenBody and elseBody.
         $elementIdsInThenBody = getElementsIdsIn($thenBodyFlowElement);
         $elementIdsInElseBody = [];
