@@ -515,7 +515,7 @@ function flowifyForIteration (
     // Joining variables between afterCondBody and afterForStep, if they are different
     $varsInScopeAfterJoining = joinVariablesBasedOnDifference($varsInScopeAfterCondBody, $forStepFlowElement->varsInScope, $forStepFlowElement, $backBodyFlowElement, $updateExistingConnections = true);
     
-    
+   
     // FIXME: we now copy the varsInScope of the forStepFlowElement towards the varsInScope of the condBodyFlowElement
     //        but we don't want to lose the changes the condBodyFlowElement did itself to the scope. So we have to rerun it
     //        of do something smarter than that.
@@ -549,7 +549,7 @@ function flowifyForIteration (
     // FIXME: we should take the doneBody and copy its varsInScope to the varsInScope of the for(Step)FlowElement!
     $forStepFlowElement->varsInScope = $doneBodyFlowElement->varsInScope; // copy!
         
-    
+
 }
 
 
@@ -666,7 +666,15 @@ function joinVariablesBasedOnDifference ($firstVarsInScope, $secondVarsInScope, 
             }
         }
     }
-    
+
+    // Resetting doPassBack to false
+    foreach ($firstVarsInScope as $variableName => $variableFlowElement) {
+        $variableFlowElement->doPassBack = false;
+    }
+    foreach ($secondVarsInScope as $variableName => $variableFlowElement) {
+        $variableFlowElement->doPassBack = false;
+    }
+
     return $varsInScopeAfterJoining;
 }
 

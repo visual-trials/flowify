@@ -1,7 +1,7 @@
 {
     "0:0-0:0": {
-        "x": 290,
-        "y": 780,
+        "x": 270,
+        "y": 660,
         "isPositionOf": "center",
         "width": 1500,
         "height": 1000
@@ -27,27 +27,27 @@
         "isPositionOf": "center"
     },
     "3:1-7:1_ImplicitDone": {
-        "x": 1330,
-        "y": 440,
+        "x": 1360,
+        "y": 480,
         "isPositionOf": "center",
         "width": 50,
         "height": 600
     },
     "_*PASSTHROUGH*_i": {
-        "x": 40,
-        "y": 10,
+        "x": 20,
+        "y": 0,
         "isPositionOf": "center"
     },
     "3:1-7:1_ImplicitBack": {
-        "x": 710,
-        "y": 850,
+        "x": 760,
+        "y": 790,
         "isPositionOf": "center",
         "width": 800,
         "height": 50
     },
     "3:1-7:1_1_PASSBACK_i": {
-        "x": 460,
-        "y": 20,
+        "x": 360,
+        "y": 30,
         "isPositionOf": "center"
     },
     "3:1-7:1_1": {
@@ -56,8 +56,8 @@
         "isPositionOf": "center"
     },
     "3:1-7:1_ForCond": {
-        "x": 110,
-        "y": 110,
+        "x": 130,
+        "y": 130,
         "isPositionOf": "center",
         "width": 120,
         "height": 100
@@ -73,8 +73,8 @@
         "isPositionOf": "center"
     },
     "4:5-6:5_Stmts": {
-        "x": 550,
-        "y": 380,
+        "x": 560,
+        "y": 330,
         "isPositionOf": "center",
         "width": 700,
         "height": 500,
@@ -86,8 +86,8 @@
         "isPositionOf": "center"
     },
     "4:5-6:5_ForInit": {
-        "x": 30,
-        "y": 150,
+        "x": 10,
+        "y": 130,
         "isPositionOf": "center"
     },
     "4:15-4:15": {
@@ -102,15 +102,15 @@
     },
     "4:5-6:5_ImplicitDone": {
         "x": 710,
-        "y": 180,
+        "y": 230,
         "isPositionOf": "center",
         "width": 50,
         "height": 500,
         "relativeScale": 1
     },
     "_*PASSTHROUGH*_j": {
-        "x": 30,
-        "y": 200,
+        "x": 20,
+        "y": 130,
         "isPositionOf": "center"
     },
     "4:5-6:5_ImplicitBack": {
@@ -125,7 +125,7 @@
     },
     "4:5-6:5_ForCond": {
         "x": 130,
-        "y": 150,
+        "y": 200,
         "isPositionOf": "center",
         "width": 120,
         "height": 100
@@ -154,7 +154,7 @@
     },
     "4:5-6:5_ForUpdate": {
         "x": 450,
-        "y": 170,
+        "y": 140,
         "isPositionOf": "center",
         "width": 150,
         "height": 100
@@ -170,23 +170,23 @@
         "isPositionOf": "center"
     },
     "4:5-6:5_1_JOINED_j": {
-        "x": 40,
-        "y": 80,
+        "x": 30,
+        "y": 60,
         "isPositionOf": "center"
     },
     "4:5-6:5_i_SPLIT": {
-        "x": 180,
-        "y": -20,
+        "x": 300,
+        "y": 40,
         "isPositionOf": "center"
     },
     "4:5-6:5_j_SPLIT": {
-        "x": 330,
-        "y": 110,
+        "x": 300,
+        "y": 90,
         "isPositionOf": "center"
     },
     "3:1-7:1_ForUpdate": {
-        "x": 1050,
-        "y": 130,
+        "x": 1060,
+        "y": 140,
         "isPositionOf": "center",
         "width": 150,
         "height": 100
@@ -202,8 +202,13 @@
         "isPositionOf": "center"
     },
     "3:1-7:1_1_JOINED_i": {
-        "x": 130,
-        "y": 420,
+        "x": 40,
+        "y": 30,
+        "isPositionOf": "center"
+    },
+    "3:1-7:1_i_SPLIT": {
+        "x": 350,
+        "y": 160,
         "isPositionOf": "center"
     }
 }
