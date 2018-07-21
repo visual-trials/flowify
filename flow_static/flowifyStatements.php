@@ -78,6 +78,11 @@ function flowifyFunction ($functionStatement, $flowCallArguments, $functionCallF
     
     // START OF FUNCTION getReturnFlowElementFromOpenEndings
 
+    // FIXME: we should probably ALSO join all other variables inside these openEndings, and put them in
+    //        the varsInScope of the functionCallFlowElement. This is especially the case then variables
+    //        are passed by reference (to the function) and might be used after the function call. We should
+    //        therefore join all variables.
+    
     {    
         // If there are multiple open endings of type 'return', we join them
         if (count($openEndingsFunctionCall->returns) > 1) {
@@ -311,7 +316,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         }
         
         
-        // FIXME: if either the thenBody- or the elseBody onlyHasOpenEndings, we should NOT JOIN!
+        // FIXME: if either the thenBody- or the elseBody onlyHasOpenEndings, we should NOT JOIN here!
         
         
         // Adding a passthrough variable if either side has changed a variable, while the other has not
