@@ -34,6 +34,13 @@ var containerTypeProperties = {
         containerColor: {r: 240, g: 240, b: 240, a: 1},
         containerBorderColor: {r: 230, g: 230, b: 200, a: 0},
         childrenLayoutFunction: "verticalTopToBottom",
+        dataItemGroups: {
+            basicInfo: [
+                { containerKey: "identifier", displayName: "identifier" },
+                { containerKey: "type", displayName: "type" },
+                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" }
+            ]
+        }
     },
     functionHeader: {
         drawContainer: true,
@@ -81,6 +88,13 @@ var containerTypeProperties = {
         containerColor: {r: 240, g: 240, b: 240, a: 1},
         containerBorderColor: {r: 230, g: 230, b: 200, a: 0},
         childrenLayoutFunction: "verticalTopToBottom",
+        dataItemGroups: {
+            basicInfo: [
+                { containerKey: "identifier", displayName: "identifier" },
+                { containerKey: "type", displayName: "type" },
+                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" }
+            ]
+        }
     },
     primitiveFunctionHeader: {
         drawContainer: true,
