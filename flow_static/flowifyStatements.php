@@ -155,7 +155,19 @@ function flowifyStatements ($statements, $bodyFlowElement) {
 
             $expression = $statement['expr'];
 
+            /*
+            $returnAstNodeIdentifier = getAstNodeIdentifier($statement);
+            // FIXME: replace 'ifMain' with 'return'
+            $returnBodyFlowElement = createFlowElement('ifThen', 'return', null, $returnAstNodeIdentifier);
+            */
+            
             $returnFlowElement = flowifyExpression($expression, $bodyFlowElement);
+            
+            /*
+            if (count($returnBodyFlowElement->children) > 0) {
+                addFlowElementToParent($returnBodyFlowElement, $bodyFlowElement);
+            }
+            */
 
             // Note: we are assuming that when we reach a 'return' statement,
             //       all statements that follow will be unreachable. That's why
