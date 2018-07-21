@@ -72,17 +72,17 @@
         "height": 400,
         "relativeScale": 1
     },
-    "_*PASSTHROUGH*_a": {
+    "9:5-13:5_ImplicitDone_*PASSTHROUGH*_a": {
         "x": 30,
         "y": 330,
         "isPositionOf": "center"
     },
-    "_*PASSTHROUGH*_b": {
+    "9:5-13:5_ImplicitDone_*PASSTHROUGH*_b": {
         "x": 30,
         "y": 180,
         "isPositionOf": "center"
     },
-    "_*PASSTHROUGH*_i": {
+    "9:5-13:5_ImplicitDone_*PASSTHROUGH*_i": {
         "x": 30,
         "y": 20,
         "isPositionOf": "center"

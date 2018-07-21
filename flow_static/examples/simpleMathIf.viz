@@ -59,7 +59,8 @@
         "y": 70,
         "isPositionOf": "center",
         "width": 150,
-        "height": 80
+        "height": 80,
+        "relativeScale": 1
     },
     "8:7-8:8": {
         "x": 40,
@@ -78,8 +79,8 @@
         "width": 150,
         "height": 60
     },
-    "_*PASSTHROUGH*_b": {
-        "x": 70,
+    "7:1-9:1_ImplicitElse_*PASSTHROUGH*_b": {
+        "x": 80,
         "y": 30,
         "isPositionOf": "center"
     },

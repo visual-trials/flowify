@@ -34,6 +34,7 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
     $flowElement->value = $flowElementValue;
     $flowElement->connectionIdsFromThisElement = [];
     $flowElement->doPassBack = false; // this is used for for-loops
+    $flowElement->onlyHasOpenEndings = false;
     if ($canHaveChildren) {
         $flowElement->children = [];
     }
@@ -76,15 +77,91 @@ function getConnectionById ($connectionId) {
 function getElementsIdsIn($flowElement) {
     $containerIdsInFlowElement = [$flowElement->id];
     
-    foreach ($flowElement->children as $childFlowElement) {
-        // TODO: we should not go into a function when we are trying to find connection to elements inside a flowElement.
-        //       This is because a function(call) reset its varsInScope, so no variables *outside* its scope could 
-        //       connect (directly) with one of its children.
-        $containerIdsInChildFlowElement = getElementsIdsIn($childFlowElement);
-        $containerIdsInFlowElement = array_merge($containerIdsInFlowElement, $containerIdsInChildFlowElement);
+    if ($flowElement->children !== null) {
+        foreach ($flowElement->children as $childFlowElement) {
+            // TODO: we should not go into a function when we are trying to find connection to elements inside a flowElement.
+            //       This is because a function(call) reset its varsInScope, so no variables *outside* its scope could 
+            //       connect (directly) with one of its children.
+            $containerIdsInChildFlowElement = getElementsIdsIn($childFlowElement);
+            $containerIdsInFlowElement = array_merge($containerIdsInFlowElement, $containerIdsInChildFlowElement);
+        }
     }
     return $containerIdsInFlowElement;
 }
+
+function combineOpenEndings($newOpenEndings, $openEndings) {
+
+    foreach ($newOpenEndings->returns as $elementId => $returnOpenEndingElement) {
+        $openEndings->returns[$elementId] = $returnOpenEndingElement;
+    }
+    foreach ($newOpenEndings->continues as $elementId => $continueOpenEndingElement) {
+        $openEndings->continues[$elementId] = $continueOpenEndingElement;
+    }
+    foreach ($newOpenEndings->breaks as $elementId => $breakOpenEndingElement) {
+        $openEndings->breaks[$elementId] = $breakOpenEndingElement;
+    }
+    
+    return $openEndings;
+}
+
+function addElementToOpenEndings($flowElement, $openEndings, $openEndingType, $returnFlowElement = null) {
+
+    // TODO: we should use 'id' as identifier here! but that isnt possible right now because its numeric
+    //       and php won't treat it as proper keys!
+    $elementId = 'id:' . $flowElement->id;
+    
+    if ($openEndingType === 'return') {
+        $flowElement->endsWith = 'return';
+        $flowElement->returnVar = $returnFlowElement;
+        $flowElement->onlyHasOpenEndings = true;
+        $openEndings->returns[$elementId] = $flowElement;
+    }
+    else if ($openEndingType === 'continue') {
+        $flowElement->endsWith = 'continue';
+        $flowElement->onlyHasOpenEndings = true;
+        $openEndings->continues[$elementId] = $flowElement;
+    }
+    else if ($openEndingType === 'break') {
+        $flowElement->endsWith = 'break';
+        $flowElement->onlyHasOpenEndings = true;
+        $openEndings->breaks[$elementId] = $flowElement;
+    }
+}    
+
+class OpenEndings {
+    public $returns;
+    public $continues;
+    public $breaks;
+    
+    public function __construct() {
+        $this->returns = [];
+        $this->continues = [];
+        $this->breaks = [];
+    }
+}
+
+class FlowElement { 
+    public $id;
+    public $type;
+    public $name; 
+    public $value; 
+    public $connectionIdsFromThisElement;
+    public $children;
+    public $astNodeIdentifier;
+    public $varsInScope;
+    public $functionsInScope;
+    public $onlyHasOpenEndings;
+    public $endsWith; // null, 'continue', 'break', 'return'
+    public $returnVar;
+}
+
+class FlowConnection { 
+    public $id;
+    public $from;
+    public $to; 
+    public $type; 
+}
+
 
 function arrayfyFlowElements ($flowElement) {
     
@@ -119,27 +196,6 @@ function arrayfyFlowConnections($flowConnections) {
         array_push($flowConnectionsArray, $flowConnectionArray);
     }
     return $flowConnectionsArray;
-}
-
-class FlowElement { 
-    public $id;
-    public $type;
-    public $name; 
-    public $value; 
-    public $connectionIdsFromThisElement;
-    public $children;
-    public $astNodeIdentifier;
-    public $varsInScope;
-    public $functionsInScope;
-    public $endsWith; // null, 'none', 'continue', 'break', 'return'
-    public $returnVar;
-}
-
-class FlowConnection { 
-    public $id;
-    public $from;
-    public $to; 
-    public $type; 
 }
 
 function stringPosToColumn($code, $pos) {

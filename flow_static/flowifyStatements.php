@@ -7,9 +7,9 @@ function flowifyProgram($statements) {
     $rootFlowElement = createFlowElement('root', 'root', null, $astNodeIdentifier);
 
     // TODO: should we do anything with the return value of the main function?
-    $resultingElements = flowifyStatements($statements, $rootFlowElement);
+    $openEndings = flowifyStatements($statements, $rootFlowElement);
     
-    // FIXME: we should do something with the resultingElements!
+    // FIXME: we should do something with the $openEndings!
     
     return $rootFlowElement;
 }
@@ -71,31 +71,42 @@ function flowifyFunction ($functionStatement, $flowCallArguments, $functionCallF
 
     $statements = $functionStatement['stmts'];
 
-    // TODO: We are assuming that the statements of a function will always have a 'none'-resultType or 'return'-resultType (not 'continue' or 'break')
+    // TODO: We are assuming that the statements of a function will always have a null-endingType or 'return'-endingType (not 'continue' or 'break')
     //       If the parser does not gaurd against this, we should.
     
-    $resultingElements = flowifyStatements($statements, $functionCallFlowElement);
+    $openEndingsFunctionCall = flowifyStatements($statements, $functionCallFlowElement);
     
-    // If there are multiple results, we join them
-    if (count($resultingElements) > 1) {
-        $differentVariables = [];
-        // TODO: how do we really know that all return variables are actually different? Of they are the same,
-        //       should we add a passthrough by the ones who are the same?
-        foreach ($resultingElements as $resultingElement) {
-            array_push($differentVariables, $resultingElement->returnVar);
+    // START OF FUNCTION getReturnFlowElementFromOpenEndings
+
+    {    
+        // If there are multiple open endings of type 'return', we join them
+        if (count($openEndingsFunctionCall->returns) > 1) {
+            $differentVariables = [];
+            // TODO: how do we really know that all return variables are actually different? Of they are the same,
+            //       should we add a passthrough by the ones who are the same?
+            foreach ($openEndingsFunctionCall->returns as $openEndingElement) {
+                array_push($differentVariables, $openEndingElement->returnVar);
+            }
+            
+            // Note: we use '*' to make sure there is no collision with existing variableNames (since they are not allowed in variable-identifiers)
+            $conditionalJoinVariableFlowElement = joinVariables('*RETURN*', $differentVariables, $functionCallFlowElement);
+            $returnFlowElement = $conditionalJoinVariableFlowElement;
+            
+            // TODO: should we add the conditionalJoinVariable/returnFlowElement to our scope?
+            //$functionCallFlowElement->varsInScope[$variableName] = $conditionalJoinVariableFlowElement; 
         }
-        
-        // Note: we use '*' to make sure there is no collision with existing variableNames (since they are not allowed in variable-identifiers)
-        $conditionalJoinVariableFlowElement = joinVariables('*RETURN*', $differentVariables, $functionCallFlowElement);
-        $returnFlowElement = $conditionalJoinVariableFlowElement;
-        
-        // TODO: should we add the conditionalJoinVariable/returnFlowElement to our scope?
-        //$functionCallFlowElement->varsInScope[$variableName] = $conditionalJoinVariableFlowElement; 
+        else if (count($openEndingsFunctionCall->returns) === 1) {
+            // Exactly one openEnding of type 'return' found in statements of function call, so we use its returnVar as returnFlowElement
+            $openEndingElement = reset($openEndingsFunctionCall->returns);
+            $returnFlowElement = $openEndingElement->returnVar;
+        }
+        else {
+            // No return found in statements of function call, meaning no returnFlowElement
+            $returnFlowElement = null;
+        }
     }
-    else {
-        $resultingElement = reset($resultingElements);
-        $returnFlowElement = $resultingElement->returnVar;
-    }
+    
+    // END OF FUNCTION getReturnFlowElementFromOpenEndings
     
     return $returnFlowElement;
 
@@ -128,7 +139,7 @@ function flowifyStatements ($statements, $bodyFlowElement) {
         }
     }
 
-    $resultingElements = [];
+    $openEndings = new OpenEndings;
 
     // 2) Then loop through all non-fuctions and do as if they are "executed"...
     foreach ($statements as $statement) {
@@ -155,60 +166,37 @@ function flowifyStatements ($statements, $bodyFlowElement) {
 
             $expression = $statement['expr'];
 
-            /*
-            $returnAstNodeIdentifier = getAstNodeIdentifier($statement);
-            // FIXME: replace 'ifMain' with 'return'
-            $returnBodyFlowElement = createFlowElement('ifThen', 'return', null, $returnAstNodeIdentifier);
-            */
+            // TODO: maybe add a FlowElement-wrapper around the expression that is returned (but only if it contains any children).
             
             $returnFlowElement = flowifyExpression($expression, $bodyFlowElement);
-            
-            /*
-            if (count($returnBodyFlowElement->children) > 0) {
-                addFlowElementToParent($returnBodyFlowElement, $bodyFlowElement);
-            }
-            */
 
-            // Note: we are assuming that when we reach a 'return' statement,
-            //       all statements that follow will be unreachable. That's why
-            //       we stop looping through all the left-over statements and
-            //       simply return the returnFlowElement
+            // Note: we are assuming that when we reach a 'return' statement, all statements that follow will be unreachable. That's why 
+            //       we stop looping through all the left-over statements and this bodyFlowElement as an openEnding of type 'return'.
             
-            $bodyFlowElement->endsWith = 'return';
-            $bodyFlowElement->returnVar = $returnFlowElement;
-            // TODO: we should use 'id' as identifier here! but that isnt possible right now because its numeric
-            //       and php won't treat it as proper keys!
-            $resultingElements['id:' . $bodyFlowElement->id] = $bodyFlowElement;
+            addElementToOpenEndings($bodyFlowElement, $openEndings, 'return', $returnFlowElement);
             break;
         }
         else if($statementType === 'Stmt_If') {
             
-            $ifResultingElements = flowifyIfStatement($statement, $bodyFlowElement);
+            $ifOpenEndings = flowifyIfStatement($statement, $bodyFlowElement);
             
-            // TODO: we have to check whether the flowifyIfStatement resulted
-            //       in endings other than 'none'. If all of them are not 'none'
-            //       we should stop looping statement and return the result of
-            //       flowifyIfStatement. If more than one of them is 'none' we
-            //       should join the vars in them (BUT this should already have been
-            //       done in flowifyIfStatement).
+            $openEndings = combineOpenEndings($ifOpenEndings, $openEndings);
             
-            foreach ($ifResultingElements as $ifResultingElement) {
-                if ($ifResultingElement->endsWith !== 'none') {
-                    $resultingElements['id:' . $ifResultingElement->id] = $ifResultingElement;
-                }
+            if ($bodyFlowElement->onlyHasOpenEndings) {
+                // If the if-statement only had openEndings we stop looping statements here, since they have become unreachable.
+                break;
             }
         }
         else if($statementType === 'Stmt_For') {
             
-            $forResultingElements = flowifyForStatement($statement, $bodyFlowElement);
+            $forOpenEndings = flowifyForStatement($statement, $bodyFlowElement);
             
-            /*
-            foreach ($forResultingElements as $forResultingElement) {
-                if ($forResultingElement->endsWith !== 'none') {
-                    $resultingElements['id:' . $forResultingElement->id] = $forResultingElement;
-                }
+            $openEndings = combineOpenEndings($forOpenEndings, $openEndings);
+            
+            if ($bodyFlowElement->onlyHasOpenEndings) {
+                // If the for-statement only had openEndings we stop looping statements here, since they have become unreachable.
+                break;
             }
-            */
         }
         else {
             echo "statementType '".$statementType."' found in function body, but not supported!\n";
@@ -218,19 +206,16 @@ function flowifyStatements ($statements, $bodyFlowElement) {
 
     }
 
-    if (count($resultingElements) == 0) {
-        // If no 'return', 'break' or 'continue' was encountered, the endsWith will be 'none' 
-        $bodyFlowElement->endsWith = 'none';
-        $resultingElements['id:' . $bodyFlowElement->id] = $bodyFlowElement;
-    }
+    // Note: if no 'return', 'break' or 'continue' was encountered, the endsWith will be null and 
+    //       the onlyHasOpenEndings of the $bodyFlowElement will be false
     
-    return $resultingElements;
+    return $openEndings;
 
 }
 
 function flowifyIfStatement($ifStatement, $parentFlowElement) {
     
-    $resultingElements = [];
+    $ifOpenEndings = new OpenEndings;
 
     $ifAstNodeIdentifier = getAstNodeIdentifier($ifStatement);
     $ifFlowElement = createAndAddFlowElementToParent('ifMain', 'if', null, $ifAstNodeIdentifier, $parentFlowElement);
@@ -266,10 +251,13 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         $thenBodyFlowElement->varsInScope = $ifFlowElement->varsInScope;  // copy!
         $thenBodyFlowElement->functionsInScope = &$ifFlowElement->functionsInScope;
         
-        $thenResultingElements = flowifyStatements($thenStatements, $thenBodyFlowElement);
+        $thenOpenEndings = flowifyStatements($thenStatements, $thenBodyFlowElement);
         
-        $resultingElements = array_merge($resultingElements, $thenResultingElements);
-
+        $ifOpenEndings = combineOpenEndings($thenOpenEndings, $ifOpenEndings);
+        
+        if ($thenBodyFlowElement->onlyHasOpenEndings) {
+            // FIXME: what to do here?
+        }
         
         // == ELSE ==
         
@@ -298,9 +286,13 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
             $elseBodyFlowElement->functionsInScope = &$ifFlowElement->functionsInScope;
             
             // TODO: we don't have a return statement in then-bodies, so we call it $noReturnFlowElement here (but we shouldn't get it at all)
-            $elseResultingElements = flowifyStatements($elseStatements, $elseBodyFlowElement);
+            $elseOpenEndings = flowifyStatements($elseStatements, $elseBodyFlowElement);
             
-            $resultingElements = array_merge($resultingElements, $elseResultingElements);
+            $ifOpenEndings = combineOpenEndings($elseOpenEndings, $ifOpenEndings);
+            
+            if ($elseBodyFlowElement->onlyHasOpenEndings) {
+                // FIXME: what to do here?
+            }
         }
         else {
             
@@ -311,8 +303,15 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
             $elseBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'else', null, $elseAstNodeIdentifier, $ifFlowElement, $useVarScopeFromParent = false);
         }
         
-        // FIXME: we should look at $thenResultingElements and $elseResultingElements and JOIN and SPLIT where needed/possible!
-        //        that is: all 'none'-results should be joined. All others should stay in the $resultingElements
+        if ($thenBodyFlowElement->onlyHasOpenEndings && $elseBodyFlowElement->onlyHasOpenEndings) {
+            // Both the thenBody and the elseBody have only openEndings. This means the ifBody and its parent also only have openEndings 
+            $ifFlowElement->onlyHasOpenEndings = true;
+            $parentFlowElement->onlyHasOpenEndings = true;
+            // FIXME: should we break here?
+        }
+        
+        
+        // FIXME: if either the thenBody- or the elseBody onlyHasOpenEndings, we should NOT JOIN!
         
         
         // Adding a passthrough variable if either side has changed a variable, while the other has not
@@ -369,7 +368,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
 
     }                
        
-    return $resultingElements;
+    return $ifOpenEndings;
 }
 
 
@@ -505,8 +504,8 @@ function flowifyForIteration (
     
     // FIXME: replace ifThen with iterBody
     $iterBodyFlowElement = createAndAddFlowElementToParent('ifThen', 'iter', null, $iterAstNodeIdentifier, $forStepFlowElement);
-    $resultingElements = flowifyStatements($iterStatements, $iterBodyFlowElement);
-    // FIXME: do something with $resultingElements!
+    $iterOpenEndings = flowifyStatements($iterStatements, $iterBodyFlowElement);
+    // FIXME: do something with $iterOpenEndings!
 
     // == UPDATE ==
     
@@ -689,7 +688,7 @@ function addPassThroughsBasedOnChange($thenBodyFlowElement, $elseBodyFlowElement
             // Only the thenBody has replaced the variable. We use the parent's variable as the (default) else variable
             
             // Adding the variable to the elseBody as a passthrough variable
-            $passThroughVariableAstNodeIdentifier = $elseAstNodeIdentifier . "_*PASSTHROUGH*_" . $variableName;
+            $passThroughVariableAstNodeIdentifier = $elseBodyFlowElement->astNodeIdentifier . "_*PASSTHROUGH*_" . $variableName;
             $passThroughVariableFlowElement = createAndAddChildlessFlowElementToParent('passThroughVariable', $variableName, null, $passThroughVariableAstNodeIdentifier, $elseBodyFlowElement);
 
             // Connecting the variable in the parent to the passthrough variable (inside the thenBody)
@@ -703,7 +702,7 @@ function addPassThroughsBasedOnChange($thenBodyFlowElement, $elseBodyFlowElement
             // Only the elseBody has replaced the variable. We use the parent's variable as the (default) then variable
             
             // Adding the variable to the thenBody as a passthrough variable
-            $passThroughVariableAstNodeIdentifier = $thenAstNodeIdentifier . "_*PASSTHROUGH*_" . $variableName;
+            $passThroughVariableAstNodeIdentifier = $thenBodyFlowElement->astNodeIdentifier . "_*PASSTHROUGH*_" . $variableName;
             $passThroughVariableFlowElement = createAndAddChildlessFlowElementToParent('passThroughVariable', $variableName, null, $passThroughVariableAstNodeIdentifier, $thenBodyFlowElement);
 
             // Connecting the variable in the parent to the passthrough variable (inside the thenBody)
