@@ -138,8 +138,8 @@ Stmt_Case                       TODO?
 Stmt_TryCatch                   -
 Stmt_Catch                      -
 Stmt_Finally                    -
-Stmt_Break                      TODO?
-Stmt_Continue                   TODO?
+Stmt_Break                      TODO1 (nr of nested for loops still to be implemented later)
+Stmt_Continue                   TODO1 (nr of nested for loops still to be implemented later)
 Stmt_Return                     OK (but early return not yet implemented)
 Stmt_Throw                      -
 Stmt_Label                      -

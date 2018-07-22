@@ -37,11 +37,6 @@
         "width": 50,
         "height": 600
     },
-    "_*PASSTHROUGH*_i": {
-        "x": 20,
-        "y": 30,
-        "isPositionOf": "center"
-    },
     "3:1-7:1_ImplicitBack": {
         "x": 750,
         "y": 730,
@@ -119,11 +114,6 @@
         "width": 50,
         "height": 400,
         "relativeScale": 1
-    },
-    "_*PASSTHROUGH*_j": {
-        "x": 30,
-        "y": 60,
-        "isPositionOf": "center"
     },
     "4:5-6:5_ImplicitBack": {
         "x": 370,

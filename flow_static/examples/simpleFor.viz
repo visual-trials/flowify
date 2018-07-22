@@ -59,16 +59,6 @@
         "height": 400,
         "relativeScale": 1
     },
-    "_*PASSTHROUGH*_b": {
-        "x": 30,
-        "y": 230,
-        "isPositionOf": "center"
-    },
-    "_*PASSTHROUGH*_i": {
-        "x": 30,
-        "y": 40,
-        "isPositionOf": "center"
-    },
     "7:1-9:1_ImplicitBack": {
         "x": 420,
         "y": 520,
