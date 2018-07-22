@@ -163,8 +163,7 @@ function flowifyStatements ($statements, $bodyFlowElement) {
             $flowElement = flowifyExpression($expression, $bodyFlowElement);
 
             // TODO: should we do anything with this $flowElement?
-            //       if an expression is a statement, where does the output
-            //       of that expesssion/statement go?
+            //       if an expression is a statement, where does the output of that expesssion/statement go?
 
         }
         else if ($statementType === 'Stmt_Return') {
@@ -179,6 +178,22 @@ function flowifyStatements ($statements, $bodyFlowElement) {
             //       we stop looping through all the left-over statements and this bodyFlowElement as an openEnding of type 'return'.
             
             addElementToOpenEndings($bodyFlowElement, $openEndings, 'return', $returnFlowElement);
+            break;
+        }
+        else if ($statementType === 'Stmt_Break') {
+
+            // Note: we are assuming that when we reach a 'break' statement, all statements that follow will be unreachable. That's why 
+            //       we stop looping through all the left-over statements and this bodyFlowElement as an openEnding of type 'break'.
+            
+            addElementToOpenEndings($bodyFlowElement, $openEndings, 'break');
+            break;
+        }
+        else if ($statementType === 'Stmt_Continue') {
+
+            // Note: we are assuming that when we reach a 'continue' statement, all statements that follow will be unreachable. That's why 
+            //       we stop looping through all the left-over statements and this bodyFlowElement as an openEnding of type 'continue'.
+            
+            addElementToOpenEndings($bodyFlowElement, $openEndings, 'continue');
             break;
         }
         else if($statementType === 'Stmt_If') {
