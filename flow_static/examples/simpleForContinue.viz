@@ -122,13 +122,18 @@
         "isPositionOf": "center"
     },
     "9:9-9:17_Stmts": {
-        "x": 210,
-        "y": 30,
+        "x": 230,
+        "y": 20,
+        "isPositionOf": "center"
+    },
+    "9:9-9:17_Stmts_*PASSTHROUGH*_b": {
+        "x": 60,
+        "y": 40,
         "isPositionOf": "center"
     },
     "8:5-10:5_ImplicitElse": {
-        "x": 210,
-        "y": 90,
+        "x": 230,
+        "y": 130,
         "isPositionOf": "center"
     },
     "11:15-11:15": {
@@ -144,6 +149,11 @@
     "11:5-11:15": {
         "x": 530,
         "y": 250,
+        "isPositionOf": "center"
+    },
+    "8:5-11:16_Stmts_JOINED_b": {
+        "x": 640,
+        "y": 190,
         "isPositionOf": "center"
     },
     "7:1-12:1_ForUpdate": {
@@ -167,7 +177,7 @@
         "isPositionOf": "center"
     },
     "7:1-12:1_1_JOINED_b": {
-        "x": 40,
+        "x": 30,
         "y": 230,
         "isPositionOf": "center"
     },

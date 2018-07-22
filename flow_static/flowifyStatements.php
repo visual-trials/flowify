@@ -535,17 +535,36 @@ function flowifyForIteration (
     
     // for the ONE 'continue' in iterOpenEndings do the following
     {
-        // 1) addPassThroughsBasedOnChange(continueBody, iterBodyFlowElement, varsInScopeBeforeIterBody?) --> should addPassThrough be a recurive function?
-        //       if the iterBodyFlowElement has changed vars (after the continue-statement) and the continue has not (necessarily true),
-        //       then this var should be passed through the continueBody
+
+        if (count($iterOpenEndings->continues) > 0) {
+            // 1) addPassThroughsBasedOnChange(continueBody, iterBodyFlowElement, varsInScopeBeforeIterBody?) --> should addPassThrough be a recurive function?
+            //       if the iterBodyFlowElement has changed vars (after the continue-statement) and the continue has not (necessarily true),
+            //       then this var should be passed through the continueBody
         
-        // 2) joinVariablesBasedOnDifference(varsInScopeBeforeIterBody?, iterBodyFlowElement->varsInScope, updateBody?)
-        //       the passthrough var in the continueBody should be joined with the (changed) var in the iterBodyFlowElement
-        //       here we assume we add the joinVar inside the updateBody (which we haven't created yet!) so we probably
-        //       have to do steps 1-3 between creating the updateBodyFlowElement and flowifying the updateExpression.
+            // FIXME: HACK!
+            $bodyThatEndsWithContinue = reset($iterOpenEndings->continues);
+            addPassThroughsBasedOnChange($bodyThatEndsWithContinue, $iterBodyFlowElement, $varsInScopeAfterCondBody);
+                
+             // 2) joinVariablesBasedOnDifference(varsInScopeBeforeIterBody?, iterBodyFlowElement->varsInScope, updateBody?)
+            //       the passthrough var in the continueBody should be joined with the (changed) var in the iterBodyFlowElement
+            //       here we assume we add the joinVar inside the updateBody (which we haven't created yet!) so we probably
+            //       have to do steps 1-3 between creating the updateBodyFlowElement and flowifying the updateExpression.
+            
+            $varsInScopeAfterJoining = joinVariablesBasedOnDifference($bodyThatEndsWithContinue->varsInScope, $iterBodyFlowElement->varsInScope, $iterBodyFlowElement);
+       
+            // FIXME: is this indeed the right way to do this? or should the join var be created in the forStepBody?
+            $forStepFlowElement->varsInScope = $varsInScopeAfterJoining; // copy back!
+            
+            // 3) splitVariablesBasedOnUsage(varsInScopeBeforeIF_THAT_CONTAINS_THE_CONTINUE???, thenBodyCONTAINING_THE_CONTINUE, iterBodyFlowElement-part_AFTER_THE_IF_CONTAINING_THE_CONTINUE?)
+            //       we somehow need to split at the right place. Maybe this place should be found (and executed) by the recursive addPassThroughsBasedOnChange?
+                   
+            // FIXME: we should somehow do this!
+            
+        }
         
-        // 3) splitVariablesBasedOnUsage(varsInScopeBeforeIF_THAT_CONTAINS_THE_CONTINUE???, thenBodyCONTAINING_THE_CONTINUE, iterBodyFlowElement-part_AFTER_THE_IF_CONTAINING_THE_CONTINUE?)
-        //       we somehow need to split at the right place. Maybe this place should be found (and executed) by the recursive addPassThroughsBasedOnChange?
+        
+
+        
         
     }
     
