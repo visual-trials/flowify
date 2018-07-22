@@ -62,8 +62,8 @@
         "isPositionOf": "center"
     },
     "7:1-12:1_ImplicitBack": {
-        "x": 470,
-        "y": 780,
+        "x": 650,
+        "y": 690,
         "isPositionOf": "center"
     },
     "7:1-12:1_1_PASSBACK_b": {
@@ -97,8 +97,8 @@
         "isPositionOf": "center"
     },
     "8:5-11:16_Stmts": {
-        "x": 220,
-        "y": 290,
+        "x": 230,
+        "y": 310,
         "isPositionOf": "center"
     },
     "8:5-10:5": {
@@ -133,32 +133,32 @@
     },
     "8:5-10:5_ImplicitElse": {
         "x": 230,
-        "y": 130,
+        "y": 100,
         "isPositionOf": "center"
     },
     "11:15-11:15": {
-        "x": 330,
-        "y": 320,
-        "isPositionOf": "center"
-    },
-    "11:10-11:15": {
-        "x": 430,
-        "y": 300,
-        "isPositionOf": "center"
-    },
-    "11:5-11:15": {
-        "x": 530,
+        "x": 350,
         "y": 250,
         "isPositionOf": "center"
     },
+    "11:10-11:15": {
+        "x": 420,
+        "y": 220,
+        "isPositionOf": "center"
+    },
+    "11:5-11:15": {
+        "x": 500,
+        "y": 210,
+        "isPositionOf": "center"
+    },
     "8:5-11:16_Stmts_JOINED_b": {
-        "x": 640,
-        "y": 190,
+        "x": 590,
+        "y": 80,
         "isPositionOf": "center"
     },
     "7:1-12:1_ForUpdate": {
-        "x": 770,
-        "y": 180,
+        "x": 830,
+        "y": 240,
         "isPositionOf": "center"
     },
     "7:33-7:33": {
@@ -172,12 +172,12 @@
         "isPositionOf": "center"
     },
     "7:23-7:33": {
-        "x": 170,
-        "y": 30,
+        "x": 180,
+        "y": 10,
         "isPositionOf": "center"
     },
     "7:1-12:1_1_JOINED_b": {
-        "x": 30,
+        "x": 40,
         "y": 230,
         "isPositionOf": "center"
     },

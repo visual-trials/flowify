@@ -59,6 +59,16 @@
         "height": 400,
         "relativeScale": 1
     },
+    "7:1-9:1_ImplicitDone_*PASSTHROUGH*_b": {
+        "x": 30,
+        "y": 230,
+        "isPositionOf": "center"
+    },
+    "7:1-9:1_ImplicitDone_*PASSTHROUGH*_i": {
+        "x": 30,
+        "y": 40,
+        "isPositionOf": "center"
+    },
     "7:1-9:1_ImplicitBack": {
         "x": 420,
         "y": 520,

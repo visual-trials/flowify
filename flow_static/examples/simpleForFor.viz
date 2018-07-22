@@ -37,6 +37,11 @@
         "width": 50,
         "height": 600
     },
+    "3:1-7:1_ImplicitDone_*PASSTHROUGH*_i": {
+        "x": 20,
+        "y": 30,
+        "isPositionOf": "center"
+    },
     "3:1-7:1_ImplicitBack": {
         "x": 750,
         "y": 730,
