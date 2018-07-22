@@ -527,6 +527,28 @@ function flowifyForIteration (
     $iterOpenEndings = flowifyStatements($iterStatements, $iterBodyFlowElement);
     // FIXME: do something with $iterOpenEndings!
 
+    // FIXME: If iterOpenEndings contains a 'continue', we need to join the varsInScope of the continue-body (for example a then-body)
+    //        with the varsInScope of the iterBodyFlowElement. We need to do this before the update.
+    //        We also need to add a passthrough for that and split it.
+
+    // FIXME: if we have multiple continues, we need to combine them first?
+    
+    // for the ONE 'continue' in iterOpenEndings do the following
+    {
+        // 1) addPassThroughsBasedOnChange(continueBody, iterBodyFlowElement, varsInScopeBeforeIterBody?) --> should addPassThrough be a recurive function?
+        //       if the iterBodyFlowElement has changed vars (after the continue-statement) and the continue has not (necessarily true),
+        //       then this var should be passed through the continueBody
+        
+        // 2) joinVariablesBasedOnDifference(varsInScopeBeforeIterBody?, iterBodyFlowElement->varsInScope, updateBody?)
+        //       the passthrough var in the continueBody should be joined with the (changed) var in the iterBodyFlowElement
+        //       here we assume we add the joinVar inside the updateBody (which we haven't created yet!) so we probably
+        //       have to do steps 1-3 between creating the updateBodyFlowElement and flowifying the updateExpression.
+        
+        // 3) splitVariablesBasedOnUsage(varsInScopeBeforeIF_THAT_CONTAINS_THE_CONTINUE???, thenBodyCONTAINING_THE_CONTINUE, iterBodyFlowElement-part_AFTER_THE_IF_CONTAINING_THE_CONTINUE?)
+        //       we somehow need to split at the right place. Maybe this place should be found (and executed) by the recursive addPassThroughsBasedOnChange?
+        
+    }
+    
     // == UPDATE ==
     
     // FIXME: replace ifCond with forUpdate
