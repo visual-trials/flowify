@@ -33,18 +33,21 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
     }
     else {
         $flowElement = new FlowElement;
+        
         $flowElement->id = $flowElementId;
+        $flowElement->astNodeIdentifier = $astNodeIdentifier;
         $flowElement->type = $flowElementType;
         $flowElement->name = $flowElementName;
         $flowElement->value = $flowElementValue;
+        
+        $flowElement->usedVars = [];
+        
         $flowElement->connectionIdsFromThisElement = [];
         $flowElement->doPassBack = false; // this is used for for-loops
         $flowElement->onlyHasOpenEndings = false;
         if ($canHaveChildren) {
             $flowElement->children = [];
         }
-        $flowElement->astNodeIdentifier = $astNodeIdentifier;
-        
         if ($hasScope) {
             $flowElement->varsInScope = [];
             $flowElement->functionsInScope = [];
@@ -97,6 +100,30 @@ function getElementsIdsIn($flowElement) {
         }
     }
     return $containerIdsInFlowElement;
+}
+
+function stripAllButUsedVars($flowElement) {
+    
+    // Note: properties we don't strip: id, type, name, value, astNodeIdentifier, usedVars
+
+    if (!is_null($flowElement->varsInScope)) {
+        $flowElement->varsInScope = [];
+    }
+    if (!is_null($flowElement->functionsInScope)) {
+        $flowElement->functionsInScope = [];
+    }
+    
+    $flowElement->connectionIdsFromThisElement = [];
+    $flowElement->doPassBack = false;
+    $flowElement->onlyHasOpenEndings = false;
+    
+    if (!is_null($flowElement->children)) {
+        foreach ($flowElement->children as $childFlowElement) {
+            stripAllButUsedVars($childFlowElement);
+        }
+        $flowElement->children = [];
+    }
+    
 }
 
 function combineOpenEndings($newOpenEndings, $openEndings) {
@@ -158,6 +185,7 @@ class FlowElement {
     public $connectionIdsFromThisElement;
     public $children;
     public $astNodeIdentifier;
+    public $usedVars;
     public $varsInScope;
     public $functionsInScope;
     public $onlyHasOpenEndings;
