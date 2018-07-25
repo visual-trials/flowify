@@ -27,27 +27,33 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
 
     global $flowElements, $flowElementId;
 
-    $flowElement = new FlowElement;
-    $flowElement->id = $flowElementId;
-    $flowElement->type = $flowElementType;
-    $flowElement->name = $flowElementName;
-    $flowElement->value = $flowElementValue;
-    $flowElement->connectionIdsFromThisElement = [];
-    $flowElement->doPassBack = false; // this is used for for-loops
-    $flowElement->onlyHasOpenEndings = false;
-    if ($canHaveChildren) {
-        $flowElement->children = [];
+    if (array_key_exists($astNodeIdentifier, $flowElements)) {
+        // The element already exists (identified by astNodeIdentifier), so we return the existing flowElement
+        $flowElement = $flowElements[$astNodeIdentifier];
     }
-    $flowElement->astNodeIdentifier = $astNodeIdentifier;
-    
-    if ($hasScope) {
-        $flowElement->varsInScope = [];
-        $flowElement->functionsInScope = [];
+    else {
+        $flowElement = new FlowElement;
+        $flowElement->id = $flowElementId;
+        $flowElement->type = $flowElementType;
+        $flowElement->name = $flowElementName;
+        $flowElement->value = $flowElementValue;
+        $flowElement->connectionIdsFromThisElement = [];
+        $flowElement->doPassBack = false; // this is used for for-loops
+        $flowElement->onlyHasOpenEndings = false;
+        if ($canHaveChildren) {
+            $flowElement->children = [];
+        }
+        $flowElement->astNodeIdentifier = $astNodeIdentifier;
+        
+        if ($hasScope) {
+            $flowElement->varsInScope = [];
+            $flowElement->functionsInScope = [];
+        }
+        
+        $flowElements[$astNodeIdentifier] = $flowElement;
+        
+        $flowElementId++;
     }
-    
-    $flowElements[$astNodeIdentifier] = $flowElement;
-    
-    $flowElementId++;
 
     return $flowElement;
 }
