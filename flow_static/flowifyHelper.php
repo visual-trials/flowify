@@ -126,16 +126,16 @@ function addUsedVarsToParent ($flowElement, $parentFlowElement) {
             $createdOrUsedInParent = $parentFlowElement->usedVars[$variableName];
         }
         
-        if ($createdOrUsedInChild === 'not-created') {
-            // if the variable was not-created in the child, so it was also not-created in the parent
-            $parentFlowElement->usedVars[$variableName] = 'not-created';
+        if ($createdOrUsedInChild === 'not-yet-created') {
+            // if the variable was not-yet-created in the child, so it was also not-yet-created in the parent
+            $parentFlowElement->usedVars[$variableName] = 'not-yet-created';
         }
         else if ($createdOrUsedInChild === 'created') {
-            // if the variable was created in the child, so it was not-created in the parent
-            $parentFlowElement->usedVars[$variableName] = 'not-created';
+            // if the variable was created in the child, it was not-yet-created in the parent
+            $parentFlowElement->usedVars[$variableName] = 'not-yet-created';
         }
-        else if ($createdOrUsedInParent === 'not-created') {
-            // if the variable was not-created in the parent, we don't add it to the usedVars of the parent
+        else if ($createdOrUsedInParent === 'not-yet-created') {
+            // if the variable was not-yet-created in the parent, we don't add it to the usedVars of the parent (note: it might have been 'used' in this child, but created by another child)
         }
         else if ($createdOrUsedInParent === 'created') {
             // if the variable was created in the parent, we don't add it to the usedVars of the parent
