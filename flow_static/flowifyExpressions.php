@@ -17,12 +17,13 @@ function flowifyExpression ($expression, $parentFlowElement) {
         if (array_key_exists($variableName, $varsInScope)) {
             // Note: this could be a conditionalJoinVariableFlowElement
             $flowElement = $varsInScope[$variableName];
+            setUsedVar($parentFlowElement, $variableName, 'used');
         }
         else {
             $flowElement = createAndAddChildlessFlowElementToParent('variable', $variableName, null, $astNodeIdentifier, $parentFlowElement);
+            setUsedVar($parentFlowElement, $variableName, 'created');
         }
         
-        $parentFlowElement->usedVars[$variableName] = true;
     }
     else if ($expressionType === 'Scalar_LNumber') {
         $flowElement = createAndAddChildlessFlowElementToParent('constant', null, $expression['value'], $astNodeIdentifier, $parentFlowElement);
@@ -62,6 +63,10 @@ function flowifyExpression ($expression, $parentFlowElement) {
         // FIXME: is it correct to check for array_key_exists and is_null here?
         if (array_key_exists($variableName, $varsInScope) && !is_null($varsInScope[$variableName])) {
             addFlowConnection($varsInScope[$variableName], $flowVariableAssigned, 'identity');
+            setUsedVar($parentFlowElement, $variableName, 'used');
+        }
+        else {
+            setUsedVar($parentFlowElement, $variableName, 'created');
         }
 
         $varsInScope[$variableName] = $flowVariableAssigned;
@@ -72,7 +77,6 @@ function flowifyExpression ($expression, $parentFlowElement) {
             $flowElement = $flowOldVariable;  // We take the flowOldVariable as output if is is a Post inc or decr
         }
         
-        $parentFlowElement->usedVars[$variableName] = true;
 
     }
     else if ('Expr_AssignOp_' === substr($expressionType, 0, strlen('Expr_AssignOp_'))) {
@@ -118,12 +122,14 @@ function flowifyExpression ($expression, $parentFlowElement) {
         // FIXME: is it correct to check for array_key_exists and is_null here?
         if (array_key_exists($variableName, $varsInScope) && !is_null($varsInScope[$variableName])) {
             addFlowConnection($varsInScope[$variableName], $flowVariableAssigned, 'identity');
+            setUsedVar($parentFlowElement, $variableName, 'used');
+        }
+        else {
+            setUsedVar($parentFlowElement, $variableName, 'created');
         }
 
         $varsInScope[$variableName] = $flowVariableAssigned;
         $flowElement = $flowVariableAssigned;
-        
-        $parentFlowElement->usedVars[$variableName] = true;
         
     }
     else if ('Expr_BinaryOp_' === substr($expressionType, 0, strlen('Expr_BinaryOp_'))) {
@@ -190,11 +196,13 @@ function flowifyExpression ($expression, $parentFlowElement) {
         // FIXME: is it correct to check for array_key_exists and is_null here?
         if (array_key_exists($variableName, $varsInScope) && !is_null($varsInScope[$variableName])) {
             addFlowConnection($varsInScope[$variableName], $flowElement, 'identity');
+            setUsedVar($parentFlowElement, $variableName, 'used');
+        }
+        else {
+            setUsedVar($parentFlowElement, $variableName, 'created');
         }
 
         $varsInScope[$variableName] = $flowElement;
-        
-        $parentFlowElement->usedVars[$variableName] = true;
     }
     else if ($expressionType === 'Expr_FuncCall') {
 

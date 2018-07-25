@@ -102,6 +102,51 @@ function getElementsIdsIn($flowElement) {
     return $containerIdsInFlowElement;
 }
 
+function setUsedVar ($flowElement, $variableName, $createdOrUsed) {
+    if (array_key_exists($variableName, $flowElement->usedVars)) {
+        $existingCreatedOrUsed = $flowElement->usedVars[$variableName];
+        if ($existingCreatedOrUsed === 'created') {
+            // the existing usedVar is already set to 'created', we don't overwrite it
+        }
+        else {
+            // the existing usedVar is not already set to 'created', so we overwrite it
+            $flowElement->usedVars[$variableName] = $createdOrUsed;
+        }
+    }
+    else {
+        $flowElement->usedVars[$variableName] = $createdOrUsed;
+    }
+}
+
+function addUsedVarsToParent ($flowElement, $parentFlowElement) {
+    // $parentFlowElement->usedVars = array_merge($flowElement->usedVars, $parentFlowElement->usedVars);
+    foreach ($flowElement->usedVars as $variableName => $createdOrUsedInChild) {
+        $createdOrUsedInParent = null;
+        if (array_key_exists($variableName, $parentFlowElement->usedVars)) {
+            $createdOrUsedInParent = $parentFlowElement->usedVars[$variableName];
+        }
+        
+        if ($createdOrUsedInChild === 'not-created') {
+            // if the variable was not-created in the child, so it was also not-created in the parent
+            $parentFlowElement->usedVars[$variableName] = 'not-created';
+        }
+        else if ($createdOrUsedInChild === 'created') {
+            // if the variable was created in the child, so it was not-created in the parent
+            $parentFlowElement->usedVars[$variableName] = 'not-created';
+        }
+        else if ($createdOrUsedInParent === 'not-created') {
+            // if the variable was not-created in the parent, we don't add it to the usedVars of the parent
+        }
+        else if ($createdOrUsedInParent === 'created') {
+            // if the variable was created in the parent, we don't add it to the usedVars of the parent
+        }
+        else {
+            // in all other cases (it was used in the child and either not present in the parent, or already used in the parent) we add it to the parent
+            $parentFlowElement->usedVars[$variableName] = 'used';
+        }
+    }
+}
+
 function stripAllButUsedVars($flowElement) {
     
     // Note: properties we don't strip: id, type, name, value, astNodeIdentifier, usedVars

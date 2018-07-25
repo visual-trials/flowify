@@ -60,6 +60,8 @@ function flowifyFunction ($functionStatement, $flowCallArguments, $functionCallF
 
             // Setting the parameter as a local var within the function body
             $functionCallFlowElement->varsInScope[$parameterName] = $parameterFlowElement;
+            
+            $functionCallFlowElement->usedVars[$parameterName] = 'created';
 
         }
         else {
@@ -249,6 +251,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         $condFlowElement = createAndAddFlowElementToParent('ifCond', 'cond', null, $condAstNodeIdentifier, $ifFlowElement);
         
         $flowElement = flowifyExpression($conditionExpression, $condFlowElement);
+        addUsedVarsToParent($condFlowElement, $ifFlowElement);
         
         // TODO: the flowElement coming from the conditionExpression is a boolean and determines 
         //       whether the then-statements or the else(if)-statements are executed. How to should
@@ -272,6 +275,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         $thenBodyFlowElement->functionsInScope = &$ifFlowElement->functionsInScope;
         
         $thenOpenEndings = flowifyStatements($thenStatements, $thenBodyFlowElement);
+        addUsedVarsToParent($thenBodyFlowElement, $ifFlowElement);
         
         $ifOpenEndings = combineOpenEndings($thenOpenEndings, $ifOpenEndings);
         
@@ -307,6 +311,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
             
             // TODO: we don't have a return statement in then-bodies, so we call it $noReturnFlowElement here (but we shouldn't get it at all)
             $elseOpenEndings = flowifyStatements($elseStatements, $elseBodyFlowElement);
+            addUsedVarsToParent($elseBodyFlowElement, $ifFlowElement);
             
             $ifOpenEndings = combineOpenEndings($elseOpenEndings, $ifOpenEndings);
             
@@ -386,8 +391,10 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         
         // TODO: $elseIfStatements = $ifStatement['elseif']
 
-    }                
-       
+    }
+    
+    addUsedVarsToParent($ifFlowElement, $parentFlowElement);
+
     return $ifOpenEndings;
 }
 
@@ -421,7 +428,8 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
         // FIXME: replace ifCond with forInit
         $initFlowElement = createAndAddFlowElementToParent('ifCond', 'init', null, $initAstNodeIdentifier, $forFlowElement);
         $flowElement = flowifyExpression($initExpression, $initFlowElement);
-                       
+        addUsedVarsToParent($initFlowElement, $forFlowElement);
+            
         // == DONE ==
         
         $doneAstNodeIdentifier = $forAstNodeIdentifier . "_ImplicitDone";
@@ -461,6 +469,8 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
         // Since we now consider the loop to be finished, we take the doneBody and copy its varsInScope back to the varsInScope of the forStepFlowElement
         $forFlowElement->varsInScope = $doneBodyFlowElement->varsInScope; // copy back!
 
+        addUsedVarsToParent($forStepFlowElement1, $forFlowElement);
+        
         /*
         // STEP 2
         
@@ -483,6 +493,8 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
         );
         $forFlowElement->varsInScope = $forStepFlowElement2->varsInScope; // copy back!
         
+        addUsedVarsToParent($forStepFlowElement2, $forFlowElement);
+        
         */
 
         // TODO: implement continue statement (inside flowifyStatements)
@@ -491,6 +503,8 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
 
     }    
     
+    addUsedVarsToParent($forFlowElement, $parentFlowElement);
+
 }
 
 function flowifyForIteration (
@@ -512,6 +526,7 @@ function flowifyForIteration (
     // FIXME: replace ifCond with forCond
     $condBodyFlowElement = createAndAddFlowElementToParent('ifCond', 'cond', null, $forAstNodeIdentifier . "_ForCond", $forStepFlowElement);
     $flowElement = flowifyExpression($conditionExpression, $condBodyFlowElement);
+    addUsedVarsToParent($condBodyFlowElement, $forStepFlowElement);
 
     $varsInScopeAfterCondBody = $forStepFlowElement->varsInScope; //copy!
 
@@ -525,6 +540,7 @@ function flowifyForIteration (
     // FIXME: replace ifThen with iterBody
     $iterBodyFlowElement = createAndAddFlowElementToParent('ifThen', 'iter', null, $iterAstNodeIdentifier, $forStepFlowElement);
     $iterOpenEndings = flowifyStatements($iterStatements, $iterBodyFlowElement);
+    addUsedVarsToParent($iterBodyFlowElement, $forStepFlowElement);
     // FIXME: do something with $iterOpenEndings!
 
     // FIXME: If iterOpenEndings contains a 'continue', we need to join the varsInScope of the continue-body (for example a then-body)
@@ -573,7 +589,7 @@ function flowifyForIteration (
     // FIXME: replace ifCond with forUpdate
     $updateBodyFlowElement = createAndAddFlowElementToParent('ifCond', 'update', null, $forAstNodeIdentifier . "_ForUpdate", $forStepFlowElement);
     $flowElement = flowifyExpression($updateExpression, $updateBodyFlowElement);
-    
+    $forStepFlowElement->usedVars = array_merge($updateBodyFlowElement->usedVars, $forStepFlowElement->usedVars);
     
     // Adding a passthrough variable if the iter/update side has changed a variable: the done-side then needs a passthrough
     addPassThroughsBasedOnChange($doneBodyFlowElement, $forStepFlowElement, $varsInScopeAfterCondBody);
