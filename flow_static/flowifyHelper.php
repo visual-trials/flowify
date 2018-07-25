@@ -25,10 +25,10 @@ function addFlowElementToParent ($flowElement, $parentFlowElement) {
 
 function createFlowElement ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $canHaveChildren = true, $hasScope = true) {
 
-    global $flowElementId;
+    global $flowElements, $flowElementId;
 
     $flowElement = new FlowElement;
-    $flowElement->id = $flowElementId++;
+    $flowElement->id = $flowElementId;
     $flowElement->type = $flowElementType;
     $flowElement->name = $flowElementName;
     $flowElement->value = $flowElementValue;
@@ -44,6 +44,10 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
         $flowElement->varsInScope = [];
         $flowElement->functionsInScope = [];
     }
+    
+    $flowElements[$astNodeIdentifier] = $flowElement;
+    
+    $flowElementId++;
 
     return $flowElement;
 }
