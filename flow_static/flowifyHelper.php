@@ -211,6 +211,9 @@ function arrayfyFlowElements ($flowElement) {
     $flowElementArray['value'] = $flowElement->value;
     $flowElementArray['astNodeIdentifier'] = $flowElement->astNodeIdentifier;
     
+    // FIXME: added for debugging only!
+    $flowElementArray['usedVars'] = $flowElement->usedVars;
+    
     if (!is_null($flowElement->children)) {
         $flowElementChildrenArray = [];
         foreach ($flowElement->children as $childFlowElement) {

@@ -13,14 +13,16 @@ function flowifyExpression ($expression, $parentFlowElement) {
 
     if ($expressionType === 'Expr_Variable') {
 
-        $name = $expression['name'];
-        if (array_key_exists($name, $varsInScope)) {
+        $variableName = $expression['name'];
+        if (array_key_exists($variableName, $varsInScope)) {
             // Note: this could be a conditionalJoinVariableFlowElement
-            $flowElement = $varsInScope[$name];
+            $flowElement = $varsInScope[$variableName];
         }
         else {
-            $flowElement = createAndAddChildlessFlowElementToParent('variable', $name, null, $astNodeIdentifier, $parentFlowElement);
+            $flowElement = createAndAddChildlessFlowElementToParent('variable', $variableName, null, $astNodeIdentifier, $parentFlowElement);
         }
+        
+        $parentFlowElement->usedVars[$variableName] = true;
     }
     else if ($expressionType === 'Scalar_LNumber') {
         $flowElement = createAndAddChildlessFlowElementToParent('constant', null, $expression['value'], $astNodeIdentifier, $parentFlowElement);
@@ -70,9 +72,8 @@ function flowifyExpression ($expression, $parentFlowElement) {
             $flowElement = $flowOldVariable;  // We take the flowOldVariable as output if is is a Post inc or decr
         }
         
-    }
-    else if ($expressionType === 'Expr_PostDec') {
-        die ('Expr_PostDec'); // FIXME
+        $parentFlowElement->usedVars[$variableName] = true;
+
     }
     else if ('Expr_AssignOp_' === substr($expressionType, 0, strlen('Expr_AssignOp_'))) {
         $assignOps = [
@@ -121,6 +122,8 @@ function flowifyExpression ($expression, $parentFlowElement) {
 
         $varsInScope[$variableName] = $flowVariableAssigned;
         $flowElement = $flowVariableAssigned;
+        
+        $parentFlowElement->usedVars[$variableName] = true;
         
     }
     else if ('Expr_BinaryOp_' === substr($expressionType, 0, strlen('Expr_BinaryOp_'))) {
@@ -190,6 +193,8 @@ function flowifyExpression ($expression, $parentFlowElement) {
         }
 
         $varsInScope[$variableName] = $flowElement;
+        
+        $parentFlowElement->usedVars[$variableName] = true;
     }
     else if ($expressionType === 'Expr_FuncCall') {
 
