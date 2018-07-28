@@ -29,12 +29,19 @@ function getParentElement($flowElement) {
     global $flowElements;
     
     $parentFlowElementId = $flowElement->parentId;
-    return $flowElements[$parentFlowElementId];
+    if ($parentFlowElementId !== null) {
+        return $flowElements[$parentFlowElementId];
+    }
+    else {
+        return null;
+    }
 }
 
 function createFlowElement ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $canHaveChildren = true, $hasScope = true) {
 
     global $flowElements, $flowElementId;
+    
+    // TODO: set canContainSplitters with a parameter?
 
     /*
     if (array_key_exists($astNodeIdentifier, $flowElements)) {
@@ -56,6 +63,9 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
         $flowElement->connectionIdsFromThisElement = [];
         $flowElement->doPassBack = false; // this is used for for-loops
         $flowElement->onlyHasOpenEndings = false;
+        
+        $flowElement->canContainSplitters = false;
+        $flowElement->varSplitters = [];
         
         $flowElement->parentId = null;
         if ($canHaveChildren) {
@@ -113,6 +123,21 @@ function getElementsIdsIn($flowElement) {
         }
     }
     return $containerIdsInFlowElement;
+}
+
+function isAncestorOf($ancestorElement, $childElement) {
+    if ($ancestorElement->id === $childElement->parentId) {
+        return true;
+    }
+    else {
+        if ($childElement->parentId !== null) {
+            $parentElement = getParentElement($childElement);
+            return isAncestorOf($ancestorElement, $parentElement);
+        }
+        else {
+            return false;
+        }
+    }
 }
 
 /*
@@ -271,9 +296,6 @@ function arrayfyFlowElements ($flowElement) {
     $flowElementArray['name'] = $flowElement->name;
     $flowElementArray['value'] = $flowElement->value;
     $flowElementArray['astNodeIdentifier'] = $flowElement->astNodeIdentifier;
-    
-    // FIXME: added for debugging only!
-    $flowElementArray['usedVars'] = $flowElement->usedVars;
     
     if (!is_null($flowElement->children)) {
         $flowElementChildrenArray = [];

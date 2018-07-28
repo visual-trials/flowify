@@ -241,6 +241,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
 
     $ifAstNodeIdentifier = getAstNodeIdentifier($ifStatement);
     $ifFlowElement = createAndAddFlowElementToParent('ifMain', 'if', null, $ifAstNodeIdentifier, $parentFlowElement);
+    $ifFlowElement->canContainSplitters = true;
     
     {
         // == COND ==
@@ -456,6 +457,7 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
         $forStepFlowElement1 = createAndAddFlowElementToParent('ifThen', '#1', null, $forStepAstNodeIdentifier1, $forFlowElement, $useVarScopeFromParent = false);
         $forStepFlowElement1->varsInScope = $forFlowElement->varsInScope; // copy!
         $forStepFlowElement1->functionsInScope = &$forFlowElement->functionsInScope;
+        $forStepFlowElement1->canContainSplitters = true;
         
         flowifyForIteration(
             $conditionExpression, 
@@ -482,6 +484,7 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
         $forStepFlowElement2 = createAndAddFlowElementToParent('ifThen', '#2', null, $forStepAstNodeIdentifier2, $forFlowElement, $useVarScopeFromParent = false);
         $forStepFlowElement2->varsInScope = $forFlowElement->varsInScope; // copy!
         $forStepFlowElement2->functionsInScope = &$forFlowElement->functionsInScope;
+        $forStepFlowElement2->canContainSplitters = true;
         
         flowifyForIteration(
             $conditionExpression, 
@@ -621,6 +624,8 @@ function joinVariables($variableName, $differentVariables, $targetElement) {
     return $conditionalJoinVariableFlowElement;
 }
 
+// FIXME: we should give this functoin the thenBody and elseBody, instead of their varsInScope
+//        we can then give this thenBody or elseBody as the 'laneElement' to the buildPathBackwardsToElementFromVariable
 function joinVariablesBasedOnDifference ($firstVarsInScope, $secondVarsInScope, $targetElement, $passBackBodyFlowElement = null, $updateExistingConnections = false) {
 
     // FIXME: we can most likely simplyfy the code below, since we only have two scopes (not an arbitrary amount anymore)
@@ -730,8 +735,10 @@ function joinVariablesBasedOnDifference ($firstVarsInScope, $secondVarsInScope, 
 
                 $varsInScopeAfterJoining[$variableName] = $conditionalJoinVariableFlowElement;
                 
+                $parentOfConditionalJoin = getParentElement($conditionalJoinVariableFlowElement);
                 foreach ($differentVariablesToBeJoined as $differentVariable) {
-                    buildPathBackwardsToElementFromVariable($conditionalJoinVariableFlowElement, $differentVariable);
+
+                    buildPathBackwardsToElementFromVariable($parentOfConditionalJoin, $conditionalJoinVariableFlowElement, $differentVariable, $variableName);
                 }
             }
         }
@@ -748,9 +755,61 @@ function joinVariablesBasedOnDifference ($firstVarsInScope, $secondVarsInScope, 
     return $varsInScopeAfterJoining;
 }
 
-function buildPathBackwardsToElementFromVariable($toElement, $fromVariable) {
-    $toParentElement = getParentElement($toElement);
+function buildPathBackwardsToElementFromVariable($laneElement, $toElement, $fromVariable, $variableName) {
     
+    $isAncestorOfFromVariable = isAncestorOf($laneElement, $fromVariable);
+    if ($isAncestorOfFromVariable) {
+        // Connect the fromVariable to the toElement
+        // TODO: what connectionType should we use here?
+        addFlowConnection($fromVariable, $toElement);
+    }
+    else {
+        
+        $parentOfLaneElement = getParentElement($laneElement);
+        
+        if ($parentOfLaneElement !== null) {
+   
+            if ($parentOfLaneElement->canContainSplitters) {
+                
+                {
+                    // Adding a passthrough
+                    
+                    $passThroughVariableAstNodeIdentifier = $laneElement->astNodeIdentifier . "_*PASSTHROUGH*_" . $variableName;
+                    $passThroughVariableFlowElement = createAndAddChildlessFlowElementToParent('passThroughVariable', $variableName, null, $passThroughVariableAstNodeIdentifier, $laneElement);
+
+                    
+                    // Connecting the passthrough variable to the toElement to the
+                    addFlowConnection($passThroughVariableFlowElement, $toElement);
+                    
+                    // Setting the toElement to the passThroughVariableFlowElement
+                    $toElement = $passThroughVariableFlowElement;
+
+                    // We add this passthrough variable to the scope of the laneElement
+                    $laneElement->varsInScope[$variableName] = $passThroughVariableFlowElement;
+                }
+
+                
+                {
+                    // Getting (or if not available creating) a splitter
+                    // Note: we could also do this in the next recursion!
+                    
+                    
+                }
+                
+            }
+            else {
+                // there is no need to split, we simply continue
+                //echo print_r($parentOfLaneElement,true);
+            }
+            
+            // FIXME: do the recursion!
+            // buildPathBackwardsToElementFromVariable($parentOfLaneElement, $toElement, $fromVariable, $variableName);
+        }
+        else {
+            // We somehow reached the root node and apparently it is not an ancestor of the toElement (this should not be possible
+            die("toElement is somehow not a child of the root element!");
+        }
+    }
     
 }
 
