@@ -353,7 +353,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         $ifFlowElement->varsInScope = $varsInScopeAfterJoining; // copy!
 
         // Splitting variables if either side (then or else) has used it
-        // splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElement, $elseBodyFlowElement, null, $ifFlowElement);
+        splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElement, $elseBodyFlowElement, null, $ifFlowElement);
         
             
         foreach ($thenBodyFlowElement->varsInScope as $variableName => $thenBodyVarInScopeElement) {
