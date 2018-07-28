@@ -21,7 +21,15 @@ function addFlowConnection ($fromFlowElement, $toFlowElement, $connectionType = 
 
 function addFlowElementToParent ($flowElement, $parentFlowElement) {
     array_push($parentFlowElement->children, $flowElement);
-    $flowElement->parentElement = $parentFlowElement;
+    $flowElement->parentId = $parentFlowElement->id;
+}
+
+function getParentElement($flowElement) {
+    
+    global $flowElements;
+    
+    $parentFlowElementId = $flowElement->parentId;
+    return $flowElements[$parentFlowElementId];
 }
 
 function createFlowElement ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $canHaveChildren = true, $hasScope = true) {
@@ -49,7 +57,7 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
         $flowElement->doPassBack = false; // this is used for for-loops
         $flowElement->onlyHasOpenEndings = false;
         
-        $flowElement->parentElement = null;
+        $flowElement->parentId = null;
         if ($canHaveChildren) {
             $flowElement->children = [];
         }
@@ -58,7 +66,7 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
             $flowElement->functionsInScope = [];
         }
         
-        // $flowElements[$astNodeIdentifier] = $flowElement;
+        $flowElements[$flowElementId] = $flowElement;
         
         $flowElementId++;
     // }
@@ -235,7 +243,7 @@ class FlowElement {
     public $name; 
     public $value; 
     public $connectionIdsFromThisElement;
-    public $parentElement;
+    public $parentId;
     public $children;
     public $astNodeIdentifier;
     // public $usedVars;

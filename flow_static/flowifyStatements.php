@@ -326,6 +326,9 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
             $elseAstNodeIdentifier = $ifAstNodeIdentifier . "_ImplicitElse";
             // FIXME: this should be of type: 'ifElseImplicit'
             $elseBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'else', null, $elseAstNodeIdentifier, $ifFlowElement, $useVarScopeFromParent = false);
+            
+            $elseBodyFlowElement->varsInScope = $ifFlowElement->varsInScope;  // copy!
+            $elseBodyFlowElement->functionsInScope = &$ifFlowElement->functionsInScope;
         }
         
         if ($thenBodyFlowElement->onlyHasOpenEndings && $elseBodyFlowElement->onlyHasOpenEndings) {
@@ -340,7 +343,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         
         
         // Adding a passthrough variable if either side has changed a variable, while the other has not
-        addPassThroughsBasedOnChange($thenBodyFlowElement, $elseBodyFlowElement, $varsInScopeAfterCondBody);
+        // addPassThroughsBasedOnChange($thenBodyFlowElement, $elseBodyFlowElement, $varsInScopeAfterCondBody);
         
         // Joining variables between then and else, if they are different
         $varsInScopeAfterJoining = joinVariablesBasedOnDifference($thenBodyFlowElement->varsInScope, $elseBodyFlowElement->varsInScope, $ifFlowElement);
@@ -349,7 +352,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         $ifFlowElement->varsInScope = $varsInScopeAfterJoining; // copy!
 
         // Splitting variables if either side (then or else) has used it
-        splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElement, $elseBodyFlowElement, null, $ifFlowElement);
+        // splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElement, $elseBodyFlowElement, null, $ifFlowElement);
         
             
         foreach ($thenBodyFlowElement->varsInScope as $variableName => $thenBodyVarInScopeElement) {
@@ -619,7 +622,7 @@ function joinVariables($variableName, $differentVariables, $targetElement) {
 }
 
 function joinVariablesBasedOnDifference ($firstVarsInScope, $secondVarsInScope, $targetElement, $passBackBodyFlowElement = null, $updateExistingConnections = false) {
-    
+
     // FIXME: we can most likely simplyfy the code below, since we only have two scopes (not an arbitrary amount anymore)
     //        we can probably get rid of 'doPassBack'
     //        whether we want to keep doPassBack depends on how we implement 'continue' in for loops
@@ -682,11 +685,14 @@ function joinVariablesBasedOnDifference ($firstVarsInScope, $secondVarsInScope, 
                 $differentVariablesToBeJoined = array_values($differentVariables);
             }
             
-            $conditionalJoinVariableFlowElement = joinVariables($variableName, $differentVariablesToBeJoined, $targetElement);
             
-            $varsInScopeAfterJoining[$variableName] = $conditionalJoinVariableFlowElement;
-            
+            // FIXME: should we keep this? or can we put it into buildPathBackwardsToElementFromVariable?
             if ($updateExistingConnections) {
+                // FIXME: also remove joinVariables?
+                $conditionalJoinVariableFlowElement = joinVariables($variableName, $differentVariablesToBeJoined, $targetElement);
+                
+                $varsInScopeAfterJoining[$variableName] = $conditionalJoinVariableFlowElement;
+            
                 foreach ($differentVariablesToBeJoined as $differentVariable) {
                     if (count($differentVariable->connectionIdsFromThisElement) > 0) {
                         // There are connections from the variable, we have to update all the connections from it,
@@ -718,6 +724,16 @@ function joinVariablesBasedOnDifference ($firstVarsInScope, $secondVarsInScope, 
                     }
                 }
             }
+            else {
+                $conditionalJoinVariableAstNodeIdentifier = $targetElement->astNodeIdentifier . "_JOINED_" . $variableName;
+                $conditionalJoinVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalJoinVariable', $variableName, null, $conditionalJoinVariableAstNodeIdentifier, $targetElement);
+
+                $varsInScopeAfterJoining[$variableName] = $conditionalJoinVariableFlowElement;
+                
+                foreach ($differentVariablesToBeJoined as $differentVariable) {
+                    buildPathBackwardsToElementFromVariable($conditionalJoinVariableFlowElement, $differentVariable);
+                }
+            }
         }
     }
 
@@ -730,6 +746,12 @@ function joinVariablesBasedOnDifference ($firstVarsInScope, $secondVarsInScope, 
     }
 
     return $varsInScopeAfterJoining;
+}
+
+function buildPathBackwardsToElementFromVariable($toElement, $fromVariable) {
+    $toParentElement = getParentElement($toElement);
+    
+    
 }
 
 function addPassThroughsBasedOnChange($thenBodyFlowElement, $elseBodyFlowElement, $varsInScopeBeforeChange) {

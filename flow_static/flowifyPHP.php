@@ -7,7 +7,7 @@ require "flowifyStatements.php";
 require "flowifyExpressions.php";
 
 $flowElementId = 0;
-// $flowElements = [];
+$flowElements = [];
 $flowConnectionId = 0;
 $flowConnections = [];
 $code = null;
