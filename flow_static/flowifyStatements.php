@@ -807,17 +807,18 @@ function buildPathBackwardsToElementFromVariable($laneElement, $toElement, $from
                     // Getting (or if not available creating) a splitter
                     // Note: we could also do this in the next recursion!
                     
+                    // TODO: get/add splitter!
                     
                 }
                 
             }
             else {
-                // there is no need to split, we simply continue
-                //echo print_r($parentOfLaneElement,true);
+                // there is no need to split, we simply continue to the next parent
             }
             
-            // FIXME: do the recursion!
-            // buildPathBackwardsToElementFromVariable($parentOfLaneElement, $toElement, $fromVariable, $variableName);
+            
+            buildPathBackwardsToElementFromVariable($parentOfLaneElement, $toElement, $fromVariable, $variableName);
+            
         }
         else {
             // We somehow reached the root node and apparently it is not an ancestor of the toElement (this should not be possible
