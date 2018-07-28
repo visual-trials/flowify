@@ -641,7 +641,8 @@ function joinVariablesBasedOnDifference ($firstLane, $secondLane, $targetElement
             $differentVariablesPerVariableName[$variableName] = [];
         }
         // TODO: workaround for PHP not allowing numbers as keys
-        $differentVariablesPerVariableName[$variableName]['id:' . $variableFlowElement->id] = $variableFlowElement;
+        // FIXME: if there are multiple lanes with the same variable, we lose the information about these lanes! We should keep each lane/variable combination!
+        $differentVariablesPerVariableName[$variableName]['id:' . $variableFlowElement->id] = [ 'variable' => $variableFlowElement, 'lane' => $firstLane];
     }
     foreach ($secondVarsInScope as $variableName => $variableFlowElement) {
         if (!array_key_exists($variableName, $differentVariablesPerVariableName)) {
@@ -650,21 +651,23 @@ function joinVariablesBasedOnDifference ($firstLane, $secondLane, $targetElement
         // We assume that the secondVarsInScope should be passed-back
         $variableFlowElement->doPassBack = true;
         // TODO: workaround for PHP not allowing numbers as keys
-        $differentVariablesPerVariableName[$variableName]['id:' . $variableFlowElement->id] = $variableFlowElement;
+        // FIXME: if there are multiple lanes with the same variable, we lose the information about these lanes! We should keep each lane/variable combination!
+        $differentVariablesPerVariableName[$variableName]['id:' . $variableFlowElement->id] = [ 'variable' => $variableFlowElement, 'lane' => $secondLane];
     }
 
-    foreach ($differentVariablesPerVariableName as $variableName => $differentVariables) {
+    foreach ($differentVariablesPerVariableName as $variableName => $differentVariablesWithLanes) {
         // Only if we found more than 1 different variable should we join them
-        if (count($differentVariables) > 1) {
+        if (count($differentVariablesWithLanes) > 1) {
             
-            $differentVariablesToBeJoined = [];
+            $differentVariablesWithLanesToBeJoined = [];
             if ($passBackBodyFlowElement !== null) {
                 // We should do pass-back the variables when their doPassBack is set to true
-                foreach (array_values($differentVariables) as $differentVariable) {
+                foreach (array_values($differentVariablesWithLanes) as $differentVariableWithLane) {
+                    $differentVariable = $differentVariableWithLane['variable'];
                     if ($differentVariable->doPassBack) {
                         // We need to pass-back this variable. We first create a pass-back flowElement,
                         // add it to $passBackBodyFlowElement and connect it with $differentVariable
-                        // we then add the pass-back flowElement to $differentVariablesToBeJoined
+                        // we then add the pass-back flowElement to $differentVariablesWithLanesToBeJoined
                         
                         // FIXME: it is conceivable that the SAME variable(name) is pass-backed for more than ONE flowElementBodiesWithDifferentScope
                         //        we should have a pass-back body for each flowElementBodiesWithDifferentScope, or we need find another
@@ -675,31 +678,39 @@ function joinVariablesBasedOnDifference ($firstLane, $secondLane, $targetElement
                         
                         // TODO: is it possible that $differentVariable already had connections *from* itself to others? If so, we need to deal with those connections!
                         
-                        array_push($differentVariablesToBeJoined, $passBackVariableFlowElement);
+                        array_push($differentVariablesWithLanesToBeJoined, [ 'variable' => $passBackVariableFlowElement, 'lane' => $differentVariableWithLane['lane'] ]);
                     }
                     else {
-                        // No need to pass-back this variable, so it can be added to differentVariablesToBeJoined
-                        array_push($differentVariablesToBeJoined, $differentVariable);
+                        // No need to pass-back this variable, so it can be added to differentVariablesWithLanesToBeJoined
+                        array_push($differentVariablesWithLanesToBeJoined, $differentVariableWithLane);
                     }
                 }
                 
             }
             else {
                 // There is no passBackBodyFlowElement, so no need to check which variables have to be
-                // pass-backed. We simply set differentVariablesToBeJoined to add all 
+                // pass-backed. We simply set differentVariablesWithLanesToBeJoined to add all 
                 // original ones (without pass-back in between).
-                $differentVariablesToBeJoined = array_values($differentVariables);
+                foreach (array_values($differentVariablesWithLanes) as $differentVariableWithLane) {
+                    array_push($differentVariablesWithLanesToBeJoined, $differentVariableWithLane);
+                }
             }
             
             
             // FIXME: should we keep this? or can we put it into buildPathBackwardsToElementFromVariable?
             if ($updateExistingConnections) {
                 // FIXME: also remove joinVariables?
+                $differentVariablesToBeJoined = [];
+                foreach (array_values($differentVariablesWithLanes) as $differentVariableWithLane) {
+                    array_push($differentVariablesToBeJoined, $differentVariableWithLane['variable']);
+                }
                 $conditionalJoinVariableFlowElement = joinVariables($variableName, $differentVariablesToBeJoined, $targetElement);
                 
                 $varsInScopeAfterJoining[$variableName] = $conditionalJoinVariableFlowElement;
             
-                foreach ($differentVariablesToBeJoined as $differentVariable) {
+                foreach ($differentVariablesWithLanesToBeJoined as $differentVariableWithLane) {
+                    $differentVariable = $differentVariableWithLane['variable'];
+                    
                     if (count($differentVariable->connectionIdsFromThisElement) > 0) {
                         // There are connections from the variable, we have to update all the connections from it,
                         // since they should now point towards the newly created conditionalJoinVariableFlowElement
@@ -737,9 +748,11 @@ function joinVariablesBasedOnDifference ($firstLane, $secondLane, $targetElement
                 $varsInScopeAfterJoining[$variableName] = $conditionalJoinVariableFlowElement;
                 
                 $parentOfConditionalJoin = getParentElement($conditionalJoinVariableFlowElement);
-                foreach ($differentVariablesToBeJoined as $differentVariable) {
+                foreach ($differentVariablesWithLanesToBeJoined as $differentVariableWithLane) {
+                    $differentVariable = $differentVariableWithLane['variable'];
+                    $differentLane = $differentVariableWithLane['lane'];
 
-                    buildPathBackwardsToElementFromVariable($parentOfConditionalJoin, $conditionalJoinVariableFlowElement, $differentVariable, $variableName);
+                    buildPathBackwardsToElementFromVariable($differentLane, $conditionalJoinVariableFlowElement, $differentVariable, $variableName);
                 }
             }
         }
