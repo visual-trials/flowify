@@ -21,17 +21,20 @@ function addFlowConnection ($fromFlowElement, $toFlowElement, $connectionType = 
 
 function addFlowElementToParent ($flowElement, $parentFlowElement) {
     array_push($parentFlowElement->children, $flowElement);
+    $flowElement->parentElement = $parentFlowElement;
 }
 
 function createFlowElement ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $canHaveChildren = true, $hasScope = true) {
 
     global $flowElements, $flowElementId;
 
+    /*
     if (array_key_exists($astNodeIdentifier, $flowElements)) {
         // The element already exists (identified by astNodeIdentifier), so we return the existing flowElement
         $flowElement = $flowElements[$astNodeIdentifier];
     }
-    else {
+    */
+    // else {
         $flowElement = new FlowElement;
         
         $flowElement->id = $flowElementId;
@@ -40,11 +43,13 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
         $flowElement->name = $flowElementName;
         $flowElement->value = $flowElementValue;
         
-        $flowElement->usedVars = [];
+        // $flowElement->usedVars = [];
         
         $flowElement->connectionIdsFromThisElement = [];
         $flowElement->doPassBack = false; // this is used for for-loops
         $flowElement->onlyHasOpenEndings = false;
+        
+        $flowElement->parentElement = null;
         if ($canHaveChildren) {
             $flowElement->children = [];
         }
@@ -53,10 +58,10 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
             $flowElement->functionsInScope = [];
         }
         
-        $flowElements[$astNodeIdentifier] = $flowElement;
+        // $flowElements[$astNodeIdentifier] = $flowElement;
         
         $flowElementId++;
-    }
+    // }
 
     return $flowElement;
 }
@@ -230,9 +235,10 @@ class FlowElement {
     public $name; 
     public $value; 
     public $connectionIdsFromThisElement;
+    public $parentElement;
     public $children;
     public $astNodeIdentifier;
-    public $usedVars;
+    // public $usedVars;
     public $varsInScope;
     public $functionsInScope;
     public $onlyHasOpenEndings;
