@@ -17,11 +17,11 @@ function flowifyExpression ($expression, $parentFlowElement) {
         if (array_key_exists($variableName, $varsInScope)) {
             // Note: this could be a conditionalJoinVariableFlowElement
             $flowElement = $varsInScope[$variableName];
-            setUsedVar($parentFlowElement, $variableName, 'used');
+            // setUsedVar($parentFlowElement, $variableName, 'used');
         }
         else {
             $flowElement = createAndAddChildlessFlowElementToParent('variable', $variableName, null, $astNodeIdentifier, $parentFlowElement);
-            setUsedVar($parentFlowElement, $variableName, 'created');
+            // setUsedVar($parentFlowElement, $variableName, 'created');
         }
         
     }
@@ -63,10 +63,10 @@ function flowifyExpression ($expression, $parentFlowElement) {
         // FIXME: is it correct to check for array_key_exists and is_null here?
         if (array_key_exists($variableName, $varsInScope) && !is_null($varsInScope[$variableName])) {
             addFlowConnection($varsInScope[$variableName], $flowVariableAssigned, 'identity');
-            setUsedVar($parentFlowElement, $variableName, 'used');
+            // setUsedVar($parentFlowElement, $variableName, 'used');
         }
         else {
-            setUsedVar($parentFlowElement, $variableName, 'created');
+            // setUsedVar($parentFlowElement, $variableName, 'created');
         }
 
         $varsInScope[$variableName] = $flowVariableAssigned;
@@ -122,10 +122,10 @@ function flowifyExpression ($expression, $parentFlowElement) {
         // FIXME: is it correct to check for array_key_exists and is_null here?
         if (array_key_exists($variableName, $varsInScope) && !is_null($varsInScope[$variableName])) {
             addFlowConnection($varsInScope[$variableName], $flowVariableAssigned, 'identity');
-            setUsedVar($parentFlowElement, $variableName, 'used');
+            // setUsedVar($parentFlowElement, $variableName, 'used');
         }
         else {
-            setUsedVar($parentFlowElement, $variableName, 'created');
+            // setUsedVar($parentFlowElement, $variableName, 'created');
         }
 
         $varsInScope[$variableName] = $flowVariableAssigned;
@@ -196,10 +196,10 @@ function flowifyExpression ($expression, $parentFlowElement) {
         // FIXME: is it correct to check for array_key_exists and is_null here?
         if (array_key_exists($variableName, $varsInScope) && !is_null($varsInScope[$variableName])) {
             addFlowConnection($varsInScope[$variableName], $flowElement, 'identity');
-            setUsedVar($parentFlowElement, $variableName, 'used');
+            // setUsedVar($parentFlowElement, $variableName, 'used');
         }
         else {
-            setUsedVar($parentFlowElement, $variableName, 'created');
+            // setUsedVar($parentFlowElement, $variableName, 'created');
         }
 
         $varsInScope[$variableName] = $flowElement;

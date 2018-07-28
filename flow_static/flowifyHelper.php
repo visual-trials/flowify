@@ -102,6 +102,7 @@ function getElementsIdsIn($flowElement) {
     return $containerIdsInFlowElement;
 }
 
+/*
 function setUsedVar ($flowElement, $variableName, $createdOrUsed) {
     if (array_key_exists($variableName, $flowElement->usedVars)) {
         $existingCreatedOrUsed = $flowElement->usedVars[$variableName];
@@ -170,6 +171,7 @@ function stripAllButUsedVars($flowElement) {
     }
     
 }
+*/
 
 function combineOpenEndings($newOpenEndings, $openEndings) {
 

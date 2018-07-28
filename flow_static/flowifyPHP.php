@@ -49,8 +49,8 @@ function flowifyPhpAndAttachVisualInfo($fileToFlowifyWithoutExtention)
     $statements = getAstFromPhpCode($code);
 
     $rootFlowElement = flowifyProgram($statements);
-    stripAllButUsedVars($rootFlowElement);
-    $rootFlowElement = flowifyProgram($statements);
+    // stripAllButUsedVars($rootFlowElement);
+    // $rootFlowElement = flowifyProgram($statements);
     
     $rootFlowElementArray = arrayfyFlowElements($rootFlowElement);
     
