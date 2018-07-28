@@ -347,7 +347,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         // addPassThroughsBasedOnChange($thenBodyFlowElement, $elseBodyFlowElement, $varsInScopeAfterCondBody);
         
         // Joining variables between then and else, if they are different
-        $varsInScopeAfterJoining = joinVariablesBasedOnDifference($thenBodyFlowElement->varsInScope, $elseBodyFlowElement->varsInScope, $ifFlowElement);
+        $varsInScopeAfterJoining = joinVariablesBasedOnDifference($thenBodyFlowElement, $elseBodyFlowElement, $ifFlowElement);
 
         // After joining, the ifFlowElement should get the joinedVars in it's scope, so elements after that can connect to the joinedVars
         $ifFlowElement->varsInScope = $varsInScopeAfterJoining; // copy!
@@ -527,8 +527,6 @@ function flowifyForIteration (
 
     // == COND ==
     
-    $varsInScopeBeforeCondBody = $forStepFlowElement->varsInScope; // copy!
-    
     // FIXME: replace ifCond with forCond
     $condBodyFlowElement = createAndAddFlowElementToParent('ifCond', 'cond', null, $forAstNodeIdentifier . "_ForCond", $forStepFlowElement);
     $flowElement = flowifyExpression($conditionExpression, $condBodyFlowElement);
@@ -572,7 +570,7 @@ function flowifyForIteration (
             //       here we assume we add the joinVar inside the updateBody (which we haven't created yet!) so we probably
             //       have to do steps 1-3 between creating the updateBodyFlowElement and flowifying the updateExpression.
             
-            $varsInScopeAfterJoining = joinVariablesBasedOnDifference($bodyThatEndsWithContinue->varsInScope, $iterBodyFlowElement->varsInScope, $iterBodyFlowElement);
+            $varsInScopeAfterJoining = joinVariablesBasedOnDifference($bodyThatEndsWithContinue, $iterBodyFlowElement, $iterBodyFlowElement);
        
             // FIXME: is this indeed the right way to do this? or should the join var be created in the forStepBody?
             $forStepFlowElement->varsInScope = $varsInScopeAfterJoining; // copy back!
@@ -601,7 +599,7 @@ function flowifyForIteration (
     addPassThroughsBasedOnChange($doneBodyFlowElement, $forStepFlowElement, $varsInScopeAfterCondBody);
     
     // Joining variables between beforeCondBody and afterForStep, if they are different
-    $varsInScopeAfterJoining = joinVariablesBasedOnDifference($varsInScopeBeforeCondBody, $forStepFlowElement->varsInScope, $forStepFlowElement, $backBodyFlowElement, $updateExistingConnections = true);
+    $varsInScopeAfterJoining = joinVariablesBasedOnDifference($forFlowElement, $forStepFlowElement, $forStepFlowElement, $backBodyFlowElement, $updateExistingConnections = true);
 
     // FIXME: removed vars that were CREATED inside the loop! We need a better way to do this!
     $strippedVarsInScopeAfterJoining = [];
@@ -626,8 +624,11 @@ function joinVariables($variableName, $differentVariables, $targetElement) {
 
 // FIXME: we should give this functoin the thenBody and elseBody, instead of their varsInScope
 //        we can then give this thenBody or elseBody as the 'laneElement' to the buildPathBackwardsToElementFromVariable
-function joinVariablesBasedOnDifference ($firstVarsInScope, $secondVarsInScope, $targetElement, $passBackBodyFlowElement = null, $updateExistingConnections = false) {
+function joinVariablesBasedOnDifference ($firstLane, $secondLane, $targetElement, $passBackBodyFlowElement = null, $updateExistingConnections = false) {
 
+    $firstVarsInScope = $firstLane->varsInScope;
+    $secondVarsInScope = $secondLane->varsInScope;
+    
     // FIXME: we can most likely simplyfy the code below, since we only have two scopes (not an arbitrary amount anymore)
     //        we can probably get rid of 'doPassBack'
     //        whether we want to keep doPassBack depends on how we implement 'continue' in for loops
