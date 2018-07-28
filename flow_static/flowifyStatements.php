@@ -348,6 +348,10 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         
         // FIXME: we don't want to do the splitting here. Instead, we want the splitter to be added when we *use* a variable
         //        inside the thenBody or elseBody. That way we don't have to break the connections afterwards, like we do here.
+        // CHALLENGE: if we split, and our connection type is 'identity', and later the other side connects with this 
+        //            splitter (with a *normal* connectionType, we should also upgrade all connectionType towards the actually
+        //            variable with normal connectionTypes!
+        
         // Splitting variables if either side (then or else) has used it
         splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElement, $elseBodyFlowElement, null, $ifFlowElement);
         
