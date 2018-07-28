@@ -779,6 +779,10 @@ function buildPathBackwardsToElementFromVariable($laneElement, $toElement, $from
     }
     else {
         
+        
+        // TODO: we still need to check for open ends and deal with them...
+        
+        
         $parentOfLaneElement = getParentElement($laneElement);
         
         if ($parentOfLaneElement !== null) {
