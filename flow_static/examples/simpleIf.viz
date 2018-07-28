@@ -84,14 +84,14 @@
         "y": 30,
         "isPositionOf": "center"
     },
-    "7:1-9:1_JOINED_b": {
-        "x": 370,
-        "y": 80,
-        "isPositionOf": "center"
-    },
     "7:1-9:1_b_SPLIT": {
         "x": 130,
         "y": 70,
+        "isPositionOf": "center"
+    },
+    "7:1-9:1_JOINED_b": {
+        "x": 370,
+        "y": 80,
         "isPositionOf": "center"
     },
     "11:6-11:16": {

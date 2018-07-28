@@ -346,15 +346,15 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         // Adding a passthrough variable if either side has changed a variable, while the other has not
         // addPassThroughsBasedOnChange($thenBodyFlowElement, $elseBodyFlowElement, $varsInScopeAfterCondBody);
         
+        // Splitting variables if either side (then or else) has used it
+        splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElement, $elseBodyFlowElement, null, $ifFlowElement);
+        
         // Joining variables between then and else, if they are different
         $varsInScopeAfterJoining = joinVariablesBasedOnDifference($thenBodyFlowElement, $elseBodyFlowElement, $ifFlowElement);
 
         // After joining, the ifFlowElement should get the joinedVars in it's scope, so elements after that can connect to the joinedVars
         $ifFlowElement->varsInScope = $varsInScopeAfterJoining; // copy!
 
-        // Splitting variables if either side (then or else) has used it
-        splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElement, $elseBodyFlowElement, null, $ifFlowElement);
-        
             
         foreach ($thenBodyFlowElement->varsInScope as $variableName => $thenBodyVarInScopeElement) {
             
