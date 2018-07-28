@@ -346,6 +346,8 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         // Adding a passthrough variable if either side has changed a variable, while the other has not
         // addPassThroughsBasedOnChange($thenBodyFlowElement, $elseBodyFlowElement, $varsInScopeAfterCondBody);
         
+        // FIXME: we don't want to do the splitting here. Instead, we want the splitter to be added when we *use* a variable
+        //        inside the thenBody or elseBody. That way we don't have to break the connections afterwards, like we do here.
         // Splitting variables if either side (then or else) has used it
         splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElement, $elseBodyFlowElement, null, $ifFlowElement);
         
@@ -807,11 +809,41 @@ function buildPathBackwardsToElementFromVariable($laneElement, $toElement, $from
                 }
 
                 
+                // TODO: should we do this here? Or after calling the parent? we could/should also do this in the next recursion!
                 {
                     // Getting (or if not available creating) a splitter
-                    // Note: we could also do this in the next recursion!
                     
-                    // TODO: get/add splitter!
+                    $conditionalSplitVariableFlowElement = null;
+                    if (array_key_exists($variableName, $parentOfLaneElement->varSplitters)) {
+                        $conditionalSplitVariableFlowElement = $parentOfLaneElement->varSplitters[$variableName];
+                        
+                        // FIXME: we are ready, right? Even if we should have connected to the fromVariable, we are now connected to
+                        //        an *existing* element, which presumably is itself connected to the fromVariable (maybe through several in-between elements)
+                        // We now do a simple return, but this should be done more nicely (readable).
+                        
+                        // TODO: what connectionType should we use here?
+                        addFlowConnection($conditionalSplitVariableFlowElement, $toElement);
+                        
+                        // Setting the toElement to the conditionalSplitVariableFlowElement
+                        $toElement = $conditionalSplitVariableFlowElement;
+                        
+                        return;
+                    }
+                    else {
+                        // FIXME: use "*SPLIT*" and put it BEFORE the variable!
+                        // FIXME: is this AST Identifier correct?
+                        $conditionalSplitVariableAstNodeIdentifier = $parentOfLaneElement->astNodeIdentifier . "_" . $variableName . "_SPLIT";
+                        // FIXME: should this be put into the ifBody or the condBody?
+                        $conditionalSplitVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalSplitVariable', $variableName, null, $conditionalSplitVariableAstNodeIdentifier, $parentOfLaneElement);
+                        $parentOfLaneElement->varSplitters[$variableName] = $conditionalSplitVariableFlowElement;
+                        // TODO: add conditionalSplitVariableFlowElement to varsInScope of parentOfLaneElement? of laneElement? and maybe of the sibling lane? (then -> else, else -> then)
+                        
+                        // TODO: what connectionType should we use here?
+                        addFlowConnection($conditionalSplitVariableFlowElement, $toElement);
+                        
+                        // Setting the toElement to the conditionalSplitVariableFlowElement
+                        $toElement = $conditionalSplitVariableFlowElement;
+                    }
                     
                 }
                 
@@ -955,6 +987,7 @@ function splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElem
                     $conditionalSplitVariableAstNodeIdentifier = $parentFlowElement->astNodeIdentifier . "_" . $variableName . "_SPLIT";
                     // FIXME: should this be put into the ifBody or the condBody?
                     $conditionalSplitVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalSplitVariable', $variableName, null, $conditionalSplitVariableAstNodeIdentifier, $parentFlowElement);
+                    $parentFlowElement->varSplitters[$variableName] = $conditionalSplitVariableFlowElement;
                     
                     // Adding a connection from the variableAfterCondBody to the conditionalSplitVariableFlowElement
                     $connectionIdToConditionalSplitVariable = addFlowConnection($variableAfterCondBody, $conditionalSplitVariableFlowElement, $connectionToBeChanged->type); // Note: we use the original type
