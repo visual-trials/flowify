@@ -798,6 +798,11 @@ function buildPathBackwardsToElementFromVariable($laneElement, $toElement, $from
         
         
         // TODO: we still need to check for open ends and deal with them...
+        if (count($laneElement->openEndings->continues) > 0) {
+            // FIXME: how exactly should we proceed here?
+            // echo print_r([ '$laneElement' => $laneElement], true);
+            // echo print_r([ '$laneElement->openEndings->continues' => $laneElement->openEndings->continues], true);
+        }
         
         
         $parentOfLaneElement = getParentElement($laneElement);
