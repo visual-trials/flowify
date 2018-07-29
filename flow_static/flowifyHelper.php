@@ -64,6 +64,8 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
         $flowElement->doPassBack = false; // this is used for for-loops
         $flowElement->onlyHasOpenEndings = false;
         
+        // TODO: don't canContainPassthroughs and canContainSplitters always go hand in hand (one for the child + one for the parent)?
+        $flowElement->canContainPassthroughs = false;
         $flowElement->canContainSplitters = false;
         $flowElement->varSplitters = [];
         

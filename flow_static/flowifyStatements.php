@@ -266,6 +266,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
         
         $thenAstNodeIdentifier = getAstNodeIdentifier($thenStatements);
         $thenBodyFlowElement = createAndAddFlowElementToParent('ifThen', 'then', null, $thenAstNodeIdentifier, $ifFlowElement, $useVarScopeFromParent = false);
+        $thenBodyFlowElement->canContainPassthroughs = true;
         
         // Note: we *copy* the varsInScope here. This is because the thenBody might replace vars in it's scope,
         //       These are however conditional-replacement when it comes to the if-statement. 
@@ -301,6 +302,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
             
             $elseAstNodeIdentifier = getAstNodeIdentifier($elseStatements);
             $elseBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'else', null, $elseAstNodeIdentifier, $ifFlowElement, $useVarScopeFromParent = false);
+            $elseBodyFlowElement->canContainPassthroughs = true;
             
             // Note: we *copy* the varsInScope here. This is because the elseBody might replace vars in it's scope,
             //       These are however conditional-replacement when it comes to the if-statement. 
@@ -327,6 +329,7 @@ function flowifyIfStatement($ifStatement, $parentFlowElement) {
             $elseAstNodeIdentifier = $ifAstNodeIdentifier . "_ImplicitElse";
             // FIXME: this should be of type: 'ifElseImplicit'
             $elseBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'else', null, $elseAstNodeIdentifier, $ifFlowElement, $useVarScopeFromParent = false);
+            $elseBodyFlowElement->canContainPassthroughs = true;
             
             $elseBodyFlowElement->varsInScope = $ifFlowElement->varsInScope;  // copy!
             $elseBodyFlowElement->functionsInScope = &$ifFlowElement->functionsInScope;
@@ -445,12 +448,14 @@ function flowifyForStatement($forStatement, $parentFlowElement) {
         $doneAstNodeIdentifier = $forAstNodeIdentifier . "_ImplicitDone";
         // FIXME: this should be of type: 'forDoneImplicit'
         $doneBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'done', null, $doneAstNodeIdentifier, $forFlowElement);
+        $doneBodyFlowElement->canContainPassthroughs = true;
         
         // == BACK ==
         
         $backAstNodeIdentifier = $forAstNodeIdentifier . "_ImplicitBack";
         // FIXME: this should be of type: 'forBackImplicit'
         $backBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'back', null, $backAstNodeIdentifier, $forFlowElement);
+        $backBodyFlowElement->canContainPassthroughs = true;
         
      
         // == COND / ITER / UPDATE ==
@@ -789,7 +794,12 @@ function buildPathBackwardsToElementFromVariable($laneElement, $toElement, $from
     if ($isAncestorOfFromVariable) {
         // Connect the fromVariable to the toElement
         // TODO: what connectionType should we use here?
-        addFlowConnection($fromVariable, $toElement);
+        if ($toElement !== null) {
+            addFlowConnection($fromVariable, $toElement);
+        }
+        
+        // Setting the toElement to the fromVariable
+        $toElement = $fromVariable;
     }
     else {
         
@@ -801,7 +811,7 @@ function buildPathBackwardsToElementFromVariable($laneElement, $toElement, $from
         
         if ($parentOfLaneElement !== null) {
    
-            if ($parentOfLaneElement->canContainSplitters) {
+            if ($parentOfLaneElement->canContainSplitters && $laneElement->canContainPassthroughs) {
                 
                 {
                     // Adding a passthrough
@@ -811,7 +821,9 @@ function buildPathBackwardsToElementFromVariable($laneElement, $toElement, $from
 
                     
                     // Connecting the passthrough variable to the toElement to the
-                    addFlowConnection($passThroughVariableFlowElement, $toElement);
+                    if ($toElement !== null) {
+                        addFlowConnection($passThroughVariableFlowElement, $toElement);
+                    }
                     
                     // Setting the toElement to the passThroughVariableFlowElement
                     $toElement = $passThroughVariableFlowElement;
@@ -834,7 +846,9 @@ function buildPathBackwardsToElementFromVariable($laneElement, $toElement, $from
                         // We now do a simple return, but this should be done more nicely (readable).
                         
                         // TODO: what connectionType should we use here?
-                        addFlowConnection($conditionalSplitVariableFlowElement, $toElement);
+                        if ($toElement !== null) {
+                            addFlowConnection($conditionalSplitVariableFlowElement, $toElement);
+                        }
                         
                         // Setting the toElement to the conditionalSplitVariableFlowElement
                         $toElement = $conditionalSplitVariableFlowElement;
@@ -851,7 +865,9 @@ function buildPathBackwardsToElementFromVariable($laneElement, $toElement, $from
                         // TODO: add conditionalSplitVariableFlowElement to varsInScope of parentOfLaneElement? of laneElement? and maybe of the sibling lane? (then -> else, else -> then)
                         
                         // TODO: what connectionType should we use here?
-                        addFlowConnection($conditionalSplitVariableFlowElement, $toElement);
+                        if ($toElement !== null) {
+                            addFlowConnection($conditionalSplitVariableFlowElement, $toElement);
+                        }
                         
                         // Setting the toElement to the conditionalSplitVariableFlowElement
                         $toElement = $conditionalSplitVariableFlowElement;
@@ -865,7 +881,7 @@ function buildPathBackwardsToElementFromVariable($laneElement, $toElement, $from
             }
             
             
-            buildPathBackwardsToElementFromVariable($parentOfLaneElement, $toElement, $fromVariable, $variableName);
+            $toElement = buildPathBackwardsToElementFromVariable($parentOfLaneElement, $toElement, $fromVariable, $variableName);
             
         }
         else {
@@ -873,6 +889,8 @@ function buildPathBackwardsToElementFromVariable($laneElement, $toElement, $from
             die("toElement is somehow not a child of the root element!");
         }
     }
+    
+    return $toElement;
     
 }
 

@@ -16,7 +16,11 @@ function flowifyExpression ($expression, $parentFlowElement) {
         $variableName = $expression['name'];
         if (array_key_exists($variableName, $varsInScope)) {
             // Note: this could be a conditionalJoinVariableFlowElement
-            $flowElement = $varsInScope[$variableName];
+            
+            $fromVariable = $varsInScope[$variableName];
+            $flowElement = buildPathBackwardsToElementFromVariable($parentFlowElement, $toElement = null, $fromVariable, $variableName);
+            
+            // $flowElement = $varsInScope[$variableName];
             // setUsedVar($parentFlowElement, $variableName, 'used');
         }
         else {
@@ -172,7 +176,7 @@ function flowifyExpression ($expression, $parentFlowElement) {
         $rightFlow = flowifyExpression($rightExpression, $parentFlowElement);
 
         $flowElement = createAndAddChildlessFlowElementToParent('primitiveFunction', $binaryOpName, null, $astNodeIdentifier, $parentFlowElement);
-
+        
         addFlowConnection($leftFlow, $flowElement);
         addFlowConnection($rightFlow, $flowElement);
     }

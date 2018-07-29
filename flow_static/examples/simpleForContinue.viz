@@ -1,7 +1,7 @@
 {
     "0:0-0:0": {
-        "x": 2830,
-        "y": 750,
+        "x": 2740,
+        "y": 660,
         "isPositionOf": "center",
         "width": 1300,
         "height": 750
@@ -98,12 +98,12 @@
     },
     "8:5-11:16_Stmts": {
         "x": 230,
-        "y": 310,
+        "y": 300,
         "isPositionOf": "center"
     },
     "8:5-10:5": {
-        "x": 50,
-        "y": 40,
+        "x": 70,
+        "y": 90,
         "isPositionOf": "center"
     },
     "8:5-10:5_IfCond": {
