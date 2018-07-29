@@ -601,9 +601,6 @@ function flowifyForIteration (
     $flowElement = flowifyExpression($updateExpression, $updateBodyFlowElement);
     // $forStepFlowElement->usedVars = array_merge($updateBodyFlowElement->usedVars, $forStepFlowElement->usedVars);
     
-    // Adding a passthrough variable if the iter/update side has changed a variable: the done-side then needs a passthrough
-    addPassThroughsBasedOnChange($doneBodyFlowElement, $forStepFlowElement, $varsInScopeAfterCondBody);
-    
     // Joining variables between beforeCondBody and afterForStep, if they are different
     $varsInScopeAfterJoining = joinVariablesBasedOnDifference($forFlowElement, $forStepFlowElement, $forStepFlowElement, $backBodyFlowElement, $updateExistingConnections = true);
 
@@ -612,7 +609,18 @@ function flowifyForIteration (
     foreach ($varsInScopeAfterCondBody as $variableName => $varInScopeAfterCondBody) {
         $strippedVarsInScopeAfterJoining[$variableName] = $varsInScopeAfterJoining[$variableName];
     }
-    splitVariablesBasedOnUsage($strippedVarsInScopeAfterJoining, $doneBodyFlowElement, $iterBodyFlowElement, $updateBodyFlowElement, $forStepFlowElement);
+    $varsInScopeAfterSplitting = splitVariablesBasedOnUsage($strippedVarsInScopeAfterJoining, $doneBodyFlowElement, $iterBodyFlowElement, $updateBodyFlowElement, $forStepFlowElement);
+
+
+    // FIXME: we should not add the passThtough yet! But when a variable from the for-loop is used
+    //        buildPathBackwardsToElementFromVariable should ensure a passthrough variable is created inside
+    //        the doneBody
+    $doneBodyFlowElement->varsInScope = $varsInScopeAfterSplitting; // FIXME: workaround!
+    
+    // Adding a passthrough variable if the iter/update side has changed a variable: the done-side then needs a passthrough
+    // FIXME: workaround! we made varsInScopeAfterSplitting and the varsInScope the same thing, so this function would detect a change
+    //                    in ONLY the forStepFlowElement. this is a HACK!
+    addPassThroughsBasedOnChange($doneBodyFlowElement, $forStepFlowElement, $varsInScopeAfterSplitting);
     
 }
 
@@ -707,7 +715,7 @@ function joinVariablesBasedOnDifference ($firstLane, $secondLane, $targetElement
             if ($updateExistingConnections) {
                 // FIXME: also remove joinVariables?
                 $differentVariablesToBeJoined = [];
-                foreach (array_values($differentVariablesWithLanes) as $differentVariableWithLane) {
+                foreach (array_values($differentVariablesWithLanesToBeJoined) as $differentVariableWithLane) {
                     array_push($differentVariablesToBeJoined, $differentVariableWithLane['variable']);
                 }
                 $conditionalJoinVariableFlowElement = joinVariables($variableName, $differentVariablesToBeJoined, $targetElement);
@@ -909,7 +917,6 @@ function addPassThroughsBasedOnChange($thenBodyFlowElement, $elseBodyFlowElement
 
             // We add this passthrough variable to the scope of the elseBody
             $elseBodyFlowElement->varsInScope[$variableName] = $passThroughVariableFlowElement;
-            
         }
         else if ($varReplacedInElseBody) {
             // Only the elseBody has replaced the variable. We use the parent's variable as the (default) then variable
@@ -938,7 +945,10 @@ function splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElem
     
     // FIXME: don't call it then and else, call it left/right or true/false
         
+    $varsInScopeAfterSplitting = [];
     foreach ($varsInScopeAfterCondBody as $variableName => $variableAfterCondBody) {
+        // FIXME: workaround, so will have a varsInScope after splitting
+        $varsInScopeAfterSplitting[$variableName] = $variableAfterCondBody;
 
         // We also want to create a conditional *split* element between the condBody and thenBody, and between the condBody and elseBody
         // We need to know the connections going from the condBody into the thenBody and elseBody (for this variable)
@@ -993,6 +1003,9 @@ function splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElem
                     $conditionalSplitVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalSplitVariable', $variableName, null, $conditionalSplitVariableAstNodeIdentifier, $parentFlowElement);
                     $parentFlowElement->varSplitters[$variableName] = $conditionalSplitVariableFlowElement;
                     
+                    // FIXME: workaround so the varsInScope of the then/else is updated if the var doesn't exist yet!
+                    $varsInScopeAfterSplitting[$variableName] = $conditionalSplitVariableFlowElement;
+                    
                     // Adding a connection from the variableAfterCondBody to the conditionalSplitVariableFlowElement
                     $connectionIdToConditionalSplitVariable = addFlowConnection($variableAfterCondBody, $conditionalSplitVariableFlowElement, $connectionToBeChanged->type); // Note: we use the original type
                     // This connection will effectively be added to $variableAfterCondBody->connectionIdsFromThisElement
@@ -1031,5 +1044,5 @@ function splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElem
         
     }
     
-    
+    return $varsInScopeAfterSplitting;
 }
