@@ -62,7 +62,10 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
         
         $flowElement->connectionIdsFromThisElement = [];
         $flowElement->doPassBack = false; // this is used for for-loops
+        
+        $flowElement->hasOpenEndings = false;
         $flowElement->onlyHasOpenEndings = false;
+        $flowElement->openEndings = new OpenEndings; // TODO: maybe not create this always?
         
         // TODO: don't canContainPassthroughs and canContainSplitters always go hand in hand (one for the child + one for the parent)?
         $flowElement->canContainPassthroughs = false;
@@ -276,7 +279,11 @@ class FlowElement {
     // public $usedVars;
     public $varsInScope;
     public $functionsInScope;
+    
+    public $hasOpenEndings;
     public $onlyHasOpenEndings;
+    public $openEndings;
+    
     public $endsWith; // null, 'continue', 'break', 'return'
     public $returnVar;
 }
