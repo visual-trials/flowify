@@ -199,7 +199,7 @@ function flowifyExpression ($expression, $parentFlowElement) {
         
         // FIXME: is it correct to check for array_key_exists and is_null here?
         if (array_key_exists($variableName, $varsInScope) && !is_null($varsInScope[$variableName])) {
-            addFlowConnection($varsInScope[$variableName], $flowElement, 'identity');
+//FIXME            addFlowConnection($varsInScope[$variableName], $flowElement, 'identity');
             // setUsedVar($parentFlowElement, $variableName, 'used');
         }
         else {

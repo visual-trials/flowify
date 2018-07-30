@@ -782,6 +782,13 @@ function joinVariablesBasedOnDifference ($firstLane, $secondLane, $targetElement
 }
 
 function buildPathBackwardsToElementFromVariable($laneElement, $toElement, $fromVariable, $variableName) {
+$laneElementId =     $laneElement->id;
+$fromVariableId = $fromVariable->id;
+$toElementId = $toElement->id;
+
+    $flowElement = null;
+    
+    $originalToElementId = $toElement->id;
     
     $isAncestorOfFromVariable = isAncestorOf($laneElement, $fromVariable);
     if ($isAncestorOfFromVariable) {
@@ -792,16 +799,51 @@ function buildPathBackwardsToElementFromVariable($laneElement, $toElement, $from
         }
         
         // Setting the toElement to the fromVariable
-        $toElement = $fromVariable;
+        $flowElement = $fromVariable;
     }
     else {
         
         
         // TODO: we still need to check for open ends and deal with them...
         if (count($laneElement->openEndings->continues) > 0) {
+            
             // FIXME: how exactly should we proceed here?
-            // echo print_r([ '$laneElement' => $laneElement], true);
-            // echo print_r([ '$laneElement->openEndings->continues' => $laneElement->openEndings->continues], true);
+            $openEndInsideLane = reset($laneElement->openEndings->continues);
+
+            //echo print_r([ '$laneElement->id' => $laneElement->id], true);
+            //echo print_r([ '$fromVariable->id' => $fromVariable->id], true);
+            
+            // FIXME: the BIGGEST problem is that we need to know which open-ends to 'go back through' and which ones not. Also in which order!
+            
+            // FIXME: we somehow need to get the 'other-side' of this open end
+            // FIXME: HACK now assuming its an then or else, finding it via the parent and its children...
+            $searchingForType = $openEndInsideLane->name === 'else' ? 'then' : 'else';
+            $parentOfOpenEnd = getParentElement($openEndInsideLane);
+            if ($parentOfOpenEnd->name === 'if') { // FIXME: we want the DIRECT parent, containing the openEnds
+                foreach ($parentOfOpenEnd->children as $childOfIfElement) {
+                    if ($childOfIfElement->name === $searchingForType && !$childOfIfElement->alreadyAdded) {
+                        $childOfIfElement->alreadyAdded = true; // FIXME: HACK!!!
+                        //echo print_r([ '$childOfIfElement' => $childOfIfElement], true);
+    //            echo print_r([ '$laneElement->openEndings->continues' => $laneElement->openEndings->continues], true);
+
+                        // FIXME: wouldn't this result in an infinite loop? since we will constantly go back to this laneElements that has an openEnd, and the go back to its child again...
+                        // FIXME: HACKS!
+                        // FIXME: HACKS!
+                        // FIXME: HACKS!
+                        /*
+                        $laneElement->openEndings->continues = [];
+                        getParentElement($laneElement)->openEndings->continues = [];
+                        foreach ($laneElement->children as $laneChild) {
+                            $laneChild->openEndings->continues = [];
+                        }
+                        */
+                        // FIXME: overriding laneElement so that the following code will proceed with it as if it was the lane
+                        $laneElement = $childOfIfElement;
+                        
+                    }
+                }
+            }
+            
         }
         
         
@@ -825,6 +867,9 @@ function buildPathBackwardsToElementFromVariable($laneElement, $toElement, $from
                     
                     // Setting the toElement to the passThroughVariableFlowElement
                     $toElement = $passThroughVariableFlowElement;
+                    if ($flowElement === null) {
+                        $flowElement = $passThroughVariableFlowElement;
+                    }
 
                     // We add this passthrough variable to the scope of the laneElement
                     $laneElement->varsInScope[$variableName] = $passThroughVariableFlowElement;
@@ -850,8 +895,11 @@ function buildPathBackwardsToElementFromVariable($laneElement, $toElement, $from
                         
                         // Setting the toElement to the conditionalSplitVariableFlowElement
                         $toElement = $conditionalSplitVariableFlowElement;
+                        if ($flowElement === null) {
+                            $flowElement = $conditionalSplitVariableFlowElement;
+                        }
                         
-                        return;
+                        return $flowElement; // FIXME: is this correct?
                     }
                     else {
                         // FIXME: use "*SPLIT*" and put it BEFORE the variable!
@@ -869,6 +917,9 @@ function buildPathBackwardsToElementFromVariable($laneElement, $toElement, $from
                         
                         // Setting the toElement to the conditionalSplitVariableFlowElement
                         $toElement = $conditionalSplitVariableFlowElement;
+                        if ($flowElement === null) {
+                            $flowElement = $conditionalSplitVariableFlowElement;
+                        }
                     }
                     
                 }
@@ -878,8 +929,10 @@ function buildPathBackwardsToElementFromVariable($laneElement, $toElement, $from
                 // there is no need to split, we simply continue to the next parent
             }
             
-            
-            $toElement = buildPathBackwardsToElementFromVariable($parentOfLaneElement, $toElement, $fromVariable, $variableName);
+            $flowElement2 = buildPathBackwardsToElementFromVariable($parentOfLaneElement, $toElement, $fromVariable, $variableName);
+            if ($flowElement === null) {
+                $flowElement = $flowElement2;
+            }
             
         }
         else {
@@ -888,7 +941,8 @@ function buildPathBackwardsToElementFromVariable($laneElement, $toElement, $from
         }
     }
     
-    return $toElement;
+// echo print_r([ '$laneElement->id' => $laneElementId, '$newlaneElement->id' => $laneElement->id, '$fromVariable->id' => $fromVariableId, '$toElement->id' => $toElement->id, 'oldtoElement->id' => $toElementId], true);
+    return $flowElement;
     
 }
 
