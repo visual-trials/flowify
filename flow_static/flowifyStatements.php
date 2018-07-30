@@ -568,7 +568,7 @@ function flowifyForIteration (
         
             // FIXME: HACK!
             $bodyThatEndsWithContinue = reset($iterOpenEndings->continues);
-            addPassThroughsBasedOnChange($bodyThatEndsWithContinue, $iterBodyFlowElement, $varsInScopeAfterCondBody);
+            // FIXME: remove this (joinVariablesBasedOnDifference will add this passthrough!) addPassThroughsBasedOnChange($bodyThatEndsWithContinue, $iterBodyFlowElement, $varsInScopeAfterCondBody);
                 
              // 2) joinVariablesBasedOnDifference(varsInScopeBeforeIterBody?, iterBodyFlowElement->varsInScope, updateBody?)
             //       the passthrough var in the continueBody should be joined with the (changed) var in the iterBodyFlowElement

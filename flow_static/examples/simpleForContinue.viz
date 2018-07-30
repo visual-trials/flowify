@@ -136,6 +136,11 @@
         "y": 100,
         "isPositionOf": "center"
     },
+    "8:5-10:5_b_SPLIT": {
+        "x": 180,
+        "y": 40,
+        "isPositionOf": "center"
+    },
     "11:15-11:15": {
         "x": 350,
         "y": 250,
