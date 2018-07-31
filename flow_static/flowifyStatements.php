@@ -362,7 +362,7 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
         //            variable with normal connectionTypes!
         
         // Splitting variables if either side (then or else) has used it
-        splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElement, $elseBodyFlowElement, null, $ifFlowElement);
+        // turned off: splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElement, $elseBodyFlowElement, null, $ifFlowElement);
         
         // Joining variables between then and else, if they are different
         $varsInScopeAfterJoining = joinVariablesBasedOnDifference($thenBodyFlowElement, $elseBodyFlowElement, $ifFlowElement);
