@@ -129,7 +129,7 @@ Bodies/Lanes end with terminator-statements:
 
 * At **variable-use** we take the **parentElement** (of the toElement) and call it the **laneElement** towards the buildingPath-function
     * Note: optionally we start at the previousElement (of the toElement)
-* We check if for this variable the **varsInScopeChanged** is true. If it is, the var we want to connect to in somewhere in this Lane
+* We check if for this variable the **varsInScopeChanged** is true. If it is, the var we want to connect to is somewhere in this Lane
     * We **loop though all the Lane's children backwards** (or start the last and use preivousELement each time). We do the following for each child
         * If the variableName is in **lastChangedVariable**, we connect to that var (and are done)
         * If in the child, for this variable the varsInScopeChanged is true, then we recurse into this child as Lane
@@ -145,3 +145,9 @@ Bodies/Lanes end with terminator-statements:
     * For elements that contain splitters (If/For) and for elements that can contain joiners (Catch/Function/Update/Done), we should detrmine whether the varsInScopeChanged is true.
         * Basicly, we need to know whether a var was changed between the **split** and **join** (by *either* side)
         * Only if the variable was **changed by either side** OR if the **join was assymetric**, should you build a path through all previousElements of **both sides**.
+            * We do this by first adding a joiner and then building a path from that joining into both sides
+            * When we reach a point where a splitter should be added (If/For) we add a one
+            * If we start entering a parent again and varsInScopeChanged was not filled, we add a passthrough
+            * Note: whenever we add a splitter, joiner or passthrough we:
+                * add it to the lastChangedVariable of the (exiting?)parent
+                * set varsInScopeChanged to all (exiting?)parents until the point where varsInScopeAvailable is not true for the variable anymore
