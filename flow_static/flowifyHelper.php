@@ -19,11 +19,6 @@ function addFlowConnection ($fromFlowElement, $toFlowElement, $connectionType = 
     return $flowConnection->id;
 }
 
-function addFlowElementToParent ($flowElement, $parentFlowElement) {
-    array_push($parentFlowElement->children, $flowElement);
-    $flowElement->parentId = $parentFlowElement->id;
-}
-
 function getParentElement($flowElement) {
     
     global $flowElements;
@@ -58,21 +53,20 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
         $flowElement->name = $flowElementName;
         $flowElement->value = $flowElementValue;
         
-        // $flowElement->usedVars = [];
-        
         $flowElement->connectionIdsFromThisElement = [];
-        $flowElement->doPassBack = false; // this is used for for-loops
+        $flowElement->doPassBack = false; // this is used for for-loops  // FIXME: this is depracated!?
         
         $flowElement->hasOpenEndings = false;
         $flowElement->onlyHasOpenEndings = false;
         $flowElement->openEndings = new OpenEndings; // TODO: maybe not create this always?
         
         // TODO: don't canContainPassthroughs and canContainSplitters always go hand in hand (one for the child + one for the parent)?
-        $flowElement->canContainPassthroughs = false;
-        $flowElement->canContainSplitters = false;
-        $flowElement->varSplitters = [];
+        $flowElement->canContainPassthroughs = false; // FIXME: this is depracated!
+        $flowElement->canContainSplitters = false; // FIXME: this is depracated!
+        $flowElement->varSplitters = []; // FIXME: this is depracated!
         
         $flowElement->parentId = null;
+        $flowElement->canHaveChildren = $canHaveChildren;
         if ($canHaveChildren) {
             $flowElement->children = [];
         }
@@ -87,6 +81,24 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
     // }
 
     return $flowElement;
+}
+
+function addFlowElementToParent ($flowElement, $parentFlowElement) {
+    // Setting the previousElement of the child to the lastChild of the parent, but leaving it null if there are no children yet
+    if (count($parentFlowElement->children > 0)) {
+        $flowElement->previousId = end($parentFlowElement->children)->id;
+        reset($parentFlowElement->children);
+    }
+    // Adding it to the 'children' array
+    array_push($parentFlowElement->children, $flowElement);
+    // Setting the lastChild of the parent to the new child
+    $parentFlowElement->lastChildId = $flowElement->id;
+    // Setting the parent of the child to the parent
+    $flowElement->parentId = $parentFlowElement->id;
+    // Copying the varsInScopeAvailable from the parent to the child (if child is not childless)
+    if ($flowElement->canHaveChildren) {
+        $flowElement->varsInScopeAvailable = $parentFlowElement->varsInScopeAvailable;
+    }
 }
 
 function createAndAddFlowElementToParent ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $parentFlowElement, $useVarScopeFromParent = true) {
@@ -206,6 +218,7 @@ class FlowElement {
     
     public $previousId;
     
+    public $canHaveChildren;
     public $children;
     public $lastChildId;
     

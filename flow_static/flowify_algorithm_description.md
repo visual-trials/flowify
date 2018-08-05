@@ -66,6 +66,7 @@ Bodies/Lanes end with terminator-statements:
 ### Backwards
 
 #### Control flow data
+* canHaveChildren
 * previousElement
 * parentElement
 * exitingParentElement 
@@ -126,9 +127,10 @@ Bodies/Lanes end with terminator-statements:
     
 ## addChildToParent helper function
 * When adding a child to a parent, we should:
-    * set the preivousElement of the child to the lastChild of the parent, leave it null if there are no children yet
+    * set the previousElement of the child to the lastChild of the parent, leave it null if there are no children yet
     * add it to the 'children' array
     * set the lastChild of the parent to the new child
+    * set the parent of the child to the parent
     * copy the varsInScopeAvailable from the parent to the child (if child is not childless)
     
 ## Building a path backwards
