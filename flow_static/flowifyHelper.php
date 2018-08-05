@@ -201,13 +201,24 @@ class FlowElement {
     public $type;
     public $name; 
     public $value; 
-    public $connectionIdsFromThisElement;
-    public $parentId;
-    public $children;
+    
     public $astNodeIdentifier;
-    // public $usedVars;
-    public $varsInScope;
+    
+    public $previousId;
+    
+    public $children;
+    public $lastChildId;
+    
+    public $parentId;
+    public $exitingParentId;
+    
+    public $connectionIdsFromThisElement;
+    
     public $functionsInScope;
+    
+    public $varsInScope;
+    public $varsInScopeAvailable;
+    public $varsInScopeChanged;
     
     public $hasOpenEndings;
     public $onlyHasOpenEndings;
@@ -224,6 +235,42 @@ class FlowConnection {
     public $type; 
 }
 
+function getFlowDataFromElement ($flowElement) {
+    $flowData = "";
+    $flowData .= 'previous:' . $flowElement->previousId . "\n";
+    $flowData .= 'lastchild:' . $flowElement->lastChildId . "\n";
+    $flowData .= 'parent:' . $flowElement->parentId . "\n";
+    $flowData .= 'exitingParent:' . $flowElement->exitingParentId . "\n";
+    $flowData .= "\n";
+    
+    $varsInScopeAvailable = "";
+    if (!empty($varsInScopeAvailable)) {
+        $varsInScopeAvailable = implode(',' , array_keys($flowElement->varsInScopeAvailable));
+    }
+    $flowData .= 'varsInScopeAvailable:' . $varsInScopeAvailable . "\n";
+    
+    $varsInScopeChanged = "";
+    if (!empty($varsInScopeChanged)) {
+        $varsInScopeChanged = implode(',' , array_keys($flowElement->varsInScopeChanged));
+    }
+    $flowData .= 'varsInScopeChanged:' . $varsInScopeChanged . "\n";
+    
+    $flowData .= "\n";
+    $flowData .= 'endsWith:' . $flowElement->endsWith . "\n";
+    $flowData .= 'hasOpenEndings:' . $flowElement->hasOpenEndings ? 'true' : 'false' . "\n";
+    $flowData .= 'onlyHasOpenEndings:' . $flowElement->onlyHasOpenEndings ? 'true' : 'false' . "\n";
+    
+    $openEndings = $flowElement->openEndings;
+    $openEndReturns = implode(',' , array_keys($openEndings->returns));
+    $openEndBreaks = implode(',' , array_keys($openEndings->breaks));
+    $openEndContinues = implode(',' , array_keys($openEndings->continues));
+    $flowData .= 'openEnds:' . "\n";
+    $flowData .= '  returns:' . $openEndReturns . "\n";
+    $flowData .= '  breaks:' . $openEndBreaks . "\n";
+    $flowData .= '  continues:' . $openEndContinues . "\n";
+
+    return $flowData;
+}
 
 function arrayfyFlowElements ($flowElement) {
     
@@ -234,6 +281,7 @@ function arrayfyFlowElements ($flowElement) {
     $flowElementArray['name'] = $flowElement->name;
     $flowElementArray['value'] = $flowElement->value;
     $flowElementArray['astNodeIdentifier'] = $flowElement->astNodeIdentifier;
+    $flowElementArray['flowData'] = getFlowDataFromElement($flowElement);
     
     if (!is_null($flowElement->children)) {
         $flowElementChildrenArray = [];
