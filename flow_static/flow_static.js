@@ -38,7 +38,8 @@ var containerTypeProperties = {
             basicInfo: [
                 { containerKey: "identifier", displayName: "identifier" },
                 { containerKey: "type", displayName: "type" },
-                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" }
+                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" },
+                { containerDataKey: "flowData", displayName: "flowData" }
             ]
         }
     },
@@ -92,7 +93,8 @@ var containerTypeProperties = {
             basicInfo: [
                 { containerKey: "identifier", displayName: "identifier" },
                 { containerKey: "type", displayName: "type" },
-                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" }
+                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" },
+                { containerDataKey: "flowData", displayName: "flowData" }
             ]
         }
     },
@@ -126,7 +128,8 @@ var containerTypeProperties = {
             basicInfo: [
                 { containerKey: "identifier", displayName: "identifier" },
                 { containerKey: "type", displayName: "type" },
-                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" }
+                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" },
+                { containerDataKey: "flowData", displayName: "flowData" }
             ]
         }
     },
@@ -140,7 +143,8 @@ var containerTypeProperties = {
             basicInfo: [
                 { containerKey: "identifier", displayName: "identifier" },
                 { containerKey: "type", displayName: "type" },
-                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" }
+                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" },
+                { containerDataKey: "flowData", displayName: "flowData" }
             ]
         }
     },
@@ -179,7 +183,8 @@ var containerTypeProperties = {
             basicInfo: [
                 { containerKey: "identifier", displayName: "identifier" },
                 { containerKey: "type", displayName: "type" },
-                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" }
+                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" },
+                { containerDataKey: "flowData", displayName: "flowData" }
             ]
         }
     },
@@ -218,7 +223,8 @@ var containerTypeProperties = {
             basicInfo: [
                 { containerKey: "identifier", displayName: "identifier" },
                 { containerKey: "type", displayName: "type" },
-                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" }
+                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" },
+                { containerDataKey: "flowData", displayName: "flowData" }
             ]
         }
     },
@@ -257,7 +263,8 @@ var containerTypeProperties = {
             basicInfo: [
                 { containerKey: "identifier", displayName: "identifier" },
                 { containerKey: "type", displayName: "type" },
-                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" }
+                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" },
+                { containerDataKey: "flowData", displayName: "flowData" }
             ]
         }
     },
@@ -301,7 +308,8 @@ var containerTypeProperties = {
             basicInfo: [
                 { containerKey: "identifier", displayName: "identifier" },
                 { containerKey: "type", displayName: "type" },
-                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" }
+                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" },
+                { containerDataKey: "flowData", displayName: "flowData" }
             ]
         }
     },
@@ -320,7 +328,8 @@ var containerTypeProperties = {
             basicInfo: [
                 { containerKey: "identifier", displayName: "identifier" },
                 { containerKey: "type", displayName: "type" },
-                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" }
+                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" },
+                { containerDataKey: "flowData", displayName: "flowData" }
             ]
         }
     },
@@ -341,7 +350,8 @@ var containerTypeProperties = {
             basicInfo: [
                 { containerKey: "identifier", displayName: "identifier" },
                 { containerKey: "type", displayName: "type" },
-                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" }
+                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" },
+                { containerDataKey: "flowData", displayName: "flowData" }
             ]
         }
     },
@@ -362,7 +372,8 @@ var containerTypeProperties = {
             basicInfo: [
                 { containerKey: "identifier", displayName: "identifier" },
                 { containerKey: "type", displayName: "type" },
-                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" }
+                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" },
+                { containerDataKey: "flowData", displayName: "flowData" }
             ]
         }
     },
@@ -382,7 +393,8 @@ var containerTypeProperties = {
             basicInfo: [
                 { containerKey: "identifier", displayName: "identifier" },
                 { containerKey: "type", displayName: "type" },
-                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" }
+                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" },
+                { containerDataKey: "flowData", displayName: "flowData" }
             ]
         }
     },
@@ -401,7 +413,8 @@ var containerTypeProperties = {
             basicInfo: [
                 { containerKey: "identifier", displayName: "identifier" },
                 { containerKey: "type", displayName: "type" },
-                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" }
+                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" },
+                { containerDataKey: "flowData", displayName: "flowData" }
             ]
         }
     },
@@ -485,6 +498,7 @@ var extendWorldContainerWithVisualInfo = function (worldContainer, flowElement) 
     }
 
     worldContainer.containerData.astNodeIdentifier = flowElement.astNodeIdentifier
+    worldContainer.containerData.flowData = flowElement.flowData
 }
 
 function convertFlowDataToZUIContainers (world, flowData) {

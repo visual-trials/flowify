@@ -52,7 +52,7 @@ ZUI.main = function () {
     my.showGrid = false
 
     my.showSideBar = true
-    my.showOverviewCamera = true
+    my.showOverviewCamera = false
     my.showGraph = false
     my.showLog = true
 
@@ -168,7 +168,7 @@ ZUI.main = function () {
 
         if (my.showSideBar) {
 
-            var zuiAndSideBarRectangles = ZUI.canvas.splitRectanglePxHorizontallyUsingPixels(zuiRectanglePx, zuiRectanglePx.pixelSize.widthPx - canvasWidthPx * 0.20)
+            var zuiAndSideBarRectangles = ZUI.canvas.splitRectanglePxHorizontallyUsingPixels(zuiRectanglePx, zuiRectanglePx.pixelSize.widthPx - canvasWidthPx * 0.30)
 
             zuiRectanglePx = zuiAndSideBarRectangles.leftRectanglePx
             sideBarRectanglePx = zuiAndSideBarRectangles.rightRectanglePx

@@ -237,37 +237,38 @@ class FlowConnection {
 
 function getFlowDataFromElement ($flowElement) {
     $flowData = "";
-    $flowData .= 'previous:' . $flowElement->previousId . "\n";
-    $flowData .= 'lastchild:' . $flowElement->lastChildId . "\n";
-    $flowData .= 'parent:' . $flowElement->parentId . "\n";
-    $flowData .= 'exitingParent:' . $flowElement->exitingParentId . "\n";
+    $flowData .= 'previous: ' . $flowElement->previousId . "\n";
+    $flowData .= 'lastchild: ' . $flowElement->lastChildId . "\n";
+    $flowData .= 'parent: ' . $flowElement->parentId . "\n";
+    $flowData .= 'exitingParent: ' . $flowElement->exitingParentId . "\n";
     $flowData .= "\n";
     
     $varsInScopeAvailable = "";
     if (!empty($varsInScopeAvailable)) {
         $varsInScopeAvailable = implode(',' , array_keys($flowElement->varsInScopeAvailable));
     }
-    $flowData .= 'varsInScopeAvailable:' . $varsInScopeAvailable . "\n";
+    $flowData .= 'varsInScopeAvailable: ' . $varsInScopeAvailable . "\n";
     
     $varsInScopeChanged = "";
     if (!empty($varsInScopeChanged)) {
         $varsInScopeChanged = implode(',' , array_keys($flowElement->varsInScopeChanged));
     }
-    $flowData .= 'varsInScopeChanged:' . $varsInScopeChanged . "\n";
-    
+    $flowData .= 'varsInScopeChanged: ' . $varsInScopeChanged . "\n";
     $flowData .= "\n";
-    $flowData .= 'endsWith:' . $flowElement->endsWith . "\n";
-    $flowData .= 'hasOpenEndings:' . $flowElement->hasOpenEndings ? 'true' : 'false' . "\n";
-    $flowData .= 'onlyHasOpenEndings:' . $flowElement->onlyHasOpenEndings ? 'true' : 'false' . "\n";
+    
+    $flowData .= 'endsWith: ' . $flowElement->endsWith . "\n";
+    $hasOpenEndings = $flowElement->hasOpenEndings ? 'true' : 'false';
+    $flowData .= 'hasOpenEndings: ' . $hasOpenEndings . "\n";
+    $onlyHasOpenEndings = $flowElement->onlyHasOpenEndings ? 'true' : 'false';
+    $flowData .= 'onlyHasOpenEndings: ' . $onlyHasOpenEndings . "\n";
     
     $openEndings = $flowElement->openEndings;
     $openEndReturns = implode(',' , array_keys($openEndings->returns));
     $openEndBreaks = implode(',' , array_keys($openEndings->breaks));
     $openEndContinues = implode(',' , array_keys($openEndings->continues));
-    $flowData .= 'openEnds:' . "\n";
-    $flowData .= '  returns:' . $openEndReturns . "\n";
-    $flowData .= '  breaks:' . $openEndBreaks . "\n";
-    $flowData .= '  continues:' . $openEndContinues . "\n";
+    $flowData .= 'openEndReturns: ' . $openEndReturns . "\n";
+    $flowData .= 'openEndBreaks: ' . $openEndBreaks . "\n";
+    $flowData .= 'openEndContinues: ' . $openEndContinues . "\n";
 
     return $flowData;
 }
