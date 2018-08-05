@@ -125,6 +125,7 @@ function createAndAddChildlessFlowElementToParent ($flowElementType, $flowElemen
 function setVarsInScopeAvailableRecursively($flowElement, $variableName) {
     if ($flowElement->canHaveChildren) {
         $flowElement->varsInScopeAvailable[$variableName] = true;
+// FIXME/REFACTOR: we should NOT do this with function-calls!        
         if ($flowElement->children !== null) { // TODO: not needed right, since canHaveChildren is true?
             foreach ($flowElement->children as $childFlowElement) {
                 setVarsInScopeAvailableRecursively($childFlowElement, $variableName);

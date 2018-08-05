@@ -27,6 +27,7 @@ function flowifyExpression ($expression, $parentFlowElement) {
         else {
             // If the variable was not known yet, it should be declared at the beginning of the function
             
+// REFACTOR: we should make a helper-function called: declareVariable!            
             // We insert the variable inside the containing function and then build a path to it (which is always a direct connection)
             // REFACTOR: implement this: $functionOrRoot = getFunctionOrRootForElement($parentFlowElement);
             // Question: is it possible in this language that a variable is declared inside an for-loop? (in the init-expression)

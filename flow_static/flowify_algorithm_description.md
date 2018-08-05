@@ -89,7 +89,7 @@ Bodies/Lanes end with terminator-statements:
 * If the **variable was not known yet**, it should be declared at the beginning of the function
     * We insert the variable inside the containing function and then build a path to it (which is always a direct connection). 
     * The varsInScopeChanged is set for its parent
-    * The varsInScopeAvailable is set for all elements inside the function/program.
+    * The varsInScopeAvailable is set for all elements (except function-calls) inside the function/program.
         * Note: for block-scope languages this is restricted to the block.
 * If the **variable is known** (and used) we build a path towards it. The **type of path** depends on whether it is a **use** (*use*) or **re-assignment** (*identity*).
 * If the variable is **re-assigned**, we also create a connection towards the new variable (*assign*) and set its property 'isVariable' to true. We also set **varsInScopeChanged** for its parent.
