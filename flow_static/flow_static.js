@@ -27,6 +27,14 @@ var containerTypeProperties = {
         paddingRight: 20,
         paddingBetweenChildren: 20,
         childrenLayoutFunction: "manualPositioning",
+        dataItemGroups: {
+            basicInfo: [
+                { containerKey: "identifier", displayName: "identifier" },
+                { containerKey: "type", displayName: "type" },
+                { containerDataKey: "astNodeIdentifier", displayName: "astNodeIdentifier" },
+                { containerDataKey: "flowData", displayName: "flowData" }
+            ]
+        }
     },
     functionWrapper: {
         drawContainer: true,

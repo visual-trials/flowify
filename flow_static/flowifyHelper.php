@@ -72,6 +72,8 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
         }
         if ($hasScope) {
             $flowElement->varsInScope = [];
+            $flowElement->varsInScopeChanged = [];
+            $flowElement->varsInScopeAvailable = [];
             $flowElement->functionsInScope = [];
         }
         
@@ -95,16 +97,15 @@ function addFlowElementToParent ($flowElement, $parentFlowElement) {
     $parentFlowElement->lastChildId = $flowElement->id;
     // Setting the parent of the child to the parent
     $flowElement->parentId = $parentFlowElement->id;
-    // Copying the varsInScopeAvailable from the parent to the child (if child is not childless)
-    if ($flowElement->canHaveChildren) {
-        $flowElement->varsInScopeAvailable = $parentFlowElement->varsInScopeAvailable;
-    }
 }
 
 function createAndAddFlowElementToParent ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $parentFlowElement, $useVarScopeFromParent = true) {
     
     $flowElement = createFlowElement ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $canHaveChildren = true, $hasScope = true);
     if ($useVarScopeFromParent) {
+        // Copying the varsInScopeAvailable from the parent to the child (if child is not childless)
+        $flowElement->varsInScopeAvailable = $parentFlowElement->varsInScopeAvailable; // copy!
+        
         $flowElement->varsInScope = &$parentFlowElement->varsInScope;
         $flowElement->functionsInScope = &$parentFlowElement->functionsInScope;
     }
@@ -119,6 +120,17 @@ function createAndAddChildlessFlowElementToParent ($flowElementType, $flowElemen
     addFlowElementToParent($flowElement, $parentFlowElement);
 
     return $flowElement;
+}
+
+function setVarsInScopeAvailableRecursively($flowElement, $variableName) {
+    if ($flowElement->canHaveChildren) {
+        $flowElement->varsInScopeAvailable[$variableName] = true;
+        if ($flowElement->children !== null) { // TODO: not needed right, since canHaveChildren is true?
+            foreach ($flowElement->children as $childFlowElement) {
+                setVarsInScopeAvailableRecursively($childFlowElement, $variableName);
+            }
+        }
+    }
 }
 
 function getConnectionById ($connectionId) {
@@ -257,13 +269,13 @@ function getFlowDataFromElement ($flowElement) {
     $flowData .= "\n";
     
     $varsInScopeAvailable = "";
-    if (!empty($varsInScopeAvailable)) {
+    if (!empty($flowElement->varsInScopeAvailable)) {
         $varsInScopeAvailable = implode(',' , array_keys($flowElement->varsInScopeAvailable));
     }
     $flowData .= 'varsInScopeAvailable: ' . $varsInScopeAvailable . "\n";
     
     $varsInScopeChanged = "";
-    if (!empty($varsInScopeChanged)) {
+    if (!empty($flowElement->varsInScopeChanged)) {
         $varsInScopeChanged = implode(',' , array_keys($flowElement->varsInScopeChanged));
     }
     $flowData .= 'varsInScopeChanged: ' . $varsInScopeChanged . "\n";

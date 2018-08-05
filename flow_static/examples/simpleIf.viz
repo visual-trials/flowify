@@ -11,7 +11,7 @@
         "y": 50,
         "isPositionOf": "center"
     },
-    "3:1-3:11": {
+    "3:1-3:6": {
         "x": 660,
         "y": 50,
         "isPositionOf": "center"
@@ -21,8 +21,8 @@
         "y": 170,
         "isPositionOf": "center"
     },
-    "5:1-5:7": {
-        "x": 180,
+    "5:1-5:2": {
+        "x": 190,
         "y": 170,
         "isPositionOf": "center"
     },
@@ -67,9 +67,14 @@
         "y": 40,
         "isPositionOf": "center"
     },
-    "8:2-8:8": {
+    "8:2-8:9_Stmts_*PASSTHROUGH*_b": {
         "x": 110,
         "y": 40,
+        "isPositionOf": "center"
+    },
+    "7:1-9:1_b_SPLIT": {
+        "x": 160,
+        "y": 110,
         "isPositionOf": "center"
     },
     "7:1-9:1_ImplicitElse": {
@@ -85,13 +90,8 @@
         "isPositionOf": "center"
     },
     "7:1-9:1_JOINED_b": {
-        "x": 370,
-        "y": 80,
-        "isPositionOf": "center"
-    },
-    "7:1-9:1_b_SPLIT": {
-        "x": 130,
-        "y": 70,
+        "x": 350,
+        "y": 120,
         "isPositionOf": "center"
     },
     "11:6-11:16": {
@@ -99,9 +99,9 @@
         "y": 190,
         "isPositionOf": "center"
     },
-    "11:1-11:16": {
-        "x": 830,
-        "y": 180,
+    "11:1-11:2": {
+        "x": 820,
+        "y": 170,
         "isPositionOf": "center"
     }
 }

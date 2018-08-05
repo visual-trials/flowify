@@ -2,7 +2,7 @@
 
 function flowifyExpression ($expression, $parentFlowElement) {  
 
-    $varsInScope = &$parentFlowElement->varsInScope;
+    $varsInScope = &$parentFlowElement->varsInScope; // FIXME: DEPRECATED!
     $functionsInScope = &$parentFlowElement->functionsInScope;
     
     $expressionType = $expression['nodeType'];
@@ -14,18 +14,32 @@ function flowifyExpression ($expression, $parentFlowElement) {
     if ($expressionType === 'Expr_Variable') {
 
         $variableName = $expression['name'];
-        if (array_key_exists($variableName, $varsInScope)) {
+        // REFACTOR: we should check varsInScopeAvailable here
+        if (array_key_exists($variableName, $varsInScope)) {   // FIXME: DEPRECATED!
             // Note: this could be a conditionalJoinVariableFlowElement
             
-            $fromVariable = $varsInScope[$variableName];
+            $fromVariable = $varsInScope[$variableName];   // FIXME: DEPRECATED!
             $flowElement = buildPathBackwardsToElementFromVariable($parentFlowElement, $toElement = null, $fromVariable, $variableName);
             
-            // $flowElement = $varsInScope[$variableName];
+            // $flowElement = $varsInScope[$variableName];   // FIXME: DEPRECATED!
             // setUsedVar($parentFlowElement, $variableName, 'used');
         }
         else {
-            $flowElement = createAndAddChildlessFlowElementToParent('variable', $variableName, null, $astNodeIdentifier, $parentFlowElement);
-            // setUsedVar($parentFlowElement, $variableName, 'created');
+            // If the variable was not known yet, it should be declared at the beginning of the function
+            
+            // We insert the variable inside the containing function and then build a path to it (which is always a direct connection)
+            // REFACTOR: implement this: $functionOrRoot = getFunctionOrRootForElement($parentFlowElement);
+            // Question: is it possible in this language that a variable is declared inside an for-loop? (in the init-expression)
+            //           or is this only possible in block-scoped languages?
+            $functionOrRoot = $parentFlowElement; // REFACTOR
+            $flowElement = createAndAddChildlessFlowElementToParent('variable', $variableName, null, $astNodeIdentifier, $functionOrRoot);
+            // REFACTOR: set ->isVariable = $variableName 
+            
+            // The varsInScopeChanged is set for the parent
+            $parentFlowElement->varsInScopeChanged[$variableName] = true;
+            
+            // The varsInScopeAvailable is set for all elements inside the function/program.
+            setVarsInScopeAvailableRecursively($functionOrRoot, $variableName);
         }
         
     }
@@ -65,15 +79,15 @@ function flowifyExpression ($expression, $parentFlowElement) {
         addFlowConnection($flowPrimitiveFunction, $flowVariableAssigned);
         
         // FIXME: is it correct to check for array_key_exists and is_null here?
-        if (array_key_exists($variableName, $varsInScope) && !is_null($varsInScope[$variableName])) {
-            addFlowConnection($varsInScope[$variableName], $flowVariableAssigned, 'identity');
+        if (array_key_exists($variableName, $varsInScope) && !is_null($varsInScope[$variableName])) {   // FIXME: DEPRECATED!
+            addFlowConnection($varsInScope[$variableName], $flowVariableAssigned, 'identity');   // FIXME: DEPRECATED!
             // setUsedVar($parentFlowElement, $variableName, 'used');
         }
         else {
             // setUsedVar($parentFlowElement, $variableName, 'created');
         }
 
-        $varsInScope[$variableName] = $flowVariableAssigned;
+        $varsInScope[$variableName] = $flowVariableAssigned;   // FIXME: DEPRECATED!
         if ($preChange) {
             $flowElement = $flowVariableAssigned;  // We take the flowVariableAssigned as output if is is a Pre inc or decr
         }
@@ -124,15 +138,15 @@ function flowifyExpression ($expression, $parentFlowElement) {
         addFlowConnection($flowPrimitiveFunction, $flowVariableAssigned);
         
         // FIXME: is it correct to check for array_key_exists and is_null here?
-        if (array_key_exists($variableName, $varsInScope) && !is_null($varsInScope[$variableName])) {
-            addFlowConnection($varsInScope[$variableName], $flowVariableAssigned, 'identity');
+        if (array_key_exists($variableName, $varsInScope) && !is_null($varsInScope[$variableName])) {   // FIXME: DEPRECATED!
+            addFlowConnection($varsInScope[$variableName], $flowVariableAssigned, 'identity');   // FIXME: DEPRECATED!
             // setUsedVar($parentFlowElement, $variableName, 'used');
         }
         else {
             // setUsedVar($parentFlowElement, $variableName, 'created');
         }
 
-        $varsInScope[$variableName] = $flowVariableAssigned;
+        $varsInScope[$variableName] = $flowVariableAssigned;   // FIXME: DEPRECATED!
         $flowElement = $flowVariableAssigned;
         
     }
@@ -193,20 +207,21 @@ function flowifyExpression ($expression, $parentFlowElement) {
 
         $flowAssign = flowifyExpression($assignExpression, $parentFlowElement);
 
-        $flowElement = createAndAddChildlessFlowElementToParent('variable', $variableName, null, $astNodeIdentifier, $parentFlowElement);
+        // OLD: $flowElement = createAndAddChildlessFlowElementToParent('variable', $variableName, null, $astNodeIdentifier, $parentFlowElement);
+        $flowElement = flowifyExpression($variableExpression, $parentFlowElement);
 
         addFlowConnection($flowAssign, $flowElement);
         
         // FIXME: is it correct to check for array_key_exists and is_null here?
-        if (array_key_exists($variableName, $varsInScope) && !is_null($varsInScope[$variableName])) {
-//FIXME            addFlowConnection($varsInScope[$variableName], $flowElement, 'identity');
+        if (array_key_exists($variableName, $varsInScope) && !is_null($varsInScope[$variableName])) {   // FIXME: DEPRECATED!
+// FIXME            addFlowConnection($varsInScope[$variableName], $flowElement, 'identity');   // FIXME: DEPRECATED!
             // setUsedVar($parentFlowElement, $variableName, 'used');
         }
         else {
             // setUsedVar($parentFlowElement, $variableName, 'created');
         }
 
-        $varsInScope[$variableName] = $flowElement;
+        $varsInScope[$variableName] = $flowElement;   // FIXME: DEPRECATED!
     }
     else if ($expressionType === 'Expr_FuncCall') {
 

@@ -25,7 +25,7 @@
         "y": 50,
         "isPositionOf": "center"
     },
-    "3:6-3:11": {
+    "3:6-3:7": {
         "x": 90,
         "y": 50,
         "isPositionOf": "center"
@@ -107,7 +107,7 @@
         "y": 50,
         "isPositionOf": "center"
     },
-    "4:10-4:15": {
+    "4:10-4:11": {
         "x": 90,
         "y": 50,
         "isPositionOf": "center"

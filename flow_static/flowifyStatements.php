@@ -56,7 +56,7 @@ function flowifyFunction ($functionStatement, $flowCallArguments, $functionCallF
             addFlowConnection($flowCallArgument, $parameterFlowElement);
 
             // Setting the parameter as a local var within the function body
-            $functionCallFlowElement->varsInScope[$parameterName] = $parameterFlowElement;
+            $functionCallFlowElement->varsInScope[$parameterName] = $parameterFlowElement;   // FIXME: DEPRECATED!
             
             // $functionCallFlowElement->usedVars[$parameterName] = 'created';
 
@@ -98,7 +98,7 @@ function flowifyFunction ($functionStatement, $flowCallArguments, $functionCallF
             $returnFlowElement = $conditionalJoinVariableFlowElement;
             
             // TODO: should we add the conditionalJoinVariable/returnFlowElement to our scope?
-            //$functionCallFlowElement->varsInScope[$variableName] = $conditionalJoinVariableFlowElement; 
+            //$functionCallFlowElement->varsInScope[$variableName] = $conditionalJoinVariableFlowElement;   // FIXME: DEPRECATED!
         }
         else if (count($openEndingsFunctionCall->returns) === 1) {
             // Exactly one openEnding of type 'return' found in statements of function call, so we use its returnVar as returnFlowElement
