@@ -75,6 +75,9 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
             $flowElement->varsInScopeChanged = [];
             $flowElement->varsInScopeAvailable = [];
             $flowElement->functionsInScope = [];
+            
+            $flowElement->sendsChangesToOutside = true;
+            $flowElement->receivesChangesFromOutside = true;
         }
         
         $flowElements[$flowElementId] = $flowElement;
@@ -125,10 +128,11 @@ function createAndAddChildlessFlowElementToParent ($flowElementType, $flowElemen
 function setVarsInScopeAvailableRecursively($flowElement, $variableName) {
     if ($flowElement->canHaveChildren) {
         $flowElement->varsInScopeAvailable[$variableName] = true;
-// FIXME/REFACTOR: we should NOT do this with function-calls!        
         if ($flowElement->children !== null) { // TODO: not needed right, since canHaveChildren is true?
             foreach ($flowElement->children as $childFlowElement) {
-                setVarsInScopeAvailableRecursively($childFlowElement, $variableName);
+                if ($childFlowElement->receivesChangesFromOutside) {
+                    setVarsInScopeAvailableRecursively($childFlowElement, $variableName);
+                }
             }
         }
     }
@@ -265,6 +269,9 @@ class FlowElement {
     public $varsInScope;
     public $varsInScopeAvailable;
     public $varsInScopeChanged;
+    
+    public $sendsChangesToOutside;
+    public $receivesChangesFromOutside;
     
     public $hasOpenEndings;
     public $onlyHasOpenEndings;

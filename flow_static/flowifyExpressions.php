@@ -293,6 +293,8 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
 
             // Add the function-call element as the container of the function
             $functionCallFlowElement = createAndAddFlowElementToParent('function', $functionName, null, $astNodeIdentifier, $parentFlowElement, $useVarScopeFromParent = false);
+            $functionCallFlowElement->sendsChangesToOutside = false;
+            $functionCallFlowElement->receivesChangesFromOutside = false;
 
             // Flowify the body of the function (including the return value) and use that return value as our own output
             $flowElement = flowifyFunction($functionStatement, $flowCallArguments, $functionCallFlowElement);

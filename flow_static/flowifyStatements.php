@@ -5,6 +5,8 @@ function flowifyProgram($statements) {
     $astNodeIdentifier = getAstNodeIdentifier(null);
 
     $rootFlowElement = createFlowElement('root', 'root', null, $astNodeIdentifier);
+    $rootFlowElement->sendsChangesToOutside = false;
+    $rootFlowElement->receivesChangesFromOutside = false;
 
     flowifyStatements($statements, $rootFlowElement);
     
@@ -50,7 +52,7 @@ function flowifyFunction ($functionStatement, $flowCallArguments, $functionCallF
             $astNodeIdentifier = getAstNodeIdentifier($parameterVar);
 
             // Adding the parameter to the function
-            $parameterFlowElement = createAndAddChildlessFlowElementToParent('variable', $parameterName, null, $astNodeIdentifier, $functionCallFlowElement);
+            $parameterFlowElement = createVariable($functionCallFlowElement, $parameterName, $astNodeIdentifier);
 
             // Connecting the callArgument (outside the function) to the parameter (inside the function)
             addFlowConnection($flowCallArgument, $parameterFlowElement);
