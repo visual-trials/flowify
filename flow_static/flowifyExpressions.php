@@ -28,6 +28,9 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
             }
             else {
                 // The variable doesn't exist yet and it to be assigned
+                // TODO: we might want to create a variable at the beginning of the function, 
+                //       but only when we are not directly in that function (otherwise the assigner also creates
+                //       a variable right next to it (in the same lane/body)
                 $flowElement = null;
             }
         }
@@ -43,6 +46,7 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
             }
             else {
                 // The variable doesn't exist yet and it to be used
+                // TODO: we probably want to create a variable at the beginning of the function!
                 $flowElement = null;
             }
             
