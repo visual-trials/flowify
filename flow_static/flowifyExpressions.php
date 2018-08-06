@@ -1,6 +1,6 @@
 <?php
 
-function flowifyExpression ($expression, $parentFlowElement) {  
+function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = false) {  
 
     $varsInScope = &$parentFlowElement->varsInScope; // FIXME: DEPRECATED!
     $functionsInScope = &$parentFlowElement->functionsInScope;
@@ -14,33 +14,38 @@ function flowifyExpression ($expression, $parentFlowElement) {
     if ($expressionType === 'Expr_Variable') {
 
         $variableName = $expression['name'];
-        // REFACTOR: we should check varsInScopeAvailable here
-        if (array_key_exists($variableName, $varsInScope)) {   // FIXME: DEPRECATED!
-            // Note: this could be a conditionalJoinVariableFlowElement
+        $connectionType = null; 
+        if ($isToBeAssigned) {
             
-            $fromVariable = $varsInScope[$variableName];   // FIXME: DEPRECATED!
-            $flowElement = buildPathBackwardsToElementFromVariable($parentFlowElement, $toElement = null, $fromVariable, $variableName);
+            // It is to be assigned, so we create an identity-connection to it
+            $connectionType = 'identity';
             
-            // $flowElement = $varsInScope[$variableName];   // FIXME: DEPRECATED!
-            // setUsedVar($parentFlowElement, $variableName, 'used');
+            // REFACTOR: we should check varsInScopeAvailable here
+            if (array_key_exists($variableName, $varsInScope)) {   // FIXME: DEPRECATED!
+                // The variable already exists and it to be assigned
+                $fromVariable = $varsInScope[$variableName];   // FIXME: DEPRECATED!
+                $flowElement = buildPathBackwardsToElementFromVariable($parentFlowElement, $toElement = null, $fromVariable, $variableName, $connectionType);
+            }
+            else {
+                // The variable doesn't exist yet and it to be assigned
+                $flowElement = null;
+            }
         }
         else {
-            // If the variable was not known yet, it should be declared at the beginning of the function
+            // The variable is used, so we create a usage-connection to it
+            $connectionType = null; // Note: null now stands for normal 'usage'. // TODO: maybe call it 'var-usage'? or 'data-flow'?
             
-// REFACTOR: we should make a helper-function called: declareVariable!            
-            // We insert the variable inside the containing function and then build a path to it (which is always a direct connection)
-            // REFACTOR: implement this: $functionOrRoot = getFunctionOrRootForElement($parentFlowElement);
-            // Question: is it possible in this language that a variable is declared inside an for-loop? (in the init-expression)
-            //           or is this only possible in block-scoped languages?
-            $functionOrRoot = $parentFlowElement; // REFACTOR
-            $flowElement = createAndAddChildlessFlowElementToParent('variable', $variableName, null, $astNodeIdentifier, $functionOrRoot);
-            // REFACTOR: set ->isVariable = $variableName 
+            // REFACTOR: we should check varsInScopeAvailable here
+            if (array_key_exists($variableName, $varsInScope)) {   // FIXME: DEPRECATED!
+                // The variable already exists and it to be used
+                $fromVariable = $varsInScope[$variableName];   // FIXME: DEPRECATED!
+                $flowElement = buildPathBackwardsToElementFromVariable($parentFlowElement, $toElement = null, $fromVariable, $variableName, $connectionType);
+            }
+            else {
+                // The variable doesn't exist yet and it to be used
+                $flowElement = null;
+            }
             
-            // The varsInScopeChanged is set for the parent
-            $parentFlowElement->varsInScopeChanged[$variableName] = true;
-            
-            // The varsInScopeAvailable is set for all elements inside the function/program.
-            setVarsInScopeAvailableRecursively($functionOrRoot, $variableName);
         }
         
     }
@@ -209,8 +214,22 @@ function flowifyExpression ($expression, $parentFlowElement) {
         $flowAssign = flowifyExpression($assignExpression, $parentFlowElement);
 
         // OLD: $flowElement = createAndAddChildlessFlowElementToParent('variable', $variableName, null, $astNodeIdentifier, $parentFlowElement);
-        $flowElement = flowifyExpression($variableExpression, $parentFlowElement);
+        $flowElement = flowifyExpression($variableExpression, $parentFlowElement, $isToBeAssigned = true);
+        
+        $astNodeIdentifierVariable = getAstNodeIdentifier($variableExpression);
 
+        // If the variable was not known yet, it should be declared at the beginning of the function
+        if ($flowElement === null) {
+            // $flowElement = createAndAddChildlessFlowElementToParent('variable', $variableName, null, $astNodeIdentifierVariable, $parentFlowElement);
+            $flowElement = createVariable($parentFlowElement, $variableName, $astNodeIdentifierVariable);
+        }
+        else {
+            $existingFlowVariable = $flowElement;
+            $flowElement = createVariable($parentFlowElement, $variableName, $astNodeIdentifierVariable);
+            addFlowConnection($existingFlowVariable, $flowElement, 'identity');
+        }
+
+        // TODO: we should make a connection of type 'assignment' here
         addFlowConnection($flowAssign, $flowElement);
         
         // FIXME: is it correct to check for array_key_exists and is_null here?

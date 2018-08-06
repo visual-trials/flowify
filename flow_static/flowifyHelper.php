@@ -134,6 +134,26 @@ function setVarsInScopeAvailableRecursively($flowElement, $variableName) {
     }
 }
 
+function createVariable($parentFlowElement, $variableName, $astNodeIdentifier) {
+    
+    // We insert the variable inside the containing function and then build a path to it (which is always a direct connection)
+    // REFACTOR: implement this: $functionOrRoot = getFunctionOrRootForElement($parentFlowElement);
+    // Question: is it possible in this language that a variable is declared inside an for-loop? (in the init-expression)
+    //           or is this only possible in block-scoped languages?
+    $functionOrRoot = $parentFlowElement; // REFACTOR
+    $flowElement = createAndAddChildlessFlowElementToParent('variable', $variableName, null, $astNodeIdentifier, $functionOrRoot);
+    // REFACTOR: set ->isVariable = $variableName 
+    
+    // The varsInScopeChanged is set for the parent
+    $parentFlowElement->varsInScopeChanged[$variableName] = true;
+    
+    // The varsInScopeAvailable is set for all elements inside the function/program.
+    setVarsInScopeAvailableRecursively($functionOrRoot, $variableName);
+    
+    return $flowElement;
+}
+
+
 function getConnectionById ($connectionId) {
     global $flowConnections;
     

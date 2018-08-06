@@ -76,6 +76,16 @@
         "width": 500,
         "height": 50
     },
+    "7:1-9:1_1_PASSBACK_b": {
+        "x": 260,
+        "y": 40,
+        "isPositionOf": "center"
+    },
+    "7:1-9:1_1_PASSBACK_i": {
+        "x": 260,
+        "y": 0,
+        "isPositionOf": "center"
+    },
     "7:1-9:1_1": {
         "x": 420,
         "y": 250,
@@ -85,8 +95,8 @@
         "relativeScale": 1
     },
     "7:1-9:1_ForCond": {
-        "x": -80,
-        "y": 300,
+        "x": 120,
+        "y": 200,
         "isPositionOf": "center",
         "width": 150,
         "height": 350,
@@ -136,6 +146,16 @@
     "7:28-7:33": {
         "x": 100,
         "y": 50,
+        "isPositionOf": "center"
+    },
+    "7:1-9:1_1_JOINED_b": {
+        "x": 10,
+        "y": 230,
+        "isPositionOf": "center"
+    },
+    "7:1-9:1_1_JOINED_i": {
+        "x": 10,
+        "y": 40,
         "isPositionOf": "center"
     },
     "7:1-9:1_1_b_SPLIT": {

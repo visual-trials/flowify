@@ -781,12 +781,14 @@ function joinVariablesBasedOnDifference ($firstLane, $secondLane, $targetElement
     return $varsInScopeAfterJoining;
 }
 
-function buildPathBackwardsToElementFromVariable($laneElement, $toElement, $fromVariable, $variableName) {
+function buildPathBackwardsToElementFromVariable($laneElement, $toElement, $fromVariable, $variableName, $connectionType = null) {
 $laneElementId =     $laneElement->id;
 $fromVariableId = $fromVariable->id;
 $toElementId = $toElement->id;
 
     $flowElement = null;
+    
+    // FIXME: we sometimes need to upgrade existing connection from $connectionType = 'identity' to $connectionType = null. How should we do this?
     
     $originalToElementId = $toElement->id;
     
@@ -795,7 +797,7 @@ $toElementId = $toElement->id;
         // Connect the fromVariable to the toElement
         // TODO: what connectionType should we use here?
         if ($toElement !== null) {
-            addFlowConnection($fromVariable, $toElement);
+            addFlowConnection($fromVariable, $toElement, $connectionType);
         }
         
         // Setting the toElement to the fromVariable
@@ -862,7 +864,7 @@ $toElementId = $toElement->id;
                     
                     // Connecting the passthrough variable to the toElement to the
                     if ($toElement !== null) {
-                        addFlowConnection($passThroughVariableFlowElement, $toElement);
+                        addFlowConnection($passThroughVariableFlowElement, $toElement, $connectionType);
                     }
                     
                     // Setting the toElement to the passThroughVariableFlowElement
@@ -890,7 +892,7 @@ $toElementId = $toElement->id;
                         
                         // TODO: what connectionType should we use here?
                         if ($toElement !== null) {
-                            addFlowConnection($conditionalSplitVariableFlowElement, $toElement);
+                            addFlowConnection($conditionalSplitVariableFlowElement, $toElement, $connectionType);
                         }
                         
                         // Setting the toElement to the conditionalSplitVariableFlowElement
@@ -912,7 +914,7 @@ $toElementId = $toElement->id;
                         
                         // TODO: what connectionType should we use here?
                         if ($toElement !== null) {
-                            addFlowConnection($conditionalSplitVariableFlowElement, $toElement);
+                            addFlowConnection($conditionalSplitVariableFlowElement, $toElement, $connectionType);
                         }
                         
                         // Setting the toElement to the conditionalSplitVariableFlowElement
