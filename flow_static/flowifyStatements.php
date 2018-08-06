@@ -353,6 +353,11 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
         
         // FIXME: if either the thenBody- or the elseBody onlyHasOpenEndings, we should NOT JOIN here!
         
+        $thenBodyFlowElement->exitingParentId = $ifFlowElement->id;
+        addChangedVariablesToExitingParent($elseBodyFlowElement);
+        
+        $elseBodyFlowElement->exitingParentId = $ifFlowElement->id;
+        addChangedVariablesToExitingParent($elseBodyFlowElement);
         
         // Adding a passthrough variable if either side has changed a variable, while the other has not
         // addPassThroughsBasedOnChange($thenBodyFlowElement, $elseBodyFlowElement, $varsInScopeAfterCondBody);

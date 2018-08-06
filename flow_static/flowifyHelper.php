@@ -32,6 +32,19 @@ function getParentElement($flowElement) {
     }
 }
 
+function getExitingParentElement($flowElement) {
+    
+    global $flowElements;
+    
+    $exitingParentFlowElementId = $flowElement->exitingParentId;
+    if ($exitingParentFlowElementId !== null) {
+        return $flowElements[$exitingParentFlowElementId];
+    }
+    else {
+        return null;
+    }
+}
+
 function createFlowElement ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $canHaveChildren = true, $hasScope = true) {
 
     global $flowElements, $flowElementId;
@@ -105,16 +118,27 @@ function addFlowElementToParent ($flowElement, $parentFlowElement) {
 function createAndAddFlowElementToParent ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $parentFlowElement, $useVarScopeFromParent = true) {
     
     $flowElement = createFlowElement ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $canHaveChildren = true, $hasScope = true);
-    if ($useVarScopeFromParent) {
-        // Copying the varsInScopeAvailable from the parent to the child (if child is not childless)
-        $flowElement->varsInScopeAvailable = $parentFlowElement->varsInScopeAvailable; // copy!
-        
+    
+    // Copying the varsInScopeAvailable from the parent to the child (if child is not childless)
+    $flowElement->varsInScopeAvailable = $parentFlowElement->varsInScopeAvailable; // copy!
+    
+    if ($useVarScopeFromParent) { // FIXME: deprecated!
         $flowElement->varsInScope = &$parentFlowElement->varsInScope;
         $flowElement->functionsInScope = &$parentFlowElement->functionsInScope;
     }
     addFlowElementToParent($flowElement, $parentFlowElement);
 
     return $flowElement;
+}
+
+function addChangedVariablesToExitingParent ($flowElement) {
+    $exitingParentFlowElement = getExitingParentElement($flowElement);
+    foreach ($flowElement->varsInScopeChanged as $variableName => $isChanged) {
+        // We are adding all changed variables to the exitingParent, *if* they were available in that exitingParent
+        if (array_key_exists($variableName, $exitingParentFlowElement->varsInScopeAvailable)) {
+            $exitingParentFlowElement->varsInScopeChanged[$variableName] = true;
+        }
+    }
 }
 
 function createAndAddChildlessFlowElementToParent ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $parentFlowElement) {
