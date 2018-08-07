@@ -15,14 +15,6 @@ function flowifyProgram($statements) {
     
 function flowifyFunction ($functionStatement, $flowCallArguments, $functionCallFlowElement) { 
 
-    // With a body: (maybe make this work) 
-    //    - the parameters should be in the function-input
-    //    - the statements should be in the function-body
-    //    - the return variable(s) should be in the function-output
-
-    // Without body:(current)
-    //    - Everything should be inside the function-call (no input/body/output)
-    
     $functionCallFlowElement->varsInScope = [];
     
     // TODO: In order for recursion to be possible, the function itself should be available in functionsInScope!
@@ -274,15 +266,6 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
         
         $thenAstNodeIdentifier = getAstNodeIdentifier($thenStatements);
         $thenBodyFlowElement = createAndAddFlowElementToParent('ifThen', 'then', null, $thenAstNodeIdentifier, $ifFlowElement);
-        $thenBodyFlowElement->canContainPassthroughs = true;
-        
-        // Note: we *copy* the varsInScope here. This is because the thenBody might replace vars in it's scope,
-        //       These are however conditional-replacement when it comes to the if-statement. 
-        //       Instead of the thenBody letting the vars in the if-scope to be replaced, we *add* it later to our varsInScope,
-        //       by using a conditionalFlowElement.
-        
-        // OLD: $thenBodyFlowElement->varsInScope = $ifFlowElement->varsInScope;  // copy!
-        // OLD: $thenBodyFlowElement->functionsInScope = &$ifFlowElement->functionsInScope;
         
         flowifyStatements($thenStatements, $thenBodyFlowElement);
         $thenOpenEndings = $thenBodyFlowElement->openEndings;
@@ -310,17 +293,7 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
             
             $elseAstNodeIdentifier = getAstNodeIdentifier($elseStatements);
             $elseBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'else', null, $elseAstNodeIdentifier, $ifFlowElement);
-            $elseBodyFlowElement->canContainPassthroughs = true;
             
-            // Note: we *copy* the varsInScope here. This is because the elseBody might replace vars in it's scope,
-            //       These are however conditional-replacement when it comes to the if-statement. 
-            //       Instead of the elseBody letting the vars in the if-scope to be replaced, we *add* it later to our varsInScope,
-            //       by using a conditionalFlowElement.
-            
-            // OLD: $elseBodyFlowElement->varsInScope = $ifFlowElement->varsInScope;  // copy!
-            // OLD: $elseBodyFlowElement->functionsInScope = &$ifFlowElement->functionsInScope;
-            
-            // TODO: we don't have a return statement in then-bodies, so we call it $noReturnFlowElement here (but we shouldn't get it at all)
             flowifyStatements($elseStatements, $elseBodyFlowElement);
             $elseOpenEndings = $elseBodyFlowElement->openEndings;
             
@@ -333,14 +306,10 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
         else {
             
             // Add an elseBody if it doesn't exist yet
-            // FIXME: what if an implicit else is never needed?
+            // TODO: what if an implicit else is never needed?
             $elseAstNodeIdentifier = $ifAstNodeIdentifier . "_ImplicitElse";
             // FIXME: this should be of type: 'ifElseImplicit'
             $elseBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'else', null, $elseAstNodeIdentifier, $ifFlowElement);
-            $elseBodyFlowElement->canContainPassthroughs = true;
-            
-            // OLD: $elseBodyFlowElement->varsInScope = $ifFlowElement->varsInScope;  // copy!
-            // OLD: $elseBodyFlowElement->functionsInScope = &$ifFlowElement->functionsInScope;
         }
         
         if ($thenBodyFlowElement->onlyHasOpenEndings && $elseBodyFlowElement->onlyHasOpenEndings) {
@@ -354,59 +323,6 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
         
         addChangedVariablesToExitingParent($thenBodyFlowElement);
         addChangedVariablesToExitingParent($elseBodyFlowElement);
-        
-        // Adding a passthrough variable if either side has changed a variable, while the other has not
-        // addPassThroughsBasedOnChange($thenBodyFlowElement, $elseBodyFlowElement, $varsInScopeAfterCondBody);
-        
-        // FIXME: we don't want to do the splitting here. Instead, we want the splitter to be added when we *use* a variable
-        //        inside the thenBody or elseBody. That way we don't have to break the connections afterwards, like we do here.
-        // CHALLENGE: if we split, and our connection type is 'identity', and later the other side connects with this 
-        //            splitter (with a *normal* connectionType, we should also upgrade all connectionType towards the actually
-        //            variable with normal connectionTypes!
-        
-        // Splitting variables if either side (then or else) has used it
-        // turned off: splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElement, $elseBodyFlowElement, null, $ifFlowElement);
-        
-        // Joining variables between then and else, if they are different
-        $varsInScopeAfterJoining = joinVariablesBasedOnDifference($thenBodyFlowElement, $elseBodyFlowElement, $ifFlowElement);
-
-        // After joining, the ifFlowElement should get the joinedVars in it's scope, so elements after that can connect to the joinedVars
-        $ifFlowElement->varsInScope = $varsInScopeAfterJoining; // copy!
-
-            
-        foreach ($thenBodyFlowElement->varsInScope as $variableName => $thenBodyVarInScopeElement) {
-            
-            // We check if we have the same variable in our parent's scope
-            if (!array_key_exists($variableName, $ifFlowElement->varsInScope)) {
-                
-                // the variable exists in the thenBody scope, but not in the parent's scope, so it must have been declared in the thenBody
-            
-                // TODO: depending on the language, variables DECLARED in an then- or else- statement are or are not
-                //       available in the scope outside the then- or else- statement.
-                //       We assume here that the current language has BLOCK-scope, so any newly declared variables
-                //       within the then- or else- statement, are NOT copied back into the if- scope!
-                //       The problem: PHP does not have this kind of scoping behaviour, right? (should investigate)
-            }
-
-        }
-        
-        foreach ($elseBodyFlowElement->varsInScope as $variableName => $elseBodyVarInScopeElement) {
-            
-            // We check if we have the same variable in our parent's scope
-            if (!array_key_exists($variableName, $ifFlowElement->varsInScope)) {
-                
-                // the variable exists in the elseBody scope, but not in the parent's scope, so it must have been declared in the elseBody
-            
-                // TODO: depending on the language, variables DECLARED in an then- or else- statement are or are not
-                //       available in the scope outside the then- or else- statement.
-                //       We assume here that the current language has BLOCK-scope, so any newly declared variables
-                //       within the then- or else- statement, are NOT copied back into the if- scope!
-                //       The problem: PHP does not have this kind of scoping behaviour, right? (should investigate)
-            }
-
-        }
-        
-        // TODO: what should be done if the SAME variable was declared in the thenBody AND the elseBody, but wasn't present in the parent's scope?
         
         
         // == ELSEIF ==
@@ -453,14 +369,12 @@ function flowifyForStatement($forStatement, $forFlowElement) {
         $doneAstNodeIdentifier = $forAstNodeIdentifier . "_ImplicitDone";
         // FIXME: this should be of type: 'forDoneImplicit'
         $doneBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'done', null, $doneAstNodeIdentifier, $forFlowElement);
-        $doneBodyFlowElement->canContainPassthroughs = true;
         
         // == BACK ==
         
         $backAstNodeIdentifier = $forAstNodeIdentifier . "_ImplicitBack";
         // FIXME: this should be of type: 'forBackImplicit'
         $backBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'back', null, $backAstNodeIdentifier, $forFlowElement);
-        $backBodyFlowElement->canContainPassthroughs = true;
         
      
         // == COND / ITER / UPDATE ==
@@ -471,9 +385,6 @@ function flowifyForStatement($forStatement, $forFlowElement) {
         $forStepAstNodeIdentifier1 = $forAstNodeIdentifier . "_1";
         // FIXME: change this from a ifThen for a forStep
         $forStepFlowElement1 = createAndAddFlowElementToParent('ifThen', '#1', null, $forStepAstNodeIdentifier1, $forFlowElement);
-        // OLD: $forStepFlowElement1->varsInScope = $forFlowElement->varsInScope; // copy!
-        // OLD: $forStepFlowElement1->functionsInScope = &$forFlowElement->functionsInScope;
-        $forStepFlowElement1->canContainSplitters = true;
         
         flowifyForIteration(
             $conditionExpression, 
@@ -487,8 +398,6 @@ function flowifyForStatement($forStatement, $forFlowElement) {
             $forStepAstNodeIdentifier1,
             $forStepFlowElement1
         );
-        // Since we now consider the loop to be finished, we take the doneBody and copy its varsInScope back to the varsInScope of the forStepFlowElement
-        $forFlowElement->varsInScope = $doneBodyFlowElement->varsInScope; // copy back!
 
         
         /*
@@ -497,9 +406,6 @@ function flowifyForStatement($forStatement, $forFlowElement) {
         $forStepAstNodeIdentifier2 = $forAstNodeIdentifier . "_2";
         // FIXME: change this from a ifThen for a forStep
         $forStepFlowElement2 = createAndAddFlowElementToParent('ifThen', '#2', null, $forStepAstNodeIdentifier2, $forFlowElement);
-        // OLD: $forStepFlowElement2->varsInScope = $forFlowElement->varsInScope; // copy!
-        // OLD: $forStepFlowElement2->functionsInScope = &$forFlowElement->functionsInScope;
-        $forStepFlowElement2->canContainSplitters = true;
         
         flowifyForIteration(
             $conditionExpression, 
@@ -512,7 +418,6 @@ function flowifyForStatement($forStatement, $forFlowElement) {
             $forStepAstNodeIdentifier2,
             $forStepFlowElement2
         );
-        $forFlowElement->varsInScope = $forStepFlowElement2->varsInScope; // copy back!
         
         */
 
@@ -542,8 +447,6 @@ function flowifyForIteration (
     $condBodyFlowElement = createAndAddFlowElementToParent('ifCond', 'cond', null, $forAstNodeIdentifier . "_ForCond", $forStepFlowElement);
     $flowElement = flowifyExpression($conditionExpression, $condBodyFlowElement);
 
-    $varsInScopeAfterCondBody = $forStepFlowElement->varsInScope; //copy!
-
     // TODO: the flowElement coming from the conditionExpression is a boolean and determines 
     //       whether the iter-statements are executed. How to should we visualize this?
     
@@ -567,32 +470,8 @@ function flowifyForIteration (
     {
 
         if (count($iterOpenEndings->continues) > 0) {
-            // 1) addPassThroughsBasedOnChange(continueBody, iterBodyFlowElement, varsInScopeBeforeIterBody?) --> should addPassThrough be a recurive function?
-            //       if the iterBodyFlowElement has changed vars (after the continue-statement) and the continue has not (necessarily true),
-            //       then this var should be passed through the continueBody
-        
-            // FIXME: HACK!
-            $bodyThatEndsWithContinue = reset($iterOpenEndings->continues);
-            // FIXME: remove this (joinVariablesBasedOnDifference will add this passthrough!) addPassThroughsBasedOnChange($bodyThatEndsWithContinue, $iterBodyFlowElement, $varsInScopeAfterCondBody);
-                
-             // 2) joinVariablesBasedOnDifference(varsInScopeBeforeIterBody?, iterBodyFlowElement->varsInScope, updateBody?)
-            //       the passthrough var in the continueBody should be joined with the (changed) var in the iterBodyFlowElement
-            //       here we assume we add the joinVar inside the updateBody (which we haven't created yet!) so we probably
-            //       have to do steps 1-3 between creating the updateBodyFlowElement and flowifying the updateExpression.
-            
-            $varsInScopeAfterJoining = joinVariablesBasedOnDifference($bodyThatEndsWithContinue, $iterBodyFlowElement, $iterBodyFlowElement);
-       
-            // FIXME: is this indeed the right way to do this? or should the join var be created in the forStepBody?
-            $forStepFlowElement->varsInScope = $varsInScopeAfterJoining; // copy back!
-            
-            // 3) splitVariablesBasedOnUsage(varsInScopeBeforeIF_THAT_CONTAINS_THE_CONTINUE???, thenBodyCONTAINING_THE_CONTINUE, iterBodyFlowElement-part_AFTER_THE_IF_CONTAINING_THE_CONTINUE?)
-            //       we somehow need to split at the right place. Maybe this place should be found (and executed) by the recursive addPassThroughsBasedOnChange?
-                   
-            // FIXME: we should somehow do this!
-            
+            // FIXME: implement this!
         }
-        
-        
 
         
         
@@ -603,27 +482,6 @@ function flowifyForIteration (
     // FIXME: replace ifCond with forUpdate
     $updateBodyFlowElement = createAndAddFlowElementToParent('ifCond', 'update', null, $forAstNodeIdentifier . "_ForUpdate", $forStepFlowElement);
     $flowElement = flowifyExpression($updateExpression, $updateBodyFlowElement);
-    
-    // Joining variables between beforeCondBody and afterForStep, if they are different
-    $varsInScopeAfterJoining = joinVariablesBasedOnDifference($forFlowElement, $forStepFlowElement, $forStepFlowElement, $backBodyFlowElement, $updateExistingConnections = true);
-
-    // FIXME: removed vars that were CREATED inside the loop! We need a better way to do this!
-    $strippedVarsInScopeAfterJoining = [];
-    foreach ($varsInScopeAfterCondBody as $variableName => $varInScopeAfterCondBody) {
-        $strippedVarsInScopeAfterJoining[$variableName] = $varsInScopeAfterJoining[$variableName];
-    }
-    $varsInScopeAfterSplitting = splitVariablesBasedOnUsage($strippedVarsInScopeAfterJoining, $doneBodyFlowElement, $iterBodyFlowElement, $updateBodyFlowElement, $forStepFlowElement);
-
-
-    // FIXME: we should not add the passThtough yet! But when a variable from the for-loop is used
-    //        buildPathBackwardsToElementFromVariable should ensure a passthrough variable is created inside
-    //        the doneBody
-    $doneBodyFlowElement->varsInScope = $varsInScopeAfterSplitting; // FIXME: workaround!
-    
-    // Adding a passthrough variable if the iter/update side has changed a variable: the done-side then needs a passthrough
-    // FIXME: workaround! we made varsInScopeAfterSplitting and the varsInScope the same thing, so this function would detect a change
-    //                    in ONLY the forStepFlowElement. this is a HACK!
-    addPassThroughsBasedOnChange($doneBodyFlowElement, $forStepFlowElement, $varsInScopeAfterSplitting);
     
 }
 
@@ -639,154 +497,12 @@ function joinVariables($variableName, $differentVariables, $targetElement) {
     return $conditionalJoinVariableFlowElement;
 }
 
-// FIXME: we should give this functoin the thenBody and elseBody, instead of their varsInScope
-//        we can then give this thenBody or elseBody as the 'laneElement' to the buildPathBackwardsToElementFromVariable
-function joinVariablesBasedOnDifference ($firstLane, $secondLane, $targetElement, $passBackBodyFlowElement = null, $updateExistingConnections = false) {
-
-    $firstVarsInScope = $firstLane->varsInScope;
-    $secondVarsInScope = $secondLane->varsInScope;
-    
-    // FIXME: we can most likely simplyfy the code below, since we only have two scopes (not an arbitrary amount anymore)
-    //        we can probably get rid of 'doPassBack'
-    //        whether we want to keep doPassBack depends on how we implement 'continue' in for loops
-    
-    $varsInScopeAfterJoining = $targetElement->varsInScope; // copy!
-    
-    $differentVariablesPerVariableName = [];
-    foreach ($firstVarsInScope as $variableName => $variableFlowElement) {
-        if (!array_key_exists($variableName, $differentVariablesPerVariableName)) {
-            $differentVariablesPerVariableName[$variableName] = [];
-        }
-        // TODO: workaround for PHP not allowing numbers as keys
-        // FIXME: if there are multiple lanes with the same variable, we lose the information about these lanes! We should keep each lane/variable combination!
-        $differentVariablesPerVariableName[$variableName]['id:' . $variableFlowElement->id] = [ 'variable' => $variableFlowElement, 'lane' => $firstLane];
-    }
-    foreach ($secondVarsInScope as $variableName => $variableFlowElement) {
-        if (!array_key_exists($variableName, $differentVariablesPerVariableName)) {
-            $differentVariablesPerVariableName[$variableName] = [];
-        }
-        // We assume that the secondVarsInScope should be passed-back
-        $variableFlowElement->doPassBack = true;
-        // TODO: workaround for PHP not allowing numbers as keys
-        // FIXME: if there are multiple lanes with the same variable, we lose the information about these lanes! We should keep each lane/variable combination!
-        $differentVariablesPerVariableName[$variableName]['id:' . $variableFlowElement->id] = [ 'variable' => $variableFlowElement, 'lane' => $secondLane];
-    }
-
-    foreach ($differentVariablesPerVariableName as $variableName => $differentVariablesWithLanes) {
-        // Only if we found more than 1 different variable should we join them
-        if (count($differentVariablesWithLanes) > 1) {
-            
-            $differentVariablesWithLanesToBeJoined = [];
-            if ($passBackBodyFlowElement !== null) {
-                // We should do pass-back the variables when their doPassBack is set to true
-                foreach (array_values($differentVariablesWithLanes) as $differentVariableWithLane) {
-                    $differentVariable = $differentVariableWithLane['variable'];
-                    if ($differentVariable->doPassBack) {
-                        // We need to pass-back this variable. We first create a pass-back flowElement,
-                        // add it to $passBackBodyFlowElement and connect it with $differentVariable
-                        // we then add the pass-back flowElement to $differentVariablesWithLanesToBeJoined
-                        
-                        // FIXME: it is conceivable that the SAME variable(name) is pass-backed for more than ONE flowElementBodiesWithDifferentScope
-                        //        we should have a pass-back body for each flowElementBodiesWithDifferentScope, or we need find another
-                        //        way to make sure this passBackVariableAstNodeIdentifier is unique
-                        $passBackVariableAstNodeIdentifier = $targetElement->astNodeIdentifier . "_PASSBACK_" . $variableName;
-                        $passBackVariableFlowElement = createAndAddChildlessFlowElementToParent('passBackVariable', $variableName, null, $passBackVariableAstNodeIdentifier, $passBackBodyFlowElement);
-                        addFlowConnection($differentVariable, $passBackVariableFlowElement, 'conditional');
-                        
-                        // TODO: is it possible that $differentVariable already had connections *from* itself to others? If so, we need to deal with those connections!
-                        
-                        array_push($differentVariablesWithLanesToBeJoined, [ 'variable' => $passBackVariableFlowElement, 'lane' => $differentVariableWithLane['lane'] ]);
-                    }
-                    else {
-                        // No need to pass-back this variable, so it can be added to differentVariablesWithLanesToBeJoined
-                        array_push($differentVariablesWithLanesToBeJoined, $differentVariableWithLane);
-                    }
-                }
-                
-            }
-            else {
-                // There is no passBackBodyFlowElement, so no need to check which variables have to be
-                // pass-backed. We simply set differentVariablesWithLanesToBeJoined to add all 
-                // original ones (without pass-back in between).
-                foreach (array_values($differentVariablesWithLanes) as $differentVariableWithLane) {
-                    array_push($differentVariablesWithLanesToBeJoined, $differentVariableWithLane);
-                }
-            }
-            
-            
-            // FIXME: should we keep this? or can we put it into buildPathBackwardsToElementFromVariable?
-            if ($updateExistingConnections) {
-                // FIXME: also remove joinVariables?
-                $differentVariablesToBeJoined = [];
-                foreach (array_values($differentVariablesWithLanesToBeJoined) as $differentVariableWithLane) {
-                    array_push($differentVariablesToBeJoined, $differentVariableWithLane['variable']);
-                }
-                $conditionalJoinVariableFlowElement = joinVariables($variableName, $differentVariablesToBeJoined, $targetElement);
-                
-                $varsInScopeAfterJoining[$variableName] = $conditionalJoinVariableFlowElement;
-            
-                foreach ($differentVariablesWithLanesToBeJoined as $differentVariableWithLane) {
-                    $differentVariable = $differentVariableWithLane['variable'];
-                    
-                    if (count($differentVariable->connectionIdsFromThisElement) > 0) {
-                        // There are connections from the variable, we have to update all the connections from it,
-                        // since they should now point towards the newly created conditionalJoinVariableFlowElement
-                        $updatedConnectionIdsFromThisElement = [];
-                        foreach ($differentVariable->connectionIdsFromThisElement as $connectionIdFromVariable) {
-                            $connectionToBeChanged = getConnectionById($connectionIdFromVariable);
-                            $connectedToFlowElementId = $connectionToBeChanged->to;
-                            // We don't want to change the connections we just created by calling joinVariables(). Those
-                            // connections were connected to the conditionalJoinVariableFlowElement, so we skip those.
-                            if ($connectedToFlowElementId !== $conditionalJoinVariableFlowElement->id) {
-                                $connectionToBeChanged->from = $conditionalJoinVariableFlowElement->id;
-                                // This connection is now between the $conditionalJoinVariableFlowElement and
-                                // another element inside one of the flowElementBodies. It is *not* connected
-                                // with $differentVariable anymore, so we don't add this connection to 
-                                // $updatedConnectionIdsFromThisElement
-                                
-                                // We do however add this connection to the connectionIdsFromThisElement of
-                                // $conditionalJoinVariableFlowElement
-                                array_push($conditionalJoinVariableFlowElement->connectionIdsFromThisElement, $connectionIdFromVariable);
-                            }
-                            else {
-                                // We are now changing this connection, so it should stay in connectionIdsFromThisElement
-                                // of $differentVariable. We therefore add it to updatedConnectionIdsFromThisElement.
-                                array_push($updatedConnectionIdsFromThisElement, $connectionToBeChanged->from);
-                            }
-                        }
-                        $differentVariable->connectionIdsFromThisElement = $updatedConnectionIdsFromThisElement;
-                    }
-                }
-            }
-            else {
-                $conditionalJoinVariableAstNodeIdentifier = $targetElement->astNodeIdentifier . "_JOINED_" . $variableName;
-                $conditionalJoinVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalJoinVariable', $variableName, null, $conditionalJoinVariableAstNodeIdentifier, $targetElement);
-
-                $varsInScopeAfterJoining[$variableName] = $conditionalJoinVariableFlowElement;
-                
-                $parentOfConditionalJoin = getParentElement($conditionalJoinVariableFlowElement);
-                foreach ($differentVariablesWithLanesToBeJoined as $differentVariableWithLane) {
-                    $differentVariable = $differentVariableWithLane['variable'];
-                    $differentLane = $differentVariableWithLane['lane'];
-
-                    buildPathBackwardsToElementFromVariable($differentLane, $conditionalJoinVariableFlowElement, $differentVariable, $variableName);
-                }
-            }
-        }
-    }
-
-    // Resetting doPassBack to false
-    foreach ($firstVarsInScope as $variableName => $variableFlowElement) {
-        $variableFlowElement->doPassBack = false;
-    }
-    foreach ($secondVarsInScope as $variableName => $variableFlowElement) {
-        $variableFlowElement->doPassBack = false;
-    }
-
-    return $varsInScopeAfterJoining;
-}
 
 function buildPathBackwardsToElementFromVariable($laneElement, $toElement, $fromVariable, $variableName, $connectionType = null) {
+
+}
+
+function OLD_buildPathBackwardsToElementFromVariable($laneElement, $toElement, $fromVariable, $variableName, $connectionType = null) {
 $laneElementId =     $laneElement->id;
 $fromVariableId = $fromVariable->id;
 $toElementId = $toElement->id;
@@ -953,6 +669,156 @@ $toElementId = $toElement->id;
     
 }
 
+/*
+// FIXME: we should give this functoin the thenBody and elseBody, instead of their varsInScope
+//        we can then give this thenBody or elseBody as the 'laneElement' to the buildPathBackwardsToElementFromVariable
+function joinVariablesBasedOnDifference ($firstLane, $secondLane, $targetElement, $passBackBodyFlowElement = null, $updateExistingConnections = false) {
+
+    $firstVarsInScope = $firstLane->varsInScope;
+    $secondVarsInScope = $secondLane->varsInScope;
+    
+    // FIXME: we can most likely simplyfy the code below, since we only have two scopes (not an arbitrary amount anymore)
+    //        we can probably get rid of 'doPassBack'
+    //        whether we want to keep doPassBack depends on how we implement 'continue' in for loops
+    
+    $varsInScopeAfterJoining = $targetElement->varsInScope; // copy!
+    
+    $differentVariablesPerVariableName = [];
+    foreach ($firstVarsInScope as $variableName => $variableFlowElement) {
+        if (!array_key_exists($variableName, $differentVariablesPerVariableName)) {
+            $differentVariablesPerVariableName[$variableName] = [];
+        }
+        // TODO: workaround for PHP not allowing numbers as keys
+        // FIXME: if there are multiple lanes with the same variable, we lose the information about these lanes! We should keep each lane/variable combination!
+        $differentVariablesPerVariableName[$variableName]['id:' . $variableFlowElement->id] = [ 'variable' => $variableFlowElement, 'lane' => $firstLane];
+    }
+    foreach ($secondVarsInScope as $variableName => $variableFlowElement) {
+        if (!array_key_exists($variableName, $differentVariablesPerVariableName)) {
+            $differentVariablesPerVariableName[$variableName] = [];
+        }
+        // We assume that the secondVarsInScope should be passed-back
+        $variableFlowElement->doPassBack = true;
+        // TODO: workaround for PHP not allowing numbers as keys
+        // FIXME: if there are multiple lanes with the same variable, we lose the information about these lanes! We should keep each lane/variable combination!
+        $differentVariablesPerVariableName[$variableName]['id:' . $variableFlowElement->id] = [ 'variable' => $variableFlowElement, 'lane' => $secondLane];
+    }
+
+    foreach ($differentVariablesPerVariableName as $variableName => $differentVariablesWithLanes) {
+        // Only if we found more than 1 different variable should we join them
+        if (count($differentVariablesWithLanes) > 1) {
+            
+            $differentVariablesWithLanesToBeJoined = [];
+            if ($passBackBodyFlowElement !== null) {
+                // We should do pass-back the variables when their doPassBack is set to true
+                foreach (array_values($differentVariablesWithLanes) as $differentVariableWithLane) {
+                    $differentVariable = $differentVariableWithLane['variable'];
+                    if ($differentVariable->doPassBack) {
+                        // We need to pass-back this variable. We first create a pass-back flowElement,
+                        // add it to $passBackBodyFlowElement and connect it with $differentVariable
+                        // we then add the pass-back flowElement to $differentVariablesWithLanesToBeJoined
+                        
+                        // FIXME: it is conceivable that the SAME variable(name) is pass-backed for more than ONE flowElementBodiesWithDifferentScope
+                        //        we should have a pass-back body for each flowElementBodiesWithDifferentScope, or we need find another
+                        //        way to make sure this passBackVariableAstNodeIdentifier is unique
+                        $passBackVariableAstNodeIdentifier = $targetElement->astNodeIdentifier . "_PASSBACK_" . $variableName;
+                        $passBackVariableFlowElement = createAndAddChildlessFlowElementToParent('passBackVariable', $variableName, null, $passBackVariableAstNodeIdentifier, $passBackBodyFlowElement);
+                        addFlowConnection($differentVariable, $passBackVariableFlowElement, 'conditional');
+                        
+                        // TODO: is it possible that $differentVariable already had connections *from* itself to others? If so, we need to deal with those connections!
+                        
+                        array_push($differentVariablesWithLanesToBeJoined, [ 'variable' => $passBackVariableFlowElement, 'lane' => $differentVariableWithLane['lane'] ]);
+                    }
+                    else {
+                        // No need to pass-back this variable, so it can be added to differentVariablesWithLanesToBeJoined
+                        array_push($differentVariablesWithLanesToBeJoined, $differentVariableWithLane);
+                    }
+                }
+                
+            }
+            else {
+                // There is no passBackBodyFlowElement, so no need to check which variables have to be
+                // pass-backed. We simply set differentVariablesWithLanesToBeJoined to add all 
+                // original ones (without pass-back in between).
+                foreach (array_values($differentVariablesWithLanes) as $differentVariableWithLane) {
+                    array_push($differentVariablesWithLanesToBeJoined, $differentVariableWithLane);
+                }
+            }
+            
+            
+            // FIXME: should we keep this? or can we put it into buildPathBackwardsToElementFromVariable?
+            if ($updateExistingConnections) {
+                // FIXME: also remove joinVariables?
+                $differentVariablesToBeJoined = [];
+                foreach (array_values($differentVariablesWithLanesToBeJoined) as $differentVariableWithLane) {
+                    array_push($differentVariablesToBeJoined, $differentVariableWithLane['variable']);
+                }
+                $conditionalJoinVariableFlowElement = joinVariables($variableName, $differentVariablesToBeJoined, $targetElement);
+                
+                $varsInScopeAfterJoining[$variableName] = $conditionalJoinVariableFlowElement;
+            
+                foreach ($differentVariablesWithLanesToBeJoined as $differentVariableWithLane) {
+                    $differentVariable = $differentVariableWithLane['variable'];
+                    
+                    if (count($differentVariable->connectionIdsFromThisElement) > 0) {
+                        // There are connections from the variable, we have to update all the connections from it,
+                        // since they should now point towards the newly created conditionalJoinVariableFlowElement
+                        $updatedConnectionIdsFromThisElement = [];
+                        foreach ($differentVariable->connectionIdsFromThisElement as $connectionIdFromVariable) {
+                            $connectionToBeChanged = getConnectionById($connectionIdFromVariable);
+                            $connectedToFlowElementId = $connectionToBeChanged->to;
+                            // We don't want to change the connections we just created by calling joinVariables(). Those
+                            // connections were connected to the conditionalJoinVariableFlowElement, so we skip those.
+                            if ($connectedToFlowElementId !== $conditionalJoinVariableFlowElement->id) {
+                                $connectionToBeChanged->from = $conditionalJoinVariableFlowElement->id;
+                                // This connection is now between the $conditionalJoinVariableFlowElement and
+                                // another element inside one of the flowElementBodies. It is *not* connected
+                                // with $differentVariable anymore, so we don't add this connection to 
+                                // $updatedConnectionIdsFromThisElement
+                                
+                                // We do however add this connection to the connectionIdsFromThisElement of
+                                // $conditionalJoinVariableFlowElement
+                                array_push($conditionalJoinVariableFlowElement->connectionIdsFromThisElement, $connectionIdFromVariable);
+                            }
+                            else {
+                                // We are now changing this connection, so it should stay in connectionIdsFromThisElement
+                                // of $differentVariable. We therefore add it to updatedConnectionIdsFromThisElement.
+                                array_push($updatedConnectionIdsFromThisElement, $connectionToBeChanged->from);
+                            }
+                        }
+                        $differentVariable->connectionIdsFromThisElement = $updatedConnectionIdsFromThisElement;
+                    }
+                }
+            }
+            else {
+                $conditionalJoinVariableAstNodeIdentifier = $targetElement->astNodeIdentifier . "_JOINED_" . $variableName;
+                $conditionalJoinVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalJoinVariable', $variableName, null, $conditionalJoinVariableAstNodeIdentifier, $targetElement);
+
+                $varsInScopeAfterJoining[$variableName] = $conditionalJoinVariableFlowElement;
+                
+                $parentOfConditionalJoin = getParentElement($conditionalJoinVariableFlowElement);
+                foreach ($differentVariablesWithLanesToBeJoined as $differentVariableWithLane) {
+                    $differentVariable = $differentVariableWithLane['variable'];
+                    $differentLane = $differentVariableWithLane['lane'];
+
+                    buildPathBackwardsToElementFromVariable($differentLane, $conditionalJoinVariableFlowElement, $differentVariable, $variableName);
+                }
+            }
+        }
+    }
+
+    // Resetting doPassBack to false
+    foreach ($firstVarsInScope as $variableName => $variableFlowElement) {
+        $variableFlowElement->doPassBack = false;
+    }
+    foreach ($secondVarsInScope as $variableName => $variableFlowElement) {
+        $variableFlowElement->doPassBack = false;
+    }
+
+    return $varsInScopeAfterJoining;
+}
+*/
+
+/*
 function addPassThroughsBasedOnChange($thenBodyFlowElement, $elseBodyFlowElement, $varsInScopeBeforeChange) {
     
     // We loop through all the vars in varsInScopeBeforeChange
@@ -1015,7 +881,9 @@ function addPassThroughsBasedOnChange($thenBodyFlowElement, $elseBodyFlowElement
         
     }
 }
+*/
 
+/*
 function splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElement, $elseBodyFlowElement, $secondElseBodyFlowElement, $parentFlowElement) {
 
     // FIXME: workaround with 'second' else body
@@ -1123,3 +991,4 @@ function splitVariablesBasedOnUsage($varsInScopeAfterCondBody, $thenBodyFlowElem
     
     return $varsInScopeAfterSplitting;
 }
+*/

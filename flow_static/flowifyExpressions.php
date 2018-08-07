@@ -2,7 +2,6 @@
 
 function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = false) {  
 
-    $varsInScope = &$parentFlowElement->varsInScope; // FIXME: DEPRECATED!
     $functionsInScope = &$parentFlowElement->functionsInScope;
     
     $expressionType = $expression['nodeType'];
@@ -21,10 +20,10 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
             $connectionType = 'identity';
             
             // REFACTOR: we should check varsInScopeAvailable here
-            if (array_key_exists($variableName, $varsInScope)) {   // FIXME: DEPRECATED!
+            if (array_key_exists($variableName, $parentFlowElement->varsInScopeAvailable)) {
                 // The variable already exists and it to be assigned
-                $fromVariable = $varsInScope[$variableName];   // FIXME: DEPRECATED!
-                $flowElement = buildPathBackwardsToElementFromVariable($parentFlowElement, $toElement = null, $fromVariable, $variableName, $connectionType);
+                // OLD: $fromVariable = $parentFlowElement->varsInScopeAvailable[$variableName];   // FIXME: DEPRECATED!
+                // OLD: $flowElement = buildPathBackwardsToElementFromVariable($parentFlowElement, $toElement = null, $fromVariable, $variableName, $connectionType);
             }
             else {
                 // The variable doesn't exist yet and it to be assigned
@@ -39,10 +38,10 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
             $connectionType = null; // Note: null now stands for normal 'usage'. // TODO: maybe call it 'var-usage'? or 'data-flow'?
             
             // REFACTOR: we should check varsInScopeAvailable here
-            if (array_key_exists($variableName, $varsInScope)) {   // FIXME: DEPRECATED!
+            if (array_key_exists($variableName, $parentFlowElement->varsInScopeAvailable)) {
                 // The variable already exists and it to be used
-                $fromVariable = $varsInScope[$variableName];   // FIXME: DEPRECATED!
-                $flowElement = buildPathBackwardsToElementFromVariable($parentFlowElement, $toElement = null, $fromVariable, $variableName, $connectionType);
+                // OLD: $fromVariable = $varsInScope[$variableName];   // FIXME: DEPRECATED!
+                // OLD: $flowElement = buildPathBackwardsToElementFromVariable($parentFlowElement, $toElement = null, $fromVariable, $variableName, $connectionType);
             }
             else {
                 // The variable doesn't exist yet and it to be used
@@ -81,14 +80,15 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
 
         $flowPrimitiveFunction = createAndAddChildlessFlowElementToParent('primitiveFunction', $opertaionName, null, $astNodeIdentifier, $parentFlowElement);
 
-        addFlowConnection($flowOldVariable, $flowPrimitiveFunction);
+        // TURNED OFF FOR NOW: addFlowConnection($flowOldVariable, $flowPrimitiveFunction);
 
         $variableAstNodeIdentifier = getAstNodeIdentifier($expressionVariable);
         $flowVariableAssigned = createAndAddChildlessFlowElementToParent('variable', $variableName, null, $variableAstNodeIdentifier, $parentFlowElement);
 
-        addFlowConnection($flowPrimitiveFunction, $flowVariableAssigned);
+        // TURNED OFF FOR NOW: addFlowConnection($flowPrimitiveFunction, $flowVariableAssigned);
         
         // FIXME: is it correct to check for array_key_exists and is_null here?
+        /*
         if (array_key_exists($variableName, $varsInScope) && !is_null($varsInScope[$variableName])) {   // FIXME: DEPRECATED!
             addFlowConnection($varsInScope[$variableName], $flowVariableAssigned, 'identity');   // FIXME: DEPRECATED!
             // setUsedVar($parentFlowElement, $variableName, 'used');
@@ -96,8 +96,9 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
         else {
             // setUsedVar($parentFlowElement, $variableName, 'created');
         }
+        */
 
-        $varsInScope[$variableName] = $flowVariableAssigned;   // FIXME: DEPRECATED!
+        // OLD: $varsInScope[$variableName] = $flowVariableAssigned;   // FIXME: DEPRECATED!
         if ($preChange) {
             $flowElement = $flowVariableAssigned;  // We take the flowVariableAssigned as output if is is a Pre inc or decr
         }
@@ -139,14 +140,15 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
 
         $flowPrimitiveFunction = createAndAddChildlessFlowElementToParent('primitiveFunction', $assignOpName, null, $astNodeIdentifier, $parentFlowElement);
 
-        addFlowConnection($flowOldVariable, $flowPrimitiveFunction);
-        addFlowConnection($flowAssign, $flowPrimitiveFunction);
+        // TURNED OFF FOR NOW: addFlowConnection($flowOldVariable, $flowPrimitiveFunction);
+        // TURNED OFF FOR NOW: addFlowConnection($flowAssign, $flowPrimitiveFunction);
 
         $variableAstNodeIdentifier = getAstNodeIdentifier($expressionVariable);
         $flowVariableAssigned = createAndAddChildlessFlowElementToParent('variable', $variableName, null, $variableAstNodeIdentifier, $parentFlowElement);
 
         addFlowConnection($flowPrimitiveFunction, $flowVariableAssigned);
         
+        /*
         // FIXME: is it correct to check for array_key_exists and is_null here?
         if (array_key_exists($variableName, $varsInScope) && !is_null($varsInScope[$variableName])) {   // FIXME: DEPRECATED!
             addFlowConnection($varsInScope[$variableName], $flowVariableAssigned, 'identity');   // FIXME: DEPRECATED!
@@ -155,8 +157,9 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
         else {
             // setUsedVar($parentFlowElement, $variableName, 'created');
         }
+        */
 
-        $varsInScope[$variableName] = $flowVariableAssigned;   // FIXME: DEPRECATED!
+        // OLD: $varsInScope[$variableName] = $flowVariableAssigned;   // FIXME: DEPRECATED!
         $flowElement = $flowVariableAssigned;
         
     }
@@ -201,8 +204,8 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
 
         $flowElement = createAndAddChildlessFlowElementToParent('primitiveFunction', $binaryOpName, null, $astNodeIdentifier, $parentFlowElement);
         
-        addFlowConnection($leftFlow, $flowElement);
-        addFlowConnection($rightFlow, $flowElement);
+        // TURNED OFF FOR NOW: addFlowConnection($leftFlow, $flowElement);
+        // TURNED OFF FOR NOW: addFlowConnection($rightFlow, $flowElement);
     }
     else if ($expressionType === 'Expr_Assign') {
 
@@ -230,12 +233,13 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
         else {
             $existingFlowVariable = $flowElement;
             $flowElement = createVariable($parentFlowElement, $variableName, $astNodeIdentifierVariable);
-            addFlowConnection($existingFlowVariable, $flowElement, 'identity');
+            // TURNED OFF FOR NOW: addFlowConnection($existingFlowVariable, $flowElement, 'identity');
         }
 
         // TODO: we should make a connection of type 'assignment' here
-        addFlowConnection($flowAssign, $flowElement);
+        // TURNED OFF FOR NOW: addFlowConnection($flowAssign, $flowElement);
         
+        /*
         // FIXME: is it correct to check for array_key_exists and is_null here?
         if (array_key_exists($variableName, $varsInScope) && !is_null($varsInScope[$variableName])) {   // FIXME: DEPRECATED!
 // FIXME            addFlowConnection($varsInScope[$variableName], $flowElement, 'identity');   // FIXME: DEPRECATED!
@@ -244,8 +248,9 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
         else {
             // setUsedVar($parentFlowElement, $variableName, 'created');
         }
+        */
 
-        $varsInScope[$variableName] = $flowElement;   // FIXME: DEPRECATED!
+        // OLD: $varsInScope[$variableName] = $flowElement;   // FIXME: DEPRECATED!
     }
     else if ($expressionType === 'Expr_FuncCall') {
 
@@ -304,7 +309,7 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
 
             $primitiveFunctionCallFlowElement = createAndAddChildlessFlowElementToParent('primitiveFunction', $functionName, null, $astNodeIdentifier, $parentFlowElement);
             foreach ($flowCallArguments as $flowCallArgument) {
-                addFlowConnection($flowCallArgument, $primitiveFunctionCallFlowElement);
+                // TURNED OFF FOR NOW: addFlowConnection($flowCallArgument, $primitiveFunctionCallFlowElement);
             }
             $flowElement = $primitiveFunctionCallFlowElement;
         }
@@ -316,7 +321,7 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
             
             $primitiveFunctionCallFlowElement = createAndAddChildlessFlowElementToParent('primitiveFunction', $functionName, null, $astNodeIdentifier, $parentFlowElement);
             foreach ($flowCallArguments as $flowCallArgument) {
-                addFlowConnection($flowCallArgument, $primitiveFunctionCallFlowElement);
+                // TURNED OFF FOR NOW: addFlowConnection($flowCallArgument, $primitiveFunctionCallFlowElement);
             }
             $flowElement = $primitiveFunctionCallFlowElement;
             

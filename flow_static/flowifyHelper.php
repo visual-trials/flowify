@@ -12,7 +12,7 @@ function addFlowConnection ($fromFlowElement, $toFlowElement, $connectionType = 
     $flowConnection->type = $connectionType;
     
     $flowConnections[$flowConnectionId] = $flowConnection;
-    array_push($fromFlowElement->connectionIdsFromThisElement, $flowConnectionId);
+    // OLD: array_push($fromFlowElement->connectionIdsFromThisElement, $flowConnectionId);
 
     $flowConnectionId++;
     
@@ -71,11 +71,11 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
         $flowElement->openEndings = new OpenEndings; // TODO: maybe not create this always?
         
         // TODO: don't canContainPassthroughs and canContainSplitters always go hand in hand (one for the child + one for the parent)?
-        $flowElement->canContainPassthroughs = false; // FIXME: this is depracated!
-        $flowElement->canContainSplitters = false; // FIXME: this is depracated!
-        $flowElement->varSplitters = []; // FIXME: this is depracated!
-        $flowElement->connectionIdsFromThisElement = []; // FIXME: do we still need this?
-        $flowElement->doPassBack = false; // this is used for for-loops  // FIXME: this is deprecated!?
+        // OLD: $flowElement->canContainPassthroughs = false; // FIXME: this is depracated!
+        // OLD: $flowElement->canContainSplitters = false; // FIXME: this is depracated!
+        // OLD: $flowElement->varSplitters = []; // FIXME: this is depracated!
+        // OLD: $flowElement->connectionIdsFromThisElement = []; // FIXME: do we still need this?
+        // OLD: $flowElement->doPassBack = false; // this is used for for-loops  // FIXME: this is deprecated!?
         
         $flowElement->parentId = null;
         $flowElement->canHaveChildren = $canHaveChildren;
@@ -83,7 +83,7 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
             $flowElement->children = [];
         }
         if ($hasScope) {
-            $flowElement->varsInScope = [];
+            // $flowElement->varsInScope = [];
             $flowElement->varsInScopeChanged = [];
             $flowElement->varsInScopeAvailable = [];
             $flowElement->functionsInScope = [];
@@ -125,7 +125,7 @@ function createAndAddFlowElementToParent ($flowElementType, $flowElementName, $f
         // Copying the varsInScopeAvailable from the parent to the child (if child is not childless)
         $flowElement->varsInScopeAvailable = $parentFlowElement->varsInScopeAvailable; // copy!
         
-        $flowElement->varsInScope = $parentFlowElement->varsInScope; // FIXME: deprecated!
+        // OLD: $flowElement->varsInScope = $parentFlowElement->varsInScope; // FIXME: deprecated!
         $flowElement->functionsInScope = &$parentFlowElement->functionsInScope;
     }
     addFlowElementToParent($flowElement, $parentFlowElement);
@@ -207,6 +207,7 @@ function getConnectionById ($connectionId) {
     return $flowConnections[$connectionId];
 }
 
+// FIXME: do we still need this?
 function getElementsIdsIn($flowElement) {
     $containerIdsInFlowElement = [$flowElement->id];
     
@@ -305,11 +306,11 @@ class FlowElement {
     public $parentId;
     public $exitingParentId;
     
-    public $connectionIdsFromThisElement;
+    // OLD: public $connectionIdsFromThisElement;
     
     public $functionsInScope;
     
-    public $varsInScope;
+    // OLD: public $varsInScope;
     public $varsInScopeAvailable;
     public $varsInScopeChanged;
     public $isVariable;
