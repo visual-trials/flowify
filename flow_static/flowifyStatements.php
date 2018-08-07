@@ -155,6 +155,9 @@ function flowifyStatements ($statements, $bodyFlowElement) {
             $expression = $statement['expr'];
 
             $flowElement = flowifyExpression($expression, $bodyFlowElement);
+            
+            // FIXME: is this correct? Is the flowElement always the element that represents the expression?
+            addChangedVariablesToExitingParent($flowElement);
 
             // TODO: should we do anything with this $flowElement?
             //       if an expression is a statement, where does the output of that expesssion/statement go?
@@ -198,6 +201,8 @@ function flowifyStatements ($statements, $bodyFlowElement) {
             
             flowifyIfStatement($statement, $ifFlowElement);
             
+            addChangedVariablesToExitingParent($ifFlowElement);
+            
             // FIXME: should we not combine this with the already existing openEndings in bodyFlowElement?
             $bodyFlowElement->onlyHasOpenEndings = $ifFlowElement->onlyHasOpenEndings;
             
@@ -215,6 +220,8 @@ function flowifyStatements ($statements, $bodyFlowElement) {
             $forFlowElement = createAndAddFlowElementToParent('ifMain', 'for', null, $forAstNodeIdentifier, $bodyFlowElement);
 
             $forOpenEndings = flowifyForStatement($statement, $forFlowElement);
+            
+            addChangedVariablesToExitingParent($forFlowElement);
             
             $openEndings = combineOpenEndings($forOpenEndings, $openEndings);
             
@@ -253,6 +260,8 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
         $condFlowElement = createAndAddFlowElementToParent('ifCond', 'cond', null, $condAstNodeIdentifier, $ifFlowElement);
         
         $flowElement = flowifyExpression($conditionExpression, $condFlowElement);
+        
+        addChangedVariablesToExitingParent($condFlowElement);
         
         // TODO: the flowElement coming from the conditionExpression is a boolean and determines 
         //       whether the then-statements or the else(if)-statements are executed. How to should
@@ -398,6 +407,8 @@ function flowifyForStatement($forStatement, $forFlowElement) {
             $forStepAstNodeIdentifier1,
             $forStepFlowElement1
         );
+        
+        addChangedVariablesToExitingParent($forStepFlowElement1);
 
         
         /*
@@ -446,6 +457,8 @@ function flowifyForIteration (
     // FIXME: replace ifCond with forCond
     $condBodyFlowElement = createAndAddFlowElementToParent('ifCond', 'cond', null, $forAstNodeIdentifier . "_ForCond", $forStepFlowElement);
     $flowElement = flowifyExpression($conditionExpression, $condBodyFlowElement);
+    
+    addChangedVariablesToExitingParent($condBodyFlowElement);
 
     // TODO: the flowElement coming from the conditionExpression is a boolean and determines 
     //       whether the iter-statements are executed. How to should we visualize this?
@@ -460,6 +473,9 @@ function flowifyForIteration (
     $iterOpenEndings = $iterBodyFlowElement->openEndings;
     // FIXME: do something with $iterOpenEndings!
 
+    addChangedVariablesToExitingParent($iterBodyFlowElement);
+    
+    
     // FIXME: If iterOpenEndings contains a 'continue', we need to join the varsInScope of the continue-body (for example a then-body)
     //        with the varsInScope of the iterBodyFlowElement. We need to do this before the update.
     //        We also need to add a passthrough for that and split it.
@@ -483,6 +499,8 @@ function flowifyForIteration (
     $updateBodyFlowElement = createAndAddFlowElementToParent('ifCond', 'update', null, $forAstNodeIdentifier . "_ForUpdate", $forStepFlowElement);
     $flowElement = flowifyExpression($updateExpression, $updateBodyFlowElement);
     
+    addChangedVariablesToExitingParent($updateBodyFlowElement);
+
 }
 
 

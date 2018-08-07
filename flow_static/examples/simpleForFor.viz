@@ -37,22 +37,12 @@
         "width": 50,
         "height": 600
     },
-    "3:1-7:1_ImplicitDone_*PASSTHROUGH*_i": {
-        "x": 20,
-        "y": 30,
-        "isPositionOf": "center"
-    },
     "3:1-7:1_ImplicitBack": {
         "x": 750,
         "y": 730,
         "isPositionOf": "center",
         "width": 800,
         "height": 50
-    },
-    "3:1-7:1_1_PASSBACK_i": {
-        "x": 360,
-        "y": 30,
-        "isPositionOf": "center"
     },
     "3:1-7:1_1": {
         "x": 730,
@@ -179,21 +169,6 @@
         "y": 60,
         "isPositionOf": "center"
     },
-    "4:5-6:5_1_JOINED_j": {
-        "x": 30,
-        "y": 60,
-        "isPositionOf": "center"
-    },
-    "4:5-6:5_1_i_SPLIT": {
-        "x": 180,
-        "y": 20,
-        "isPositionOf": "center"
-    },
-    "4:5-6:5_1_j_SPLIT": {
-        "x": 180,
-        "y": 60,
-        "isPositionOf": "center"
-    },
     "3:1-7:1_ForUpdate": {
         "x": 1060,
         "y": 120,
@@ -209,16 +184,6 @@
     "3:23-3:24": {
         "x": 100,
         "y": 50,
-        "isPositionOf": "center"
-    },
-    "3:1-7:1_1_JOINED_i": {
-        "x": 20,
-        "y": 30,
-        "isPositionOf": "center"
-    },
-    "3:1-7:1_1_i_SPLIT": {
-        "x": 170,
-        "y": 30,
         "isPositionOf": "center"
     }
 }

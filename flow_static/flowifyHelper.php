@@ -157,7 +157,7 @@ function setVarsInScopeAvailableRecursively($flowElement, $variableName) {
         if ($flowElement->children !== null) { // TODO: not needed right, since canHaveChildren is true?
             foreach ($flowElement->children as $childFlowElement) {
                 if ($childFlowElement->receivesChangesFromOutside) {
-                    // setVarsInScopeAvailableRecursively($childFlowElement, $variableName);
+                    setVarsInScopeAvailableRecursively($childFlowElement, $variableName);
                 }
             }
         }
@@ -370,8 +370,7 @@ function getFlowDataFromElement ($flowElement) {
         $flowData .= 'openEndContinues: ' . $openEndContinues . "\n";
     }
     else {
-        $isVariable = $flowElement->isVariable ? 'true' : 'false';
-        $flowData .= 'isVariable: ' . $isVariable . "\n";
+        $flowData .= 'isVariable: ' . $flowElement->isVariable . "\n";
         $flowData .= "\n";
     }
     

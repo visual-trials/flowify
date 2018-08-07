@@ -83,7 +83,8 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
         // TURNED OFF FOR NOW: addFlowConnection($flowOldVariable, $flowPrimitiveFunction);
 
         $variableAstNodeIdentifier = getAstNodeIdentifier($expressionVariable);
-        $flowVariableAssigned = createAndAddChildlessFlowElementToParent('variable', $variableName, null, $variableAstNodeIdentifier, $parentFlowElement);
+        $flowVariableAssigned = createVariable($parentFlowElement, $variableName, $variableAstNodeIdentifier);
+        // OLD: $flowVariableAssigned = createAndAddChildlessFlowElementToParent('variable', $variableName, null, $variableAstNodeIdentifier, $parentFlowElement);
 
         // TURNED OFF FOR NOW: addFlowConnection($flowPrimitiveFunction, $flowVariableAssigned);
         
@@ -144,7 +145,8 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
         // TURNED OFF FOR NOW: addFlowConnection($flowAssign, $flowPrimitiveFunction);
 
         $variableAstNodeIdentifier = getAstNodeIdentifier($expressionVariable);
-        $flowVariableAssigned = createAndAddChildlessFlowElementToParent('variable', $variableName, null, $variableAstNodeIdentifier, $parentFlowElement);
+        $flowVariableAssigned = createVariable($parentFlowElement, $variableName, $variableAstNodeIdentifier);
+        // OLD: $flowVariableAssigned = createAndAddChildlessFlowElementToParent('variable', $variableName, null, $variableAstNodeIdentifier, $parentFlowElement);
 
         addFlowConnection($flowPrimitiveFunction, $flowVariableAssigned);
         
