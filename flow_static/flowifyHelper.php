@@ -102,7 +102,7 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
 
 function addFlowElementToParent ($flowElement, $parentFlowElement) {
     // Setting the previousElement of the child to the lastChild of the parent, but leaving it null if there are no children yet
-    if (count($parentFlowElement->children > 0)) {
+    if (count($parentFlowElement->children) > 0) {
         $flowElement->previousId = end($parentFlowElement->children)->id;
         reset($parentFlowElement->children);
     }

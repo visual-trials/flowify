@@ -47,7 +47,7 @@ function flowifyFunction ($functionStatement, $flowCallArguments, $functionCallF
             $parameterFlowElement = createVariable($functionCallFlowElement, $parameterName, $astNodeIdentifier);
 
             // Connecting the callArgument (outside the function) to the parameter (inside the function)
-            addFlowConnection($flowCallArgument, $parameterFlowElement);
+            // TURNED OFF FOR NOW: addFlowConnection($flowCallArgument, $parameterFlowElement);
 
             // Setting the parameter as a local var within the function body
             $functionCallFlowElement->varsInScope[$parameterName] = $parameterFlowElement;   // FIXME: DEPRECATED!
