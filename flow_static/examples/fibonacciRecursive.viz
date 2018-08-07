@@ -103,10 +103,11 @@
     },
     "12:9-17:9_IfCond": {
         "x": 100,
-        "y": 80,
+        "y": 160,
         "isPositionOf": "center",
         "width": 150,
-        "height": 100
+        "height": 100,
+        "relativeScale": 1
     },
     "12:19-12:19": {
         "x": 40,
@@ -152,8 +153,8 @@
         "isPositionOf": "center"
     },
     "16:13-16:75_Stmts": {
-        "x": null,
-        "y": null,
+        "x": 480,
+        "y": 240,
         "isPositionOf": "center",
         "width": 550,
         "height": 200,

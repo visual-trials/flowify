@@ -251,7 +251,6 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
     
     $ifOpenEndings = $ifFlowElement->openEndings;
     $ifAstNodeIdentifier = $ifFlowElement->astNodeIdentifier;
-
     
     {
         // == COND ==
@@ -274,7 +273,7 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
         $thenStatements = $ifStatement['stmts'];
         
         $thenAstNodeIdentifier = getAstNodeIdentifier($thenStatements);
-        $thenBodyFlowElement = createAndAddFlowElementToParent('ifThen', 'then', null, $thenAstNodeIdentifier, $ifFlowElement, $useVarScopeFromParent = false);
+        $thenBodyFlowElement = createAndAddFlowElementToParent('ifThen', 'then', null, $thenAstNodeIdentifier, $ifFlowElement);
         $thenBodyFlowElement->canContainPassthroughs = true;
         
         // Note: we *copy* the varsInScope here. This is because the thenBody might replace vars in it's scope,
@@ -282,8 +281,8 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
         //       Instead of the thenBody letting the vars in the if-scope to be replaced, we *add* it later to our varsInScope,
         //       by using a conditionalFlowElement.
         
-        $thenBodyFlowElement->varsInScope = $ifFlowElement->varsInScope;  // copy!
-        $thenBodyFlowElement->functionsInScope = &$ifFlowElement->functionsInScope;
+        // OLD: $thenBodyFlowElement->varsInScope = $ifFlowElement->varsInScope;  // copy!
+        // OLD: $thenBodyFlowElement->functionsInScope = &$ifFlowElement->functionsInScope;
         
         flowifyStatements($thenStatements, $thenBodyFlowElement);
         $thenOpenEndings = $thenBodyFlowElement->openEndings;
@@ -310,7 +309,7 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
             $elseStatements = $elseStatement['stmts'];
             
             $elseAstNodeIdentifier = getAstNodeIdentifier($elseStatements);
-            $elseBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'else', null, $elseAstNodeIdentifier, $ifFlowElement, $useVarScopeFromParent = false);
+            $elseBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'else', null, $elseAstNodeIdentifier, $ifFlowElement);
             $elseBodyFlowElement->canContainPassthroughs = true;
             
             // Note: we *copy* the varsInScope here. This is because the elseBody might replace vars in it's scope,
@@ -318,8 +317,8 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
             //       Instead of the elseBody letting the vars in the if-scope to be replaced, we *add* it later to our varsInScope,
             //       by using a conditionalFlowElement.
             
-            $elseBodyFlowElement->varsInScope = $ifFlowElement->varsInScope;  // copy!
-            $elseBodyFlowElement->functionsInScope = &$ifFlowElement->functionsInScope;
+            // OLD: $elseBodyFlowElement->varsInScope = $ifFlowElement->varsInScope;  // copy!
+            // OLD: $elseBodyFlowElement->functionsInScope = &$ifFlowElement->functionsInScope;
             
             // TODO: we don't have a return statement in then-bodies, so we call it $noReturnFlowElement here (but we shouldn't get it at all)
             flowifyStatements($elseStatements, $elseBodyFlowElement);
@@ -337,11 +336,11 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
             // FIXME: what if an implicit else is never needed?
             $elseAstNodeIdentifier = $ifAstNodeIdentifier . "_ImplicitElse";
             // FIXME: this should be of type: 'ifElseImplicit'
-            $elseBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'else', null, $elseAstNodeIdentifier, $ifFlowElement, $useVarScopeFromParent = false);
+            $elseBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'else', null, $elseAstNodeIdentifier, $ifFlowElement);
             $elseBodyFlowElement->canContainPassthroughs = true;
             
-            $elseBodyFlowElement->varsInScope = $ifFlowElement->varsInScope;  // copy!
-            $elseBodyFlowElement->functionsInScope = &$ifFlowElement->functionsInScope;
+            // OLD: $elseBodyFlowElement->varsInScope = $ifFlowElement->varsInScope;  // copy!
+            // OLD: $elseBodyFlowElement->functionsInScope = &$ifFlowElement->functionsInScope;
         }
         
         if ($thenBodyFlowElement->onlyHasOpenEndings && $elseBodyFlowElement->onlyHasOpenEndings) {
@@ -353,7 +352,7 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
         
         // FIXME: if either the thenBody- or the elseBody onlyHasOpenEndings, we should NOT JOIN here!
         
-        addChangedVariablesToExitingParent($elseBodyFlowElement);
+        addChangedVariablesToExitingParent($thenBodyFlowElement);
         addChangedVariablesToExitingParent($elseBodyFlowElement);
         
         // Adding a passthrough variable if either side has changed a variable, while the other has not
@@ -471,9 +470,9 @@ function flowifyForStatement($forStatement, $forFlowElement) {
         
         $forStepAstNodeIdentifier1 = $forAstNodeIdentifier . "_1";
         // FIXME: change this from a ifThen for a forStep
-        $forStepFlowElement1 = createAndAddFlowElementToParent('ifThen', '#1', null, $forStepAstNodeIdentifier1, $forFlowElement, $useVarScopeFromParent = false);
-        $forStepFlowElement1->varsInScope = $forFlowElement->varsInScope; // copy!
-        $forStepFlowElement1->functionsInScope = &$forFlowElement->functionsInScope;
+        $forStepFlowElement1 = createAndAddFlowElementToParent('ifThen', '#1', null, $forStepAstNodeIdentifier1, $forFlowElement);
+        // OLD: $forStepFlowElement1->varsInScope = $forFlowElement->varsInScope; // copy!
+        // OLD: $forStepFlowElement1->functionsInScope = &$forFlowElement->functionsInScope;
         $forStepFlowElement1->canContainSplitters = true;
         
         flowifyForIteration(
@@ -497,9 +496,9 @@ function flowifyForStatement($forStatement, $forFlowElement) {
         
         $forStepAstNodeIdentifier2 = $forAstNodeIdentifier . "_2";
         // FIXME: change this from a ifThen for a forStep
-        $forStepFlowElement2 = createAndAddFlowElementToParent('ifThen', '#2', null, $forStepAstNodeIdentifier2, $forFlowElement, $useVarScopeFromParent = false);
-        $forStepFlowElement2->varsInScope = $forFlowElement->varsInScope; // copy!
-        $forStepFlowElement2->functionsInScope = &$forFlowElement->functionsInScope;
+        $forStepFlowElement2 = createAndAddFlowElementToParent('ifThen', '#2', null, $forStepAstNodeIdentifier2, $forFlowElement);
+        // OLD: $forStepFlowElement2->varsInScope = $forFlowElement->varsInScope; // copy!
+        // OLD: $forStepFlowElement2->functionsInScope = &$forFlowElement->functionsInScope;
         $forStepFlowElement2->canContainSplitters = true;
         
         flowifyForIteration(

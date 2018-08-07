@@ -120,11 +120,12 @@ function createAndAddFlowElementToParent ($flowElementType, $flowElementName, $f
     
     $flowElement = createFlowElement ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $canHaveChildren = true, $hasScope = true);
     
-    // Copying the varsInScopeAvailable from the parent to the child (if child is not childless)
-    $flowElement->varsInScopeAvailable = $parentFlowElement->varsInScopeAvailable; // copy!
     
     if ($useVarScopeFromParent) { // FIXME: deprecated!
-        $flowElement->varsInScope = &$parentFlowElement->varsInScope;
+        // Copying the varsInScopeAvailable from the parent to the child (if child is not childless)
+        $flowElement->varsInScopeAvailable = $parentFlowElement->varsInScopeAvailable; // copy!
+        
+        $flowElement->varsInScope = $parentFlowElement->varsInScope; // FIXME: deprecated!
         $flowElement->functionsInScope = &$parentFlowElement->functionsInScope;
     }
     addFlowElementToParent($flowElement, $parentFlowElement);
@@ -156,7 +157,7 @@ function setVarsInScopeAvailableRecursively($flowElement, $variableName) {
         if ($flowElement->children !== null) { // TODO: not needed right, since canHaveChildren is true?
             foreach ($flowElement->children as $childFlowElement) {
                 if ($childFlowElement->receivesChangesFromOutside) {
-                    setVarsInScopeAvailableRecursively($childFlowElement, $variableName);
+                    // setVarsInScopeAvailableRecursively($childFlowElement, $variableName);
                 }
             }
         }
