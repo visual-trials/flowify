@@ -133,6 +133,9 @@ function createAndAddFlowElementToParent ($flowElementType, $flowElementName, $f
 
 function addChangedVariablesToExitingParent ($flowElement) {
     $exitingParentFlowElement = getExitingParentElement($flowElement);
+    if ($flowElement->varsInScopeChanged === null) {
+        logLine("empty varsInScopeChanged for flowElement: " . $flowElement->id);
+    }
     foreach ($flowElement->varsInScopeChanged as $variableName => $isChanged) {
         // We are adding all changed variables to the exitingParent, *if* they were available in that exitingParent
         if (array_key_exists($variableName, $exitingParentFlowElement->varsInScopeAvailable)) {

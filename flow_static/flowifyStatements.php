@@ -154,7 +154,8 @@ function flowifyStatements ($statements, $bodyFlowElement) {
             $flowElement = flowifyExpression($expression, $bodyFlowElement);
             
             // FIXME: is this correct? Is the flowElement always the element that represents the expression?
-            addChangedVariablesToExitingParent($flowElement);
+            // FIXME: this generates errors, since the flowElement can be an assignedVar (and have no changedVars)
+            // FIXME: addChangedVariablesToExitingParent($flowElement);
 
             // TODO: should we do anything with this $flowElement?
             //       if an expression is a statement, where does the output of that expesssion/statement go?
