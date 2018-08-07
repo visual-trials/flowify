@@ -51,9 +51,6 @@ function flowifyFunction ($functionStatement, $flowCallArguments, $functionCallF
 
             // Setting the parameter as a local var within the function body
             $functionCallFlowElement->varsInScope[$parameterName] = $parameterFlowElement;   // FIXME: DEPRECATED!
-            
-            // $functionCallFlowElement->usedVars[$parameterName] = 'created';
-
         }
         else {
             die("The number of call arguments for function $functionName is different from the number of arguments inside the function!\n");
