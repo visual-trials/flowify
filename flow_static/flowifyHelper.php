@@ -78,10 +78,16 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
         // OLD: $flowElement->doPassBack = false; // this is used for for-loops  // FIXME: this is deprecated!?
         
         $flowElement->parentId = null;
+        
+        $flowElement->canJoin = false;
+        $flowElement->previousId = null; // used if cannot join
+        $flowElement->previousIds = []; // used if can join
+        
         $flowElement->canHaveChildren = $canHaveChildren;
         if ($canHaveChildren) {
             $flowElement->children = [];
         }
+        
         if ($hasScope) {
             // $flowElement->varsInScope = [];
             $flowElement->varsInScopeChanged = [];
@@ -297,7 +303,9 @@ class FlowElement {
     
     public $astNodeIdentifier;
     
+    public $canJoin;
     public $previousId;
+    public $previousIds;
     
     public $canHaveChildren;
     public $children;
@@ -335,7 +343,15 @@ class FlowConnection {
 
 function getFlowDataFromElement ($flowElement) {
     $flowData = "";
-    $flowData .= 'previous: ' . $flowElement->previousId . "\n";
+    
+    $previousIds = null;
+    if ($flowElement->canJoin) {
+        $previousIds = implode(',' , $flowElement->previousIds);
+    }
+    else {
+        $previousIds = $flowElement->previousId;
+    }
+    $flowData .= 'previous: ' . $previousIds . "\n";
     $flowData .= 'lastchild: ' . $flowElement->lastChildId . "\n";
     $flowData .= 'parent: ' . $flowElement->parentId . "\n";
     $flowData .= 'exitingParent: ' . $flowElement->exitingParentId . "\n";

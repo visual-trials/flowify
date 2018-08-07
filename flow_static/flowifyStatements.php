@@ -346,7 +346,9 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
         
         $endAstNodeIdentifier = $ifAstNodeIdentifier . "_IfEnd";
         // FIXME: change this to ifEnd
-        $condFlowElement = createAndAddFlowElementToParent('ifCond', 'end', null, $endAstNodeIdentifier, $ifFlowElement);
+        $endFlowElement = createAndAddFlowElementToParent('ifCond', 'end', null, $endAstNodeIdentifier, $ifFlowElement);
+        $endFlowElement->canJoin = true;
+        $endFlowElement->previousIds = [ $thenBodyFlowElement->id, $elseBodyFlowElement->id ];
     }
     
     return $ifOpenEndings;
