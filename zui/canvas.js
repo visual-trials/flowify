@@ -33,7 +33,7 @@ ZUI.canvas = function () {
     my.afterRedrawCanvas = null
 
     my.logLines = []
-    my.maxNrOfLogLines = 20
+    my.maxNrOfLogLines = 28
     my.logCamera = null
 
     my.isIE = false

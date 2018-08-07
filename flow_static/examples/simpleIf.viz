@@ -81,17 +81,22 @@
     },
     "7:1-9:1_IfEnd": {
         "x": 360,
-        "y": 120,
+        "y": 140,
+        "isPositionOf": "center"
+    },
+    "7:1-9:1_IfEnd_JOINED_b": {
+        "x": 20,
+        "y": -10,
         "isPositionOf": "center"
     },
     "11:6-11:16": {
         "x": 730,
-        "y": 190,
+        "y": 220,
         "isPositionOf": "center"
     },
     "11:1-11:2": {
         "x": 820,
-        "y": 170,
+        "y": 200,
         "isPositionOf": "center"
     }
 }
