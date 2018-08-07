@@ -457,3 +457,9 @@ function stringPosToLineNumber($code, $pos) {
 
     return $lineNumber;
 }
+
+function logLine($logLine) {
+    global $logLines;
+    
+    $logLines[] = $logLine;
+}

@@ -649,6 +649,12 @@ function convertFlowDataToZUIContainers (world, flowData) {
         ZUI.addWorldConnection(world, flowConnection.from, flowConnection.to, 'dataFlow', overrulingConnectionProperties)
     }
 
+    // Showing log coming from backend
+    var logLines = flowData.logLines
+    for (var logLineIndex = 0; logLineIndex < logLines.length; logLineIndex++) {
+        var logLine = logLines[logLineIndex]
+        ZUI.log(logLine)
+    }
 }
 
 

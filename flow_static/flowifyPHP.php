@@ -11,6 +11,7 @@ $flowElements = [];
 $flowConnectionId = 0;
 $flowConnections = [];
 $code = null;
+$logLines = [];
 
 handleRequest();
 
@@ -42,7 +43,7 @@ function handleRequest() {
 
 function flowifyPhpAndAttachVisualInfo($fileToFlowifyWithoutExtention)
 {
-    global $flowConnections, $code;
+    global $flowConnections, $code, $logLines;
 
     list($code, $visualInfos) = updateAndGetCodeAndVisualInfoForFile($fileToFlowifyWithoutExtention);
     
@@ -67,6 +68,7 @@ function flowifyPhpAndAttachVisualInfo($fileToFlowifyWithoutExtention)
     }
 
     $flowifiedPhp = [];
+    $flowifiedPhp['logLines'] = $logLines;
     $flowifiedPhp['code'] = explode("\n", $code);;
     $flowifiedPhp['rootFlowElement'] = $rootFlowElementArray;
     $flowifiedPhp['flowConnections'] = $flowConnectionsArray;

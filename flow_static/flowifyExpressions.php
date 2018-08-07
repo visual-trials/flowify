@@ -40,6 +40,8 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
             // REFACTOR: we should check varsInScopeAvailable here
             if (array_key_exists($variableName, $parentFlowElement->varsInScopeAvailable)) {
                 // The variable already exists and it to be used
+                logLine("$variableName is available inside " . $parentFlowElement->id);
+                logLine(print_r($parentFlowElement->varsInScopeAvailable,true));
                 // OLD: $fromVariable = $varsInScope[$variableName];   // FIXME: DEPRECATED!
                 // OLD: $flowElement = buildPathBackwardsToElementFromVariable($parentFlowElement, $toElement = null, $fromVariable, $variableName, $connectionType);
             }
