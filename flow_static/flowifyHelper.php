@@ -79,7 +79,7 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
         
         $flowElement->parentId = null;
         
-        $flowElement->canJoin = false;
+        $flowElement->hasPreviousIds = false;
         $flowElement->previousId = null; // used if cannot join
         $flowElement->previousIds = []; // used if can join
         
@@ -303,9 +303,9 @@ class FlowElement {
     
     public $astNodeIdentifier;
     
-    public $canJoin;
     public $previousId;
     public $previousIds;
+    public $hasPreviousIds;
     
     public $canHaveChildren;
     public $children;
@@ -345,7 +345,7 @@ function getFlowDataFromElement ($flowElement) {
     $flowData = "";
     
     $previousIds = null;
-    if ($flowElement->canJoin) {
+    if ($flowElement->hasPreviousIds) {
         $previousIds = implode(',' , $flowElement->previousIds);
     }
     else {

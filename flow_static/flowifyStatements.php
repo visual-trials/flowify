@@ -348,8 +348,8 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
         $endAstNodeIdentifier = $ifAstNodeIdentifier . "_IfEnd";
         // FIXME: change this to ifEnd
         $endFlowElement = createAndAddFlowElementToParent('ifCond', 'end', null, $endAstNodeIdentifier, $ifFlowElement);
-        $endFlowElement->canJoin = true;
         $endFlowElement->previousIds = [ $thenBodyFlowElement->id, $elseBodyFlowElement->id ];
+        $endFlowElement->hasPreviousIds = true;
     }
     
     return $ifOpenEndings;
@@ -396,8 +396,7 @@ function flowifyForStatement($forStatement, $forFlowElement) {
     $backBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'back', null, $backAstNodeIdentifier, $forFlowElement);
     
  
-    // == STEP: COND / ITER / UPDATE ==
-    
+    // == STEP ==
     
     $forStepAstNodeIdentifier = $forAstNodeIdentifier . "_1";
     // FIXME: change this from a ifThen for a forStep
