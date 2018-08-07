@@ -12,7 +12,6 @@ function addFlowConnection ($fromFlowElement, $toFlowElement, $connectionType = 
     $flowConnection->type = $connectionType;
     
     $flowConnections[$flowConnectionId] = $flowConnection;
-    // OLD: array_push($fromFlowElement->connectionIdsFromThisElement, $flowConnectionId);
 
     $flowConnectionId++;
     
@@ -70,13 +69,6 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
         $flowElement->onlyHasOpenEndings = false;
         $flowElement->openEndings = new OpenEndings; // TODO: maybe not create this always?
         
-        // TODO: don't canContainPassthroughs and canContainSplitters always go hand in hand (one for the child + one for the parent)?
-        // OLD: $flowElement->canContainPassthroughs = false; // FIXME: this is depracated!
-        // OLD: $flowElement->canContainSplitters = false; // FIXME: this is depracated!
-        // OLD: $flowElement->varSplitters = []; // FIXME: this is depracated!
-        // OLD: $flowElement->connectionIdsFromThisElement = []; // FIXME: do we still need this?
-        // OLD: $flowElement->doPassBack = false; // this is used for for-loops  // FIXME: this is deprecated!?
-        
         $flowElement->parentId = null;
         
         $flowElement->canJoin = false;
@@ -90,7 +82,6 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
         }
         
         if ($hasScope) {
-            // $flowElement->varsInScope = [];
             $flowElement->varsInScopeChanged = [];
             $flowElement->varsInScopeAvailable = [];
             $flowElement->functionsInScope = [];
@@ -316,11 +307,8 @@ class FlowElement {
     public $parentId;
     public $exitingParentId;
     
-    // OLD: public $connectionIdsFromThisElement;
-    
     public $functionsInScope;
     
-    // OLD: public $varsInScope;
     public $varsInScopeAvailable;
     public $varsInScopeChanged;
     public $isVariable;
