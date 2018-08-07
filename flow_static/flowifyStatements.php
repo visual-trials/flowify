@@ -275,6 +275,7 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
         
         $thenAstNodeIdentifier = getAstNodeIdentifier($thenStatements);
         $thenBodyFlowElement = createAndAddFlowElementToParent('ifThen', 'then', null, $thenAstNodeIdentifier, $ifFlowElement);
+        $thenBodyFlowElement->previousId = $condFlowElement->id;
         
         flowifyStatements($thenStatements, $thenBodyFlowElement);
         $thenOpenEndings = $thenBodyFlowElement->openEndings;
@@ -302,6 +303,7 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
             
             $elseAstNodeIdentifier = getAstNodeIdentifier($elseStatements);
             $elseBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'else', null, $elseAstNodeIdentifier, $ifFlowElement);
+            $elseBodyFlowElement->previousId = $condFlowElement->id;
             
             flowifyStatements($elseStatements, $elseBodyFlowElement);
             $elseOpenEndings = $elseBodyFlowElement->openEndings;
@@ -319,6 +321,7 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
             $elseAstNodeIdentifier = $ifAstNodeIdentifier . "_ImplicitElse";
             // FIXME: this should be of type: 'ifElseImplicit'
             $elseBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'else', null, $elseAstNodeIdentifier, $ifFlowElement);
+            $elseBodyFlowElement->previousId = $condFlowElement->id;
         }
         
         if ($thenBodyFlowElement->onlyHasOpenEndings && $elseBodyFlowElement->onlyHasOpenEndings) {
@@ -338,6 +341,12 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
         
         // TODO: $elseIfStatements = $ifStatement['elseif']
 
+        
+        // == ENDIF ==
+        
+        $endAstNodeIdentifier = $ifAstNodeIdentifier . "_IfEnd";
+        // FIXME: change this to ifEnd
+        $condFlowElement = createAndAddFlowElementToParent('ifCond', 'end', null, $endAstNodeIdentifier, $ifFlowElement);
     }
     
     return $ifOpenEndings;
