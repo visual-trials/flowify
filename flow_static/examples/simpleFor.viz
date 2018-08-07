@@ -51,21 +51,6 @@
         "y": 20,
         "isPositionOf": "center"
     },
-    "7:1-9:1_ImplicitDone": {
-        "x": 700,
-        "y": 250,
-        "isPositionOf": "center",
-        "width": 50,
-        "height": 400,
-        "relativeScale": 1
-    },
-    "7:1-9:1_ImplicitBack": {
-        "x": 420,
-        "y": 520,
-        "isPositionOf": "center",
-        "width": 500,
-        "height": 50
-    },
     "7:1-9:1_1": {
         "x": 420,
         "y": 250,
@@ -137,6 +122,21 @@
         "x": 170,
         "y": 30,
         "isPositionOf": "center"
+    },
+    "7:1-9:1_ImplicitBack": {
+        "x": 420,
+        "y": 520,
+        "isPositionOf": "center",
+        "width": 500,
+        "height": 50
+    },
+    "7:1-9:1_ImplicitDone": {
+        "x": 700,
+        "y": 250,
+        "isPositionOf": "center",
+        "width": 50,
+        "height": 400,
+        "relativeScale": 1
     },
     "11:6-11:16": {
         "x": 1190,

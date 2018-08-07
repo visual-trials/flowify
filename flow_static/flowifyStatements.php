@@ -348,7 +348,8 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
         $endAstNodeIdentifier = $ifAstNodeIdentifier . "_IfEnd";
         // FIXME: change this to ifEnd
         $endFlowElement = createAndAddFlowElementToParent('ifCond', 'end', null, $endAstNodeIdentifier, $ifFlowElement);
-        $endFlowElement->previousIds = [ $thenBodyFlowElement->id, $elseBodyFlowElement->id ];
+        $endFlowElement->previousIds[] = $thenBodyFlowElement->id;
+        $endFlowElement->previousIds[] = $elseBodyFlowElement->id;
         $endFlowElement->hasPreviousIds = true;
     }
     
@@ -383,20 +384,8 @@ function flowifyForStatement($forStatement, $forFlowElement) {
     
     addChangedVariablesToExitingParent($initFlowElement);
         
-    // == DONE ==
-    
-    $doneAstNodeIdentifier = $forAstNodeIdentifier . "_ImplicitDone";
-    // FIXME: this should be of type: 'forDoneImplicit'
-    $doneBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'done', null, $doneAstNodeIdentifier, $forFlowElement);
-    
-    // == BACK ==
-    
-    $backAstNodeIdentifier = $forAstNodeIdentifier . "_ImplicitBack";
-    // FIXME: this should be of type: 'forBackImplicit'
-    $backBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'back', null, $backAstNodeIdentifier, $forFlowElement);
-    
  
-    // == STEP ==
+    // == STEP 1 ==
     
     $forStepAstNodeIdentifier = $forAstNodeIdentifier . "_1";
     // FIXME: change this from a ifThen for a forStep
@@ -412,6 +401,9 @@ function flowifyForStatement($forStatement, $forFlowElement) {
         
         addChangedVariablesToExitingParent($condBodyFlowElement);
 
+        $condBodyFlowElement->previousIds[] = $initFlowElement->id; // Note: later we add the 'back-element' to this list
+        $condBodyFlowElement->hasPreviousIds = true;
+        
         // TODO: the flowElement coming from the conditionExpression is a boolean and determines 
         //       whether the iter-statements are executed. How to should we visualize this?
         
@@ -426,6 +418,8 @@ function flowifyForStatement($forStatement, $forFlowElement) {
         // FIXME: do something with $iterOpenEndings!
 
         addChangedVariablesToExitingParent($iterBodyFlowElement);
+        
+        $iterBodyFlowElement->previousId = $condBodyFlowElement->id;
         
         
         // FIXME: If iterOpenEndings contains a 'continue', we need to join the varsInScope of the continue-body (for example a then-body)
@@ -449,10 +443,30 @@ function flowifyForStatement($forStatement, $forFlowElement) {
         
         addChangedVariablesToExitingParent($updateBodyFlowElement);
         
+        $updateBodyFlowElement->previousId = $iterBodyFlowElement->id;
+        
     }
+    
+    // == BACK ==
+    
+    $backAstNodeIdentifier = $forAstNodeIdentifier . "_ImplicitBack";
+    // FIXME: this should be of type: 'forBackImplicit'
+    $backBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'back', null, $backAstNodeIdentifier, $forFlowElement);
+    
+    $backBodyFlowElement->previousId = $updateBodyFlowElement->id;
+    
+    $condBodyFlowElement->previousIds[] = $backBodyFlowElement->id; // Note: earlier the init-element was put in this list
+    
+    
+    // == DONE ==
+    
+    $doneAstNodeIdentifier = $forAstNodeIdentifier . "_ImplicitDone";
+    // FIXME: this should be of type: 'forDoneImplicit'
+    $doneBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'done', null, $doneAstNodeIdentifier, $forFlowElement);
     
     addChangedVariablesToExitingParent($forStepFlowElement);
 
+    $doneBodyFlowElement->previousId = $condBodyFlowElement->id;
     
     // TODO: implement continue statement (inside flowifyStatements)
     // TODO: implement break statement (inside flowifyStatements)
