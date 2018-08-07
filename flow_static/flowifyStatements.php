@@ -263,11 +263,11 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
         
         addChangedVariablesToExitingParent($condFlowElement);
         
+        $condFlowElement->canSplit = true;
+        
         // TODO: the flowElement coming from the conditionExpression is a boolean and determines 
         //       whether the then-statements or the else(if)-statements are executed. How to should
         //       we visualize this?
-        
-        $varsInScopeAfterCondBody = $condFlowElement->varsInScope; // copy!
         
         // == THEN ==
         
@@ -350,7 +350,7 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
         $endFlowElement = createAndAddFlowElementToParent('ifCond', 'end', null, $endAstNodeIdentifier, $ifFlowElement);
         $endFlowElement->previousIds[] = $thenBodyFlowElement->id;
         $endFlowElement->previousIds[] = $elseBodyFlowElement->id;
-        $endFlowElement->hasPreviousIds = true;
+        $endFlowElement->canJoin = true;
     }
     
     return $ifOpenEndings;
@@ -402,7 +402,8 @@ function flowifyForStatement($forStatement, $forFlowElement) {
         addChangedVariablesToExitingParent($condBodyFlowElement);
 
         $condBodyFlowElement->previousIds[] = $initFlowElement->id; // Note: later we add the 'back-element' to this list
-        $condBodyFlowElement->hasPreviousIds = true;
+        $condBodyFlowElement->canJoin = true;
+        $condBodyFlowElement->canSplit = true;
         
         // TODO: the flowElement coming from the conditionExpression is a boolean and determines 
         //       whether the iter-statements are executed. How to should we visualize this?
