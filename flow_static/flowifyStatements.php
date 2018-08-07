@@ -333,6 +333,7 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
         
         // FIXME: if either the thenBody- or the elseBody onlyHasOpenEndings, we should NOT JOIN here!
         
+        // FIXME: should the exiting parent be the EndIf or the If?
         addChangedVariablesToExitingParent($thenBodyFlowElement);
         addChangedVariablesToExitingParent($elseBodyFlowElement);
         
@@ -373,147 +374,91 @@ function flowifyForStatement($forStatement, $forFlowElement) {
     
     $forAstNodeIdentifier = $forFlowElement->astNodeIdentifier;
     
+    // == INIT ==
+    
+    $initAstNodeIdentifier = $forAstNodeIdentifier . "_ForInit";
+    // FIXME: replace ifCond with forInit
+    $initFlowElement = createAndAddFlowElementToParent('ifCond', 'init', null, $initAstNodeIdentifier, $forFlowElement);
+    $flowElement = flowifyExpression($initExpression, $initFlowElement);
+    
+    addChangedVariablesToExitingParent($initFlowElement);
+        
+    // == DONE ==
+    
+    $doneAstNodeIdentifier = $forAstNodeIdentifier . "_ImplicitDone";
+    // FIXME: this should be of type: 'forDoneImplicit'
+    $doneBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'done', null, $doneAstNodeIdentifier, $forFlowElement);
+    
+    // == BACK ==
+    
+    $backAstNodeIdentifier = $forAstNodeIdentifier . "_ImplicitBack";
+    // FIXME: this should be of type: 'forBackImplicit'
+    $backBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'back', null, $backAstNodeIdentifier, $forFlowElement);
+    
+ 
+    // == STEP: COND / ITER / UPDATE ==
+    
+    
+    $forStepAstNodeIdentifier = $forAstNodeIdentifier . "_1";
+    // FIXME: change this from a ifThen for a forStep
+    $forStepFlowElement = createAndAddFlowElementToParent('ifThen', '#1', null, $forStepAstNodeIdentifier, $forFlowElement);
+    
     {
-            
-        // == INIT ==
         
-        $initAstNodeIdentifier = $forAstNodeIdentifier . "_ForInit";
-        // FIXME: replace ifCond with forInit
-        $initFlowElement = createAndAddFlowElementToParent('ifCond', 'init', null, $initAstNodeIdentifier, $forFlowElement);
-        $flowElement = flowifyExpression($initExpression, $initFlowElement);
+        // == COND ==
         
-        addChangedVariablesToExitingParent($initFlowElement);
-            
-        // == DONE ==
+        // FIXME: replace ifCond with forCond
+        $condBodyFlowElement = createAndAddFlowElementToParent('ifCond', 'cond', null, $forAstNodeIdentifier . "_ForCond", $forStepFlowElement);
+        $flowElement = flowifyExpression($conditionExpression, $condBodyFlowElement);
         
-        $doneAstNodeIdentifier = $forAstNodeIdentifier . "_ImplicitDone";
-        // FIXME: this should be of type: 'forDoneImplicit'
-        $doneBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'done', null, $doneAstNodeIdentifier, $forFlowElement);
-        
-        // == BACK ==
-        
-        $backAstNodeIdentifier = $forAstNodeIdentifier . "_ImplicitBack";
-        // FIXME: this should be of type: 'forBackImplicit'
-        $backBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'back', null, $backAstNodeIdentifier, $forFlowElement);
-        
-     
-        // == COND / ITER / UPDATE ==
-        
-        
-        // STEP 1
-        
-        $forStepAstNodeIdentifier1 = $forAstNodeIdentifier . "_1";
-        // FIXME: change this from a ifThen for a forStep
-        $forStepFlowElement1 = createAndAddFlowElementToParent('ifThen', '#1', null, $forStepAstNodeIdentifier1, $forFlowElement);
-        
-        flowifyForIteration(
-            $conditionExpression, 
-            $iterStatements, 
-            $updateExpression,
-            $forAstNodeIdentifier,
-            $doneBodyFlowElement,
-            $backBodyFlowElement,
-            $forFlowElement,
-            //$doneBodyFlowElement,
-            $forStepAstNodeIdentifier1,
-            $forStepFlowElement1
-        );
-        
-        addChangedVariablesToExitingParent($forStepFlowElement1);
+        addChangedVariablesToExitingParent($condBodyFlowElement);
 
+        // TODO: the flowElement coming from the conditionExpression is a boolean and determines 
+        //       whether the iter-statements are executed. How to should we visualize this?
         
-        /*
-        // STEP 2
+        // == ITER ==
+
+        $iterAstNodeIdentifier = getAstNodeIdentifier($iterStatements);
         
-        $forStepAstNodeIdentifier2 = $forAstNodeIdentifier . "_2";
-        // FIXME: change this from a ifThen for a forStep
-        $forStepFlowElement2 = createAndAddFlowElementToParent('ifThen', '#2', null, $forStepAstNodeIdentifier2, $forFlowElement);
+        // FIXME: replace ifThen with iterBody
+        $iterBodyFlowElement = createAndAddFlowElementToParent('ifThen', 'iter', null, $iterAstNodeIdentifier, $forStepFlowElement);
+        flowifyStatements($iterStatements, $iterBodyFlowElement);
+        $iterOpenEndings = $iterBodyFlowElement->openEndings;
+        // FIXME: do something with $iterOpenEndings!
+
+        addChangedVariablesToExitingParent($iterBodyFlowElement);
         
-        flowifyForIteration(
-            $conditionExpression, 
-            $iterStatements, 
-            $updateExpression,
-            $forAstNodeIdentifier,
-            $doneBodyFlowElement,
-            $backBodyFlowElement,
-            $forFlowElement,
-            $forStepAstNodeIdentifier2,
-            $forStepFlowElement2
-        );
         
-        */
+        // FIXME: If iterOpenEndings contains a 'continue', we need to join the varsInScope of the continue-body (for example a then-body)
+        //        with the varsInScope of the iterBodyFlowElement. We need to do this before the update.
+        //        We also need to add a passthrough for that and split it.
 
-        // TODO: implement continue statement (inside flowifyStatements)
-        // TODO: implement break statement (inside flowifyStatements)
-    
-
-    }    
-    
-}
-
-function flowifyForIteration (
-        $conditionExpression, 
-        $iterStatements, 
-        $updateExpression,
-        $forAstNodeIdentifier,
-        $doneBodyFlowElement,
-        $backBodyFlowElement,
-        $forFlowElement,
-        $forStepAstNodeIdentifier,
-        $forStepFlowElement
-    ) {
-
-    // == COND ==
-    
-    // FIXME: replace ifCond with forCond
-    $condBodyFlowElement = createAndAddFlowElementToParent('ifCond', 'cond', null, $forAstNodeIdentifier . "_ForCond", $forStepFlowElement);
-    $flowElement = flowifyExpression($conditionExpression, $condBodyFlowElement);
-    
-    addChangedVariablesToExitingParent($condBodyFlowElement);
-
-    // TODO: the flowElement coming from the conditionExpression is a boolean and determines 
-    //       whether the iter-statements are executed. How to should we visualize this?
-    
-    // == ITER ==
-
-    $iterAstNodeIdentifier = getAstNodeIdentifier($iterStatements);
-    
-    // FIXME: replace ifThen with iterBody
-    $iterBodyFlowElement = createAndAddFlowElementToParent('ifThen', 'iter', null, $iterAstNodeIdentifier, $forStepFlowElement);
-    flowifyStatements($iterStatements, $iterBodyFlowElement);
-    $iterOpenEndings = $iterBodyFlowElement->openEndings;
-    // FIXME: do something with $iterOpenEndings!
-
-    addChangedVariablesToExitingParent($iterBodyFlowElement);
-    
-    
-    // FIXME: If iterOpenEndings contains a 'continue', we need to join the varsInScope of the continue-body (for example a then-body)
-    //        with the varsInScope of the iterBodyFlowElement. We need to do this before the update.
-    //        We also need to add a passthrough for that and split it.
-
-    // FIXME: if we have multiple continues, we need to combine them first?
-    
-    // for the ONE 'continue' in iterOpenEndings do the following
-    {
-
-        if (count($iterOpenEndings->continues) > 0) {
-            // FIXME: implement this!
+        // FIXME: if we have multiple continues, we need to combine them first?
+        
+        // for the ONE 'continue' in iterOpenEndings do the following
+        {
+            if (count($iterOpenEndings->continues) > 0) {
+                // FIXME: implement this!
+            }
         }
-
         
+        // == UPDATE ==
+        
+        // FIXME: replace ifCond with forUpdate
+        $updateBodyFlowElement = createAndAddFlowElementToParent('ifCond', 'update', null, $forAstNodeIdentifier . "_ForUpdate", $forStepFlowElement);
+        $flowElement = flowifyExpression($updateExpression, $updateBodyFlowElement);
+        
+        addChangedVariablesToExitingParent($updateBodyFlowElement);
         
     }
     
-    // == UPDATE ==
-    
-    // FIXME: replace ifCond with forUpdate
-    $updateBodyFlowElement = createAndAddFlowElementToParent('ifCond', 'update', null, $forAstNodeIdentifier . "_ForUpdate", $forStepFlowElement);
-    $flowElement = flowifyExpression($updateExpression, $updateBodyFlowElement);
-    
-    addChangedVariablesToExitingParent($updateBodyFlowElement);
+    addChangedVariablesToExitingParent($forStepFlowElement);
 
+    
+    // TODO: implement continue statement (inside flowifyStatements)
+    // TODO: implement break statement (inside flowifyStatements)
+    
 }
-
 
 
 function joinVariables($variableName, $differentVariables, $targetElement) {
