@@ -130,6 +130,11 @@
         "y": 110,
         "isPositionOf": "center"
     },
+    "8:2-8:3": {
+        "x": 160,
+        "y": 100,
+        "isPositionOf": "center"
+    },
     "7:1-9:1_ForUpdate": {
         "x": 350,
         "y": 120,
@@ -146,6 +151,11 @@
     "7:28-7:33": {
         "x": 100,
         "y": 50,
+        "isPositionOf": "center"
+    },
+    "7:23-7:24": {
+        "x": 170,
+        "y": 30,
         "isPositionOf": "center"
     },
     "7:1-9:1_1_JOINED_b": {

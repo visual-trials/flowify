@@ -66,9 +66,6 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
         $flowElement->name = $flowElementName;
         $flowElement->value = $flowElementValue;
         
-        $flowElement->connectionIdsFromThisElement = [];
-        $flowElement->doPassBack = false; // this is used for for-loops  // FIXME: this is depracated!?
-        
         $flowElement->hasOpenEndings = false;
         $flowElement->onlyHasOpenEndings = false;
         $flowElement->openEndings = new OpenEndings; // TODO: maybe not create this always?
@@ -77,6 +74,8 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
         $flowElement->canContainPassthroughs = false; // FIXME: this is depracated!
         $flowElement->canContainSplitters = false; // FIXME: this is depracated!
         $flowElement->varSplitters = []; // FIXME: this is depracated!
+        $flowElement->connectionIdsFromThisElement = []; // FIXME: do we still need this?
+        $flowElement->doPassBack = false; // this is used for for-loops  // FIXME: this is deprecated!?
         
         $flowElement->parentId = null;
         $flowElement->canHaveChildren = $canHaveChildren;
@@ -113,6 +112,8 @@ function addFlowElementToParent ($flowElement, $parentFlowElement) {
     $parentFlowElement->lastChildId = $flowElement->id;
     // Setting the parent of the child to the parent
     $flowElement->parentId = $parentFlowElement->id;
+    // By default the exitingParent is the parent
+    $flowElement->exitingParentId = $parentFlowElement->id;
 }
 
 function createAndAddFlowElementToParent ($flowElementType, $flowElementName, $flowElementValue, $astNodeIdentifier, $parentFlowElement, $useVarScopeFromParent = true) {
@@ -162,15 +163,32 @@ function setVarsInScopeAvailableRecursively($flowElement, $variableName) {
     }
 }
 
-function createVariable($parentFlowElement, $variableName, $astNodeIdentifier) {
+function findContainingFunctionOrRoot($flowElement) {
+    if ($flowElement->sendsChangesToOutside && $flowElement->parentId !== null) {
+        return findContainingFunctionOrRoot(getParentElement($flowElement));
+    }
+    else {
+        return $flowElement;
+    }
+}
+
+function createVariable($parentFlowElement, $variableName, $astNodeIdentifier, $createDirectlyInParent = true) {
     
-    // We insert the variable inside the containing function and then build a path to it (which is always a direct connection)
-    // REFACTOR: implement this: $functionOrRoot = getFunctionOrRootForElement($parentFlowElement);
+    // We insert the variable inside the containing function
+    
     // Question: is it possible in this language that a variable is declared inside an for-loop? (in the init-expression)
     //           or is this only possible in block-scoped languages?
-    $functionOrRoot = $parentFlowElement; // REFACTOR
-    $flowElement = createAndAddChildlessFlowElementToParent('variable', $variableName, null, $astNodeIdentifier, $functionOrRoot);
-    // REFACTOR: set ->isVariable = $variableName 
+    
+    $functionOrRoot = findContainingFunctionOrRoot($parentFlowElement);
+    $elementToCreateVariableIn = null;
+    if ($createDirectlyInParent) {
+        $elementToCreateVariableIn = $parentFlowElement;
+    }
+    else {
+        $elementToCreateVariableIn = $functionOrRoot;
+    }
+    $flowElement = createAndAddChildlessFlowElementToParent('variable', $variableName, null, $astNodeIdentifier, $elementToCreateVariableIn);
+    $flowElement->isVariable = $variableName;
     
     // The varsInScopeChanged is set for the parent
     $parentFlowElement->varsInScopeChanged[$variableName] = true;
@@ -293,6 +311,7 @@ class FlowElement {
     public $varsInScope;
     public $varsInScopeAvailable;
     public $varsInScopeChanged;
+    public $isVariable;
     
     public $sendsChangesToOutside;
     public $receivesChangesFromOutside;
@@ -320,33 +339,40 @@ function getFlowDataFromElement ($flowElement) {
     $flowData .= 'exitingParent: ' . $flowElement->exitingParentId . "\n";
     $flowData .= "\n";
     
-    $varsInScopeAvailable = "";
-    if (!empty($flowElement->varsInScopeAvailable)) {
-        $varsInScopeAvailable = implode(',' , array_keys($flowElement->varsInScopeAvailable));
+    if ($flowElement->canHaveChildren) { // FIXME: technically we should check canHaveScope here (but right now it amounts to the same thing)
+        $varsInScopeAvailable = "";
+        if (!empty($flowElement->varsInScopeAvailable)) {
+            $varsInScopeAvailable = implode(',' , array_keys($flowElement->varsInScopeAvailable));
+        }
+        $flowData .= 'varsInScopeAvailable: ' . $varsInScopeAvailable . "\n";
+        
+        $varsInScopeChanged = "";
+        if (!empty($flowElement->varsInScopeChanged)) {
+            $varsInScopeChanged = implode(',' , array_keys($flowElement->varsInScopeChanged));
+        }
+        $flowData .= 'varsInScopeChanged: ' . $varsInScopeChanged . "\n";
+        $flowData .= "\n";
+        
+        $flowData .= 'endsWith: ' . $flowElement->endsWith . "\n";
+        $hasOpenEndings = $flowElement->hasOpenEndings ? 'true' : 'false';
+        $flowData .= 'hasOpenEndings: ' . $hasOpenEndings . "\n";
+        $onlyHasOpenEndings = $flowElement->onlyHasOpenEndings ? 'true' : 'false';
+        $flowData .= 'onlyHasOpenEndings: ' . $onlyHasOpenEndings . "\n";
+        
+        $openEndings = $flowElement->openEndings;
+        $openEndReturns = implode(',' , array_keys($openEndings->returns));
+        $openEndBreaks = implode(',' , array_keys($openEndings->breaks));
+        $openEndContinues = implode(',' , array_keys($openEndings->continues));
+        $flowData .= 'openEndReturns: ' . $openEndReturns . "\n";
+        $flowData .= 'openEndBreaks: ' . $openEndBreaks . "\n";
+        $flowData .= 'openEndContinues: ' . $openEndContinues . "\n";
     }
-    $flowData .= 'varsInScopeAvailable: ' . $varsInScopeAvailable . "\n";
-    
-    $varsInScopeChanged = "";
-    if (!empty($flowElement->varsInScopeChanged)) {
-        $varsInScopeChanged = implode(',' , array_keys($flowElement->varsInScopeChanged));
+    else {
+        $isVariable = $flowElement->isVariable ? 'true' : 'false';
+        $flowData .= 'isVariable: ' . $isVariable . "\n";
+        $flowData .= "\n";
     }
-    $flowData .= 'varsInScopeChanged: ' . $varsInScopeChanged . "\n";
-    $flowData .= "\n";
     
-    $flowData .= 'endsWith: ' . $flowElement->endsWith . "\n";
-    $hasOpenEndings = $flowElement->hasOpenEndings ? 'true' : 'false';
-    $flowData .= 'hasOpenEndings: ' . $hasOpenEndings . "\n";
-    $onlyHasOpenEndings = $flowElement->onlyHasOpenEndings ? 'true' : 'false';
-    $flowData .= 'onlyHasOpenEndings: ' . $onlyHasOpenEndings . "\n";
-    
-    $openEndings = $flowElement->openEndings;
-    $openEndReturns = implode(',' , array_keys($openEndings->returns));
-    $openEndBreaks = implode(',' , array_keys($openEndings->breaks));
-    $openEndContinues = implode(',' , array_keys($openEndings->continues));
-    $flowData .= 'openEndReturns: ' . $openEndReturns . "\n";
-    $flowData .= 'openEndBreaks: ' . $openEndBreaks . "\n";
-    $flowData .= 'openEndContinues: ' . $openEndContinues . "\n";
-
     return $flowData;
 }
 

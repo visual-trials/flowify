@@ -353,10 +353,7 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
         
         // FIXME: if either the thenBody- or the elseBody onlyHasOpenEndings, we should NOT JOIN here!
         
-        $thenBodyFlowElement->exitingParentId = $ifFlowElement->id;
         addChangedVariablesToExitingParent($elseBodyFlowElement);
-        
-        $elseBodyFlowElement->exitingParentId = $ifFlowElement->id;
         addChangedVariablesToExitingParent($elseBodyFlowElement);
         
         // Adding a passthrough variable if either side has changed a variable, while the other has not
@@ -449,6 +446,8 @@ function flowifyForStatement($forStatement, $forFlowElement) {
         // FIXME: replace ifCond with forInit
         $initFlowElement = createAndAddFlowElementToParent('ifCond', 'init', null, $initAstNodeIdentifier, $forFlowElement);
         $flowElement = flowifyExpression($initExpression, $initFlowElement);
+        
+        addChangedVariablesToExitingParent($initFlowElement);
             
         // == DONE ==
         
