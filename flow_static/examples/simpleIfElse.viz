@@ -65,19 +65,9 @@
         "y": 40,
         "isPositionOf": "center"
     },
-    "8:2-8:9_Stmts_*PASSTHROUGH*_b": {
-        "x": 50,
-        "y": 80,
-        "isPositionOf": "center"
-    },
     "8:2-8:3": {
         "x": 130,
         "y": 40,
-        "isPositionOf": "center"
-    },
-    "7:1-12:1_b_SPLIT": {
-        "x": 150,
-        "y": 110,
         "isPositionOf": "center"
     },
     "11:5-11:12_Stmts": {
@@ -92,19 +82,9 @@
         "y": 40,
         "isPositionOf": "center"
     },
-    "11:5-11:12_Stmts_*PASSTHROUGH*_b": {
-        "x": 50,
-        "y": 10,
-        "isPositionOf": "center"
-    },
     "11:5-11:6": {
         "x": 120,
         "y": 40,
-        "isPositionOf": "center"
-    },
-    "7:1-12:1_JOINED_b": {
-        "x": 370,
-        "y": 110,
         "isPositionOf": "center"
     },
     "14:6-14:16": {
