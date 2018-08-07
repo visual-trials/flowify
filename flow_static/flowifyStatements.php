@@ -486,8 +486,73 @@ function joinVariables($variableName, $differentVariables, $targetElement) {
 }
 
 
-function buildPathBackwardsToElementFromVariable($laneElement, $toElement, $fromVariable, $variableName, $connectionType = null) {
-
+function buildPathBackwards($laneElement, $variableName, $connectionType = null) {
+    
+    // TODO: optionally, we could add $startWithChild = null here, so we won't have to start from the lastChild of the parent.
+    
+    global $flowElements;
+    
+    $variableElement = null;
+    
+    if (!array_key_exists($variableName, $laneElement->varsInScopeAvailable)) {
+        // The variableName is not available, so we can't do anything
+        return null;
+    }
+    
+    if (array_key_exists($variableName, $laneElement->varsInScopeChanged)) {
+        // The variable has been changed inside the lane, so we should be able to find it there
+        
+        if ($laneElement->lastChildId === null) {
+            // Somehow the variable has been changed inside the lane, but the are no childs in the lane. This should never happen.
+            logLine("ERROR: somehow the variable has been changed inside the lane, but the are no childs in the lane");
+            return null;
+        }
+        
+        $currentChildId = $laneElement->lastChildId; // TODO: we might want to start with $startWithChild instead
+        while($currentChildId !== null) {
+            $currentChild = $flowElements[$currentChildId];
+            
+            if ($currentChild->canHaveChildren) {
+                // The child is a lane itself, we check if it has changed the variable
+                if (array_key_exists($variableName, $currentChild->varsInScopeChanged)) {
+                    // The variable was changed in the child, we start searching inside it
+                    $variableElement = buildPathBackwards($currentChild, $variableName, $connectionType);
+                    break;
+                }
+            }
+            else {
+                // The child is not a lane, so we check if it is the variable we are searching for
+                if ($currentChild->isVariable === $variableName) {
+                    $variableElement = $currentChild;
+                    break;
+                }
+            }
+            
+            if ($currentChild->canJoin) {
+                // TODO We should traverse into all joined lanes here
+                // loop through: $currentChild->previousIds
+                $currentChildId = null; // TODO: for now, stopping the while-loop by setting currentChildId to null
+            }
+            else {
+                $currentChildId = $currentChild->previousId;
+            }
+        }
+        
+        if ($variableElement === null) {
+            // Note: we ended the search inside a lane that has this variable changed, but somehow didn't find it
+            logLine("ERROR: we ended the search inside a lane that has this variable changed, but somehow didn't find it");
+        }
+        
+    }
+    else {
+        // The variable has been *not* changed inside the lane, so we should try to find it in the parent lane
+        // TODO: optionally, we could add a $startWithChild as argument here and put the previous of the $laneElement in it (if its a single one and if it not null?)
+        $parentLaneElement = getParentElement($laneElement);
+        $variableElement = buildPathBackwards($parentLaneElement, $variableName, $connectionType);
+    }
+    
+    return $variableElement;
+    
 }
 
 function OLD_buildPathBackwardsToElementFromVariable($laneElement, $toElement, $fromVariable, $variableName, $connectionType = null) {
