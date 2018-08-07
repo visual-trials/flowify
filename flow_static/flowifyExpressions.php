@@ -310,7 +310,7 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
 
             $primitiveFunctionCallFlowElement = createAndAddChildlessFlowElementToParent('primitiveFunction', $functionName, null, $astNodeIdentifier, $parentFlowElement);
             foreach ($flowCallArguments as $flowCallArgument) {
-                // TURNED OFF FOR NOW: addFlowConnection($flowCallArgument, $primitiveFunctionCallFlowElement);
+                addFlowConnection($flowCallArgument, $primitiveFunctionCallFlowElement);
             }
             $flowElement = $primitiveFunctionCallFlowElement;
         }
@@ -322,7 +322,7 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
             
             $primitiveFunctionCallFlowElement = createAndAddChildlessFlowElementToParent('primitiveFunction', $functionName, null, $astNodeIdentifier, $parentFlowElement);
             foreach ($flowCallArguments as $flowCallArgument) {
-                // TURNED OFF FOR NOW: addFlowConnection($flowCallArgument, $primitiveFunctionCallFlowElement);
+                addFlowConnection($flowCallArgument, $primitiveFunctionCallFlowElement);
             }
             $flowElement = $primitiveFunctionCallFlowElement;
             
