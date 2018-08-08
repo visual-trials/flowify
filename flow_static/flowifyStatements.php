@@ -494,6 +494,20 @@ function buildPathBackwards($laneElement, $variableName, $connectionType = null)
     
     $variableElement = null;
     
+    if (!$laneElement->canHaveChildren) {
+        // The labeElement is not a lane, so we check if it is the variable we are searching for
+        if ($laneElement->isVariable === $variableName) {
+            logLine("Found variable $variableName as element:" . $laneElement->id);
+            $variableElement = $laneElement;
+            return $variableElement;
+        }
+        else {
+            // FIXME: not a lane, not a variable?
+            return null;
+        }
+    }
+
+
     if (!array_key_exists($variableName, $laneElement->varsInScopeAvailable)) {
         // The variableName is not available, so we can't do anything
         return null;
@@ -541,16 +555,13 @@ function buildPathBackwards($laneElement, $variableName, $connectionType = null)
                     logLine("We found the left lane:" . $leftLaneId);
                     logLine("We found the right lane:" . $rightLaneId);
                     $variableElementLeft = buildPathBackwards($leftLane, $variableName, $connectionType);
-                    // FIXME: this will while(1)! this is probably because the rightLane doesn't have 
-                    //        varsInScopeChanged for this variable, which *SOMEHOW* causes it to go 'down' 
-                    //        to its parent, which then goes back to this point, and this never ends
-                    // 
-                    // $variableElementRight = buildPathBackwards($rightLane, $variableName, $connectionType);
+                    $variableElementRight = buildPathBackwards($rightLane, $variableName, $connectionType);
                     
                     $conditionalJoinVariableAstNodeIdentifier = $currentChild->astNodeIdentifier . "_JOINED_" . $variableName;
                     $conditionalJoinVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalJoinVariable', $variableName, null, $conditionalJoinVariableAstNodeIdentifier, $currentChild);
 
                     addFlowConnection($variableElementLeft, $conditionalJoinVariableFlowElement, $connectionType);
+                    addFlowConnection($variableElementRight, $conditionalJoinVariableFlowElement, $connectionType);
                     
                     $variableElement = $conditionalJoinVariableFlowElement;
                     
@@ -592,7 +603,12 @@ function buildPathBackwards($laneElement, $variableName, $connectionType = null)
             else {
                 logLine("We go to parentId: " . $laneElement->parentId);
                 $parentLaneElement = getParentElement($laneElement);
-                $variableElement = buildPathBackwards($parentLaneElement, $variableName, $connectionType);
+                if ($parentLaneElement->previousId !== null) {
+                    logLine("We go to the previous of the parent: " . $parentLaneElement->previousId);
+                    // FIXME: HACK we should do this properly!
+                    $previousOfParentElement = $flowElements[$parentLaneElement->previousId];
+                    $variableElement = buildPathBackwards($previousOfParentElement, $variableName, $connectionType);
+                }
             }
         }
     }
