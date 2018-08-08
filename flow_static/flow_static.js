@@ -646,7 +646,12 @@ function convertFlowDataToZUIContainers (world, flowData) {
         }
 
         // TODO: connection.type?
-        ZUI.addWorldConnection(world, flowConnection.from, flowConnection.to, 'dataFlow', overrulingConnectionProperties)
+        if (flowConnection.from != null && flowConnection.to != null) {
+            ZUI.addWorldConnection(world, flowConnection.from, flowConnection.to, 'dataFlow', overrulingConnectionProperties)
+        }
+        else {
+            ZUI.log("ERROR: connection has a null in either its from (" + flowConnection.from +") or to (" + flowConnection.to + ") part! (not added)");
+        }
     }
 
     // Showing log coming from backend

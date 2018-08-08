@@ -484,72 +484,35 @@ function joinVariables($variableName, $differentVariables, $targetElement) {
 }
 
 
-function buildPathBackwards($laneElement, $variableName, $connectionType = null) {
+function buildPathBackwards($laneElement, $variableName, $connectionType = null, $childrenAreDone = false) {
     
     // TODO: optionally, we could add $startWithChild = null here, so we won't have to start from the lastChild of the parent.
     
     global $flowElements;
     
-    logLine("We are at lane: " . $laneElement->id);
     
     $variableElement = null;
     
     if (!$laneElement->canHaveChildren) {
+        logLine("We are at element: " . $laneElement->id);
+        
         // The labeElement is not a lane, so we check if it is the variable we are searching for
         if ($laneElement->isVariable === $variableName) {
             logLine("Found variable $variableName as element:" . $laneElement->id);
             $variableElement = $laneElement;
-            return $variableElement;
-        }
-        else {
-            // FIXME: not a lane, not a variable?
-            return null;
         }
     }
-
-
-    if (!array_key_exists($variableName, $laneElement->varsInScopeAvailable)) {
-        // The variableName is not available, so we can't do anything
-        return null;
-    }
-    
-    if (array_key_exists($variableName, $laneElement->varsInScopeChanged)) {
-        // The variable has been changed inside the lane, so we should be able to find it there
+    else {
+        logLine("We are at lane: " . $laneElement->id);
         
-        if ($laneElement->lastChildId === null) {
-            // Somehow the variable has been changed inside the lane, but the are no childs in the lane. This should never happen.
-            logLine("ERROR: somehow the variable has been changed inside the lane, but the are no childs in the lane");
-            return null;
-        }
+        if (array_key_exists($variableName, $laneElement->varsInScopeAvailable)) {
         
-        $currentChildId = $laneElement->lastChildId; // TODO: we might want to start with $startWithChild instead
-        while($currentChildId !== null) {
-            $currentChild = $flowElements[$currentChildId];
-            logLine("We are at child:" . $currentChild->id);
-            
-            if ($currentChild->canHaveChildren) {
-                // The child is a lane itself, we check if it has changed the variable
-                if (array_key_exists($variableName, $currentChild->varsInScopeChanged)) {
-                    // The variable was changed in the child, we start searching inside it
-                    logLine("We found a child that has the variable changed");
-                    $variableElement = buildPathBackwards($currentChild, $variableName, $connectionType);
-                    break;
-                }
-            }
-            else {
-                // The child is not a lane, so we check if it is the variable we are searching for
-                if ($currentChild->isVariable === $variableName) {
-                    $variableElement = $currentChild;
-                    break;
-                }
-            }
-            
-            if ($currentChild->canJoin) {
-                // TODO We should traverse into all joined lanes here
-                // loop through: $currentChild->previousIds
-                if (count($currentChild->previousIds) === 2) {
-                    $leftLaneId = $currentChild->previousIds[0];
-                    $rightLaneId = $currentChild->previousIds[1];
+            if ($laneElement->canJoin) {
+                // FIXME: We should traverse into all joined lanes here, BUT only if either has changed OR if we have an assymetric join!
+                // loop through: $laneElement->previousIds
+                if (count($laneElement->previousIds) === 2) {
+                    $leftLaneId = $laneElement->previousIds[0];
+                    $rightLaneId = $laneElement->previousIds[1];
                     $leftLane = $flowElements[$leftLaneId];
                     $rightLane = $flowElements[$rightLaneId];
                     logLine("We found the left lane:" . $leftLaneId);
@@ -557,58 +520,73 @@ function buildPathBackwards($laneElement, $variableName, $connectionType = null)
                     $variableElementLeft = buildPathBackwards($leftLane, $variableName, $connectionType);
                     $variableElementRight = buildPathBackwards($rightLane, $variableName, $connectionType);
                     
-                    $conditionalJoinVariableAstNodeIdentifier = $currentChild->astNodeIdentifier . "_JOINED_" . $variableName;
-                    $conditionalJoinVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalJoinVariable', $variableName, null, $conditionalJoinVariableAstNodeIdentifier, $currentChild);
+                    $conditionalJoinVariableAstNodeIdentifier = $laneElement->astNodeIdentifier . "_JOINED_" . $variableName;
+                    $conditionalJoinVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalJoinVariable', $variableName, null, $conditionalJoinVariableAstNodeIdentifier, $laneElement);
 
                     addFlowConnection($variableElementLeft, $conditionalJoinVariableFlowElement, $connectionType);
                     addFlowConnection($variableElementRight, $conditionalJoinVariableFlowElement, $connectionType);
                     
                     $variableElement = $conditionalJoinVariableFlowElement;
-                    
-                    break;
                 }
                 else {
                     // FIXME: support other variants!
                 }
-                $currentChildId = null; // TODO: for now, stopping the while-loop by setting currentChildId to null
+                
+                // FIXME: If we don't traverse the (joined) lanes, we should probably skip towards (or past) the split of the lanes!?
+                
             }
-            else {
-                $currentChildId = $currentChild->previousId;
+            else if (array_key_exists($variableName, $laneElement->varsInScopeChanged)) {
+                // The variable has been changed inside the lane, so we should be able to find it there
+                
+                if (!$childrenAreDone) {
+                    // We start with the last child in the lane
+                    if ($laneElement->lastChildId !== null) {
+                        $variableElement = buildPathBackwards($flowElements[$laneElement->lastChildId], $variableName, $connectionType);
+                    }
+                    else {
+                        // Somehow the variable has been changed inside the lane, but the are no childs in the lane. This should never happen.
+                        logLine("ERROR: somehow the variable has been changed inside the lane, but the are no childs in the lane");
+                        return null;
+                    }
+                }
+                else {
+                    // The children are already done, yet somehow the var has changed inside the children, so we missed it somehow
+                    logLine("ERROR: somehow the variable has been changed inside the lane, but the are done with the childs in the lane");
+                    return null;
+                }
+                 
             }
-        }
-        
-        if ($variableElement === null) {
-            // Note: we ended the search inside a lane that has this variable changed, but somehow didn't find it
-            logLine("ERROR: we ended the search inside a lane that has this variable changed, but somehow didn't find it");
-        }
-        
-    }
-    else {
-        // The variable has been *not* changed inside the lane, so we should try to find it in the previous lane
-        // If there is no previous lane, we should go to the parent lane
-        // TODO: optionally, we could add a $startWithChild as argument here and put the previous of the $laneElement in it (if its a single one and if it not null?)
-        
-        if ($laneElement->canJoin) {
-            // FIXME: if there are multiple previous lanes, we need to go through all of the, right?
-            logLine("We reach a joiner");
         }
         else {
-            if ($laneElement->previousId !== null) {
-                // TODO: we need to check whether the previous lane requires us to add a splitter or joiner or passthrough!
-                //       Should we do this here, or at the beginning of this function?
-                logLine("We go to previousId: " . $laneElement->previousId);
-                $previousLaneElement = $flowElements[$laneElement->previousId];
-                $variableElement = buildPathBackwards($previousLaneElement, $variableName, $connectionType);
-            }
-            else {
+            // The variableName is not available, so don't have to look into it, we should look somewhere else (see below)
+        }
+    }
+        
+    if ($variableElement === null) {
+        // The variable has been *not* changed inside the lane and is not the current element, 
+        // so we should try to find it in the previous lane / element. 
+        // If there is no previous lane, we should go to the parent lane and set childrenAreDone to true
+        
+        if ($laneElement->previousId !== null) {
+            // TODO: we need to check whether the previous lane requires us to add a splitter or joiner or passthrough!
+            //       Should we do this here, or at the beginning of this function?
+            logLine("We go to previousId: " . $laneElement->previousId);
+            $previousLaneElement = $flowElements[$laneElement->previousId];
+            $variableElement = buildPathBackwards($previousLaneElement, $variableName, $connectionType);
+        }
+        else {
+            if ($laneElement->parentId !== null) {
                 logLine("We go to parentId: " . $laneElement->parentId);
                 $parentLaneElement = getParentElement($laneElement);
                 if ($parentLaneElement->previousId !== null) {
                     logLine("We go to the previous of the parent: " . $parentLaneElement->previousId);
                     // FIXME: HACK we should do this properly!
                     $previousOfParentElement = $flowElements[$parentLaneElement->previousId];
-                    $variableElement = buildPathBackwards($previousOfParentElement, $variableName, $connectionType);
+                    $variableElement = buildPathBackwards($previousOfParentElement, $variableName, $connectionType, $childrenAreDone = true);
                 }
+            }
+            else {
+                logLine("ERROR: We are trying to go to the parent of element: " . $laneElement->id . " but it has no parent!");
             }
         }
     }

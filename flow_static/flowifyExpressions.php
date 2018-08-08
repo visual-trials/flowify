@@ -197,7 +197,7 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
 
         $flowElement = createAndAddChildlessFlowElementToParent('primitiveFunction', $binaryOpName, null, $astNodeIdentifier, $parentFlowElement);
         
-        // addFlowConnection($leftFlow, $flowElement);
+        addFlowConnection($leftFlow, $flowElement);
         addFlowConnection($rightFlow, $flowElement);
     }
     else if ($expressionType === 'Expr_Assign') {
