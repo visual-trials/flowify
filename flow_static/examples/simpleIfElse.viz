@@ -56,7 +56,7 @@
     },
     "7:1-12:1_IfCond_SPLIT_b": {
         "x": 110,
-        "y": 100,
+        "y": 110,
         "isPositionOf": "center"
     },
     "8:2-8:9_Stmts": {
@@ -99,7 +99,7 @@
         "isPositionOf": "center"
     },
     "7:1-12:1_IfEnd_JOINED_b": {
-        "x": 0,
+        "x": 10,
         "y": -10,
         "isPositionOf": "center"
     },

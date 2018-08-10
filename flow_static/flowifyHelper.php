@@ -174,7 +174,7 @@ function findContainingFunctionOrRoot($flowElement) {
     }
 }
 
-function createVariable($parentFlowElement, $variableName, $astNodeIdentifier, $createDirectlyInParent = true) {
+function createVariable($parentFlowElement, $variableName, $astNodeIdentifier, $variableType = 'variable', $createDirectlyInParent = true) {
     
     // We insert the variable inside the containing function
     
@@ -189,7 +189,7 @@ function createVariable($parentFlowElement, $variableName, $astNodeIdentifier, $
     else {
         $elementToCreateVariableIn = $functionOrRoot;
     }
-    $flowElement = createAndAddChildlessFlowElementToParent('variable', $variableName, null, $astNodeIdentifier, $elementToCreateVariableIn);
+    $flowElement = createAndAddChildlessFlowElementToParent($variableType, $variableName, null, $astNodeIdentifier, $elementToCreateVariableIn);
     $flowElement->isVariable = $variableName;
     
     // The varsInScopeChanged is set for the parent

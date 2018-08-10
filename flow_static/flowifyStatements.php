@@ -507,7 +507,28 @@ function buildPathBackwards($laneElement, $variableName, $connectionType = null,
         
         if (array_key_exists($variableName, $laneElement->varsInScopeAvailable)) {
         
-            if ($laneElement->canJoin) {
+            if (array_key_exists($variableName, $laneElement->varsInScopeChanged)) {
+                // The variable has been changed inside the lane, so we should be able to find it there
+                
+                if (!$childrenAreDone) {
+                    // We start with the last child in the lane
+                    if ($laneElement->lastChildId !== null) {
+                        $variableElement = buildPathBackwards($flowElements[$laneElement->lastChildId], $variableName, $connectionType);
+                    }
+                    else {
+                        // Somehow the variable has been changed inside the lane, but the are no childs in the lane. This should never happen.
+                        logLine("ERROR: somehow the variable has been changed inside the lane, but the are no childs in the lane");
+                        return null;
+                    }
+                }
+                else {
+                    // The children are already done, yet somehow the var has changed inside the children, so we missed it somehow
+                    logLine("ERROR: somehow the variable has been changed inside the lane, but the are done with the childs in the lane");
+                    return null;
+                }
+                 
+            }
+            else if ($laneElement->canJoin) {
                 // FIXME: We should traverse into all joined lanes here, BUT only if either has changed OR if we have an assymetric join!
                 // loop through: $laneElement->previousIds
                 if (count($laneElement->previousIds) === 2) {
@@ -520,8 +541,9 @@ function buildPathBackwards($laneElement, $variableName, $connectionType = null,
                     $variableElementLeft = buildPathBackwards($leftLane, $variableName, $connectionType);
                     $variableElementRight = buildPathBackwards($rightLane, $variableName, $connectionType);
                     
+                    // FIXME: we should also update the varsInScopeChanged on the way back!
                     $conditionalJoinVariableAstNodeIdentifier = $laneElement->astNodeIdentifier . "_JOINED_" . $variableName;
-                    $conditionalJoinVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalJoinVariable', $variableName, null, $conditionalJoinVariableAstNodeIdentifier, $laneElement);
+                    $conditionalJoinVariableFlowElement = createVariable($laneElement, $variableName, $conditionalJoinVariableAstNodeIdentifier, 'conditionalJoinVariable');
 
                     addFlowConnection($variableElementLeft, $conditionalJoinVariableFlowElement, $connectionType);
                     addFlowConnection($variableElementRight, $conditionalJoinVariableFlowElement, $connectionType);
@@ -554,34 +576,14 @@ function buildPathBackwards($laneElement, $variableName, $connectionType = null,
                 }
                 
                 $conditionalSplitVariableAstNodeIdentifier = $laneElement->astNodeIdentifier . "_SPLIT_" . $variableName;
-                $conditionalSplitVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalSplitVariable', $variableName, null, $conditionalSplitVariableAstNodeIdentifier, $laneElement);
+                $conditionalSplitVariableFlowElement = createVariable($laneElement, $variableName, $conditionalSplitVariableAstNodeIdentifier, 'conditionalSplitVariable');
+                // $conditionalSplitVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalSplitVariable', $variableName, null, $conditionalSplitVariableAstNodeIdentifier, $laneElement);
                 
                 addFlowConnection($variableElement, $conditionalSplitVariableFlowElement, $connectionType);
                 
                 $variableElement = $conditionalSplitVariableFlowElement;
                 
 
-            }
-            else if (array_key_exists($variableName, $laneElement->varsInScopeChanged)) {
-                // The variable has been changed inside the lane, so we should be able to find it there
-                
-                if (!$childrenAreDone) {
-                    // We start with the last child in the lane
-                    if ($laneElement->lastChildId !== null) {
-                        $variableElement = buildPathBackwards($flowElements[$laneElement->lastChildId], $variableName, $connectionType);
-                    }
-                    else {
-                        // Somehow the variable has been changed inside the lane, but the are no childs in the lane. This should never happen.
-                        logLine("ERROR: somehow the variable has been changed inside the lane, but the are no childs in the lane");
-                        return null;
-                    }
-                }
-                else {
-                    // The children are already done, yet somehow the var has changed inside the children, so we missed it somehow
-                    logLine("ERROR: somehow the variable has been changed inside the lane, but the are done with the childs in the lane");
-                    return null;
-                }
-                 
             }
         }
         else {
