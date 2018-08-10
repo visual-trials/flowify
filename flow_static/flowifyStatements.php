@@ -535,6 +535,33 @@ function buildPathBackwards($laneElement, $variableName, $connectionType = null,
                 // FIXME: If we don't traverse the (joined) lanes, we should probably skip towards (or past) the split of the lanes!?
                 
             }
+            else if ($laneElement->canSplit) {
+                logLine("We can split");
+                
+                // FIXME: the variable could have been changed on the lane that can split, if so, we should connect to it
+                
+
+                // FIXME: this is a HACK and a COPY of the code below!
+                if ($laneElement->parentId !== null) {
+                    logLine("We go from the split to parentId: " . $laneElement->parentId);
+                    $parentLaneElement = getParentElement($laneElement);
+                    if ($parentLaneElement->previousId !== null) {
+                        logLine("We go to the previous of the parent of the split: " . $parentLaneElement->previousId);
+                        // FIXME: HACK we should do this properly!
+                        $previousOfParentElement = $flowElements[$parentLaneElement->previousId];
+                        $variableElement = buildPathBackwards($previousOfParentElement, $variableName, $connectionType, $childrenAreDone = true);
+                    }
+                }
+                
+                $conditionalSplitVariableAstNodeIdentifier = $laneElement->astNodeIdentifier . "_SPLIT_" . $variableName;
+                $conditionalSplitVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalSplitVariable', $variableName, null, $conditionalSplitVariableAstNodeIdentifier, $laneElement);
+                
+                addFlowConnection($variableElement, $conditionalSplitVariableFlowElement, $connectionType);
+                
+                $variableElement = $conditionalSplitVariableFlowElement;
+                
+
+            }
             else if (array_key_exists($variableName, $laneElement->varsInScopeChanged)) {
                 // The variable has been changed inside the lane, so we should be able to find it there
                 
