@@ -450,7 +450,9 @@ function stringPosToLineNumber($code, $pos) {
 }
 
 function logLine($logLine) {
-    global $logLines;
-    
-    $logLines[] = $logLine;
+    global $logLines, $loggingEnabled;
+
+    if ($loggingEnabled) {
+        $logLines[] = $logLine;
+    }
 }

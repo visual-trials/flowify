@@ -12,6 +12,7 @@ $flowConnectionId = 0;
 $flowConnections = [];
 $code = null;
 $logLines = [];
+$loggingEnabled = false;
 
 handleRequest();
 

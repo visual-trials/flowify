@@ -77,9 +77,14 @@
         "y": 130,
         "isPositionOf": "center"
     },
-    "7:1-9:1_ForCond_JOINED_b": {
-        "x": 10,
-        "y": 270,
+    "7:1-9:1_ForCond_SPLIT_b": {
+        "x": 140,
+        "y": 220,
+        "isPositionOf": "center"
+    },
+    "7:1-9:1_ForCond_SPLIT_i": {
+        "x": 140,
+        "y": 80,
         "isPositionOf": "center"
     },
     "8:2-8:13_Stmts": {

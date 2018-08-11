@@ -549,6 +549,7 @@ function buildPathBackwards($laneElement, $variableName, $connectionType = null)
                  
             }
             else if ($laneElement->canJoin) {
+                
                 // FIXME: We should traverse into all joined lanes here, BUT only if either has changed OR if we have an assymetric join!
                 // loop through: $laneElement->previousIds
                 if (count($laneElement->previousIds) === 2) {
@@ -572,6 +573,17 @@ function buildPathBackwards($laneElement, $variableName, $connectionType = null)
                 }
                 else {
                     // FIXME: support other variants!
+                }
+                
+                if ($laneElement->canSplit) {
+                    logLine("We can also split");
+                    
+                    $conditionalSplitVariableAstNodeIdentifier = $laneElement->astNodeIdentifier . "_SPLIT_" . $variableName;
+                    $conditionalSplitVariableFlowElement = createVariable($laneElement, $variableName, $conditionalSplitVariableAstNodeIdentifier, 'conditionalSplitVariable');
+                    
+                    addFlowConnection($variableElement, $conditionalSplitVariableFlowElement, $connectionType);
+                    
+                    $variableElement = $conditionalSplitVariableFlowElement;
                 }
                 
                 // FIXME: If we don't traverse the (joined) lanes, we should probably skip towards (or past) the split of the lanes!?
