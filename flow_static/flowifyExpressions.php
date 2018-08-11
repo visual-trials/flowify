@@ -2,8 +2,6 @@
 
 function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = false) {  
 
-    global $loggingEnabled;
-    
     $functionsInScope = &$parentFlowElement->functionsInScope;
     
     $expressionType = $expression['nodeType'];
@@ -40,12 +38,12 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
             
             if (array_key_exists($variableName, $parentFlowElement->varsInScopeAvailable)) {
                 if ($variableName === 'b') {
-                    $loggingEnabled = true;
+                    enableLogging();
                 }
                 // The variable already exists and it to be used
                 logLine("We try to build a use-path from parent " . $parentFlowElement->id . " for variable: " . $variableName);
                 $flowElement = buildPathBackwards($parentFlowElement, $variableName, $connectionType);
-                $loggingEnabled = false;
+                disableLogging();
             }
             else {
                 // The variable doesn't exist yet and it to be used

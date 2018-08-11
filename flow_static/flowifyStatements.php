@@ -456,6 +456,44 @@ function flowifyForStatement($forStatement, $forFlowElement) {
     
     $condBodyFlowElement->previousIds[] = $backBodyFlowElement->id; // Note: earlier the init-element was put in this list
     
+    // All variables that were changed in the update/iter-bodies have to be connected back to the condBody, through the back lane
+    // FIXME: we should only do this if the variable has been changed somewhere in the iter/update body AND wasnt an openEnd!
+    $varsChangedInIterOrUpdateBodies = array_merge($iterBodyFlowElement->varsInScopeChanged, $updateBodyFlowElement->varsInScopeChanged);
+    foreach ($varsChangedInIterOrUpdateBodies as $variableName => $isChanged) {
+        if (array_key_exists($variableName, $condBodyFlowElement->varsInScopeAvailable)) {
+            // We only join changed variables (inside the iter or update bodies) if they were 
+            // available inside the condBody and not created locally
+            
+            // FIXME: what should be the connectionType?
+            $connectionType = null;
+            $variableElement = buildPathBackwards($backBodyFlowElement, $variableName, $connectionType);
+            enableLogging();
+            logLine("We should connect back element: " . $variableElement->id);
+            disableLogging();
+            
+            
+            // FIXME: we should mark the backBody as "addPassbackIfVariableNotChanged = true"
+            //        that way the buildPathBackwards would add the passback
+            //        We should mark the done-body with "addPassthroughIfVariableNotChanged = true"
+            $passThroughVariableAstNodeIdentifier = $backBodyFlowElement->astNodeIdentifier . "_*PASSBACK*_" . $variableName;
+            $passThroughVariable = createVariable($backBodyFlowElement, $variableName, $passThroughVariableAstNodeIdentifier, 'passBackVariable');
+
+            addFlowConnection($variableElement, $passThroughVariable, $connectionType);
+            
+            // We need to find the join-element in the condBody for this variable
+            // FIXME: workaround: for now we simply loop through all children of the condBody and check
+            //        if it is a join-variable with this variableName
+
+            foreach ($condBodyFlowElement->children as $childElement) {
+                if (!$childElement->canHaveChildren && 
+                    $childElement->type === 'conditionalJoinVariable' &&
+                    $childElement->isVariable === $variableName) {
+                    addFlowConnection($passThroughVariable, $childElement, $connectionType);
+                }
+            }
+        }
+    }
+    
     
     // == DONE ==
     

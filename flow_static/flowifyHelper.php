@@ -455,6 +455,16 @@ function stringPosToLineNumber($code, $pos) {
     return $lineNumber;
 }
 
+function enableLogging() {
+    global $loggingEnabled;
+    $loggingEnabled = true;
+}
+
+function disableLogging() {
+    global $loggingEnabled;
+    $loggingEnabled = false;
+}
+
 function logLine($logLine) {
     global $logLines, $loggingEnabled;
 
