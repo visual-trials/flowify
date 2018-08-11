@@ -466,9 +466,13 @@ function flowifyForStatement($forStatement, $forFlowElement) {
             
             // FIXME: what should be the connectionType?
             $connectionType = null;
-            enableLogging();
-            logLine("Backwards for " . $variableName);
-            disableLogging();
+            // FIXME: we are now passing back variables that have been *visibly* declared
+            //        inside the iterBody, while they are *invisibly* declared (via varsInScopeAvailable)
+            //        inside the function. This means they are now completely connected back
+            //        to the condBody, since no join element is present the that it can connect with.
+            // enableLogging();
+            // logLine("Backwards for " . $variableName);
+            // disableLogging();
             $variableElement = buildPathBackwards($backBodyFlowElement, $variableName, $connectionType);
             
             // FIXME: we should mark the backBody as "addPassbackIfVariableNotChanged = true"
