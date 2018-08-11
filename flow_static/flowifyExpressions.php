@@ -37,9 +37,6 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
             $connectionType = null; // Note: null now stands for normal 'usage'. // TODO: maybe call it 'var-usage'? or 'data-flow'?
             
             if (array_key_exists($variableName, $parentFlowElement->varsInScopeAvailable)) {
-                if ($variableName === 'b') {
-                    enableLogging();
-                }
                 // The variable already exists and it to be used
                 logLine("We try to build a use-path from parent " . $parentFlowElement->id . " for variable: " . $variableName);
                 $flowElement = buildPathBackwards($parentFlowElement, $variableName, $connectionType);

@@ -467,10 +467,6 @@ function flowifyForStatement($forStatement, $forFlowElement) {
             // FIXME: what should be the connectionType?
             $connectionType = null;
             $variableElement = buildPathBackwards($backBodyFlowElement, $variableName, $connectionType);
-            enableLogging();
-            logLine("We should connect back element: " . $variableElement->id);
-            disableLogging();
-            
             
             // FIXME: we should mark the backBody as "addPassbackIfVariableNotChanged = true"
             //        that way the buildPathBackwards would add the passback
