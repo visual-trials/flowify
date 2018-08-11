@@ -549,6 +549,7 @@ function buildPathBackwards($laneElement, $variableName, $connectionType = null)
                  
             }
             else if ($laneElement->canJoin) {
+                logLine("We can join");
                 
                 // FIXME: We should traverse into all joined lanes here, BUT only if either has changed OR if we have an assymetric join!
                 // loop through: $laneElement->previousIds
@@ -568,6 +569,21 @@ function buildPathBackwards($laneElement, $variableName, $connectionType = null)
 
                     addFlowConnection($variableElementLeft, $conditionalJoinVariableFlowElement, $connectionType);
                     addFlowConnection($variableElementRight, $conditionalJoinVariableFlowElement, $connectionType);
+                    
+                    $variableElement = $conditionalJoinVariableFlowElement;
+                }
+                // TODO: this can happen if (for example) for-loops, where the back-lane has not been connected yet as previous
+                else if (count($laneElement->previousIds) === 1) {
+                    $leftLaneId = $laneElement->previousIds[0];
+                    $leftLane = $flowElements[$leftLaneId];
+                    logLine("We found the left lane:" . $leftLaneId);
+                    $variableElementLeft = buildPathBackwards($leftLane, $variableName, $connectionType);
+                    
+                    // FIXME: we should also update the varsInScopeChanged on the way back!
+                    $conditionalJoinVariableAstNodeIdentifier = $laneElement->astNodeIdentifier . "_JOINED_" . $variableName;
+                    $conditionalJoinVariableFlowElement = createVariable($laneElement, $variableName, $conditionalJoinVariableAstNodeIdentifier, 'conditionalJoinVariable');
+
+                    addFlowConnection($variableElementLeft, $conditionalJoinVariableFlowElement, $connectionType);
                     
                     $variableElement = $conditionalJoinVariableFlowElement;
                 }

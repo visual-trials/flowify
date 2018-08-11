@@ -348,6 +348,10 @@ function getFlowDataFromElement ($flowElement) {
     $flowData .= 'lastchild: ' . $flowElement->lastChildId . "\n";
     $flowData .= 'parent: ' . $flowElement->parentId . "\n";
     $flowData .= 'exitingParent: ' . $flowElement->exitingParentId . "\n";
+    $canSplit = $flowElement->canSplit ? 'true' : 'false';
+    $flowData .= 'canSplit: ' . $canSplit . "\n";
+    $canJoin = $flowElement->canJoin ? 'true' : 'false';
+    $flowData .= 'canJoin: ' . $canJoin . "\n";
     $flowData .= "\n";
     
     if ($flowElement->canHaveChildren) { // FIXME: technically we should check canHaveScope here (but right now it amounts to the same thing)
@@ -364,6 +368,7 @@ function getFlowDataFromElement ($flowElement) {
         $flowData .= 'varsInScopeChanged: ' . $varsInScopeChanged . "\n";
         $flowData .= "\n";
         
+        /*
         $flowData .= 'endsWith: ' . $flowElement->endsWith . "\n";
         $hasOpenEndings = $flowElement->hasOpenEndings ? 'true' : 'false';
         $flowData .= 'hasOpenEndings: ' . $hasOpenEndings . "\n";
@@ -377,6 +382,7 @@ function getFlowDataFromElement ($flowElement) {
         $flowData .= 'openEndReturns: ' . $openEndReturns . "\n";
         $flowData .= 'openEndBreaks: ' . $openEndBreaks . "\n";
         $flowData .= 'openEndContinues: ' . $openEndContinues . "\n";
+        */
     }
     else {
         $flowData .= 'isVariable: ' . $flowElement->isVariable . "\n";
