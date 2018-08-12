@@ -692,6 +692,7 @@ function buildPathBackwards($laneElement, $variableName, $connectionType = null)
     
 }
 
+/*
 function OLD_buildPathBackwardsToElementFromVariable($laneElement, $toElement, $fromVariable, $variableName, $connectionType = null) {
 $laneElementId =     $laneElement->id;
 $fromVariableId = $fromVariable->id;
@@ -743,13 +744,11 @@ $toElementId = $toElement->id;
                         // FIXME: HACKS!
                         // FIXME: HACKS!
                         // FIXME: HACKS!
-                        /*
                         $laneElement->openEndings->continues = [];
                         getParentElement($laneElement)->openEndings->continues = [];
                         foreach ($laneElement->children as $laneChild) {
                             $laneChild->openEndings->continues = [];
                         }
-                        */
                         // FIXME: overriding laneElement so that the following code will proceed with it as if it was the lane
                         $laneElement = $childOfIfElement;
                         
@@ -858,6 +857,7 @@ $toElementId = $toElement->id;
     return $flowElement;
     
 }
+*/
 
 /*
 // FIXME: we should give this functoin the thenBody and elseBody, instead of their varsInScope

@@ -232,6 +232,7 @@ function getConnectionById ($connectionId) {
     return $flowConnections[$connectionId];
 }
 
+/*
 // FIXME: do we still need this?
 function getElementsIdsIn($flowElement) {
     $containerIdsInFlowElement = [$flowElement->id];
@@ -247,7 +248,9 @@ function getElementsIdsIn($flowElement) {
     }
     return $containerIdsInFlowElement;
 }
+*/
 
+/*
 function isAncestorOf($ancestorElement, $childElement) {
     if ($ancestorElement->id === $childElement->parentId) {
         return true;
@@ -262,6 +265,7 @@ function isAncestorOf($ancestorElement, $childElement) {
         }
     }
 }
+*/
 
 function combineOpenEndings($newOpenEndings, $openEndings) {
 
