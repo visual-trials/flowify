@@ -81,7 +81,6 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
 
         $variableAstNodeIdentifier = getAstNodeIdentifier($expressionVariable);
         $flowVariableAssigned = createVariable($parentFlowElement, $variableName, $variableAstNodeIdentifier);
-        // OLD: $flowVariableAssigned = createAndAddChildlessFlowElementToParent('variable', $variableName, null, $variableAstNodeIdentifier, $parentFlowElement);
 
         addFlowConnection($flowPrimitiveFunction, $flowVariableAssigned);
         
@@ -95,7 +94,6 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
         else {
             $flowElement = $flowOldVariable;  // We take the flowOldVariable as output if is is a Post inc or decr
         }
-        
 
     }
     else if ('Expr_AssignOp_' === substr($expressionType, 0, strlen('Expr_AssignOp_'))) {
@@ -135,22 +133,9 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
 
         $variableAstNodeIdentifier = getAstNodeIdentifier($expressionVariable);
         $flowVariableAssigned = createVariable($parentFlowElement, $variableName, $variableAstNodeIdentifier);
-        // OLD: $flowVariableAssigned = createAndAddChildlessFlowElementToParent('variable', $variableName, null, $variableAstNodeIdentifier, $parentFlowElement);
 
         addFlowConnection($flowPrimitiveFunction, $flowVariableAssigned);
         
-        /*
-        // FIXME: is it correct to check for array_key_exists and is_null here?
-        if (array_key_exists($variableName, $varsInScope) && !is_null($varsInScope[$variableName])) {   // FIXME: DEPRECATED!
-            addFlowConnection($varsInScope[$variableName], $flowVariableAssigned, 'identity');   // FIXME: DEPRECATED!
-            // setUsedVar($parentFlowElement, $variableName, 'used');
-        }
-        else {
-            // setUsedVar($parentFlowElement, $variableName, 'created');
-        }
-        */
-
-        // OLD: $varsInScope[$variableName] = $flowVariableAssigned;   // FIXME: DEPRECATED!
         $flowElement = $flowVariableAssigned;
         
     }
