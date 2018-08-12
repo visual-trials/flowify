@@ -134,7 +134,7 @@ function createAndAddFlowElementToParent ($flowElementType, $flowElementName, $f
 function addChangedVariablesToExitingParent ($flowElement) {
     $exitingParentFlowElement = getExitingParentElement($flowElement);
     if ($flowElement->varsInScopeChanged === null) {
-        logLine("empty varsInScopeChanged for flowElement: " . $flowElement->id);
+        logLine("empty varsInScopeChanged for flowElement: " . $flowElement->id, $isError = true);
     }
     foreach ($flowElement->varsInScopeChanged as $variableName => $isChanged) {
         // We are adding all changed variables to the exitingParent, *if* they were available in that exitingParent
@@ -465,10 +465,10 @@ function disableLogging() {
     $loggingEnabled = false;
 }
 
-function logLine($logLine) {
+function logLine($logLine, $isError = false) {
     global $logLines, $loggingEnabled;
 
-    if ($loggingEnabled) {
+    if ($loggingEnabled || $isError) {
         $logLines[] = $logLine;
     }
 }

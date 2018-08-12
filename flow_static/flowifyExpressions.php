@@ -21,7 +21,6 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
             
             if (array_key_exists($variableName, $parentFlowElement->varsInScopeAvailable)) {
                 // The variable already exists and it to be assigned
-                logLine("We try to build a assigment-path from parent " . $parentFlowElement->id . " for variable: " . $variableName);
                 $flowElement = buildPathBackwards($parentFlowElement, $variableName, $connectionType);
             }
             else {
@@ -38,9 +37,7 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
             
             if (array_key_exists($variableName, $parentFlowElement->varsInScopeAvailable)) {
                 // The variable already exists and it to be used
-                logLine("We try to build a use-path from parent " . $parentFlowElement->id . " for variable: " . $variableName);
                 $flowElement = buildPathBackwards($parentFlowElement, $variableName, $connectionType);
-                disableLogging();
             }
             else {
                 // The variable doesn't exist yet and it to be used

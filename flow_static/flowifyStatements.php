@@ -546,7 +546,7 @@ function buildPathBackwardsFromPrevious ($laneElement, $variableName, $connectio
             $variableElement = buildPathBackwardsFromPrevious($parentLaneElement, $variableName, $connectionType);
         }
         else {
-            logLine("ERROR: We are trying to go to the parent of element: " . $laneElement->id . " but it has no parent!");
+            logLine("ERROR: We are trying to go to the parent of element: " . $laneElement->id . " but it has no parent!", $isError = true);
         }
     }
     
@@ -584,7 +584,7 @@ function buildPathBackwards($laneElement, $variableName, $connectionType = null)
                 }
                 else {
                     // Somehow the variable has been changed inside the lane, but the are no childs in the lane. This should never happen.
-                    logLine("ERROR: somehow the variable has been changed inside the lane, but the are no childs in the lane");
+                    logLine("ERROR: somehow the variable has been changed inside the lane, but the are no childs in the lane", $isError = true);
                     return null;
                 }
                  
