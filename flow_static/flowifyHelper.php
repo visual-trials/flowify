@@ -76,6 +76,9 @@ function createFlowElement ($flowElementType, $flowElementName, $flowElementValu
         $flowElement->previousId = null; // used if cannot join
         $flowElement->previousIds = []; // used if can join
         
+        $flowElement->addPassthroughIfVariableNotChanged = false;
+        $flowElement->addPassbackIfVariableNotChanged = false;
+    
         $flowElement->canHaveChildren = $canHaveChildren;
         if ($canHaveChildren) {
             $flowElement->children = [];
@@ -302,6 +305,9 @@ class FlowElement {
     public $canSplit;
     public $previousId;
     public $previousIds;
+    
+    public $addPassthroughIfVariableNotChanged;
+    public $addPassbackIfVariableNotChanged;
     
     public $canHaveChildren;
     public $children;

@@ -276,6 +276,9 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
         $thenBodyFlowElement->previousId = $condFlowElement->id;
         
         flowifyStatements($thenStatements, $thenBodyFlowElement);
+        
+        $thenBodyFlowElement->addPassthroughIfVariableNotChanged = true;
+        
         $thenOpenEndings = $thenBodyFlowElement->openEndings;
         
         $ifOpenEndings = combineOpenEndings($thenOpenEndings, $ifOpenEndings);
@@ -321,6 +324,8 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
             $elseBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'else', null, $elseAstNodeIdentifier, $ifFlowElement);
             $elseBodyFlowElement->previousId = $condFlowElement->id;
         }
+        
+        $elseBodyFlowElement->addPassthroughIfVariableNotChanged = true;
         
         if ($thenBodyFlowElement->onlyHasOpenEndings && $elseBodyFlowElement->onlyHasOpenEndings) {
             // Both the thenBody and the elseBody have only openEndings. This means the ifBody and its parent also only have openEndings 
@@ -503,6 +508,7 @@ function flowifyForStatement($forStatement, $forFlowElement) {
     $doneAstNodeIdentifier = $forAstNodeIdentifier . "_ImplicitDone";
     // FIXME: this should be of type: 'forDoneImplicit'
     $doneBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'done', null, $doneAstNodeIdentifier, $forFlowElement);
+    $doneBodyFlowElement->addPassthroughIfVariableNotChanged = true;
     
     addChangedVariablesToExitingParent($forStepFlowElement);
 
@@ -673,6 +679,15 @@ function buildPathBackwards($laneElement, $variableName, $connectionType = null)
         // so we should try it in the previous (or parent-previous etc) element.
         
         $variableElement = buildPathBackwardsFromPrevious($laneElement, $variableName, $connectionType);
+        
+        if ($variableElement !== null && $laneElement->addPassthroughIfVariableNotChanged) {
+            $passThroughVariableAstNodeIdentifier = $laneElement->astNodeIdentifier . "_*PASSTHROUGH*_" . $variableName;
+            $passThroughVariable = createVariable($laneElement, $variableName, $passThroughVariableAstNodeIdentifier, 'passThroughVariable');
+
+            addFlowConnection($variableElement, $passThroughVariable, $connectionType);
+            
+            $variableElement = $passThroughVariable;
+        }
     }
     
     return $variableElement;

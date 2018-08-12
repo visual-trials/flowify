@@ -185,6 +185,11 @@
         "height": 400,
         "relativeScale": 1
     },
+    "4:5-6:5_ImplicitDone_*PASSTHROUGH*_j": {
+        "x": 30,
+        "y": 70,
+        "isPositionOf": "center"
+    },
     "3:1-7:1_ForUpdate": {
         "x": 1060,
         "y": 120,

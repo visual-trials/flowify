@@ -168,6 +168,11 @@
         "height": 400,
         "relativeScale": 1
     },
+    "7:1-9:1_ImplicitDone_*PASSTHROUGH*_b": {
+        "x": 30,
+        "y": 220,
+        "isPositionOf": "center"
+    },
     "11:6-11:16": {
         "x": 1190,
         "y": 350,
