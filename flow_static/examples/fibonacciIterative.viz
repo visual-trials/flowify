@@ -164,11 +164,6 @@
         "y": 590,
         "isPositionOf": "center"
     },
-    "9:5-13:5_ImplicitBack_*PASSBACK*_c": {
-        "x": 40,
-        "y": -130,
-        "isPositionOf": "center"
-    },
     "9:5-13:5_ImplicitBack_*PASSBACK*_a": {
         "x": 60,
         "y": -80,

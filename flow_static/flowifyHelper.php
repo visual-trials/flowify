@@ -11,6 +11,11 @@ function addFlowConnection ($fromFlowElement, $toFlowElement, $connectionType = 
     $flowConnection->to = $toFlowElement->id;
     $flowConnection->type = $connectionType;
     
+    // This is used when we want to add inout-connection to it later, but don't know what connectionType 
+    // we should use (for example: a join-variable in a for-loop that is later connected via the back-body)
+    // TODO: only if the current connectionType if *stronger* than the outputConnectionType we should overwrite it
+    $fromFlowElement->outputConnectionType = $connectionType; 
+    
     $flowConnections[$flowConnectionId] = $flowConnection;
 
     $flowConnectionId++;
@@ -168,6 +173,22 @@ function setVarsInScopeAvailableRecursively($flowElement, $variableName) {
     }
 }
 
+function findJoinVariableInsideLane ($laneElement, $variableName) {
+    // TODO: workaround: for now we simply loop through all children of the condBody and check
+    //        if it is a join-variable with this variableName. There is probably a nicer way of doing this.
+    $joinVariable = null;
+    foreach ($laneElement->children as $childElement) {
+        if (!$childElement->canHaveChildren && 
+            $childElement->type === 'conditionalJoinVariable' &&
+            $childElement->isVariable === $variableName) {
+                
+            $joinVariable = $childElement;
+            break;
+        }
+    }
+    return $joinVariable;
+}
+
 function findContainingFunctionOrRoot($flowElement) {
     if ($flowElement->sendsChangesToOutside && $flowElement->parentId !== null) {
         return findContainingFunctionOrRoot(getParentElement($flowElement));
@@ -320,7 +341,9 @@ class FlowElement {
     
     public $varsInScopeAvailable;
     public $varsInScopeChanged;
+    
     public $isVariable;
+    public $outputConnectionType;
     
     public $sendsChangesToOutside;
     public $receivesChangesFromOutside;

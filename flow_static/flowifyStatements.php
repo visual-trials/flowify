@@ -456,7 +456,7 @@ function flowifyForStatement($forStatement, $forFlowElement) {
     $backAstNodeIdentifier = $forAstNodeIdentifier . "_ImplicitBack";
     // FIXME: this should be of type: 'forBackImplicit'
     $backBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'back', null, $backAstNodeIdentifier, $forFlowElement);
-    
+    $backBodyFlowElement->addPassbackIfVariableNotChanged = true;
     $backBodyFlowElement->previousId = $updateBodyFlowElement->id;
     
     $condBodyFlowElement->previousIds[] = $backBodyFlowElement->id; // Note: earlier the init-element was put in this list
@@ -466,42 +466,30 @@ function flowifyForStatement($forStatement, $forFlowElement) {
     $varsChangedInIterOrUpdateBodies = array_merge($iterBodyFlowElement->varsInScopeChanged, $updateBodyFlowElement->varsInScopeChanged);
     foreach ($varsChangedInIterOrUpdateBodies as $variableName => $isChanged) {
         if (array_key_exists($variableName, $condBodyFlowElement->varsInScopeAvailable)) {
-            // We only join changed variables (inside the iter or update bodies) if they were 
-            // available inside the condBody and not created locally
-            
-            // FIXME: what should be the connectionType?
-            $connectionType = null;
-            // FIXME: we are now passing back variables that have been *visibly* declared
-            //        inside the iterBody, while they are *invisibly* declared (via varsInScopeAvailable)
-            //        inside the function. This means they are now completely connected back
-            //        to the condBody, since no join element is present the that it can connect with.
-            // enableLogging();
-            // logLine("Backwards for " . $variableName);
-            // disableLogging();
-            $variableElement = buildPathBackwards($backBodyFlowElement, $variableName, $connectionType);
-            
-            // FIXME: we should mark the backBody as "addPassbackIfVariableNotChanged = true"
-            //        that way the buildPathBackwards would add the passback
-            //        We should mark the done-body with "addPassthroughIfVariableNotChanged = true"
-            $passThroughVariableAstNodeIdentifier = $backBodyFlowElement->astNodeIdentifier . "_*PASSBACK*_" . $variableName;
-            $passThroughVariable = createVariable($backBodyFlowElement, $variableName, $passThroughVariableAstNodeIdentifier, 'passBackVariable');
+            // We only join with changed variables (inside the iter or update bodies) if they are (split and) joined 
+            // inside the condBody. This excludes variables created locally inside the iter/update bodies.
 
-            addFlowConnection($variableElement, $passThroughVariable, $connectionType);
+            // We first need to find the join-element in the condBody for this variable
+            $joinVariableToConnectTo = findJoinVariableInsideLane($condBodyFlowElement, $variableName);
             
-            // We need to find the join-element in the condBody for this variable
-            // FIXME: workaround: for now we simply loop through all children of the condBody and check
-            //        if it is a join-variable with this variableName
-
-            foreach ($condBodyFlowElement->children as $childElement) {
-                if (!$childElement->canHaveChildren && 
-                    $childElement->type === 'conditionalJoinVariable' &&
-                    $childElement->isVariable === $variableName) {
-                    addFlowConnection($passThroughVariable, $childElement, $connectionType);
-                }
+            if ($joinVariableToConnectTo !== null) {
+                // We take the connectionType from the output connection(s) of the join-variable
+                $connectionType = $joinVariableToConnectTo->outputConnectionType;
+                // We build a path from the iter/update variable
+                $variableElement = buildPathBackwards($backBodyFlowElement, $variableName, $connectionType);
+                // We connect it to the join element inside the condBody
+                addFlowConnection($variableElement, $joinVariableToConnectTo, $connectionType);
+            }
+            else {
+                // TODO:  we are now *not* passing back variables that have been *visibly* declared
+                //        inside the iterBody, while they are *invisibly* declared (via varsInScopeAvailable)
+                //        inside the function. 
+                //        If we were to do this, they would *not* be completely connected back
+                //        to the condBody, since no join element is present the that it can connect with.
+                // logLine("ERROR: We could not find the join variable for variable " . $variableName, $isError = true);
             }
         }
     }
-    
     
     // == DONE ==
     
@@ -688,6 +676,16 @@ function buildPathBackwards($laneElement, $variableName, $connectionType = null)
             
             $variableElement = $passThroughVariable;
         }
+        
+        if ($variableElement !== null && $laneElement->addPassbackIfVariableNotChanged) {
+            $passBackVariableAstNodeIdentifier = $laneElement->astNodeIdentifier . "_*PASSBACK*_" . $variableName;
+            $passBackVariable = createVariable($laneElement, $variableName, $passBackVariableAstNodeIdentifier, 'passBackVariable');
+
+            addFlowConnection($variableElement, $passBackVariable, $connectionType);
+            
+            $variableElement = $passBackVariable;
+        }
+ 
     }
     
     return $variableElement;
