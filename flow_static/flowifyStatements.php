@@ -50,7 +50,7 @@ function flowifyFunction ($functionStatement, $flowCallArguments, $functionCallF
             addFlowConnection($flowCallArgument, $parameterFlowElement);
 
             // Setting the parameter as a local var within the function body
-            $functionCallFlowElement->varsInScope[$parameterName] = $parameterFlowElement;   // FIXME: DEPRECATED!
+            // $functionCallFlowElement->varsInScope[$parameterName] = $parameterFlowElement;   // FIXME: DEPRECATED!
         }
         else {
             die("The number of call arguments for function $functionName is different from the number of arguments inside the function!\n");
