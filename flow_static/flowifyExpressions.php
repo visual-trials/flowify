@@ -174,7 +174,7 @@ function flowifyExpression ($expression, $parentFlowElement, $isToBeAssigned = f
         
         $leftExpression = $expression['left'];
         $rightExpression = $expression['right'];
-
+        
         $leftFlow = flowifyExpression($leftExpression, $parentFlowElement);
         $rightFlow = flowifyExpression($rightExpression, $parentFlowElement);
 

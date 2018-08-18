@@ -433,7 +433,7 @@ function flowifyForStatement($forStatement, $forFlowElement) {
                     
                     $updateBodyFlowElement->previousIds[] = $continueOpenEndingElement->id;
                     
-                    logLine("Continue open ending in iter: " . $continueOpenEndingElement->id, $isError = true);
+                    logLine("Found continue-openEnding in iter: " . $continueOpenEndingElement->id);
                 }
                 
                 
@@ -528,6 +528,25 @@ function buildPathBackwardsFromPrevious ($laneElement, $variableName, $connectio
         logLine("We go to previousId: " . $laneElement->previousId);
         $previousLaneElement = $flowElements[$laneElement->previousId];
         $variableElement = buildPathBackwards($previousLaneElement, $variableName, $connectionType);
+
+        if ($variableElement !== null && $laneElement->addPassthroughIfVariableNotChanged) {
+            $passThroughVariableAstNodeIdentifier = $laneElement->astNodeIdentifier . "_*PASSTHROUGH*_" . $variableName;
+            $passThroughVariable = createVariable($laneElement, $variableName, $passThroughVariableAstNodeIdentifier, 'passThroughVariable');
+
+            addFlowConnection($variableElement, $passThroughVariable, $connectionType);
+            
+            $variableElement = $passThroughVariable;
+        }
+        
+        if ($variableElement !== null && $laneElement->addPassbackIfVariableNotChanged) {
+            $passBackVariableAstNodeIdentifier = $laneElement->astNodeIdentifier . "_*PASSBACK*_" . $variableName;
+            $passBackVariable = createVariable($laneElement, $variableName, $passBackVariableAstNodeIdentifier, 'passBackVariable');
+
+            addFlowConnection($variableElement, $passBackVariable, $connectionType);
+            
+            $variableElement = $passBackVariable;
+        }
+        
     }
     else {
         if ($laneElement->parentId !== null) {
@@ -580,6 +599,18 @@ function buildPathBackwards($laneElement, $variableName, $connectionType = null)
                 }
                  
             }
+            // FIXME: WORKAROUND using openEndings!!
+            else if (containsSomeOpenEndings($laneElement->openEndings) ) {  
+                // We start with the last child in the lane
+                if ($laneElement->lastChildId !== null) {
+                    $variableElement = buildPathBackwards($flowElements[$laneElement->lastChildId], $variableName, $connectionType);
+                }
+                else {
+                    // We've entered a lane with openEndings, but there are no childs in the lane. 
+                    logLine("NOTE: we've entered a lane (" . $laneElement->id . ") with openEndings, but there are no childs in the lane");
+                    // return null;
+                }
+            }
             else if ($laneElement->canJoin) {
                 logLine("We can join");
                 
@@ -624,7 +655,7 @@ function buildPathBackwards($laneElement, $variableName, $connectionType = null)
                 }
                 
                 if ($laneElement->canSplit) {
-                    logLine("We can also split");
+                    logLine("We can also split: " . $laneElement->id);
                     
                     $conditionalSplitVariableAstNodeIdentifier = $laneElement->astNodeIdentifier . "_SPLIT_" . $variableName;
                     $conditionalSplitVariableFlowElement = createVariable($laneElement, $variableName, $conditionalSplitVariableAstNodeIdentifier, 'conditionalSplitVariable');
@@ -663,8 +694,12 @@ function buildPathBackwards($laneElement, $variableName, $connectionType = null)
         // The variable has been *not* changed inside the lane and is not the current element, 
         // so we should try it in the previous (or parent-previous etc) element.
         
+        logLine("variableElement is null, starting buildPathBackwardsFromPrevious from laneElement: " . $laneElement->id);
         $variableElement = buildPathBackwardsFromPrevious($laneElement, $variableName, $connectionType);
+        logLine("variableElement after buildPathBackwardsFromPrevious: " . $variableElement->id . " in laneElement: " . $laneElement->id);
         
+        /*
+        we now do this inside buildPathBackwardsFromPrevious
         if ($variableElement !== null && $laneElement->addPassthroughIfVariableNotChanged) {
             $passThroughVariableAstNodeIdentifier = $laneElement->astNodeIdentifier . "_*PASSTHROUGH*_" . $variableName;
             $passThroughVariable = createVariable($laneElement, $variableName, $passThroughVariableAstNodeIdentifier, 'passThroughVariable');
@@ -673,15 +708,8 @@ function buildPathBackwards($laneElement, $variableName, $connectionType = null)
             
             $variableElement = $passThroughVariable;
         }
+        */
         
-        if ($variableElement !== null && $laneElement->addPassbackIfVariableNotChanged) {
-            $passBackVariableAstNodeIdentifier = $laneElement->astNodeIdentifier . "_*PASSBACK*_" . $variableName;
-            $passBackVariable = createVariable($laneElement, $variableName, $passBackVariableAstNodeIdentifier, 'passBackVariable');
-
-            addFlowConnection($variableElement, $passBackVariable, $connectionType);
-            
-            $variableElement = $passBackVariable;
-        }
  
     }
     

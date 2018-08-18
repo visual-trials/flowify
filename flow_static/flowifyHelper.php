@@ -267,6 +267,19 @@ function isAncestorOf($ancestorElement, $childElement) {
 }
 */
 
+function containsSomeOpenEndings ($openEndings) {
+    
+    if (count($openEndings->returns) > 0 ||
+        count($openEndings->continues) > 0 ||
+        count($openEndings->breaks) > 0
+    ) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 function combineOpenEndings($newOpenEndings, $openEndings) {
 
     foreach ($newOpenEndings->returns as $elementId => $returnOpenEndingElement) {
@@ -401,13 +414,12 @@ function getFlowDataFromElement ($flowElement) {
         $flowData .= 'varsInScopeChanged: ' . $varsInScopeChanged . "\n";
         $flowData .= "\n";
         
-        /*
         $flowData .= 'endsWith: ' . $flowElement->endsWith . "\n";
         $hasOpenEndings = $flowElement->hasOpenEndings ? 'true' : 'false';
         $flowData .= 'hasOpenEndings: ' . $hasOpenEndings . "\n";
         $onlyHasOpenEndings = $flowElement->onlyHasOpenEndings ? 'true' : 'false';
         $flowData .= 'onlyHasOpenEndings: ' . $onlyHasOpenEndings . "\n";
-        
+/*        
         $openEndings = $flowElement->openEndings;
         $openEndReturns = implode(',' , array_keys($openEndings->returns));
         $openEndBreaks = implode(',' , array_keys($openEndings->breaks));

@@ -1,7 +1,7 @@
 {
     "0:0-0:0": {
-        "x": 2360,
-        "y": 590,
+        "x": 2390,
+        "y": 470,
         "isPositionOf": "center",
         "width": 1300,
         "height": 750
@@ -111,39 +111,59 @@
         "y": 60,
         "isPositionOf": "center"
     },
-    "8:5-10:5_IfCond_SPLIT_i": {
-        "x": 140,
-        "y": 0,
-        "isPositionOf": "center"
-    },
     "8:5-10:5_IfCond_SPLIT_b": {
         "x": 140,
         "y": 40,
         "isPositionOf": "center"
     },
+    "8:5-10:5_IfCond_SPLIT_i": {
+        "x": 140,
+        "y": 0,
+        "isPositionOf": "center"
+    },
     "9:9-9:17_Stmts": {
-        "x": 240,
-        "y": 20,
+        "x": 260,
+        "y": 40,
         "isPositionOf": "center"
     },
     "9:9-9:17_Stmts_*PASSTHROUGH*_i": {
-        "x": 60,
-        "y": 20,
+        "x": 80,
+        "y": -10,
         "isPositionOf": "center"
     },
     "9:9-9:17_Stmts_*PASSTHROUGH*_b": {
-        "x": 60,
-        "y": 60,
+        "x": 80,
+        "y": 30,
         "isPositionOf": "center"
     },
     "8:5-10:5_ImplicitElse": {
-        "x": 240,
+        "x": 260,
         "y": 170,
+        "isPositionOf": "center"
+    },
+    "8:5-10:5_ImplicitElse_*PASSTHROUGH*_b": {
+        "x": 50,
+        "y": 80,
+        "isPositionOf": "center"
+    },
+    "8:5-10:5_ImplicitElse_*PASSTHROUGH*_i": {
+        "x": 50,
+        "y": 40,
         "isPositionOf": "center"
     },
     "8:5-10:5_IfEnd": {
         "x": 340,
         "y": 100,
+        "isPositionOf": "center"
+    },
+    "8:5-10:5_IfEnd_JOINED_b": {
+        "x": 40,
+        "y": 70,
+        "isPositionOf": "center"
+    },
+    "8:5-10:5_IfEnd_JOINED_i": {
+        "x": 40,
+        "y": 20,
         "isPositionOf": "center"
     },
     "11:15-11:15": {
@@ -192,8 +212,8 @@
         "isPositionOf": "center"
     },
     "7:1-12:1_ImplicitBack": {
-        "x": 650,
-        "y": 690,
+        "x": 690,
+        "y": 790,
         "isPositionOf": "center"
     },
     "7:1-12:1_ImplicitBack_*PASSBACK*_b": {
