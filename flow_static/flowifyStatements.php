@@ -244,118 +244,107 @@ function flowifyStatements ($statements, $bodyFlowElement) {
 }
 
 function flowifyIfStatement($ifStatement, $ifFlowElement) {
+
     
-    
-    $ifOpenEndings = $ifFlowElement->openEndings;
     $ifAstNodeIdentifier = $ifFlowElement->astNodeIdentifier;
     
+    // == COND ==
+    
+    $conditionExpression = $ifStatement['cond'];
+    
+    $condAstNodeIdentifier = $ifAstNodeIdentifier . "_IfCond";
+    $condFlowElement = createAndAddFlowElementToParent('ifCond', 'cond', null, $condAstNodeIdentifier, $ifFlowElement);
+    
+    $flowElement = flowifyExpression($conditionExpression, $condFlowElement);
+    
+    addChangedVariablesToExitingParent($condFlowElement);
+    
+    $condFlowElement->canSplit = true;
+    
+    // TODO: the flowElement coming from the conditionExpression is a boolean and determines 
+    //       whether the then-statements or the else(if)-statements are executed. How to should
+    //       we visualize this?
+    
+    // == THEN ==
+    
+    $thenStatements = $ifStatement['stmts'];
+    
+    $thenAstNodeIdentifier = getAstNodeIdentifier($thenStatements);
+    $thenBodyFlowElement = createAndAddFlowElementToParent('ifThen', 'then', null, $thenAstNodeIdentifier, $ifFlowElement);
+    $thenBodyFlowElement->previousId = $condFlowElement->id;
+    
+    flowifyStatements($thenStatements, $thenBodyFlowElement);
+    
+    $thenBodyFlowElement->addPassthroughIfVariableNotChanged = true;
+    
+    // == ELSE ==
+    
+    $elseStatement = $ifStatement['else'];
+    $elseBodyHasReturn = false;
+    
+    $elseBodyFlowElement = null;
+    if ($elseStatement !== null) {
+        
+        if ($elseStatement['nodeType'] !== 'Stmt_Else') {
+            die("Expected nodeType 'Stmt_Else' in else. Not found.");
+        }
+        
+        // There is an else-statement, getting the body of statements in it
+        $elseStatements = $elseStatement['stmts'];
+        
+        $elseAstNodeIdentifier = getAstNodeIdentifier($elseStatements);
+        $elseBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'else', null, $elseAstNodeIdentifier, $ifFlowElement);
+        $elseBodyFlowElement->previousId = $condFlowElement->id;
+        
+        flowifyStatements($elseStatements, $elseBodyFlowElement);
+    }
+    else {
+        // Add an elseBody if it doesn't exist yet
+        // TODO: what if an implicit else is never needed?
+        $elseAstNodeIdentifier = $ifAstNodeIdentifier . "_ImplicitElse";
+        // FIXME: this should be of type: 'ifElseImplicit'
+        $elseBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'else', null, $elseAstNodeIdentifier, $ifFlowElement);
+        $elseBodyFlowElement->previousId = $condFlowElement->id;
+    }
+    $elseBodyFlowElement->addPassthroughIfVariableNotChanged = true;
+    
+    // == ELSEIF ==
+    
+    // TODO: $elseIfStatements = $ifStatement['elseif']
+    
+    
+    // == ENDIF ==
+    
+    $endAstNodeIdentifier = $ifAstNodeIdentifier . "_IfEnd";
+    // FIXME: change this to ifEnd
+    $endFlowElement = createAndAddFlowElementToParent('ifCond', 'end', null, $endAstNodeIdentifier, $ifFlowElement);
+    $endFlowElement->canJoin = true;
+    
+    // == Dealing with openEndings ==
     {
-        // == COND ==
         
-        $conditionExpression = $ifStatement['cond'];
-        
-        $condAstNodeIdentifier = $ifAstNodeIdentifier . "_IfCond";
-        $condFlowElement = createAndAddFlowElementToParent('ifCond', 'cond', null, $condAstNodeIdentifier, $ifFlowElement);
-        
-        $flowElement = flowifyExpression($conditionExpression, $condFlowElement);
-        
-        addChangedVariablesToExitingParent($condFlowElement);
-        
-        $condFlowElement->canSplit = true;
-        
-        // TODO: the flowElement coming from the conditionExpression is a boolean and determines 
-        //       whether the then-statements or the else(if)-statements are executed. How to should
-        //       we visualize this?
-        
-        // == THEN ==
-        
-        $thenStatements = $ifStatement['stmts'];
-        
-        $thenAstNodeIdentifier = getAstNodeIdentifier($thenStatements);
-        $thenBodyFlowElement = createAndAddFlowElementToParent('ifThen', 'then', null, $thenAstNodeIdentifier, $ifFlowElement);
-        $thenBodyFlowElement->previousId = $condFlowElement->id;
-        
-        flowifyStatements($thenStatements, $thenBodyFlowElement);
-        
-        $thenBodyFlowElement->addPassthroughIfVariableNotChanged = true;
-        
-        // == ELSE ==
-        
-        $elseStatement = $ifStatement['else'];
-        $elseBodyHasReturn = false;
-        
-        $elseBodyFlowElement = null;
-        if ($elseStatement !== null) {
-            
-            if ($elseStatement['nodeType'] !== 'Stmt_Else') {
-                die("Expected nodeType 'Stmt_Else' in else. Not found.");
-            }
-            
-            // There is an else-statement, getting the body of statements in it
-            $elseStatements = $elseStatement['stmts'];
-            
-            $elseAstNodeIdentifier = getAstNodeIdentifier($elseStatements);
-            $elseBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'else', null, $elseAstNodeIdentifier, $ifFlowElement);
-            $elseBodyFlowElement->previousId = $condFlowElement->id;
-            
-            flowifyStatements($elseStatements, $elseBodyFlowElement);
+        if (!$thenBodyFlowElement->onlyHasOpenEndings) {
+            // FIXME: should the exiting parent be the EndIf or the If? Right now its the If (by default)
+            addChangedVariablesToExitingParent($thenBodyFlowElement);
+            $endFlowElement->previousIds[] = $thenBodyFlowElement->id;
         }
-        else {
-            // Add an elseBody if it doesn't exist yet
-            // TODO: what if an implicit else is never needed?
-            $elseAstNodeIdentifier = $ifAstNodeIdentifier . "_ImplicitElse";
-            // FIXME: this should be of type: 'ifElseImplicit'
-            $elseBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'else', null, $elseAstNodeIdentifier, $ifFlowElement);
-            $elseBodyFlowElement->previousId = $condFlowElement->id;
+        $ifFlowElement->openEndings = combineOpenEndings($thenBodyFlowElement->openEndings, $ifFlowElement->openEndings);
+        
+        
+        if (!$elseBodyFlowElement->onlyHasOpenEndings) {
+            // FIXME: should the exiting parent be the EndIf or the If? Right now its the If (by default)
+            addChangedVariablesToExitingParent($elseBodyFlowElement);
+            $endFlowElement->previousIds[] = $elseBodyFlowElement->id;
         }
-        $elseBodyFlowElement->addPassthroughIfVariableNotChanged = true;
-        
-        // == ELSEIF ==
-        
-        // TODO: $elseIfStatements = $ifStatement['elseif']
-        
-        
-        
-        // == OpenEndigs ==
-        
-        $thenOpenEndings = $thenBodyFlowElement->openEndings;
-        $elseOpenEndings = $elseBodyFlowElement->openEndings;
-        
-        $ifOpenEndings = combineOpenEndings($thenOpenEndings, $ifOpenEndings);
-        
-        if ($thenBodyFlowElement->onlyHasOpenEndings) {
-            // FIXME: what to do here?
-        }
-        
-        $ifOpenEndings = combineOpenEndings($elseOpenEndings, $ifOpenEndings);
-        
-        if ($elseBodyFlowElement->onlyHasOpenEndings) {
-            // FIXME: what to do here?
-        }
+        $ifFlowElement->openEndings = combineOpenEndings($elseBodyFlowElement->openEndings, $ifFlowElement->openEndings);
         
         if ($thenBodyFlowElement->onlyHasOpenEndings && $elseBodyFlowElement->onlyHasOpenEndings) {
             // Both the thenBody and the elseBody have only openEndings. This means the ifBody and its parent also only have openEndings 
             $ifFlowElement->onlyHasOpenEndings = true;
-            // FIXME: should we break here?
         }
-        
-        // FIXME: should the exiting parent be the EndIf or the If?
-        addChangedVariablesToExitingParent($thenBodyFlowElement);
-        addChangedVariablesToExitingParent($elseBodyFlowElement);
-        
-        // == ENDIF ==
-        
-        // FIXME: if either the thenBody- or the elseBody onlyHasOpenEndings, we should NOT JOIN here!
-        
-        $endAstNodeIdentifier = $ifAstNodeIdentifier . "_IfEnd";
-        // FIXME: change this to ifEnd
-        $endFlowElement = createAndAddFlowElementToParent('ifCond', 'end', null, $endAstNodeIdentifier, $ifFlowElement);
-        $endFlowElement->previousIds[] = $thenBodyFlowElement->id;
-        $endFlowElement->previousIds[] = $elseBodyFlowElement->id;
-        $endFlowElement->canJoin = true;
     }
     
-    return $ifOpenEndings;
+    return $ifFlowElement->openEndings;
 }
 
 
@@ -438,6 +427,16 @@ function flowifyForStatement($forStatement, $forFlowElement) {
         {
             if (count($iterOpenEndings->continues) > 0) {
                 // FIXME: implement this!
+                foreach ($iterOpenEndings->continues as $elementId => $continueOpenEndingElement) {
+                    enableLogging();
+                    // FIXME: we should do this too for the continueOpenEndingElement (after setting the exitingParent properly): 
+                    //        addChangedVariablesToExitingParent($continueOpenEndingElement);
+                    logLine("Continue open ending in iter: " . $continueOpenEndingElement->id);
+                    // $continueOpenEndingElement;
+                    disableLogging();
+                }
+                
+                
             }
         }
         
