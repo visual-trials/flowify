@@ -279,14 +279,6 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
         
         $thenBodyFlowElement->addPassthroughIfVariableNotChanged = true;
         
-        $thenOpenEndings = $thenBodyFlowElement->openEndings;
-        
-        $ifOpenEndings = combineOpenEndings($thenOpenEndings, $ifOpenEndings);
-        
-        if ($thenBodyFlowElement->onlyHasOpenEndings) {
-            // FIXME: what to do here?
-        }
-        
         // == ELSE ==
         
         $elseStatement = $ifStatement['else'];
@@ -307,16 +299,8 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
             $elseBodyFlowElement->previousId = $condFlowElement->id;
             
             flowifyStatements($elseStatements, $elseBodyFlowElement);
-            $elseOpenEndings = $elseBodyFlowElement->openEndings;
-            
-            $ifOpenEndings = combineOpenEndings($elseOpenEndings, $ifOpenEndings);
-            
-            if ($elseBodyFlowElement->onlyHasOpenEndings) {
-                // FIXME: what to do here?
-            }
         }
         else {
-            
             // Add an elseBody if it doesn't exist yet
             // TODO: what if an implicit else is never needed?
             $elseAstNodeIdentifier = $ifAstNodeIdentifier . "_ImplicitElse";
@@ -324,8 +308,30 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
             $elseBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'else', null, $elseAstNodeIdentifier, $ifFlowElement);
             $elseBodyFlowElement->previousId = $condFlowElement->id;
         }
-        
         $elseBodyFlowElement->addPassthroughIfVariableNotChanged = true;
+        
+        // == ELSEIF ==
+        
+        // TODO: $elseIfStatements = $ifStatement['elseif']
+        
+        
+        
+        // == OpenEndigs ==
+        
+        $thenOpenEndings = $thenBodyFlowElement->openEndings;
+        $elseOpenEndings = $elseBodyFlowElement->openEndings;
+        
+        $ifOpenEndings = combineOpenEndings($thenOpenEndings, $ifOpenEndings);
+        
+        if ($thenBodyFlowElement->onlyHasOpenEndings) {
+            // FIXME: what to do here?
+        }
+        
+        $ifOpenEndings = combineOpenEndings($elseOpenEndings, $ifOpenEndings);
+        
+        if ($elseBodyFlowElement->onlyHasOpenEndings) {
+            // FIXME: what to do here?
+        }
         
         if ($thenBodyFlowElement->onlyHasOpenEndings && $elseBodyFlowElement->onlyHasOpenEndings) {
             // Both the thenBody and the elseBody have only openEndings. This means the ifBody and its parent also only have openEndings 
@@ -333,20 +339,13 @@ function flowifyIfStatement($ifStatement, $ifFlowElement) {
             // FIXME: should we break here?
         }
         
-        
-        // FIXME: if either the thenBody- or the elseBody onlyHasOpenEndings, we should NOT JOIN here!
-        
         // FIXME: should the exiting parent be the EndIf or the If?
         addChangedVariablesToExitingParent($thenBodyFlowElement);
         addChangedVariablesToExitingParent($elseBodyFlowElement);
         
-        
-        // == ELSEIF ==
-        
-        // TODO: $elseIfStatements = $ifStatement['elseif']
-
-        
         // == ENDIF ==
+        
+        // FIXME: if either the thenBody- or the elseBody onlyHasOpenEndings, we should NOT JOIN here!
         
         $endAstNodeIdentifier = $ifAstNodeIdentifier . "_IfEnd";
         // FIXME: change this to ifEnd
