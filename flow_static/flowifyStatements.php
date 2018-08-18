@@ -384,6 +384,8 @@ function flowifyForStatement($forStatement, $forFlowElement) {
     $initFlowElement = createAndAddFlowElementToParent('ifCond', 'init', null, $initAstNodeIdentifier, $forFlowElement);
     $flowElement = flowifyExpression($initExpression, $initFlowElement);
     
+    // FIXME: check openEndings of initFlowElement!
+
     addChangedVariablesToExitingParent($initFlowElement);
         
  
@@ -400,13 +402,14 @@ function flowifyForStatement($forStatement, $forFlowElement) {
         // FIXME: replace ifCond with forCond
         $condBodyFlowElement = createAndAddFlowElementToParent('ifCond', 'cond', null, $forAstNodeIdentifier . "_ForCond", $forStepFlowElement);
         $flowElement = flowifyExpression($conditionExpression, $condBodyFlowElement);
-        
-        addChangedVariablesToExitingParent($condBodyFlowElement);
-
         $condBodyFlowElement->previousIds[] = $initFlowElement->id; // Note: later we add the 'back-element' to this list
         $condBodyFlowElement->canJoin = true;
         $condBodyFlowElement->canSplit = true;
         
+        // FIXME: check openEndings of condBodyFlowElement!
+        
+        addChangedVariablesToExitingParent($condBodyFlowElement);
+
         // TODO: the flowElement coming from the conditionExpression is a boolean and determines 
         //       whether the iter-statements are executed. How to should we visualize this?
         
@@ -417,12 +420,12 @@ function flowifyForStatement($forStatement, $forFlowElement) {
         // FIXME: replace ifThen with iterBody
         $iterBodyFlowElement = createAndAddFlowElementToParent('ifThen', 'iter', null, $iterAstNodeIdentifier, $forStepFlowElement);
         flowifyStatements($iterStatements, $iterBodyFlowElement);
+        $iterBodyFlowElement->previousId = $condBodyFlowElement->id;
+        
         $iterOpenEndings = $iterBodyFlowElement->openEndings;
         // FIXME: do something with $iterOpenEndings!
 
         addChangedVariablesToExitingParent($iterBodyFlowElement);
-        
-        $iterBodyFlowElement->previousId = $condBodyFlowElement->id;
         
         
         // FIXME: If iterOpenEndings contains a 'continue', we need to join the varsInScope of the continue-body (for example a then-body)
@@ -443,10 +446,12 @@ function flowifyForStatement($forStatement, $forFlowElement) {
         // FIXME: replace ifCond with forUpdate
         $updateBodyFlowElement = createAndAddFlowElementToParent('ifCond', 'update', null, $forAstNodeIdentifier . "_ForUpdate", $forStepFlowElement);
         $flowElement = flowifyExpression($updateExpression, $updateBodyFlowElement);
+        $updateBodyFlowElement->previousId = $iterBodyFlowElement->id;
+        
+        // FIXME: check openEndings of condBodyFlowElement!
         
         addChangedVariablesToExitingParent($updateBodyFlowElement);
         
-        $updateBodyFlowElement->previousId = $iterBodyFlowElement->id;
         
     }
     
@@ -496,10 +501,10 @@ function flowifyForStatement($forStatement, $forFlowElement) {
     // FIXME: this should be of type: 'forDoneImplicit'
     $doneBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'done', null, $doneAstNodeIdentifier, $forFlowElement);
     $doneBodyFlowElement->addPassthroughIfVariableNotChanged = true;
+    $doneBodyFlowElement->previousId = $condBodyFlowElement->id;
+
     
     addChangedVariablesToExitingParent($forStepFlowElement);
-
-    $doneBodyFlowElement->previousId = $condBodyFlowElement->id;
     
     // TODO: implement continue statement (inside flowifyStatements)
     // TODO: implement break statement (inside flowifyStatements)
