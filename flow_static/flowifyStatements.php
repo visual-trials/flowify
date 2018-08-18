@@ -417,35 +417,38 @@ function flowifyForStatement($forStatement, $forFlowElement) {
         addChangedVariablesToExitingParent($iterBodyFlowElement);
         
         
-        // FIXME: If iterOpenEndings contains a 'continue', we need to join the varsInScope of the continue-body (for example a then-body)
-        //        with the varsInScope of the iterBodyFlowElement. We need to do this before the update.
-        //        We also need to add a passthrough for that and split it.
-
-        // FIXME: if we have multiple continues, we need to combine them first?
-        
-        // for the ONE 'continue' in iterOpenEndings do the following
-        {
-            if (count($iterOpenEndings->continues) > 0) {
-                // FIXME: implement this!
-                foreach ($iterOpenEndings->continues as $elementId => $continueOpenEndingElement) {
-                    enableLogging();
-                    // FIXME: we should do this too for the continueOpenEndingElement (after setting the exitingParent properly): 
-                    //        addChangedVariablesToExitingParent($continueOpenEndingElement);
-                    logLine("Continue open ending in iter: " . $continueOpenEndingElement->id);
-                    // $continueOpenEndingElement;
-                    disableLogging();
-                }
-                
-                
-            }
-        }
-        
         // == UPDATE ==
         
         // FIXME: replace ifCond with forUpdate
         $updateBodyFlowElement = createAndAddFlowElementToParent('ifCond', 'update', null, $forAstNodeIdentifier . "_ForUpdate", $forStepFlowElement);
+        // FIXME: If iterOpenEndings contains a 'continue', we need to join the continue-body (for example a then-body)
+        //        with the iterBodyFlowElement. We need to do this before the update.
+        // for the ONE 'continue' in iterOpenEndings do the following
+        // FIXME: if we have multiple continues, we need to combine them first?
+        {
+            if (count($iterOpenEndings->continues) > 0) {
+                foreach ($iterOpenEndings->continues as $elementId => $continueOpenEndingElement) {
+                    $continueOpenEndingElement->exitingParentId = $forStepFlowElement->id;
+                    addChangedVariablesToExitingParent($continueOpenEndingElement);
+                    
+                    $updateBodyFlowElement->previousIds[] = $continueOpenEndingElement->id;
+                    
+                    logLine("Continue open ending in iter: " . $continueOpenEndingElement->id, $isError = true);
+                }
+                
+                
+                // FIXME: only if there are non-openEndings we should add the iterBody itself as the previous
+                $updateBodyFlowElement->previousIds[] = $iterBodyFlowElement->id;
+                
+                $updateBodyFlowElement->canJoin = true;
+            }
+            else {
+            
+                // FIXME: only if there are non-openEndings we should add the iterBody itself as the previous
+                $updateBodyFlowElement->previousId = $iterBodyFlowElement->id;
+            }
+        }
         $flowElement = flowifyExpression($updateExpression, $updateBodyFlowElement);
-        $updateBodyFlowElement->previousId = $iterBodyFlowElement->id;
         
         // FIXME: check openEndings of condBodyFlowElement!
         

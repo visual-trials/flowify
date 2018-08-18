@@ -1,6 +1,6 @@
 {
     "0:0-0:0": {
-        "x": 2560,
+        "x": 2360,
         "y": 590,
         "isPositionOf": "center",
         "width": 1300,
@@ -111,54 +111,84 @@
         "y": 60,
         "isPositionOf": "center"
     },
+    "8:5-10:5_IfCond_SPLIT_i": {
+        "x": 140,
+        "y": 0,
+        "isPositionOf": "center"
+    },
+    "8:5-10:5_IfCond_SPLIT_b": {
+        "x": 140,
+        "y": 40,
+        "isPositionOf": "center"
+    },
     "9:9-9:17_Stmts": {
-        "x": 230,
+        "x": 240,
         "y": 20,
         "isPositionOf": "center"
     },
-    "8:5-10:5_ImplicitElse": {
-        "x": 230,
-        "y": 100,
+    "9:9-9:17_Stmts_*PASSTHROUGH*_i": {
+        "x": 60,
+        "y": 20,
         "isPositionOf": "center"
     },
-    "8:5-10:5_IfEnd": {
-        "x": 330,
+    "9:9-9:17_Stmts_*PASSTHROUGH*_b": {
+        "x": 60,
         "y": 60,
         "isPositionOf": "center"
     },
+    "8:5-10:5_ImplicitElse": {
+        "x": 240,
+        "y": 170,
+        "isPositionOf": "center"
+    },
+    "8:5-10:5_IfEnd": {
+        "x": 340,
+        "y": 100,
+        "isPositionOf": "center"
+    },
     "11:15-11:15": {
-        "x": 450,
-        "y": 180,
+        "x": 490,
+        "y": 220,
         "isPositionOf": "center"
     },
     "11:10-11:15": {
-        "x": 530,
-        "y": 180,
+        "x": 560,
+        "y": 200,
         "isPositionOf": "center"
     },
     "11:5-11:6": {
-        "x": 600,
-        "y": 150,
+        "x": 670,
+        "y": 170,
         "isPositionOf": "center"
     },
     "7:1-12:1_ForUpdate": {
-        "x": 830,
-        "y": 240,
+        "x": 1020,
+        "y": 350,
+        "isPositionOf": "center"
+    },
+    "7:1-12:1_ForUpdate_JOINED_i": {
+        "x": 30,
+        "y": 40,
         "isPositionOf": "center"
     },
     "7:33-7:33": {
-        "x": 20,
-        "y": 90,
+        "x": 120,
+        "y": 40,
         "isPositionOf": "center"
     },
     "7:28-7:33": {
-        "x": 100,
-        "y": 70,
+        "x": 190,
+        "y": 90,
         "isPositionOf": "center"
     },
     "7:23-7:24": {
-        "x": 180,
-        "y": 50,
+        "x": 310,
+        "y": 80,
+        "isPositionOf": "center"
+    },
+    "7:1-12:1_ForUpdate_JOINED_b": {
+        "x": 30,
+        "y": 80,
         "isPositionOf": "center"
     },
     "7:1-12:1_ImplicitBack": {
