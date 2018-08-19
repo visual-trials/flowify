@@ -95,7 +95,7 @@
         "isPositionOf": "center"
     },
     "8:5-14:16_Stmts": {
-        "x": 800,
+        "x": 830,
         "y": 300,
         "isPositionOf": "center",
         "width": 1300,
@@ -260,31 +260,31 @@
         "isPositionOf": "center"
     },
     "14:15-14:15": {
-        "x": 1050,
+        "x": 1080,
         "y": 220,
         "isPositionOf": "center"
     },
     "14:10-14:15": {
-        "x": 1120,
+        "x": 1160,
         "y": 200,
         "isPositionOf": "center"
     },
     "14:5-14:6": {
-        "x": 1190,
-        "y": 170,
+        "x": 1240,
+        "y": 160,
         "isPositionOf": "center"
     },
     "7:1-15:1_ForUpdate": {
-        "x": 1550,
-        "y": 270,
+        "x": 1660,
+        "y": 300,
         "isPositionOf": "center",
         "width": 300,
         "height": 320,
         "relativeScale": 1
     },
     "7:1-15:1_ForUpdate_JOINED_i": {
-        "x": 20,
-        "y": 160,
+        "x": 30,
+        "y": 120,
         "isPositionOf": "center"
     },
     "7:33-7:33": {
