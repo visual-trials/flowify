@@ -554,24 +554,6 @@ function buildPathBackwardsFromPrevious ($laneElement, $variableName, $connectio
         $previousLaneElement = $flowElements[$laneElement->previousId];
         $variableElement = buildPathBackwards($previousLaneElement, $variableName, $connectionType);
 
-        if ($variableElement !== null && $laneElement->addPassthroughIfVariableNotChanged) {
-            $passThroughVariableAstNodeIdentifier = $laneElement->astNodeIdentifier . "_*PASSTHROUGH*_" . $variableName;
-            $passThroughVariable = createVariable($laneElement, $variableName, $passThroughVariableAstNodeIdentifier, 'passThroughVariable');
-
-            addFlowConnection($variableElement, $passThroughVariable, $connectionType);
-            
-            $variableElement = $passThroughVariable;
-        }
-        
-        if ($variableElement !== null && $laneElement->addPassbackIfVariableNotChanged) {
-            $passBackVariableAstNodeIdentifier = $laneElement->astNodeIdentifier . "_*PASSBACK*_" . $variableName;
-            $passBackVariable = createVariable($laneElement, $variableName, $passBackVariableAstNodeIdentifier, 'passBackVariable');
-
-            addFlowConnection($variableElement, $passBackVariable, $connectionType);
-            
-            $variableElement = $passBackVariable;
-        }
-        
     }
     else {
         if ($laneElement->parentId !== null) {
@@ -583,6 +565,29 @@ function buildPathBackwardsFromPrevious ($laneElement, $variableName, $connectio
         else {
             logLine("ERROR: We are trying to go to the parent of element: " . $laneElement->id . " but it has no parent!", $isError = true);
         }
+    }
+
+    // We have moved from an element that didn't have the variable itself, but instead we searched
+    // for it in either the previous or parent element. If we have found the variableElement there
+    // and the element (where we didn't find it) needs a passThrough or passBack (when the variable is not changed in it)
+    // then we add those here.
+    
+    if ($variableElement !== null && $laneElement->addPassthroughIfVariableNotChanged) {
+        $passThroughVariableAstNodeIdentifier = $laneElement->astNodeIdentifier . "_*PASSTHROUGH*_" . $variableName;
+        $passThroughVariable = createVariable($laneElement, $variableName, $passThroughVariableAstNodeIdentifier, 'passThroughVariable');
+
+        addFlowConnection($variableElement, $passThroughVariable, $connectionType);
+        
+        $variableElement = $passThroughVariable;
+    }
+    
+    if ($variableElement !== null && $laneElement->addPassbackIfVariableNotChanged) {
+        $passBackVariableAstNodeIdentifier = $laneElement->astNodeIdentifier . "_*PASSBACK*_" . $variableName;
+        $passBackVariable = createVariable($laneElement, $variableName, $passBackVariableAstNodeIdentifier, 'passBackVariable');
+
+        addFlowConnection($variableElement, $passBackVariable, $connectionType);
+        
+        $variableElement = $passBackVariable;
     }
     
     return $variableElement;
