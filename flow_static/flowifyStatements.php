@@ -749,7 +749,7 @@ function joinVariables($variableName, $differentVariables, $targetElement) {
     $conditionalJoinVariableAstNodeIdentifier = $targetElement->astNodeIdentifier . "_JOINED_" . $variableName;
     $conditionalJoinVariableFlowElement = createAndAddChildlessFlowElementToParent('conditionalJoinVariable', $variableName, null, $conditionalJoinVariableAstNodeIdentifier, $targetElement);
     foreach ($differentVariables as $differentVariableElement) {
-        $flowConntectionId = addFlowConnection($differentVariableElement, $conditionalJoinVariableFlowElement, 'conditional');
+        $flowConntectionId = addFlowConnection($differentVariableElement, $conditionalJoinVariableFlowElement); // OLD: , 'conditional'
     }
     return $conditionalJoinVariableFlowElement;
 }
