@@ -412,7 +412,6 @@ function flowifyForStatement($forStatement, $forFlowElement) {
         $iterBodyFlowElement->previousId = $condBodyFlowElement->id;
         
         $iterOpenEndings = $iterBodyFlowElement->openEndings;
-        // FIXME: do something with $iterOpenEndings!
 
         addChangedVariablesToExitingParent($iterBodyFlowElement);
         
@@ -421,14 +420,11 @@ function flowifyForStatement($forStatement, $forFlowElement) {
         
         // FIXME: replace ifCond with forUpdate
         $updateBodyFlowElement = createAndAddFlowElementToParent('ifCond', 'update', null, $forAstNodeIdentifier . "_ForUpdate", $forStepFlowElement);
-        // FIXME: If iterOpenEndings contains a 'continue', we need to join the continue-body (for example a then-body)
-        //        with the iterBodyFlowElement. We need to do this before the update.
-        // for the ONE 'continue' in iterOpenEndings do the following
         // FIXME: if we have multiple continues, we need to combine them first?
         {
             if (count($iterOpenEndings->continues) > 0) {
                 foreach ($iterOpenEndings->continues as $elementId => $continueOpenEndingElement) {
-                    $continueOpenEndingElement->exitingParentId = $forStepFlowElement->id;
+                    $continueOpenEndingElement->exitingParentId = $forStepFlowElement->id; // FIXME: is this correct?
                     addChangedVariablesToExitingParent($continueOpenEndingElement);
                     
                     $updateBodyFlowElement->previousIds[] = $continueOpenEndingElement->id;
@@ -503,13 +499,42 @@ function flowifyForStatement($forStatement, $forFlowElement) {
     // FIXME: this should be of type: 'forDoneImplicit'
     $doneBodyFlowElement = createAndAddFlowElementToParent('ifElse', 'done', null, $doneAstNodeIdentifier, $forFlowElement);
     $doneBodyFlowElement->addPassthroughIfVariableNotChanged = true;
-    $doneBodyFlowElement->previousId = $condBodyFlowElement->id;
 
+    // FIXME: we should somehow 'consume' the openEndings we *joined* (for example the continue-openEndings in the update)
+    //        and keep on going with the left-over openEndings and maybe assemble more when we go on.
+    //        For now we just look at the openEndings inside the iter!
+
+    // FIXME: if we have multiple breaks, we need to combine them first?
+    {
+        if (count($iterOpenEndings->breaks) > 0) {
+            foreach ($iterOpenEndings->breaks as $elementId => $breakOpenEndingElement) {
+                $breakOpenEndingElement->exitingParentId = $forStepFlowElement->id; // FIXME: is this correct?
+                addChangedVariablesToExitingParent($breakOpenEndingElement);
+                
+                $doneBodyFlowElement->previousIds[] = $breakOpenEndingElement->id;
+                
+                logLine("Found break-openEnding in iter: " . $breakOpenEndingElement->id);
+            }
+            
+            
+            // FIXME: only if there are non-openEndings we should add the condBody itself as the previous (or should we always do this?)
+            $doneBodyFlowElement->previousIds[] = $condBodyFlowElement->id;
+            
+            $doneBodyFlowElement->canJoin = true;
+        }
+        else {
+        
+            // FIXME: only if there are non-openEndings we should add the condBody itself as the previous (or should we always do this?)
+            $doneBodyFlowElement->previousId = $condBodyFlowElement->id;
+        }
+    }
+    
+    // FIXME: is this correct?
+    addChangedVariablesToExitingParent($doneBodyFlowElement);
+
+    // OLD: $doneBodyFlowElement->previousId = $condBodyFlowElement->id;
     
     addChangedVariablesToExitingParent($forStepFlowElement);
-    
-    // TODO: implement continue statement (inside flowifyStatements)
-    // TODO: implement break statement (inside flowifyStatements)
     
 }
 
