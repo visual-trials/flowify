@@ -7,13 +7,13 @@
         "height": 740
     },
     "3:10-3:11": {
-        "x": 2520,
-        "y": 230,
+        "x": 2440,
+        "y": 130,
         "isPositionOf": "center"
     },
     "3:1-3:6": {
-        "x": 2620,
-        "y": 200,
+        "x": 2520,
+        "y": 110,
         "isPositionOf": "center"
     },
     "5:6-5:7": {
@@ -136,10 +136,10 @@
         "isPositionOf": "center"
     },
     "9:9-9:14_Stmts": {
-        "x": 690,
+        "x": 940,
         "y": 60,
         "isPositionOf": "center",
-        "width": 1000,
+        "width": 1500,
         "height": 60
     },
     "9:9-9:14_Stmts_*PASSTHROUGH*_b": {
@@ -200,8 +200,8 @@
         "isPositionOf": "center"
     },
     "11:9-11:14": {
-        "x": 80,
-        "y": 10,
+        "x": 90,
+        "y": 20,
         "isPositionOf": "center"
     },
     "11:5-13:5_IfCond_SPLIT_b": {
@@ -215,63 +215,69 @@
         "isPositionOf": "center"
     },
     "12:9-12:17_Stmts": {
-        "x": 200,
-        "y": 30,
-        "isPositionOf": "center"
+        "x": 500,
+        "y": 70,
+        "isPositionOf": "center",
+        "width": 660,
+        "height": 60
     },
     "12:9-12:17_Stmts_*PASSTHROUGH*_i": {
-        "x": 90,
+        "x": 110,
         "y": 0,
         "isPositionOf": "center"
     },
     "12:9-12:17_Stmts_*PASSTHROUGH*_b": {
-        "x": 90,
+        "x": 110,
         "y": 40,
         "isPositionOf": "center"
     },
     "11:5-13:5_ImplicitElse": {
-        "x": 200,
-        "y": 140,
-        "isPositionOf": "center"
+        "x": 270,
+        "y": 190,
+        "isPositionOf": "center",
+        "width": 200,
+        "height": 80
     },
     "11:5-13:5_ImplicitElse_*PASSTHROUGH*_b": {
         "x": 100,
-        "y": 70,
+        "y": 60,
         "isPositionOf": "center"
     },
     "11:5-13:5_ImplicitElse_*PASSTHROUGH*_i": {
         "x": 100,
-        "y": 30,
+        "y": 20,
         "isPositionOf": "center"
     },
     "11:5-13:5_IfEnd": {
-        "x": 360,
-        "y": 90,
-        "isPositionOf": "center"
+        "x": 430,
+        "y": 190,
+        "isPositionOf": "center",
+        "width": 80,
+        "height": 80
     },
     "11:5-13:5_IfEnd_JOINED_b": {
-        "x": 20,
-        "y": 70,
+        "x": 40,
+        "y": 60,
         "isPositionOf": "center"
     },
     "11:5-13:5_IfEnd_JOINED_i": {
-        "x": 20,
-        "y": 30,
+        "x": 40,
+        "y": 20,
         "isPositionOf": "center"
     },
     "14:15-14:15": {
-        "x": 1080,
-        "y": 220,
+        "x": 1090,
+        "y": 250,
         "isPositionOf": "center"
     },
     "14:10-14:15": {
         "x": 1160,
-        "y": 200,
+        "y": 220,
         "isPositionOf": "center"
     },
     "14:5-14:6": {
-        "x": 1240,
-        "y": 160,
+        "x": 1250,
+        "y": 170,
         "isPositionOf": "center"
     },
     "7:1-15:1_ForUpdate": {
@@ -283,8 +289,8 @@
         "relativeScale": 1
     },
     "7:1-15:1_ForUpdate_JOINED_i": {
-        "x": 30,
-        "y": 120,
+        "x": 40,
+        "y": 130,
         "isPositionOf": "center"
     },
     "7:33-7:33": {
@@ -303,12 +309,12 @@
         "isPositionOf": "center"
     },
     "7:1-15:1_ForUpdate_JOINED_b": {
-        "x": 30,
+        "x": 40,
         "y": 80,
         "isPositionOf": "center"
     },
     "7:1-15:1_ImplicitBack": {
-        "x": 830,
+        "x": 1090,
         "y": 610,
         "isPositionOf": "center",
         "width": 1350,
@@ -333,17 +339,17 @@
     },
     "7:1-15:1_ImplicitDone_JOINED_b": {
         "x": 30,
-        "y": 110,
+        "y": 70,
         "isPositionOf": "center"
     },
     "17:6-17:16": {
-        "x": 2700,
-        "y": 160,
+        "x": 2600,
+        "y": 90,
         "isPositionOf": "center"
     },
     "17:1-17:2": {
-        "x": 2700,
-        "y": 90,
+        "x": 2670,
+        "y": 70,
         "isPositionOf": "center"
     }
 }
