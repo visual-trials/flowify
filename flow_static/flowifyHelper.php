@@ -415,8 +415,11 @@ function getFlowDataFromElement ($flowElement) {
         $flowData .= "\n";
         
         $flowData .= 'endsWith: ' . $flowElement->endsWith . "\n";
-        $hasOpenEndings = $flowElement->hasOpenEndings ? 'true' : 'false';
-        $flowData .= 'hasOpenEndings: ' . $hasOpenEndings . "\n";
+        // FIXME: deprecated? $hasOpenEndings = $flowElement->hasOpenEndings ? 'true' : 'false';
+        // FIXME: deprecated? $flowData .= 'hasOpenEndings: ' . $hasOpenEndings . "\n";
+        $containsSomeOpenEndings = containsSomeOpenEndings($flowElement->openEndings);
+        $containsSomeOpenEndings = $containsSomeOpenEndings ? 'true' : 'false';
+        $flowData .= 'containsSomeOpenEndings: ' . $containsSomeOpenEndings . "\n";
         $onlyHasOpenEndings = $flowElement->onlyHasOpenEndings ? 'true' : 'false';
         $flowData .= 'onlyHasOpenEndings: ' . $onlyHasOpenEndings . "\n";
 /*        
