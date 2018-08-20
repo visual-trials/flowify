@@ -75,7 +75,7 @@
         "isPositionOf": "center"
     },
     "7:1-15:1_ForCond_JOINED_b": {
-        "x": 20,
+        "x": 40,
         "y": 140,
         "isPositionOf": "center"
     },
@@ -217,8 +217,8 @@
         "height": 60
     },
     "12:9-12:17_Stmts_*PASSTHROUGH*_b": {
-        "x": 110,
-        "y": 40,
+        "x": 100,
+        "y": 30,
         "isPositionOf": "center"
     },
     "11:5-13:5_ImplicitElse": {
@@ -230,7 +230,7 @@
     },
     "11:5-13:5_ImplicitElse_*PASSTHROUGH*_b": {
         "x": 100,
-        "y": 60,
+        "y": 40,
         "isPositionOf": "center"
     },
     "11:5-13:5_IfEnd": {
@@ -242,7 +242,7 @@
     },
     "11:5-13:5_IfEnd_JOINED_b": {
         "x": 40,
-        "y": 60,
+        "y": 40,
         "isPositionOf": "center"
     },
     "14:15-14:15": {
@@ -285,7 +285,7 @@
     },
     "7:1-15:1_ForUpdate_JOINED_b": {
         "x": 40,
-        "y": 80,
+        "y": 70,
         "isPositionOf": "center"
     },
     "7:1-15:1_ImplicitBack": {
