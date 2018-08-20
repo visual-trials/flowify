@@ -649,46 +649,52 @@ function buildPathBackwards($laneElement, $variableName, $connectionType = null)
             else if ($laneElement->canJoin) {
                 logLine("We can join");
                 
-                // FIXME: We should traverse into all joined lanes here, BUT only if either has changed OR if we have an assymetric join!
-                // loop through: $laneElement->previousIds
-                if (count($laneElement->previousIds) === 2) {
-                    $leftLaneId = $laneElement->previousIds[0];
-                    $rightLaneId = $laneElement->previousIds[1];
-                    $leftLane = $flowElements[$leftLaneId];
-                    $rightLane = $flowElements[$rightLaneId];
-                    if (array_key_exists($variableName, $leftLane->varsInScopeChanged) ||
-                        array_key_exists($variableName, $rightLane->varsInScopeChanged)) { 
-                        
-                        logLine("We found the left lane:" . $leftLaneId);
-                        logLine("We found the right lane:" . $rightLaneId);
-                        $variableElementLeft = buildPathBackwards($leftLane, $variableName, $connectionType);
-                        $variableElementRight = buildPathBackwards($rightLane, $variableName, $connectionType);
+                // We traverse into all joined lanes here when:
+                //  - only if one of the lanes has changed the var 
+                //  - or if we have only one lane
+                
+                if (count($laneElement->previousIds) >= 2) {
+                    
+                    $conditionalJoinVariableFlowElement = null;
+                    $variableWasChangedInOneOfTheLanes = false;
+                    $lowestLaneId = null;
+                    foreach ($laneElement->previousIds as $laneToJoinId) {
+                        $laneToJoin = $flowElements[$laneToJoinId];
+                        if (array_key_exists($variableName, $laneToJoin->varsInScopeChanged)) {
+                            $variableWasChangedInOneOfTheLanes = true;
+                        }
+                        if ($laneToJoinId < $lowestLaneId || $lowestLaneId === null) {
+                            $lowestLaneId = $laneToJoinId;
+                        }
+                    }
+                    
+                    if ($variableWasChangedInOneOfTheLanes) {
                         
                         // FIXME: we should also update the varsInScopeChanged on the way back!
                         $conditionalJoinVariableAstNodeIdentifier = $laneElement->astNodeIdentifier . "_JOINED_" . $variableName;
                         $conditionalJoinVariableFlowElement = createVariable($laneElement, $variableName, $conditionalJoinVariableAstNodeIdentifier, 'conditionalJoinVariable');
-
-                        addFlowConnection($variableElementLeft, $conditionalJoinVariableFlowElement, $connectionType);
-                        addFlowConnection($variableElementRight, $conditionalJoinVariableFlowElement, $connectionType);
                         
+                        foreach ($laneElement->previousIds as $laneToJoinId) {
+                            $laneToJoin = $flowElements[$laneToJoinId];
+                            logLine("We found a lane to join:" . $laneToJoinId);
+                            $variableElementLaneToJoin = buildPathBackwards($laneToJoin, $variableName, $connectionType);
+
+                            addFlowConnection($variableElementLaneToJoin, $conditionalJoinVariableFlowElement, $connectionType);
+                        }
                         $variableElement = $conditionalJoinVariableFlowElement;
                     }
                     else {
-                        // FIXME: if we at a join and the vars haven't changed in either lane,
-                        //        we should skip to the 'oldest' parent/previous of either lane. Basicly you want
+                        // TODO:  if we at a join and the vars haven't changed in any lane,
+                        //        we should skip to the 'oldest' parent/previous of the lanes. Basicly you want
                         //        to skip to just before the corresponding *split* (but since it's assymetric
                         //        we have to figure out which split this is).
-                        //        Right now, we do this by checking which of the two lanes (right or left) is the
+                        //        Right now, we do this by checking which of the lanes (usually right or left) is the
                         //        oldest and setting the laneElement to that lane. Since $variableElement is null,
                         //        the buildPathBackwardsFromPrevious (below) will take that lane as the starting lane
                         //        to find a previous (or parent) to build from.
+                        //        There is probably a more robust way of doing this.
                         
-                        if ($leftLane->id < $rightLane->id) {
-                            $laneElement = $leftLane;
-                        }
-                        else {
-                            $laneElement = $rightLane;
-                        }
+                        $laneElement = $flowElements[$lowestLaneId];
                     }
                 }
                 // TODO: this can happen if (for example) for-loops, where the back-lane has not been connected yet as previous
@@ -707,7 +713,7 @@ function buildPathBackwards($laneElement, $variableName, $connectionType = null)
                     $variableElement = $conditionalJoinVariableFlowElement;
                 }
                 else {
-                    // FIXME: support other variants!
+                    logLine("ERROR: we found a join, without any previousIds", $isError = true);
                 }
                 
                 if ($laneElement->canSplit) {
