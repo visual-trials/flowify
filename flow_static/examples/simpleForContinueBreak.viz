@@ -209,22 +209,12 @@
         "y": 110,
         "isPositionOf": "center"
     },
-    "11:5-13:5_IfCond_SPLIT_i": {
-        "x": 100,
-        "y": 70,
-        "isPositionOf": "center"
-    },
     "12:9-12:17_Stmts": {
         "x": 500,
         "y": 70,
         "isPositionOf": "center",
         "width": 660,
         "height": 60
-    },
-    "12:9-12:17_Stmts_*PASSTHROUGH*_i": {
-        "x": 110,
-        "y": 0,
-        "isPositionOf": "center"
     },
     "12:9-12:17_Stmts_*PASSTHROUGH*_b": {
         "x": 110,
@@ -243,11 +233,6 @@
         "y": 60,
         "isPositionOf": "center"
     },
-    "11:5-13:5_ImplicitElse_*PASSTHROUGH*_i": {
-        "x": 100,
-        "y": 20,
-        "isPositionOf": "center"
-    },
     "11:5-13:5_IfEnd": {
         "x": 430,
         "y": 190,
@@ -258,11 +243,6 @@
     "11:5-13:5_IfEnd_JOINED_b": {
         "x": 40,
         "y": 60,
-        "isPositionOf": "center"
-    },
-    "11:5-13:5_IfEnd_JOINED_i": {
-        "x": 40,
-        "y": 20,
         "isPositionOf": "center"
     },
     "14:15-14:15": {
@@ -287,11 +267,6 @@
         "width": 300,
         "height": 320,
         "relativeScale": 1
-    },
-    "7:1-15:1_ForUpdate_JOINED_i": {
-        "x": 40,
-        "y": 130,
-        "isPositionOf": "center"
     },
     "7:33-7:33": {
         "x": 90,

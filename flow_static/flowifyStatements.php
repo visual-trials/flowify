@@ -437,6 +437,7 @@ function flowifyForStatement($forStatement, $forFlowElement) {
                 $updateBodyFlowElement->previousIds[] = $iterBodyFlowElement->id;
                 
                 $updateBodyFlowElement->canJoin = true;
+                $updateBodyFlowElement->previousId = null; // FIXME: we should make a helper function for this! (this is error-prone)
             }
             else {
             
@@ -521,6 +522,7 @@ function flowifyForStatement($forStatement, $forFlowElement) {
             $doneBodyFlowElement->previousIds[] = $condBodyFlowElement->id;
             
             $doneBodyFlowElement->canJoin = true;
+            $doneBodyFlowElement->previousId = null; // FIXME: we should make a helper function for this! (this is error-prone)
         }
         else {
         
@@ -630,6 +632,7 @@ function buildPathBackwards($laneElement, $variableName, $connectionType = null)
                  
             }
             // FIXME: WORKAROUND using openEndings!!
+            // We use this to go build through lanes that havent been joined (yet).
             else if (containsSomeOpenEndings($laneElement->openEndings) ) {  
                 // We start with the last child in the lane
                 if ($laneElement->lastChildId !== null) {
@@ -651,19 +654,40 @@ function buildPathBackwards($laneElement, $variableName, $connectionType = null)
                     $rightLaneId = $laneElement->previousIds[1];
                     $leftLane = $flowElements[$leftLaneId];
                     $rightLane = $flowElements[$rightLaneId];
-                    logLine("We found the left lane:" . $leftLaneId);
-                    logLine("We found the right lane:" . $rightLaneId);
-                    $variableElementLeft = buildPathBackwards($leftLane, $variableName, $connectionType);
-                    $variableElementRight = buildPathBackwards($rightLane, $variableName, $connectionType);
-                    
-                    // FIXME: we should also update the varsInScopeChanged on the way back!
-                    $conditionalJoinVariableAstNodeIdentifier = $laneElement->astNodeIdentifier . "_JOINED_" . $variableName;
-                    $conditionalJoinVariableFlowElement = createVariable($laneElement, $variableName, $conditionalJoinVariableAstNodeIdentifier, 'conditionalJoinVariable');
+                    if (array_key_exists($variableName, $leftLane->varsInScopeChanged) ||
+                        array_key_exists($variableName, $rightLane->varsInScopeChanged)) { 
+                        
+                        logLine("We found the left lane:" . $leftLaneId);
+                        logLine("We found the right lane:" . $rightLaneId);
+                        $variableElementLeft = buildPathBackwards($leftLane, $variableName, $connectionType);
+                        $variableElementRight = buildPathBackwards($rightLane, $variableName, $connectionType);
+                        
+                        // FIXME: we should also update the varsInScopeChanged on the way back!
+                        $conditionalJoinVariableAstNodeIdentifier = $laneElement->astNodeIdentifier . "_JOINED_" . $variableName;
+                        $conditionalJoinVariableFlowElement = createVariable($laneElement, $variableName, $conditionalJoinVariableAstNodeIdentifier, 'conditionalJoinVariable');
 
-                    addFlowConnection($variableElementLeft, $conditionalJoinVariableFlowElement, $connectionType);
-                    addFlowConnection($variableElementRight, $conditionalJoinVariableFlowElement, $connectionType);
-                    
-                    $variableElement = $conditionalJoinVariableFlowElement;
+                        addFlowConnection($variableElementLeft, $conditionalJoinVariableFlowElement, $connectionType);
+                        addFlowConnection($variableElementRight, $conditionalJoinVariableFlowElement, $connectionType);
+                        
+                        $variableElement = $conditionalJoinVariableFlowElement;
+                    }
+                    else {
+                        // FIXME: if we at a join and the vars haven't changed in either lane,
+                        //        we should skip to the 'oldest' parent/previous of either lane. Basicly you want
+                        //        to skip to just before the corresponding *split* (but since it's assymetric
+                        //        we have to figure out which split this is).
+                        //        Right now, we do this by checking which of the two lanes (right or left) is the
+                        //        oldest and setting the laneElement to that lane. Since $variableElement is null,
+                        //        the buildPathBackwardsFromPrevious (below) will take that lane as the starting lane
+                        //        to find a previous (or parent) to build from.
+                        
+                        if ($leftLane->id < $rightLane->id) {
+                            $laneElement = $leftLane;
+                        }
+                        else {
+                            $laneElement = $rightLane;
+                        }
+                    }
                 }
                 // TODO: this can happen if (for example) for-loops, where the back-lane has not been connected yet as previous
                 else if (count($laneElement->previousIds) === 1) {
@@ -727,20 +751,6 @@ function buildPathBackwards($laneElement, $variableName, $connectionType = null)
         logLine("variableElement is null, starting buildPathBackwardsFromPrevious from laneElement: " . $laneElement->id);
         $variableElement = buildPathBackwardsFromPrevious($laneElement, $variableName, $connectionType);
         logLine("variableElement after buildPathBackwardsFromPrevious: " . $variableElement->id . " in laneElement: " . $laneElement->id);
-        
-        /*
-        we now do this inside buildPathBackwardsFromPrevious
-        if ($variableElement !== null && $laneElement->addPassthroughIfVariableNotChanged) {
-            $passThroughVariableAstNodeIdentifier = $laneElement->astNodeIdentifier . "_*PASSTHROUGH*_" . $variableName;
-            $passThroughVariable = createVariable($laneElement, $variableName, $passThroughVariableAstNodeIdentifier, 'passThroughVariable');
-
-            addFlowConnection($variableElement, $passThroughVariable, $connectionType);
-            
-            $variableElement = $passThroughVariable;
-        }
-        */
-        
- 
     }
     
     return $variableElement;

@@ -232,41 +232,6 @@ function getConnectionById ($connectionId) {
     return $flowConnections[$connectionId];
 }
 
-/*
-// FIXME: do we still need this?
-function getElementsIdsIn($flowElement) {
-    $containerIdsInFlowElement = [$flowElement->id];
-    
-    if ($flowElement->children !== null) {
-        foreach ($flowElement->children as $childFlowElement) {
-            // TODO: we should not go into a function when we are trying to find connection to elements inside a flowElement.
-            //       This is because a function(call) reset its varsInScope, so no variables *outside* its scope could 
-            //       connect (directly) with one of its children.
-            $containerIdsInChildFlowElement = getElementsIdsIn($childFlowElement);
-            $containerIdsInFlowElement = array_merge($containerIdsInFlowElement, $containerIdsInChildFlowElement);
-        }
-    }
-    return $containerIdsInFlowElement;
-}
-*/
-
-/*
-function isAncestorOf($ancestorElement, $childElement) {
-    if ($ancestorElement->id === $childElement->parentId) {
-        return true;
-    }
-    else {
-        if ($childElement->parentId !== null) {
-            $parentElement = getParentElement($childElement);
-            return isAncestorOf($ancestorElement, $parentElement);
-        }
-        else {
-            return false;
-        }
-    }
-}
-*/
-
 function containsSomeOpenEndings ($openEndings) {
     
     if (count($openEndings->returns) > 0 ||
