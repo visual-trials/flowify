@@ -631,7 +631,9 @@ function buildPathBackwards($laneElement, $variableName, $connectionType = null)
                 }
                  
             }
-            // FIXME: WORKAROUND using openEndings!!
+            // FIXME: WORKAROUND using openEndings!! 
+            //        Maybe it's better to mark only this lane (and not its parents) 
+            //        as 'un-joined' or 'joined-later' or 'assymetricly-joined'
             // We use this to go build through lanes that havent been joined (yet).
             else if (containsSomeOpenEndings($laneElement->openEndings) ) {  
                 // We start with the last child in the lane
