@@ -1,0 +1,19 @@
+{
+    "0:0-0:0": {
+        "x": 1260,
+        "y": -10,
+        "isPositionOf": "center",
+        "width": 900,
+        "height": 400
+    },
+    "3:10-3:11": {
+        "x": 370,
+        "y": 190,
+        "isPositionOf": "center"
+    },
+    "3:1-3:6": {
+        "x": 530,
+        "y": 190,
+        "isPositionOf": "center"
+    }
+}
