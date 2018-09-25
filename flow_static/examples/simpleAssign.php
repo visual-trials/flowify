@@ -1,3 +1,3 @@
 <?php
 
-$myVar = 34;
+$answer = 42;
