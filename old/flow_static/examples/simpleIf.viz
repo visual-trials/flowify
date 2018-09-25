@@ -1,0 +1,112 @@
+{
+    "0:0-0:0": {
+        "x": 1550,
+        "y": 110,
+        "isPositionOf": "center",
+        "width": 900,
+        "height": 400
+    },
+    "3:10-3:11": {
+        "x": 550,
+        "y": 50,
+        "isPositionOf": "center"
+    },
+    "3:1-3:6": {
+        "x": 660,
+        "y": 50,
+        "isPositionOf": "center"
+    },
+    "5:6-5:7": {
+        "x": 90,
+        "y": 200,
+        "isPositionOf": "center"
+    },
+    "5:1-5:2": {
+        "x": 200,
+        "y": 200,
+        "isPositionOf": "center"
+    },
+    "7:1-9:1": {
+        "x": 450,
+        "y": 230,
+        "isPositionOf": "center",
+        "width": 400,
+        "height": 250,
+        "relativeScale": 1
+    },
+    "7:1-9:1_IfCond": {
+        "x": 80,
+        "y": 90,
+        "isPositionOf": "center",
+        "width": 120,
+        "height": 120,
+        "relativeScale": 1
+    },
+    "7:10-7:11": {
+        "x": 50,
+        "y": 20,
+        "isPositionOf": "center"
+    },
+    "7:5-7:11": {
+        "x": 80,
+        "y": 80,
+        "isPositionOf": "center",
+        "width": 100,
+        "height": 80
+    },
+    "7:1-9:1_IfCond_SPLIT_b": {
+        "x": 110,
+        "y": 90,
+        "isPositionOf": "center"
+    },
+    "8:2-8:9_Stmts": {
+        "x": 250,
+        "y": 70,
+        "isPositionOf": "center",
+        "width": 150,
+        "height": 80,
+        "relativeScale": 1
+    },
+    "8:7-8:8": {
+        "x": 40,
+        "y": 40,
+        "isPositionOf": "center"
+    },
+    "8:2-8:3": {
+        "x": 110,
+        "y": 40,
+        "isPositionOf": "center"
+    },
+    "7:1-9:1_ImplicitElse": {
+        "x": 250,
+        "y": 190,
+        "isPositionOf": "center",
+        "width": 150,
+        "height": 60
+    },
+    "7:1-9:1_ImplicitElse_*PASSTHROUGH*_b": {
+        "x": 70,
+        "y": 30,
+        "isPositionOf": "center"
+    },
+    "7:1-9:1_IfEnd": {
+        "x": 360,
+        "y": 140,
+        "isPositionOf": "center"
+    },
+    "7:1-9:1_IfEnd_JOINED_b": {
+        "x": 20,
+        "y": -20,
+        "isPositionOf": "center"
+    },
+    "11:6-11:16": {
+        "x": 730,
+        "y": 220,
+        "isPositionOf": "center"
+    },
+    "11:1-11:2": {
+        "x": 820,
+        "y": 200,
+        "isPositionOf": "center"
+    }
+}
