@@ -6,3 +6,5 @@
 
 .phpstorm_helpers
 .cache
+
+dist

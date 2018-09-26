@@ -1,0 +1,1 @@
+cl /EHsc src\flowify_win32.cpp User32.lib Gdi32.lib /Fodist\flowify.obj /Fedist\flowify.exe
