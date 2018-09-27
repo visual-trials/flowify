@@ -18,6 +18,13 @@
 
 #include <windows.h>
 
+// TODO: now using a global here for the device context in windows. 
+//       Is there a way to pass the hdc to render_win32.cpp without 
+//       cluttering the platform-independent code?
+HDC hdc;
+
+#include "flowify.cpp"
+
 const char windowClassName[] = "FlowifyWindowClass";
 
 LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -29,6 +36,18 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
         break;
         case WM_DESTROY:
             PostQuitMessage(0);
+        break;
+        case WM_PAINT:
+        {
+            PAINTSTRUCT ps;
+            
+            hdc = BeginPaint(hwnd, &ps);
+            
+            // TODO: we are calling draw_frame here. But we should do it independent of the Windows Messages loop, to garantee a stable frame rate
+            draw_frame();
+
+            EndPaint(hwnd, &ps);
+        }
         break;
         default:
             return DefWindowProc(hwnd, msg, wParam, lParam);
