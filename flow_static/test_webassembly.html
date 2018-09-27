@@ -19,15 +19,28 @@
 //    var wasmCode = new Uint8Array([0,97,115,109,1,0,0,0,1,139,128,128,128,0,2,96,4,127,127,127,127,0,96,0,0,2,146,128,128,128,0,1,3,101,110,118,10,106,115,68,114,97,119,82,101,99,116,0,0,3,131,128,128,128,0,2,0,1,4,132,128,128,128,0,1,112,0,0,5,131,128,128,128,0,1,0,1,6,129,128,128,128,0,0,7,168,128,128,128,0,3,6,109,101,109,111,114,121,2,0,14,100,114,97,119,95,114,101,99,116,97,110,103,108,101,0,1,10,100,114,97,119,95,102,114,97,109,101,0,2,10,165,128,128,128,0,2,140,128,128,128,0,0,32,0,32,1,32,2,32,3,16,0,11,142,128,128,128,0,0,65,10,65,10,65,228,0,65,228,0,16,0,11]); 
 
     var env = {
-      jsDrawRect: function (x, y, w, h) {
-          ctx.strokeStyle = "black";
-          ctx.rect(x, y, w, h);
-          ctx.stroke();
-      },
+        __Z10jsDrawRectjjjj: function (x, y, w, h) {
+//        jsDrawRect: function (x, y, w, h) {
+            ctx.strokeStyle = "black";
+            ctx.rect(x, y, w, h);
+            ctx.stroke();
+        },
+        memoryBase: 0,
+        tableBase: 0,
+        memory: new WebAssembly.Memory({
+            initial: 256,
+            maximum: 512,
+        }),
+        table: new WebAssembly.Table({
+            initial: 4,
+            maximum: 4,
+            element: 'anyfunc',
+        }),
+        abort: Math.log, // FIXME
     }
 
     var request = new XMLHttpRequest();
-    request.open('GET', 'flow_static/flowify.wasm');
+    request.open('GET', 'flowify.wasm');
     request.responseType = 'arraybuffer';
     request.send();
 
@@ -38,11 +51,12 @@
         var wasmInstance = new WebAssembly.Instance(wasmModule, {
           env: env
         });
-        var m = new Uint8Array(wasmInstance.exports.memory.buffer);
+ //       var m = new Uint8Array(wasmInstance.exports.memory.buffer);
 
-        setStackPtr(wasmInstance.exports.memory, 0x2000);
+//        setStackPtr(wasmInstance.exports.memory, 0x2000);
 
-        wasmInstance.exports.draw_frame();
+//        wasmInstance.exports.draw_frame();
+        wasmInstance.exports.__Z10draw_framev();
         
         /*
         WebAssembly.instantiate(bytes, importObject).then(results => {
