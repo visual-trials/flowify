@@ -8,10 +8,22 @@
     
   </body>
   <script>
-    var importObject = {
-      imports: { imported_func: arg => console.log(arg) }
-    };
+      var importObject = {
+          imports: { imported_func: arg => console.log(arg) }
+      };
     
-    WebAssembly.instantiateStreaming(fetch('simple.wasm'), importObject).then(obj => obj.instance.exports.exported_func());
+
+      var request = new XMLHttpRequest();
+      request.open('GET', 'simple.wasm');
+      request.responseType = 'arraybuffer';
+      request.send();
+
+      request.onload = function() {
+          var bytes = request.response;
+          WebAssembly.instantiate(bytes, importObject).then(results => {
+              results.instance.exports.exported_func();
+          });
+      };
+
   </script>
 </html>
