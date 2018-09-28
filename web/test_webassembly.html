@@ -58,6 +58,7 @@
     
         var request = new XMLHttpRequest()
         request.open('HEAD', wasmFile)
+        request.setRequestHeader('cache-control', 'no-cache, must-revalidate, post-check=0, pre-check=0');
         request.send()
 
         request.onload = function() {
