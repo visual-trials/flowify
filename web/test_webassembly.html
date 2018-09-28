@@ -64,18 +64,18 @@
             var responseHeaders = request.getAllResponseHeaders().split("\n")
             
             var newChangeToWasm = responseHeaders[1] // FIXME: ugly way of getting the latest changed time
-            console.log('checking wasm: ' + newChangeToWasm + " -- " + latestChangeToWasm)
+            // console.log('checking wasm: ' + newChangeToWasm + " -- " + latestChangeToWasm)
             if (latestChangeToWasm != null && newChangeToWasm !== latestChangeToWasm) {
                 location.reload()
             }
             else {
-                setTimeout(reloadWhenWasmChanged, 1000)
+                setTimeout(reloadWhenWasmChanged, 500)
             }
         }
     
     }
     
-    setTimeout(reloadWhenWasmChanged, 1000)
+    setTimeout(reloadWhenWasmChanged, 500)
 
   </script>
 </html>
