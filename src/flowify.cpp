@@ -35,9 +35,9 @@ extern "C" {
         line_color.g = 255;
         line_color.a = 255;
         
-        int line_width = 3;
+        int line_width = 5;
         
-        draw_rectangle(200, 50, 40, 40, (color4){255,0,0,255}, (color4){255,255,0,255}, line_width);
+        draw_rectangle(200, 50, 40, 40, (color4){255,0,0,255}, (color4){255,255,0,255}, 3);
         
         int offset;
         if (increment % 512 < 256) {
