@@ -15,10 +15,11 @@
    limitations under the License.
 
  */
- 
-#include "render.h"
- 
-void draw_rectangle(unsigned int x, unsigned int y, unsigned int width, unsigned int height)
-{
-    Rectangle(hdc, x, y, width, height);    
-}
+
+ struct color4 {
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
+    unsigned char a;
+};
+

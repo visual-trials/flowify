@@ -15,18 +15,28 @@
    limitations under the License.
 
  */
+
+#include "render.h"
  
 extern "C" { 
-    extern void jsDrawRect(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
-    extern void jsClearRect(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
+    extern void jsClearRect(int x, int y, int width, int height);
+    extern void jsDrawRect(int x, int y, int width, int height, 
+                           int line_color_rgb, int line_color_alpha, int fill_color_rgb, int fill_color_alpha, int line_width);
 }
 
-void clear_rectangle(unsigned int x, unsigned int y, unsigned int width, unsigned int height)
+void clear_rectangle(int x, int y, int width, int height)
 {
     jsClearRect(x, y, width, height);    
 }
 
-void draw_rectangle(unsigned int x, unsigned int y, unsigned int width, unsigned int height)
+void draw_rectangle(int x, int y, int width, int height, 
+                    color4 line_color, color4 fill_color, int line_width)
 {
-    jsDrawRect(x, y, width, height);    
+    int line_color_rgb = line_color.r + line_color.g * 256 + line_color.b * 256 * 256; 
+    int line_color_alpha = (int)line_color.a;
+    
+    int fill_color_rgb = fill_color.r + fill_color.g * 256 + fill_color.b * 256 * 256;
+    int fill_color_alpha = (int)fill_color.a;
+    
+    jsDrawRect(x, y, width, height, line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
 }

@@ -27,6 +27,16 @@ extern "C" {
     {
         clear_rectangle(0, 0, 640, 480);
         
-        draw_rectangle(offset % 256 + 10, 10, 100, 100);
+        color4 fill_color = {};
+        fill_color.b = 255;
+        fill_color.a = 128;
+        
+        color4 line_color = {};
+        line_color.g = 255;
+        line_color.a = 255;
+        
+        int line_width = 10;
+        
+        draw_rectangle(offset % 256 + 10, 10, 100, 100, line_color, fill_color, line_width);
     }
 }
