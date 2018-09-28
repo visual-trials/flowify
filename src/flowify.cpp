@@ -23,7 +23,7 @@
 #endif
 
 extern "C" {
-    void draw_frame(int offset)
+    void draw_frame(int increment)
     {
         clear_rectangle(0, 0, 640, 480);
         
@@ -35,8 +35,16 @@ extern "C" {
         line_color.g = 255;
         line_color.a = 255;
         
-        int line_width = 10;
+        int line_width = 1;
         
-        draw_rectangle(offset % 256 + 10, 10, 100, 100, line_color, fill_color, line_width);
+        int offset;
+        if (increment % 512 < 256) {
+            offset = increment % 256;
+        }
+        else {
+            offset = 256 - (increment % 256);
+        }
+        draw_rectangle(offset + 10, 10, 100, 100, line_color, fill_color, line_width);
+        draw_rectangle(10, offset + 10, 100, 100, line_color, fill_color, line_width);
     }
 }

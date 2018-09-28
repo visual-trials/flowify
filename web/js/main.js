@@ -21,7 +21,7 @@ Flowify.main = function () {
 
     var my = {}
     
-    my.autoReload = false
+    my.autoReload = true
     
     my.test = 0 // FIXME: remove this
 
