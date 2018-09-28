@@ -35,7 +35,7 @@ extern "C" {
         line_color.g = 255;
         line_color.a = 255;
         
-        int line_width = 1;
+        int line_width = 3;
         
         int offset;
         if (increment % 512 < 256) {
