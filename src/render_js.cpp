@@ -18,6 +18,12 @@
  
 extern "C" { 
     extern void jsDrawRect(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
+    extern void jsClearRect(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
+}
+
+void clear_rectangle(unsigned int x, unsigned int y, unsigned int width, unsigned int height)
+{
+    jsClearRect(x, y, width, height);    
 }
 
 void draw_rectangle(unsigned int x, unsigned int y, unsigned int width, unsigned int height)

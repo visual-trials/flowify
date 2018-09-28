@@ -23,8 +23,10 @@
 #endif
 
 extern "C" {
-    void draw_frame()
+    void draw_frame(int offset)
     {
-        draw_rectangle(10, 10, 100, 100);
+        clear_rectangle(0, 0, 640, 480);
+        
+        draw_rectangle(offset % 256 + 10, 10, 100, 100);
     }
 }
