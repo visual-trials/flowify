@@ -466,7 +466,7 @@ if (queryParams['fileToFlowify']) {
 else {
 	fileToFlowify = 'simpleMath.php'
 }
-var url = "flowifyPHP.php?fileToFlowify=examples/" + fileToFlowify
+var url = "php/flowifyPHP.php?fileToFlowify=examples/" + fileToFlowify
 	
 var reloadWorld = function (world) {
 

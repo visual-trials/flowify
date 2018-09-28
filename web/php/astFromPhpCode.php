@@ -1,6 +1,6 @@
 <?php
 
-require "../../lib/bootstrap_PhpParser.php";
+require "../../../lib/bootstrap_PhpParser.php";
 
 function getAstFromPhpCode($code) {
     
