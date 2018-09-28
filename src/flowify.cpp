@@ -26,5 +26,6 @@ extern "C" {
     void draw_frame()
     {
         draw_rectangle(10, 10, 100, 100);
+        draw_rectangle(110, 110, 100, 100);
     }
 }
