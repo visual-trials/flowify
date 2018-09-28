@@ -17,14 +17,14 @@
  */
  
 #if BUILD_FOR_NATIVE_PLATFORM
-#include "render_win32.cpp"
+    #include "render_win32.cpp"
 #else
-#include "render_js.cpp"
+    #include "render_js.cpp"
 #endif
 
-void draw_frame()
-{
-    
-    draw_rectangle(10, 10, 100, 100);
-    
+extern "C" {
+    void draw_frame()
+    {
+        draw_rectangle(10, 10, 100, 100);
+    }
 }

@@ -16,7 +16,9 @@
 
  */
  
-extern void jsDrawRect(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
+extern "C" { 
+    extern void jsDrawRect(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
+}
 
 void draw_rectangle(unsigned int x, unsigned int y, unsigned int width, unsigned int height)
 {
