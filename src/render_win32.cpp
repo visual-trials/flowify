@@ -33,15 +33,50 @@ void draw_rectangle(i32 x, i32 y, i32 width, i32 height, color4 line_color, colo
     
     // FIXME: when doing alpha, take into account the line_width makes the reactangle bigger!
 
+    if (fill_color.a != 255)
+    {
+        HDC alphabuffer_dc = CreateCompatibleDC(backbuffer_dc);
 
+        BLENDFUNCTION blend;
+        blend.BlendOp = AC_SRC_OVER;
+        blend.BlendFlags = 0;
+        blend.SourceConstantAlpha = fill_color.a;
+        blend.AlphaFormat = 0;
 
+        // FIXME: what if width or height are bigger than the width or height of the backbuffer?
+        HBITMAP alphabuffer_bitmap = CreateCompatibleBitmap(backbuffer_dc, width, height);
+        
+        SelectObject(alphabuffer_dc, alphabuffer_bitmap);
 
-    
-    SelectObject(backbuffer_dc, GetStockObject(DC_PEN));
-    SelectObject(backbuffer_dc, GetStockObject(DC_BRUSH));
+        // Drawing to alphabuffer
+        {
+            // TODO: can't we select/set the RGB() directly?
+            SelectObject(alphabuffer_dc, GetStockObject(DC_PEN));
+            // TODO: can't we select/set the RGB() directly?
+            SelectObject(alphabuffer_dc, GetStockObject(DC_BRUSH));
 
-    SetDCPenColor(backbuffer_dc, RGB(line_color.r, line_color.g, line_color.b));
-    SetDCBrushColor(backbuffer_dc, RGB(fill_color.r, fill_color.g, fill_color.b));
+            SetDCPenColor(alphabuffer_dc, RGB(line_color.r, line_color.g, line_color.b));
+            SetDCBrushColor(alphabuffer_dc, RGB(fill_color.r, fill_color.g, fill_color.b));
 
-    Rectangle(backbuffer_dc, x, y, x + width, y + height);
+            Rectangle(alphabuffer_dc, 0, 0, width, height);
+        }
+        
+        AlphaBlend(backbuffer_dc, x, y, width, height, alphabuffer_dc, 0, 0, width, height, blend);
+
+        //SelectObject(alphabuffer_dc, backbuffer_bitmap);
+        DeleteObject(alphabuffer_bitmap);
+        DeleteDC(alphabuffer_dc);
+    }
+    else
+    {
+        // TODO: can't we select/set the RGB() directly?
+        SelectObject(backbuffer_dc, GetStockObject(DC_PEN));
+        // TODO: can't we select/set the RGB() directly?
+        SelectObject(backbuffer_dc, GetStockObject(DC_BRUSH));
+
+        SetDCPenColor(backbuffer_dc, RGB(line_color.r, line_color.g, line_color.b));
+        SetDCBrushColor(backbuffer_dc, RGB(fill_color.r, fill_color.g, fill_color.b));
+
+        Rectangle(backbuffer_dc, x, y, x + width, y + height);
+    }
 }
