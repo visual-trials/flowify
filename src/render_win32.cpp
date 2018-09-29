@@ -17,8 +17,14 @@
  */
  
 #include "render.h"
- 
-void draw_rectangle(unsigned int x, unsigned int y, unsigned int width, unsigned int height)
+
+void clear_rectangle(i32 x, i32 y, i32 width, i32 height)
 {
-    Rectangle(hdc, x, y, width, height);    
+    // FIXME: implement this!
+    // Rectangle(device_context, x, y, width, height);    
+}
+
+void draw_rectangle(i32 x, i32 y, i32 width, i32 height, color4 line_color, color4 fill_color, i32 line_width)
+{
+    Rectangle(device_context, x, y, width, height);    
 }

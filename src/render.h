@@ -15,11 +15,32 @@
    limitations under the License.
 
  */
+ 
+#define internal static 
+#define local_persist static 
+#define global_variable static
 
- struct color4 {
-    unsigned char r;
-    unsigned char g;
-    unsigned char b;
-    unsigned char a;
+#include <stdint.h>
+
+typedef int8_t  i8;
+typedef int16_t i16;
+typedef int32_t i32;
+typedef int64_t i64;
+typedef i32     b32;
+
+typedef uint8_t  u8;
+typedef uint16_t u16;
+typedef uint32_t u32;
+typedef uint64_t u64;
+
+typedef float  r32;
+typedef double r64;
+
+
+struct color4 {
+    u8 r;
+    u8 g;
+    u8 b;
+    u8 a;
 };
 

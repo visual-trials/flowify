@@ -27,17 +27,32 @@ extern "C" {
     {
         clear_rectangle(0, 0, 640, 480);
         
-        color4 fill_color = {};
-        fill_color.b = 255;
-        fill_color.a = 128;
-        
         color4 line_color = {};
-        line_color.g = 255;
+        color4 fill_color = {};
+        
+        line_color.r = 255;
+        line_color.g = 0;
+        line_color.b = 0;
         line_color.a = 255;
+        
+        fill_color.r = 255;
+        fill_color.g = 255;
+        fill_color.b = 0;
+        fill_color.a = 255;
         
         int line_width = 5;
         
-        draw_rectangle(200, 50, 40, 40, (color4){255,0,0,255}, (color4){255,255,0,255}, 3);
+        draw_rectangle(200, 50, 40, 40, line_color, fill_color, 3);
+        
+        line_color.r = 0;
+        line_color.g = 255;
+        line_color.b = 0;
+        line_color.a = 255;
+        
+        fill_color.r = 0;
+        fill_color.g = 0;
+        fill_color.b = 255;
+        fill_color.a = 128;
         
         int offset;
         if (increment % 512 < 256) {
