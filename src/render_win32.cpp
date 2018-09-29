@@ -20,18 +20,18 @@
 
 void clear_rectangle(i32 x, i32 y, i32 width, i32 height)
 {
-    SelectObject(device_context, GetStockObject(WHITE_PEN));
-    SelectObject(device_context, GetStockObject(WHITE_BRUSH));
-    Rectangle(device_context, x, y, x + width, y + height);
+    SelectObject(backbuffer_dc, GetStockObject(WHITE_PEN));
+    SelectObject(backbuffer_dc, GetStockObject(WHITE_BRUSH));
+    Rectangle(backbuffer_dc, x, y, x + width, y + height);
 }
 
 void draw_rectangle(i32 x, i32 y, i32 width, i32 height, color4 line_color, color4 fill_color, i32 line_width)
 {
-    SelectObject(device_context, GetStockObject(DC_PEN));
-    SelectObject(device_context, GetStockObject(DC_BRUSH));
+    SelectObject(backbuffer_dc, GetStockObject(DC_PEN));
+    SelectObject(backbuffer_dc, GetStockObject(DC_BRUSH));
 
-    SetDCPenColor(device_context, RGB(line_color.r, line_color.g, line_color.b));
-    SetDCBrushColor(device_context, RGB(fill_color.r, fill_color.g, fill_color.b));
+    SetDCPenColor(backbuffer_dc, RGB(line_color.r, line_color.g, line_color.b));
+    SetDCBrushColor(backbuffer_dc, RGB(fill_color.r, fill_color.g, fill_color.b));
 
-    Rectangle(device_context, x, y, x + width, y + height);
+    Rectangle(backbuffer_dc, x, y, x + width, y + height);
 }
