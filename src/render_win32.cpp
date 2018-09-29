@@ -27,6 +27,16 @@ void clear_rectangle(i32 x, i32 y, i32 width, i32 height)
 
 void draw_rectangle(i32 x, i32 y, i32 width, i32 height, color4 line_color, color4 fill_color, i32 line_width)
 {
+    // FIXME: we can only do one aplha color at the time (so we only do the fill_color for now)
+    
+    // FIXME: support line_width
+    
+    // FIXME: when doing alpha, take into account the line_width makes the reactangle bigger!
+
+
+
+
+    
     SelectObject(backbuffer_dc, GetStockObject(DC_PEN));
     SelectObject(backbuffer_dc, GetStockObject(DC_BRUSH));
 
