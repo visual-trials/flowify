@@ -108,16 +108,17 @@ Flowify.canvas = function () {
                 ctx.beginPath()
                 ctx.rect(x, y, width, height)
 
+                if (fillColorAlpha) {
+                    ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
+                    ctx.fill()
+                }
+
                 if (lineColorAlpha) {
                     ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
                     ctx.lineWidth = lineWidth
                     ctx.stroke()
                 }
                 
-                if (fillColorAlpha) {
-                    ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
-                    ctx.fill()
-                }
             },
         }
         
