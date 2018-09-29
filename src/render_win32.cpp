@@ -33,6 +33,9 @@ void draw_rectangle(i32 x, i32 y, i32 width, i32 height, color4 line_color, colo
     
     // FIXME: when doing alpha, take into account the line_width makes the reactangle bigger!
 
+    HPEN pen = CreatePen(PS_SOLID, line_width, RGB(line_color.r, line_color.g, line_color.b));
+    HBRUSH brush = CreateSolidBrush(RGB(fill_color.r, fill_color.g, fill_color.b));
+    
     if (fill_color.a != 255)
     {
         HDC alphabuffer_dc = CreateCompatibleDC(backbuffer_dc);
@@ -50,33 +53,25 @@ void draw_rectangle(i32 x, i32 y, i32 width, i32 height, color4 line_color, colo
 
         // Drawing to alphabuffer
         {
-            // TODO: can't we select/set the RGB() directly?
-            SelectObject(alphabuffer_dc, GetStockObject(DC_PEN));
-            // TODO: can't we select/set the RGB() directly?
-            SelectObject(alphabuffer_dc, GetStockObject(DC_BRUSH));
-
-            SetDCPenColor(alphabuffer_dc, RGB(line_color.r, line_color.g, line_color.b));
-            SetDCBrushColor(alphabuffer_dc, RGB(fill_color.r, fill_color.g, fill_color.b));
+            SelectObject(alphabuffer_dc, pen);
+            SelectObject(alphabuffer_dc, brush);
 
             Rectangle(alphabuffer_dc, 0, 0, width, height);
         }
         
         AlphaBlend(backbuffer_dc, x, y, width, height, alphabuffer_dc, 0, 0, width, height, blend);
 
-        //SelectObject(alphabuffer_dc, backbuffer_bitmap);
         DeleteObject(alphabuffer_bitmap);
         DeleteDC(alphabuffer_dc);
     }
     else
     {
-        // TODO: can't we select/set the RGB() directly?
-        SelectObject(backbuffer_dc, GetStockObject(DC_PEN));
-        // TODO: can't we select/set the RGB() directly?
-        SelectObject(backbuffer_dc, GetStockObject(DC_BRUSH));
-
-        SetDCPenColor(backbuffer_dc, RGB(line_color.r, line_color.g, line_color.b));
-        SetDCBrushColor(backbuffer_dc, RGB(fill_color.r, fill_color.g, fill_color.b));
+        SelectObject(backbuffer_dc, pen);
+        SelectObject(backbuffer_dc, brush);
 
         Rectangle(backbuffer_dc, x, y, x + width, y + height);
     }
+    
+    DeleteObject(pen);
+    DeleteObject(brush);
 }
