@@ -20,68 +20,109 @@ Flowify.input = function () {
 
     var my = {}
 
-    // Note: we have ONE THREAD in javascript! So we can record events in these variables and read them from the main loop, without them interfering.
-    //       Currently it is however limited to recording one type of an event per frame. We might want to extend this later on.
-
-    // -- Touch data --
-
-    my.touchHasMoved = false
-    my.touchHasStarted = false
-    my.touchHasEnded = false
-
-    my.oneTouchActive = false
-    my.twoTouchesActive = false
-
-    my.previousTouchDistance = 0
-    my.previousTouchCoords = []
-
-    // FIXME: use Touch.identifier!!
-    my.firstTouchLeftPx = null
-    my.firstTouchTopPx = null
-    my.secondTouchLeftPx = null
-    my.secondTouchTopPx = null
-
-    my.resetTouchData = function () {
-
-        // TODO: we are NOT recording the lastTouchCoords using e.changedTouches right now! (during TouchEnd)
-        if ((my.touchHasStarted || my.touchHasMoved) && my.oneTouchActive) {
-            my.previousTouchCoords = [ my.firstTouchLeftPx, my.firstTouchTopPx ]
-        }
-
-        my.touchHasMoved = false
-        my.touchHasStarted = false
-        my.touchHasEnded = false
-    }
+    // Note: we have a single thread in javascript. So we can *record* events in the 
+    // variables below and *read* them in the main loop, without them interfering.
+    
 
     // -- Mouse data --
 
-    my.mouseHasMoved = false
-    my.mouseButtonHasGoneUp = false
-    my.mouseButtonHasGoneDown = false
-    my.mouseButtonHasGoneDownTime = null
-    my.mouseButtonHasGoneDownTwice = false
-    my.mouseWheelHasChanged = false
-
-    // FIXME: record up/down per button
-    my.mouseLeftButtonIsDown = false
-    my.lastMouseCoords = []
-
-    my.mouseLeftPx = null
-    my.mouseTopPx = null
+    my.leftMouseButtonIsDown = false
+    my.leftMouseButtonHasGoneUp = false
+    my.leftMouseButtonHasGoneDown = false
+    my.leftMouseButtonHasGoneDownAt = null
+    my.leftMouseButtonHasGoneDownTwice = false
+    
+    my.rightMouseButtonIsDown = false
+    my.rightMouseButtonHasGoneUp = false
+    my.rightMouseButtonHasGoneDown = false
+    my.rightMouseButtonHasGoneDownAt = null
+    my.rightMouseButtonHasGoneDownTwice = false
+    
+    my.mouseWheelHasMoved = false
     my.mouseWheelDelta = null
 
-    my.resetMouseData = function() {
-        // FIXME: record up/down per button
-        my.mouseHasMoved = false
-        my.mouseButtonHasGoneUp = false
-        my.mouseButtonHasGoneDown = false
-        my.mouseButtonHasGoneDownTwice = false
-        my.mouseWheelHasChanged = false
+    my.mouseHasMoved = false
+    my.mousePositionLeft = null
+    my.mousePositionTop = null
+    my.lastMouseCoords = []
 
-        my.lastMouseCoords = [ my.mouseLeftPx, my.mouseTopPx ]
+    // We reset all mouse 'events' every frame (when 'Has' is in the name of the variable, meaning it has happened during the single frame).
+    // We do not reset mouse 'states' here (mostly when 'Is' or 'Position' is in the name of the variable).
+    my.resetMouseData = function() {
+        my.leftMouseButtonHasGoneUp = false
+        my.leftMouseButtonHasGoneDown = false
+        my.leftMouseButtonHasGoneDownTwice = false
+        
+        my.rightMouseButtonHasGoneUp = false
+        my.rightMouseButtonHasGoneDown = false
+        my.rightMouseButtonHasGoneDownTwice = false
+        
+        my.mouseWheelHasMoved = false
+
+        my.mouseHasMoved = false
+        my.lastMouseCoords = [ my.mousePositionLeft, my.mousePositionTop ]
     }
 
+    // -- Mouse events --
 
+    my.mouseButtonUp = function (e) {
+        if (e.button == 0) {
+            my.leftMouseButtonHasGoneUp = true
+            my.leftMouseButtonIsDown = false
+        }
+        else if (e.button == 2) {
+            my.rightMouseButtonHasGoneUp = true
+            my.rightMouseButtonIsDown = false
+        }
+
+        e.preventDefault()
+    }
+
+    my.mouseButtonDown = function (e) {
+        
+        var now = Date.now()
+        
+        if (e.button == 0) {
+            my.leftMouseButtonHasGoneDown = true
+            my.leftMouseButtonIsDown = true
+            
+            if (my.leftMouseButtonHasGoneDownAt != null && now - my.leftMouseButtonHasGoneDownAt < 500) {
+                my.leftMouseButtonHasGoneDownTwice = true
+            }
+            my.leftMouseButtonHasGoneDownAt = now
+        }
+        else if (e.button == 2) {
+            my.rightMouseButtonHasGoneDown = true
+            my.rightMouseButtonIsDown = true
+            
+            if (my.rightMouseButtonHasGoneDownAt != null && now - my.rightMouseButtonHasGoneDownAt < 500) {
+                my.rightMouseButtonHasGoneDownTwice = true
+            }
+            my.rightMouseButtonHasGoneDownAt = now
+        }
+
+        e.preventDefault()
+    }
+
+    my.mouseMoved = function (e) {
+        my.mouseHasMoved = true
+
+        my.mousePositionLeft = e.offsetX
+        my.mousePositionTop = e.offsetY
+
+        e.preventDefault()
+    }
+
+    my.mouseWheelMoved = function (e) {
+        my.mouseWheelHasMoved = true
+
+        // Cross-browser wheel delta (Mac is much more sensitive)
+        // A number between -1 and 1
+        my.mouseWheelDelta = Math.max(-1, Math.min(1, (e.wheelDelta / 120 || -e.detail)))
+
+        e.preventDefault()
+    }
+    
     // -- Keyboard data --
 
     // TODO: multiple pressed keys? (apart from ctrl/shift/alt keys)
@@ -268,7 +309,38 @@ Flowify.input = function () {
         }
 
     }
+    
+    
+    // -- Touch data --
 
+    my.touchHasMoved = false
+    my.touchHasStarted = false
+    my.touchHasEnded = false
+
+    my.oneTouchActive = false
+    my.twoTouchesActive = false
+
+    my.previousTouchDistance = 0
+    my.previousTouchCoords = []
+
+    // FIXME: use Touch.identifier!!
+    my.firstTouchLeftPx = null
+    my.firstTouchTopPx = null
+    my.secondTouchLeftPx = null
+    my.secondTouchTopPx = null
+
+    my.resetTouchData = function () {
+
+        // TODO: we are NOT recording the lastTouchCoords using e.changedTouches right now! (during TouchEnd)
+        if ((my.touchHasStarted || my.touchHasMoved) && my.oneTouchActive) {
+            my.previousTouchCoords = [ my.firstTouchLeftPx, my.firstTouchTopPx ]
+        }
+
+        my.touchHasMoved = false
+        my.touchHasStarted = false
+        my.touchHasEnded = false
+    }
+    
     // -- Touch events --
 
     my.touchStarted = function (e) {
@@ -386,85 +458,26 @@ Flowify.input = function () {
         e.preventDefault()
     }
 
-
-    // -- Mouse events --
-
-    // FIXME: record current up/down-state for EACH button!
-
-    my.mouseButtonUp = function (e) {
-        my.mouseButtonHasGoneUp = true
-        my.mouseLeftButtonIsDown = false
-
-        my.mouseLeftPx = e.offsetX
-        my.mouseTopPx = e.offsetY
-
-        e.preventDefault()
-    }
-
-    my.mouseButtonDown = function (e) {
-        my.mouseButtonHasGoneDown = true
-
-        var now = Date.now()
-        if (my.mouseButtonHasGoneDownTime != null && now - my.mouseButtonHasGoneDownTime < 500) {
-            my.mouseButtonHasGoneDownTwice = true
-        }
-        my.mouseButtonHasGoneDownTime = now
-
-        my.mouseLeftButtonIsDown = true
-
-        my.mouseLeftPx = e.offsetX
-        my.mouseTopPx = e.offsetY
-
-        e.preventDefault()
-    }
-
-    my.mouseMoved = function (e) {
-        my.mouseHasMoved = true
-
-        my.mouseLeftPx = e.offsetX
-        my.mouseTopPx = e.offsetY
-
-        var mouseNrOfButtonsPressed = e.buttons
-
-        // If no more buttons are being pressed and the button was down (but we apparently didn't get a mouseButtonUp signal)
-        // we assume the mouseButtonHasGoneUp
-        if (mouseNrOfButtonsPressed === 0 && my.mouseLeftButtonIsDown) {
-            my.mouseLeftButtonIsDown = false
-            my.mouseButtonHasGoneUp = true
-        }
-        // FIXME: if left mouse button is pressed (determined using e.buttons?) but mouseLeftButtonIsDown is still false, shouldn't we set it to true? And should we set mouseButtonHasGoneDown to true?
-
-        e.preventDefault()
-    }
-
-    my.mouseWheelChanged = function (e) {
-        my.mouseWheelHasChanged = true
-
-        my.mouseLeftPx = e.offsetX
-        my.mouseTopPx = e.offsetY
-
-        // cross-browser wheel delta
-        my.mouseWheelDelta = Math.max(-1, Math.min(1, (e.wheelDelta / 120 || -e.detail)))
-
-        e.preventDefault()
-        e.preventDefault()
-    }
-
     my.addInputListeners = function () {
-        Flowify.canvas.canvasElement.addEventListener("touchstart", my.touchStarted, false)
-        Flowify.canvas.canvasElement.addEventListener("touchend", my.touchEnded, false)
-        Flowify.canvas.canvasElement.addEventListener("touchcancel", my.touchCanceled, false)
-        Flowify.canvas.canvasElement.addEventListener("touchmove", my.touchMoved, false)
         Flowify.canvas.canvasElement.addEventListener("mousedown", my.mouseButtonDown, false)
         Flowify.canvas.canvasElement.addEventListener("mouseup", my.mouseButtonUp, false)
         Flowify.canvas.canvasElement.addEventListener("mousemove", my.mouseMoved, false)
         // IE9, Chrome, Safari, Opera
-        Flowify.canvas.canvasElement.addEventListener("mousewheel", my.mouseWheelChanged, false)
+        Flowify.canvas.canvasElement.addEventListener("mousewheel", my.mouseWheelMoved, false)
         // Firefox
-        Flowify.canvas.canvasElement.addEventListener("DOMMouseScroll", my.mouseWheelChanged, false)
+        Flowify.canvas.canvasElement.addEventListener("DOMMouseScroll", my.mouseWheelMoved, false)
 
+        /*
         document.addEventListener("keydown", my.keyDown, false)
         document.addEventListener("keyup", my.keyUp, false)
+        */
+        
+        /*
+        Flowify.canvas.canvasElement.addEventListener("touchstart", my.touchStarted, false)
+        Flowify.canvas.canvasElement.addEventListener("touchend", my.touchEnded, false)
+        Flowify.canvas.canvasElement.addEventListener("touchcancel", my.touchCanceled, false)
+        Flowify.canvas.canvasElement.addEventListener("touchmove", my.touchMoved, false)
+        */
     }
 
     my.addClipboard = function () {

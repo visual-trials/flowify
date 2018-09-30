@@ -22,6 +22,8 @@
     #include "render_js.cpp"
 #endif
 
+#include "input.cpp"
+
 extern "C" {
     void draw_frame(int increment)
     {
@@ -63,5 +65,27 @@ extern "C" {
         }
         draw_rectangle(offset + 10, 10, 100, 100, line_color, fill_color, line_width);
         draw_rectangle(10, offset + 10, 100, 100, line_color, fill_color, line_width);
+        
+        mouse_input mouse = global_input.mouse;
+        
+        if (mouse.left_mouse_button_is_down)
+        {
+            jsLogInt(mouse.left_mouse_button_is_down);
+
+            line_color.r = 50;
+            line_color.g = 50;
+            line_color.b = 50;
+            line_color.a = 255;
+            
+            fill_color.r = 240;
+            fill_color.g = 200;
+            fill_color.b = 255;
+            fill_color.a = 255;
+            
+            line_width = 2;
+            
+            draw_rectangle(300, 300, 150, 150, line_color, fill_color, line_width);
+        }
+        
     }
 }

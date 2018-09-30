@@ -37,7 +37,8 @@ typedef float  r32;
 typedef double r64;
 
 
-struct color4 {
+struct color4
+{
     u8 r;
     u8 g;
     u8 b;

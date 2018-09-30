@@ -120,6 +120,11 @@ Flowify.canvas = function () {
                 }
                 
             },
+            
+            // FIXME: allow logging strings!
+            _jsLogInt: function(logInt) {
+                console.log(logInt)
+            }
         }
         
         return exportedFunctions

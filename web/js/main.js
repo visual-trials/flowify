@@ -31,6 +31,14 @@ Flowify.main = function () {
 
         Flowify.canvas.resizeCanvas()
 
+        var input = Flowify.input
+        
+        // console.log("left mouse button is down: " + input.leftMouseButtonIsDown)
+        my.wasmInstance.exports._set_left_mouse_button_data(
+            input.leftMouseButtonIsDown, input.leftMouseButtonHasGoneUp,
+            input.leftMouseButtonHasGoneDown, input.leftMouseButtonHasGoneDownTwice
+        )
+            
         // TODO: here should the input, update and render take place
         my.test++
         my.wasmInstance.exports._draw_frame(my.test)
@@ -50,8 +58,8 @@ Flowify.main = function () {
             // maximum: 512,
         }),
         table: new WebAssembly.Table({
-            initial: 4,
-            // maximum: 4,
+            initial: 40, // FIXME: can we set/grow this automatically?
+            // maximum: 40,
             element: 'anyfunc',
         }),
         abort: Math.log, // FIXME
@@ -77,6 +85,8 @@ Flowify.main = function () {
         my.wasmInstance = new WebAssembly.Instance(wasmModule, {
             env: wasmEnv
         })
+        
+        Flowify.input.addInputListeners()
 
         my.mainLoop()
     }
