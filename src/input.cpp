@@ -54,6 +54,7 @@ struct input
 };
 
 input global_input = {};
+input new_input = {};
 
 extern "C" {
     void set_left_mouse_button_data(b32 left_mouse_button_is_down, b32 left_mouse_button_has_gone_up,

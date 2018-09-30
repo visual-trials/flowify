@@ -130,6 +130,42 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd,
             EndPaint(hwnd, &ps);
         }
         break;
+        
+        // FIXME: implement mouse wheel!
+        
+        case WM_LBUTTONDOWN: 
+        {
+           new_input.mouse.left_mouse_button_has_gone_down = true;
+           new_input.mouse.left_mouse_button_is_down = true;
+           // FIXME: new_input.mouse.left_mouse_button_has_gone_down_twice = ...;
+        }
+        break;
+        case WM_LBUTTONUP:
+        {
+            new_input.mouse.left_mouse_button_has_gone_up = true;
+            new_input.mouse.left_mouse_button_is_down = false;
+        }
+        break;
+        case WM_RBUTTONDOWN: 
+        {
+           new_input.mouse.right_mouse_button_has_gone_down = true;
+           new_input.mouse.right_mouse_button_is_down = true;
+           // FIXME: new_input.mouse.right_mouse_button_has_gone_down_twice = ...;
+        }
+        break;
+        case WM_RBUTTONUP:
+        {
+            new_input.mouse.right_mouse_button_has_gone_up = true;
+            new_input.mouse.right_mouse_button_is_down = false;
+        }
+        break;
+        case WM_MOUSEMOVE: 
+        {
+            new_input.mouse.mouse_has_moved = true;
+            new_input.mouse.mouse_position_left = LOWORD(lParam);
+            new_input.mouse.mouse_position_top = HIWORD(lParam);
+        }
+        break;
         default:
             // OutputDebugStringA("default\n");
             return DefWindowProc(hwnd, msg, wParam, lParam);
@@ -254,12 +290,32 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             last_clock_counter = get_clock_counter();
         }
         
+
+        // Copy the new input (recieved via WindowProcedure) into the global input 
+        global_input = new_input;
+        
+        // Resetting mouse input
+        new_input.mouse.left_mouse_button_has_gone_up = false;
+        new_input.mouse.left_mouse_button_has_gone_down = false;
+        new_input.mouse.left_mouse_button_has_gone_down_twice = false;
+       
+        new_input.mouse.right_mouse_button_has_gone_up = false;
+        new_input.mouse.right_mouse_button_has_gone_down = false;
+        new_input.mouse.right_mouse_button_has_gone_down_twice = false;
+       
+        new_input.mouse.mouse_wheel_has_moved = false;
+       
+        new_input.mouse.mouse_has_moved = false;
+        
         
         // Update
         increment++;
         
         // Render
         render(hwnd);
+        
+        
+        // FIXME: reset other input
         
     }
     
