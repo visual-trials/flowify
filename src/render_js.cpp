@@ -19,16 +19,10 @@
 #include "render.h"
  
 extern "C" { 
-    extern void jsClearRect(int x, int y, int width, int height);
     extern void jsDrawRect(int x, int y, int width, int height, 
                            int line_color_rgb, int line_color_alpha, int fill_color_rgb, int fill_color_alpha, int line_width);
     // FIXME: enable logging strings!
     extern void jsLogInt(int log_integer);
-}
-
-void clear_rectangle(int x, int y, int width, int height)
-{
-    jsClearRect(x, y, width, height);    
 }
 
 void draw_rectangle(int x, int y, int width, int height, 

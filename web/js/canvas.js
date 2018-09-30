@@ -78,8 +78,9 @@ Flowify.canvas = function () {
     }
 
     my.clearCanvas = function () {
-        // TODO: set globalCompositeOperation?
         my.context2d.clearRect(0, 0, my.canvasElement.width, my.canvasElement.height)
+        my.context2d.beginPath() // See: http://codetheory.in/why-clearrect-might-not-be-clearing-canvas-pixels/
+        my.context2d.closePath()
     }
     
     my.getCanvasRGBAColor = function (colorRGB, colorAlpha) {
@@ -99,11 +100,6 @@ Flowify.canvas = function () {
         
         var exportedFunctions = {
         
-            _jsClearRect: function (x, y, width, height) {
-                ctx.clearRect(x, y, width, height)
-                ctx.beginPath()   // see: http://codetheory.in/why-clearrect-might-not-be-clearing-canvas-pixels/        
-                ctx.closePath()
-            },
             _jsDrawRect: function (x, y, width, height, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
                 ctx.beginPath()
                 ctx.rect(x, y, width, height)

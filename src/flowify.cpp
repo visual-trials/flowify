@@ -27,8 +27,6 @@
 extern "C" {
     void draw_frame(int increment)
     {
-        clear_rectangle(0, 0, 640, 480);
-        
         color4 line_color = {};
         color4 fill_color = {};
         

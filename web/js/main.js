@@ -30,6 +30,7 @@ Flowify.main = function () {
         var currentTime = new Date()
 
         Flowify.canvas.resizeCanvas()
+        Flowify.canvas.clearCanvas()
 
         var input = Flowify.input
         
@@ -47,6 +48,7 @@ Flowify.main = function () {
         my.wasmInstance.exports._set_mouse_position_data(
             input.mouseHasMoved, input.mousePositionLeft, input.mousePositionTop
         )
+        
         
         // TODO: here should the input, update and render take place
         my.test++
