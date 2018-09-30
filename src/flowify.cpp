@@ -24,6 +24,50 @@
 
 #include "input.cpp"
 
+// FIXME: mouse position should also be a pos_2d, right?
+
+struct pos_2d
+{
+    i32 x;
+    i32 y;
+};
+
+struct size_2d
+{
+    i32 width;
+    i32 height;
+};
+
+struct entity
+{
+    // TODO: shape
+    pos_2d  pos;
+    size_2d size;
+    color4  line_color;
+    color4  fill_color;
+    i32     line_width;
+};
+
+/*
+entity rectangle[1];
+i32 nr_of_rectangles = 0;
+b32 rectangle_is_selected = 0;
+i32 selected_rectangle_index = 0;
+*/
+
+/*
+i32 last_x;
+i32 last_y;
+i32 last_width;
+i32 last_height;
+color4 last_line_color;
+color4 last_fill_color;
+i32 last_line_width;
+b32 has_position;
+*/
+entity rectangle;
+i32 nr_of_rectangles;
+
 extern "C" {
     void draw_frame(int increment)
     {
@@ -64,26 +108,121 @@ extern "C" {
         draw_rectangle(offset + 10, 10, 100, 100, line_color, fill_color, line_width);
         draw_rectangle(10, offset + 10, 100, 100, line_color, fill_color, line_width);
         
+        // Mouse driven draws
+        
         mouse_input mouse = global_input.mouse;
+        
+        if (mouse.left_mouse_button_has_gone_down)
+        {
+            nr_of_rectangles = 1;
+            
+            rectangle.line_color.r = 50;
+            rectangle.line_color.g = 50;
+            rectangle.line_color.b = 50;
+            rectangle.line_color.a = 255;
+            
+            rectangle.fill_color.r = 240;
+            rectangle.fill_color.g = 200;
+            rectangle.fill_color.b = 255;
+            rectangle.fill_color.a = 255;
+            
+            rectangle.line_width = 2;
+            
+            rectangle.size.width = 150;
+            rectangle.size.height = 150;
+            
+            rectangle.pos.x = mouse.mouse_position_left;
+            rectangle.pos.y = mouse.mouse_position_top;
+            
+        }
         
         if (mouse.left_mouse_button_is_down)
         {
-            jsLogInt(mouse.left_mouse_button_is_down);
-
-            line_color.r = 50;
-            line_color.g = 50;
-            line_color.b = 50;
-            line_color.a = 255;
-            
-            fill_color.r = 240;
-            fill_color.g = 200;
-            fill_color.b = 255;
-            fill_color.a = 255;
-            
-            line_width = 2;
-            
-            draw_rectangle(mouse.mouse_position_left, mouse.mouse_position_top, 150, 150, line_color, fill_color, line_width);
+            rectangle.pos.x = mouse.mouse_position_left;
+            rectangle.pos.y = mouse.mouse_position_top;
         }
+        
+        if (nr_of_rectangles == 1)
+        {
+            draw_rectangle(rectangle.pos.x, rectangle.pos.y, 
+                           rectangle.size.width, rectangle.size.height, 
+                           rectangle.line_color, rectangle.fill_color, 
+                           rectangle.line_width);
+        }
+        
+        /*
+        if (mouse.left_mouse_button_has_gone_down)
+        {
+            nr_of_rectangles = 1;
+            
+            i32 current_rectangle_index = nr_of_rectangles - 1;
+            entity * current_rectangle = &rectangle[current_rectangle_index];
+
+            current_rectangle->line_color.r = 50;
+            current_rectangle->line_color.g = 50;
+            current_rectangle->line_color.b = 50;
+            current_rectangle->line_color.a = 255;
+            
+            current_rectangle->fill_color.r = 240;
+            current_rectangle->fill_color.g = 200;
+            current_rectangle->fill_color.b = 255;
+            current_rectangle->fill_color.a = 255;
+            
+            current_rectangle->line_width = 2;
+            
+            current_rectangle->pos.x = mouse.mouse_position_left;
+            current_rectangle->pos.y = mouse.mouse_position_top;
+                
+            current_rectangle->size.width = 150;
+            current_rectangle->size.height = 150;
+            
+            rectangle_is_selected = true;
+            selected_rectangle_index = current_rectangle_index;
+        }
+        */
+        
+        /*
+        if (mouse.left_mouse_button_has_gone_up)
+        {
+            rectangle_is_selected = true;
+        }
+        */
+        
+        /*
+        if (mouse.right_mouse_button_has_gone_down)
+        {
+            rectangle_is_selected = false;
+            nr_of_rectangles = 0;
+        }
+        */
+        
+        /*
+        if (mouse.left_mouse_button_is_down)
+        {
+            if (rectangle_is_selected)
+            {
+                entity * current_rectangle = &rectangle[selected_rectangle_index];
+                
+                current_rectangle->pos.x = mouse.mouse_position_left;
+                current_rectangle->pos.y = mouse.mouse_position_top;
+
+            }
+        }
+        */
+
+        
+        /*
+        for (int i = 0; i < nr_of_rectangles; i++)
+        {
+//            jsLogInt(i*8);
+            entity * current_rectangle = &rectangle[i];
+            
+            draw_rectangle(current_rectangle->pos.x, current_rectangle->pos.y, 
+                           current_rectangle->size.width, current_rectangle->size.height, 
+                           current_rectangle->line_color, current_rectangle->fill_color, 
+                           current_rectangle->line_width);
+        }
+        */
         
     }
 }
