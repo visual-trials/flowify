@@ -84,7 +84,7 @@ extern "C" {
             
             line_width = 2;
             
-            draw_rectangle(300, 300, 150, 150, line_color, fill_color, line_width);
+            draw_rectangle(mouse.mouse_position_left, mouse.mouse_position_top, 150, 150, line_color, fill_color, line_width);
         }
         
     }

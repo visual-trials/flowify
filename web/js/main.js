@@ -33,12 +33,21 @@ Flowify.main = function () {
 
         var input = Flowify.input
         
-        // console.log("left mouse button is down: " + input.leftMouseButtonIsDown)
         my.wasmInstance.exports._set_left_mouse_button_data(
             input.leftMouseButtonIsDown, input.leftMouseButtonHasGoneUp,
             input.leftMouseButtonHasGoneDown, input.leftMouseButtonHasGoneDownTwice
         )
-            
+        my.wasmInstance.exports._set_right_mouse_button_data(
+            input.rightMouseButtonIsDown, input.rightMouseButtonHasGoneUp,
+            input.rightMouseButtonHasGoneDown, input.rightMouseButtonHasGoneDownTwice
+        )
+        my.wasmInstance.exports._set_mouse_wheel_data(
+            input.mouseWheelHasMoved, input.mouseWheelDelta
+        )
+        my.wasmInstance.exports._set_mouse_position_data(
+            input.mouseHasMoved, input.mousePositionLeft, input.mousePositionTop
+        )
+        
         // TODO: here should the input, update and render take place
         my.test++
         my.wasmInstance.exports._draw_frame(my.test)
