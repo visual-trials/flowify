@@ -95,8 +95,6 @@ LRESULT CALLBACK WindowProcedure(HWND window,
         // TODO: maybe don't process these input-messages in WindowProcedure, 
         //       since we don't have access to our variables here. We now need to use a global (new_input)
            
-        // FIXME: implement mouse wheel!
-        
         case WM_LBUTTONDOWN: 
         {
            new_input.mouse.left_mouse_button_has_gone_down = true;
@@ -133,7 +131,7 @@ LRESULT CALLBACK WindowProcedure(HWND window,
         case WM_MOUSEWHEEL:
         {
             new_input.mouse.mouse_wheel_has_moved = true;
-            new_input.mouse.mouse_wheel_delta = HIWORD(w_param) / 120;
+            new_input.mouse.mouse_wheel_delta = GET_WHEEL_DELTA_WPARAM(w_param) / 120;
         }
         break;
         default:
