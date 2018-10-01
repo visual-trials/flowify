@@ -65,12 +65,41 @@ color4 last_fill_color;
 i32 last_line_width;
 b32 has_position;
 */
-entity rectangle;
-i32 nr_of_rectangles;
+
+struct world_data
+{
+    entity entities[10];
+    i32 nr_of_entities;
+    
+    i32 increment;
+};
+
+world_data allocated_world;  // FIXME: allocate this properly!
+world_data * world;
 
 extern "C" {
-    void draw_frame(int increment)
+    void init_world()
     {
+        world = &allocated_world;  // FIXME: allocate this properly!
+        
+        world->increment = 0;
+    
+        world->nr_of_entities = 0;
+    }
+    
+    void update_frame()
+    {
+        world->increment++;
+        
+    }
+    
+    void render_frame()
+    {
+        i32 increment = world->increment;
+        
+        i32 nr_of_entities = world->nr_of_entities;
+        entity * entities = world->entities;
+        
         color4 line_color = {};
         color4 fill_color = {};
         
@@ -114,40 +143,45 @@ extern "C" {
         
         if (mouse.left_mouse_button_has_gone_down)
         {
-            nr_of_rectangles = 1;
+            world->nr_of_entities = 1;
             
-            rectangle.line_color.r = 50;
-            rectangle.line_color.g = 50;
-            rectangle.line_color.b = 50;
-            rectangle.line_color.a = 255;
+            entity * current_entity = entities + (world->nr_of_entities - 1);
             
-            rectangle.fill_color.r = 240;
-            rectangle.fill_color.g = 200;
-            rectangle.fill_color.b = 255;
-            rectangle.fill_color.a = 255;
+            current_entity->line_color.r = 50;
+            current_entity->line_color.g = 50;
+            current_entity->line_color.b = 50;
+            current_entity->line_color.a = 255;
             
-            rectangle.line_width = 2;
+            current_entity->fill_color.r = 240;
+            current_entity->fill_color.g = 200;
+            current_entity->fill_color.b = 255;
+            current_entity->fill_color.a = 255;
             
-            rectangle.size.width = 150;
-            rectangle.size.height = 150;
+            current_entity->line_width = 2;
             
-            rectangle.pos.x = mouse.mouse_position_left;
-            rectangle.pos.y = mouse.mouse_position_top;
+            current_entity->size.width = 150;
+            current_entity->size.height = 150;
+            
+            current_entity->pos.x = mouse.mouse_position_left;
+            current_entity->pos.y = mouse.mouse_position_top;
             
         }
-        
         if (mouse.left_mouse_button_is_down)
         {
-            rectangle.pos.x = mouse.mouse_position_left;
-            rectangle.pos.y = mouse.mouse_position_top;
+            entity * current_entity = entities + (world->nr_of_entities - 1);
+            
+            current_entity->pos.x = mouse.mouse_position_left;
+            current_entity->pos.y = mouse.mouse_position_top;
         }
         
-        if (nr_of_rectangles == 1)
+        if (world->nr_of_entities == 1)
         {
-            draw_rectangle(rectangle.pos.x, rectangle.pos.y, 
-                           rectangle.size.width, rectangle.size.height, 
-                           rectangle.line_color, rectangle.fill_color, 
-                           rectangle.line_width);
+            entity * current_entity = entities + (world->nr_of_entities - 1);
+            
+            draw_rectangle(current_entity->pos.x, current_entity->pos.y, 
+                           current_entity->size.width, current_entity->size.height, 
+                           current_entity->line_color, current_entity->fill_color, 
+                           current_entity->line_width);
         }
         
         /*

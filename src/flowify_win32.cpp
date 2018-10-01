@@ -30,63 +30,29 @@ static HDC backbuffer_dc;
 b32 keep_running;
 i64 performance_count_frequency;
 
-global_variable i32 increment;
-
-void render(HWND hWnd)
+void render(HWND window)
 {
     RECT window_rect;
-    HBITMAP backbuffer_bitmap, window_bitmap;
-    HBRUSH background_brush;
-
-    //
-    // Get the size of the client rectangle.
-    //
-
-    GetClientRect(hWnd, &window_rect);
-
-    //
-    // Create a compatible DC.
-    //
+    GetClientRect(window, &window_rect);
 
     backbuffer_dc = CreateCompatibleDC(window_dc);
 
-    //
-    // Create a bitmap big enough for our client rectangle.
-    //
+    HBITMAP backbuffer_bitmap = CreateCompatibleBitmap(window_dc,
+                                                       window_rect.right - window_rect.left,
+                                                       window_rect.bottom - window_rect.top);
 
-    backbuffer_bitmap = CreateCompatibleBitmap(window_dc,
-                                               window_rect.right - window_rect.left,
-                                               window_rect.bottom - window_rect.top);
+    HBITMAP window_bitmap = (HBITMAP) SelectObject(backbuffer_dc, backbuffer_bitmap);
 
-    //
-    // Select the bitmap into the off-screen DC.
-    //
-
-    window_bitmap = (HBITMAP) SelectObject(backbuffer_dc, backbuffer_bitmap);
-
-    //
-    // Erase the background.
-    //
-
-    // TODO: should we do this here? Of should we do this in the back-buffer itself?
-    background_brush = CreateSolidBrush(GetSysColor(COLOR_WINDOW));
+    HBRUSH background_brush = CreateSolidBrush(GetSysColor(COLOR_WINDOW));
     FillRect(backbuffer_dc, &window_rect, background_brush);
     DeleteObject(background_brush);
 
-    //
-    // Draw to back buffer
-    //
-    
     // FIXME: we should only copy from the backbuffer to the window-buffer when 
     //        we are only reacting to a PAINT message. Only when the world updates
     //        should we (update the world and) draw to the backbuffer.
     //        Right now we always throw away the back-buffer, so this is not possible now.
-    draw_frame(increment);
+    render_frame();
     
-    //
-    // Blt the changes to the screen DC.
-    //
-
     BitBlt(window_dc,
            window_rect.left, window_rect.top,
            window_rect.right - window_rect.left, window_rect.bottom - window_rect.top,
@@ -94,20 +60,15 @@ void render(HWND hWnd)
            0, 0,
            SRCCOPY);
 
-    //
-    // Done with off-screen bitmap and DC.
-    //
-
     SelectObject(backbuffer_dc, window_bitmap);
     DeleteObject(backbuffer_bitmap);
     DeleteDC(backbuffer_dc);
-
 }
 
-LRESULT CALLBACK WindowProcedure(HWND hwnd, 
+LRESULT CALLBACK WindowProcedure(HWND window, 
                                  UINT msg, 
-                                 WPARAM wParam, 
-                                 LPARAM lParam)
+                                 WPARAM w_param, 
+                                 LPARAM l_param)
 {
     switch(msg)
     {
@@ -125,12 +86,15 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd,
         case WM_PAINT:
         {
             PAINTSTRUCT ps;
-            BeginPaint(hwnd, &ps);
-            render(hwnd);  // FIXME: we should only do the BitBlt here
-            EndPaint(hwnd, &ps);
+            BeginPaint(window, &ps);
+            render(window);  // TODO: we should only do the BitBlt here
+            EndPaint(window, &ps);
         }
         break;
         
+        // TODO: maybe don't process these input-messages in WindowProcedure, 
+        //       since we don't have access to our variables here. We now need to use a global (new_input)
+           
         // FIXME: implement mouse wheel!
         
         case WM_LBUTTONDOWN: 
@@ -162,13 +126,13 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd,
         case WM_MOUSEMOVE: 
         {
             new_input.mouse.mouse_has_moved = true;
-            new_input.mouse.mouse_position_left = LOWORD(lParam);
-            new_input.mouse.mouse_position_top = HIWORD(lParam);
+            new_input.mouse.mouse_position_left = LOWORD(l_param);
+            new_input.mouse.mouse_position_top = HIWORD(l_param);
         }
         break;
         default:
             // OutputDebugStringA("default\n");
-            return DefWindowProc(hwnd, msg, wParam, lParam);
+            return DefWindowProc(window, msg, w_param, l_param);
     }
     return 0;
 }
@@ -186,49 +150,38 @@ inline r32 get_seconds_elapsed(LARGE_INTEGER start_counter, LARGE_INTEGER end_co
     return seconds_elapsed;
 }
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, int cmd_show)
 {
-    WNDCLASSA wc = {};
-    HWND hwnd;
-
-    // Registering the Window Class
-    // wc.cbSize        = sizeof(WNDCLASSEX);
-    wc.style         = CS_HREDRAW|CS_VREDRAW;
-    wc.lpfnWndProc   = WindowProcedure;
-    // wc.cbClsExtra    = 0;
-    // wc.cbWndExtra    = 0;
-    wc.hInstance     = hInstance;
-    // wc.hIcon         = LoadIcon(0, IDI_APPLICATION);
-    wc.hCursor       = LoadCursor(0, IDC_ARROW);
-    // wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
-    // wc.lpszMenuName  = 0;
-    wc.lpszClassName = "FlowifyWindowClass";
-    // wc.hIconSm       = LoadIcon(0, IDI_APPLICATION);
-
-//    WindowClass.lpfnWndProc = Win32MainWindowCallback;
-
-    if(!RegisterClassA(&wc))
+    
+    WNDCLASSA window_class = {};
+    window_class.style         = CS_HREDRAW|CS_VREDRAW;
+    window_class.lpfnWndProc   = WindowProcedure;
+    window_class.hInstance     = instance;
+    window_class.hCursor       = LoadCursor(0, IDC_ARROW);
+    window_class.lpszClassName = "FlowifyWindowClass";
+    
+    if(!RegisterClassA(&window_class))
     {
         MessageBox(0, "Window Registration Failed!", "Error!", MB_ICONEXCLAMATION | MB_OK);
         return 0;
     }
     
     // Creating the Window
-    hwnd = CreateWindowExA(
+    HWND window = CreateWindowExA(
         0, // WS_EX_TOPMOST|WS_EX_LAYERED,  -- WS_EX_CLIENTEDGE
-        wc.lpszClassName,
+        window_class.lpszClassName,
         "Flowify",
         WS_OVERLAPPEDWINDOW|WS_VISIBLE,
         CW_USEDEFAULT, CW_USEDEFAULT, 640, 480,
-        0, 0, hInstance, 0);
+        0, 0, instance, 0);
 
-    if(hwnd == 0)
+    if(window == 0)
     {
         MessageBox(0, "Window Creation Failed!", "Error!", MB_ICONEXCLAMATION | MB_OK);
         return 0;
     }
     
-    window_dc = GetDC(hwnd);
+    window_dc = GetDC(window);
 
     LARGE_INTEGER performance_count_frequency_result;
     QueryPerformanceFrequency(&performance_count_frequency_result);
@@ -240,6 +193,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     b32 sleep_is_granular = (timeBeginPeriod(desired_scheduler_in_ms) == TIMERR_NOERROR);
     
     LARGE_INTEGER last_clock_counter = get_clock_counter();
+    
+    init_world();
     
     keep_running = true;
     while(keep_running)
@@ -308,11 +263,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         new_input.mouse.mouse_has_moved = false;
         
         
-        // Update
-        increment++;
+        // Update world
+        update_frame();
         
-        // Render
-        render(hwnd);
+        // Render world
+        render(window);
         
         
         // FIXME: reset other input
