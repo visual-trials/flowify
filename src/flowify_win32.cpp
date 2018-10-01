@@ -130,6 +130,12 @@ LRESULT CALLBACK WindowProcedure(HWND window,
             new_input.mouse.mouse_position_top = HIWORD(l_param);
         }
         break;
+        case WM_MOUSEWHEEL:
+        {
+            new_input.mouse.mouse_wheel_has_moved = true;
+            new_input.mouse.mouse_wheel_delta = HIWORD(w_param) / 120;
+        }
+        break;
         default:
             // OutputDebugStringA("default\n");
             return DefWindowProc(window, msg, w_param, l_param);

@@ -54,6 +54,8 @@ struct world_data
     i32 nr_of_entities;
     
     i32 increment;
+    
+    i32 y_offset;
 };
 
 world_data allocated_world;  // FIXME: allocate this properly!
@@ -65,6 +67,8 @@ extern "C" {
         world = &allocated_world;  // FIXME: allocate this properly!
         
         world->increment = 0;
+        
+        world->y_offset = 0;
     
         world->nr_of_entities = 0;
         
@@ -73,12 +77,22 @@ extern "C" {
     
     void update_frame()
     {
-        world->increment++;
+        mouse_input mouse = global_input.mouse;
         
+        world->increment++;
+     
+        if (mouse.mouse_wheel_has_moved)
+        {
+            world->y_offset += mouse.mouse_wheel_delta;
+        }
+
     }
     
     void render_frame()
     {
+        // FIXME: This should (only) be in the update function
+        mouse_input mouse = global_input.mouse;
+        
         i32 increment = world->increment;
         
         i32 nr_of_entities = world->nr_of_entities;
@@ -99,7 +113,7 @@ extern "C" {
         
         int line_width = 5;
         
-        draw_rectangle(200, 50, 40, 40, line_color, fill_color, 3);
+        draw_rectangle(200, world->y_offset + 50, 40, 40, line_color, fill_color, 3);
         
         line_color.r = 0;
         line_color.g = 255;
@@ -122,8 +136,6 @@ extern "C" {
         draw_rectangle(10, offset + 10, 100, 100, line_color, fill_color, line_width);
         
         // Mouse driven draws
-        
-        mouse_input mouse = global_input.mouse;
         
         if (mouse.left_mouse_button_has_gone_down)
         {
