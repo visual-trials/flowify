@@ -116,14 +116,26 @@ Flowify.canvas = function () {
                 }
                 
             },
-            
-            _jsDrawText: function (x, y, stringIndex, stringLength) {
+
+            _jsDrawText: function (x, y, stringIndex, stringLength, fontHeight, fontColorRGB, fontColorAlpha, baseFontIndex, baseFontLength) {
                 var string = ""
                 for (var i = stringIndex; i < stringIndex + stringLength; ++i) {
                     string += String.fromCharCode(Flowify.main.bufferU8[i])
                 }
-                // FIXME: draw to screen!
-                console.log(string)
+                var baseFont = ""
+                for (var i = baseFontIndex; i < baseFontIndex + baseFontLength; ++i) {
+                    baseFont += String.fromCharCode(Flowify.main.bufferU8[i])
+                }
+
+                // Note: fontHeight is the distance between the top of a capital and the bottom of a capital (note that a non-capital can stick out below!)
+                var fontHeight2FontPx = 1.3  // TODO: is this multiplier correct?
+                var fontPx = fontHeight * fontHeight2FontPx
+
+                ctx.font = fontPx + "px " + baseFont
+                var fontHeightPx = fontHeight
+                ctx.fillStyle = my.getCanvasRGBAColor(fontColorRGB, fontColorAlpha)
+                ctx.fillText(text, x, y + fontHeightPx)
+                // TODO: restore this! ctx.fillText(text, leftPx, topPx)
             },
 
             _jsLog: function(stringIndex, stringLength) {

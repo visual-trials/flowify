@@ -150,6 +150,14 @@ extern "C" {
     {
         mouse_input mouse = global_input.mouse;
         
+        color4 font_color;
+        font_color.r = 0;
+        font_color.g = 0;
+        font_color.b = 0;
+        font_color.a = 255;
+        // log((char*)"My first text!");
+        // FIXME: almost works: draw_text(50, 200, (char*)"My first text!", 10, font_color);
+
         world->increment++;
 
         i32 offset;

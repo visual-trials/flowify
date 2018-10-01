@@ -33,9 +33,11 @@ extern "C" {
     extern void jsDrawRect(i32 x, i32 y, i32 width, i32 height, 
                            i32 line_color_rgb, i32 line_color_alpha, i32 fill_color_rgb, i32 fill_color_alpha, i32 line_width);
                            
-    extern void jsDrawText(i32 x, i32 y, char * text, i32 length);
+    extern void jsDrawText(i32 x, i32 y, char * text_data, i32 text_length,
+                           i32 font_height, i32 font_color_rgb, i32 font_color_alpha, 
+                           char * base_font_data, i32 base_font_length );
     
-    extern void jsLog(char * text, i32 length);
+    extern void jsLog(char * text_data, i32 text_length);
 }
 
 void draw_rectangle(i32 x, i32 y, i32 width, i32 height, 
@@ -50,10 +52,16 @@ void draw_rectangle(i32 x, i32 y, i32 width, i32 height,
     jsDrawRect(x, y, width, height, line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
 }
 
-void draw_text(i32 x, i32 y, char * text) // FIXME: use length-strings instead of null-terminated strings!
+// FIXME: use length-strings instead of null-terminated strings!
+// FIXME: add color, font, size etc
+void draw_text(i32 x, i32 y, char * text, i32 font_height, color4 font_color)
 {
-    // FIXME: add color, font, size etc
-    jsDrawText(x, y, text, string_length(text));
+    char base_font[] = "Arial"; // FIXME: hardcoded (btw: do we really want to pass this each time?)
+    
+    i32 font_color_rgb = font_color.r + font_color.g * 256 + font_color.b * 256 * 256; 
+    i32 font_color_alpha = (i32)font_color.a;
+    
+    jsDrawText(x, y, text, string_length(text), font_height, font_color_rgb, font_color_alpha, base_font, string_length(base_font));
 }
 
 void log(char * text)
