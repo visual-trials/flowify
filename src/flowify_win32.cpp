@@ -153,6 +153,8 @@ inline r32 get_seconds_elapsed(LARGE_INTEGER start_counter, LARGE_INTEGER end_co
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, int cmd_show)
 {
     
+    init_world();
+    
     WNDCLASSA window_class = {};
     window_class.style         = CS_HREDRAW|CS_VREDRAW;
     window_class.lpfnWndProc   = WindowProcedure;
@@ -193,8 +195,6 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
     b32 sleep_is_granular = (timeBeginPeriod(desired_scheduler_in_ms) == TIMERR_NOERROR);
     
     LARGE_INTEGER last_clock_counter = get_clock_counter();
-    
-    init_world();
     
     keep_running = true;
     while(keep_running)
