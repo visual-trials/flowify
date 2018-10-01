@@ -268,6 +268,8 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
        
         new_input.mouse.mouse_has_moved = false;
         
+        // FIXME: reset other input
+        
         
         // Update world
         update_frame();
@@ -275,8 +277,6 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
         // Render world
         render(window);
         
-        
-        // FIXME: reset other input
         
     }
     
