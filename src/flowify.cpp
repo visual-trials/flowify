@@ -48,24 +48,6 @@ struct entity
     i32     line_width;
 };
 
-/*
-entity rectangle[1];
-i32 nr_of_rectangles = 0;
-b32 rectangle_is_selected = 0;
-i32 selected_rectangle_index = 0;
-*/
-
-/*
-i32 last_x;
-i32 last_y;
-i32 last_width;
-i32 last_height;
-color4 last_line_color;
-color4 last_fill_color;
-i32 last_line_width;
-b32 has_position;
-*/
-
 struct world_data
 {
     entity entities[10];
@@ -183,80 +165,6 @@ extern "C" {
                            current_entity->line_color, current_entity->fill_color, 
                            current_entity->line_width);
         }
-        
-        /*
-        if (mouse.left_mouse_button_has_gone_down)
-        {
-            nr_of_rectangles = 1;
-            
-            i32 current_rectangle_index = nr_of_rectangles - 1;
-            entity * current_rectangle = &rectangle[current_rectangle_index];
-
-            current_rectangle->line_color.r = 50;
-            current_rectangle->line_color.g = 50;
-            current_rectangle->line_color.b = 50;
-            current_rectangle->line_color.a = 255;
-            
-            current_rectangle->fill_color.r = 240;
-            current_rectangle->fill_color.g = 200;
-            current_rectangle->fill_color.b = 255;
-            current_rectangle->fill_color.a = 255;
-            
-            current_rectangle->line_width = 2;
-            
-            current_rectangle->pos.x = mouse.mouse_position_left;
-            current_rectangle->pos.y = mouse.mouse_position_top;
-                
-            current_rectangle->size.width = 150;
-            current_rectangle->size.height = 150;
-            
-            rectangle_is_selected = true;
-            selected_rectangle_index = current_rectangle_index;
-        }
-        */
-        
-        /*
-        if (mouse.left_mouse_button_has_gone_up)
-        {
-            rectangle_is_selected = true;
-        }
-        */
-        
-        /*
-        if (mouse.right_mouse_button_has_gone_down)
-        {
-            rectangle_is_selected = false;
-            nr_of_rectangles = 0;
-        }
-        */
-        
-        /*
-        if (mouse.left_mouse_button_is_down)
-        {
-            if (rectangle_is_selected)
-            {
-                entity * current_rectangle = &rectangle[selected_rectangle_index];
-                
-                current_rectangle->pos.x = mouse.mouse_position_left;
-                current_rectangle->pos.y = mouse.mouse_position_top;
-
-            }
-        }
-        */
-
-        
-        /*
-        for (int i = 0; i < nr_of_rectangles; i++)
-        {
-//            jsLogInt(i*8);
-            entity * current_rectangle = &rectangle[i];
-            
-            draw_rectangle(current_rectangle->pos.x, current_rectangle->pos.y, 
-                           current_rectangle->size.width, current_rectangle->size.height, 
-                           current_rectangle->line_color, current_rectangle->fill_color, 
-                           current_rectangle->line_width);
-        }
-        */
         
     }
 }
