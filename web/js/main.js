@@ -23,8 +23,6 @@ Flowify.main = function () {
     
     my.autoReload = false
     
-    my.test = 0 // FIXME: remove this
-
     my.mainLoop = function () {
 
         var currentTime = new Date()
@@ -48,11 +46,12 @@ Flowify.main = function () {
         my.wasmInstance.exports._set_mouse_position_data(
             input.mouseHasMoved, input.mousePositionLeft, input.mousePositionTop
         )
+
+        // Update world
+        my.wasmInstance.exports._update_frame()
         
-        
-        // TODO: here should the input, update and render take place
-        my.test++
-        my.wasmInstance.exports._draw_frame(my.test)
+        // Render world
+        my.wasmInstance.exports._render_frame()
 
         Flowify.input.resetMouseData()
         Flowify.input.resetTouchData()
@@ -98,6 +97,8 @@ Flowify.main = function () {
         })
         
         Flowify.input.addInputListeners()
+        
+        my.wasmInstance.exports._init_world()
 
         my.mainLoop()
     }
