@@ -75,6 +75,8 @@ Flowify.main = function () {
         abort: Math.log, // FIXME
     }
     
+    my.bufferU8 = new Uint8Array(wasmEnv.memory.buffer)
+    
     var exportedFunctions = Flowify.canvas.getExportedFunctions()
     for (var functionName in exportedFunctions) {
         wasmEnv[functionName] = exportedFunctions[functionName]; 

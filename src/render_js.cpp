@@ -17,22 +17,46 @@
  */
 
 #include "render.h"
- 
-extern "C" { 
-    extern void jsDrawRect(int x, int y, int width, int height, 
-                           int line_color_rgb, int line_color_alpha, int fill_color_rgb, int fill_color_alpha, int line_width);
-    // FIXME: enable logging strings!
-    extern void jsLogInt(int log_integer);
+
+// TODO: put this function in a common place
+i32 string_length(char * string)
+{
+    i32 count = 0;
+    while (*string++)
+    {
+        count++;
+    }
+    return count;
 }
 
-void draw_rectangle(int x, int y, int width, int height, 
-                    color4 line_color, color4 fill_color, int line_width)
-{
-    int line_color_rgb = line_color.r + line_color.g * 256 + line_color.b * 256 * 256; 
-    int line_color_alpha = (int)line_color.a;
+extern "C" { 
+    extern void jsDrawRect(i32 x, i32 y, i32 width, i32 height, 
+                           i32 line_color_rgb, i32 line_color_alpha, i32 fill_color_rgb, i32 fill_color_alpha, i32 line_width);
+                           
+    extern void jsDrawText(i32 x, i32 y, char * text, i32 length);
     
-    int fill_color_rgb = fill_color.r + fill_color.g * 256 + fill_color.b * 256 * 256;
-    int fill_color_alpha = (int)fill_color.a;
+    extern void jsLog(char * text, i32 length);
+}
+
+void log(char * text)
+{
+    jsLog(text, string_length(text));
+}
+
+void draw_rectangle(i32 x, i32 y, i32 width, i32 height, 
+                    color4 line_color, color4 fill_color, i32 line_width)
+{
+    i32 line_color_rgb = line_color.r + line_color.g * 256 + line_color.b * 256 * 256; 
+    i32 line_color_alpha = (i32)line_color.a;
+    
+    i32 fill_color_rgb = fill_color.r + fill_color.g * 256 + fill_color.b * 256 * 256;
+    i32 fill_color_alpha = (i32)fill_color.a;
     
     jsDrawRect(x, y, width, height, line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
+}
+
+void draw_text(i32 x, i32 y, char * text) // FIXME: use length-strings instead of null-terminated strings!
+{
+    // FIXME: add color, font, size etc
+    jsDrawText(x, y, text, string_length(text));
 }

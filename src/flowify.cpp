@@ -84,6 +84,8 @@ extern "C" {
     {
         world = &allocated_world;  // FIXME: allocate this properly!
         
+        log((char*)"My first log!");
+        
         world->increment = 0;
         world->y_offset = 0;
         world->nr_of_entities = 0;
