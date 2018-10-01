@@ -100,15 +100,6 @@ Flowify.canvas = function () {
         
         var exportedFunctions = {
         
-            _jsDrawText: function (x, y, stringIndex, stringLength) {
-                var string = ""
-                for (var i = stringIndex; i < stringIndex + stringLength; ++i) {
-                    string += String.fromCharCode(Flowify.main.bufferU8[i])
-                }
-                // FIXME: draw to screen!
-                console.log(string)
-            },
-
             _jsDrawRect: function (x, y, width, height, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
                 ctx.beginPath()
                 ctx.rect(x, y, width, height)
@@ -126,6 +117,15 @@ Flowify.canvas = function () {
                 
             },
             
+            _jsDrawText: function (x, y, stringIndex, stringLength) {
+                var string = ""
+                for (var i = stringIndex; i < stringIndex + stringLength; ++i) {
+                    string += String.fromCharCode(Flowify.main.bufferU8[i])
+                }
+                // FIXME: draw to screen!
+                console.log(string)
+            },
+
             _jsLog: function(stringIndex, stringLength) {
                 var string = ""
                 for (var i = stringIndex; i < stringIndex + stringLength; ++i) {

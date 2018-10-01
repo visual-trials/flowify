@@ -38,11 +38,6 @@ extern "C" {
     extern void jsLog(char * text, i32 length);
 }
 
-void log(char * text)
-{
-    jsLog(text, string_length(text));
-}
-
 void draw_rectangle(i32 x, i32 y, i32 width, i32 height, 
                     color4 line_color, color4 fill_color, i32 line_width)
 {
@@ -60,3 +55,9 @@ void draw_text(i32 x, i32 y, char * text) // FIXME: use length-strings instead o
     // FIXME: add color, font, size etc
     jsDrawText(x, y, text, string_length(text));
 }
+
+void log(char * text)
+{
+    jsLog(text, string_length(text));
+}
+
