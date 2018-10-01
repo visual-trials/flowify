@@ -67,6 +67,8 @@ extern "C" {
         world->increment = 0;
     
         world->nr_of_entities = 0;
+        
+        // TODO: add the 3 default entities (and store their indexes to be retrieved later on)
     }
     
     void update_frame()
@@ -125,6 +127,8 @@ extern "C" {
         
         if (mouse.left_mouse_button_has_gone_down)
         {
+            // TODO: determine which entity is selected and store it in selected_entity_index
+            
             world->nr_of_entities = 1;
             
             entity * current_entity = entities + (world->nr_of_entities - 1);
@@ -148,14 +152,18 @@ extern "C" {
             current_entity->pos.y = mouse.mouse_position_top;
             
         }
-        if (mouse.left_mouse_button_is_down)
+        if (mouse.left_mouse_button_is_down) // TODO: && entity_is_selected
         {
+            // TODO: use selected_entity_index
             entity * current_entity = entities + (world->nr_of_entities - 1);
             
             current_entity->pos.x = mouse.mouse_position_left;
             current_entity->pos.y = mouse.mouse_position_top;
         }
         
+        // TODO: check mouse up, entity_is_selected = false
+        
+        // TODO: draw all entities
         if (world->nr_of_entities == 1)
         {
             entity * current_entity = entities + (world->nr_of_entities - 1);
