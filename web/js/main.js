@@ -96,10 +96,10 @@ Flowify.main = function () {
             env: wasmEnv
         })
         
-        Flowify.input.addInputListeners()
-        
         my.wasmInstance.exports._init_world()
 
+        Flowify.input.addInputListeners()
+        
         my.mainLoop()
     }
     request.open('GET', wasmFile)
