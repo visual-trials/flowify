@@ -48,31 +48,100 @@ struct entity
     i32     line_width;
 };
 
+#define MAX_ENTITIES 10
+
 struct world_data
 {
-    entity entities[10];
+    entity entities[MAX_ENTITIES];
     i32 nr_of_entities;
     
     i32 increment;
     
     i32 y_offset;
+    
+    u32 first_entity_index;
+    u32 second_entity_index;
+    u32 third_entity_index;
+    
+    // TODO: create separate camera/user-interaction struct?
+    b32 an_entity_is_selected;
+    u32 selected_entity_index;
+    
 };
 
 world_data allocated_world;  // FIXME: allocate this properly!
 world_data * world;
 
+i32 create_new_entity_index()
+{
+    // TODO: check MAX_ENTITIES!
+    return world->nr_of_entities++;
+}
+
 extern "C" {
+    
     void init_world()
     {
         world = &allocated_world;  // FIXME: allocate this properly!
         
         world->increment = 0;
-        
         world->y_offset = 0;
-    
         world->nr_of_entities = 0;
+        world->an_entity_is_selected = false;
         
         // TODO: add the 3 default entities (and store their indexes to be retrieved later on)
+        
+        world->first_entity_index = create_new_entity_index();
+        entity * first_entity = world->entities + world->first_entity_index;
+        
+        first_entity->line_color.r = 0;
+        first_entity->line_color.g = 255;
+        first_entity->line_color.b = 0;
+        first_entity->line_color.a = 255;
+        
+        first_entity->fill_color.r = 0;
+        first_entity->fill_color.g = 0;
+        first_entity->fill_color.b = 255;
+        first_entity->fill_color.a = 128;
+        
+        first_entity->line_width = 5;
+        
+        first_entity->size.width = 100;
+        first_entity->size.height = 100;
+        
+        first_entity->pos.x = 10;
+        first_entity->pos.y = 10;
+            
+        world->second_entity_index = create_new_entity_index();
+        entity * second_entity = world->entities + world->second_entity_index;
+        
+        *second_entity = *first_entity;
+        
+        second_entity->pos.x = 10;
+        second_entity->pos.y = 10;
+
+        
+        world->third_entity_index = create_new_entity_index();
+        entity * third_entity = world->entities + world->third_entity_index;
+        
+        third_entity->line_color.r = 255;
+        third_entity->line_color.g = 0;
+        third_entity->line_color.b = 0;
+        third_entity->line_color.a = 255;
+        
+        third_entity->fill_color.r = 255;
+        third_entity->fill_color.g = 255;
+        third_entity->fill_color.b = 0;
+        third_entity->fill_color.a = 255;
+        
+        third_entity->line_width = 3;
+        
+        third_entity->pos.x = 200;
+        third_entity->pos.y = world->y_offset + 50;
+        
+        third_entity->size.width = 40;
+        third_entity->size.height = 40;
+        
     }
     
     void update_frame()
@@ -80,70 +149,40 @@ extern "C" {
         mouse_input mouse = global_input.mouse;
         
         world->increment++;
-     
+
+        i32 offset;
+        if (world->increment % 512 < 256) {
+            offset = world->increment % 256;
+        }
+        else {
+            offset = 256 - (world->increment % 256);
+        }
+        
+        entity * first_entity = world->entities + world->first_entity_index;
+        first_entity->pos.x = offset + 10;
+        
+        entity * second_entity = world->entities + world->second_entity_index;
+        second_entity->pos.y = offset + 10;
+        
+        entity * third_entity = world->entities + world->third_entity_index;
+        third_entity->pos.y = world->y_offset + 50;
+        
+        
+        // Mouse driven movement/placement
+        
         if (mouse.mouse_wheel_has_moved)
         {
             world->y_offset += mouse.mouse_wheel_delta;
         }
 
-    }
-    
-    void render_frame()
-    {
-        // FIXME: This should (only) be in the update function
-        mouse_input mouse = global_input.mouse;
-        
-        i32 increment = world->increment;
-        
-        i32 nr_of_entities = world->nr_of_entities;
-        entity * entities = world->entities;
-        
-        color4 line_color = {};
-        color4 fill_color = {};
-        
-        line_color.r = 255;
-        line_color.g = 0;
-        line_color.b = 0;
-        line_color.a = 255;
-        
-        fill_color.r = 255;
-        fill_color.g = 255;
-        fill_color.b = 0;
-        fill_color.a = 255;
-        
-        int line_width = 5;
-        
-        draw_rectangle(200, world->y_offset + 50, 40, 40, line_color, fill_color, 3);
-        
-        line_color.r = 0;
-        line_color.g = 255;
-        line_color.b = 0;
-        line_color.a = 255;
-        
-        fill_color.r = 0;
-        fill_color.g = 0;
-        fill_color.b = 255;
-        fill_color.a = 128;
-        
-        int offset;
-        if (increment % 512 < 256) {
-            offset = increment % 256;
-        }
-        else {
-            offset = 256 - (increment % 256);
-        }
-        draw_rectangle(offset + 10, 10, 100, 100, line_color, fill_color, line_width);
-        draw_rectangle(10, offset + 10, 100, 100, line_color, fill_color, line_width);
-        
-        // Mouse driven draws
-        
         if (mouse.left_mouse_button_has_gone_down)
         {
-            // TODO: determine which entity is selected and store it in selected_entity_index
+            // TODO: determine which entity is selected, using positions and sizes of all entities
             
-            world->nr_of_entities = 1;
+            world->selected_entity_index = create_new_entity_index();
+            world->an_entity_is_selected = true;
             
-            entity * current_entity = entities + (world->nr_of_entities - 1);
+            entity * current_entity = world->entities + world->selected_entity_index;
             
             current_entity->line_color.r = 50;
             current_entity->line_color.g = 50;
@@ -164,21 +203,30 @@ extern "C" {
             current_entity->pos.y = mouse.mouse_position_top;
             
         }
-        if (mouse.left_mouse_button_is_down) // TODO: && entity_is_selected
+        
+        if (mouse.left_mouse_button_has_gone_up)
         {
-            // TODO: use selected_entity_index
-            entity * current_entity = entities + (world->nr_of_entities - 1);
-            
-            current_entity->pos.x = mouse.mouse_position_left;
-            current_entity->pos.y = mouse.mouse_position_top;
+            world->an_entity_is_selected = true;
         }
         
-        // TODO: check mouse up, entity_is_selected = false
-        
-        // TODO: draw all entities
-        if (world->nr_of_entities == 1)
+        if (mouse.left_mouse_button_is_down)
         {
-            entity * current_entity = entities + (world->nr_of_entities - 1);
+            if (world->an_entity_is_selected)
+            {
+                entity * current_entity = world->entities + world->selected_entity_index;
+                
+                current_entity->pos.x = mouse.mouse_position_left;
+                current_entity->pos.y = mouse.mouse_position_top;
+            }
+        }
+        
+    }
+    
+    void render_frame()
+    {
+        for (i32 entity_index = 0; entity_index < world->nr_of_entities; entity_index++)
+        {
+            entity * current_entity = world->entities + entity_index;
             
             draw_rectangle(current_entity->pos.x, current_entity->pos.y, 
                            current_entity->size.width, current_entity->size.height, 
