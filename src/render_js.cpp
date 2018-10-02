@@ -23,8 +23,9 @@ extern "C" {
                            i32 line_color_rgb, i32 line_color_alpha, i32 fill_color_rgb, i32 fill_color_alpha, i32 line_width);
                            
     extern void jsDrawText(i32 x, i32 y, u8 * text_data, i32 text_length,
-                           i32 font_height, i32 font_color_rgb, i32 font_color_alpha, 
-                           u8 * base_font_data, i32 base_font_length );
+                           i32 font_height, i32 font_color_rgb, i32 font_color_alpha);
+                           //, 
+                           //u8 * base_font_data, i32 base_font_length );
                            
     extern void jsLog(u8 * text_data, i32 text_length);
     
@@ -50,20 +51,10 @@ void draw_text(i32 x, i32 y, u8 * text, i32 font_height, color4 font_color)
 {
     // u8 base_font[] = "Arial"; // FIXME: hardcoded (btw: do we really want to pass this each time?)
     
-    // i32 font_color_rgb = font_color.r + font_color.g * 256 + font_color.b * 256 * 256; 
-    // i32 font_color_alpha = (i32)font_color.a;
+    i32 font_color_rgb = font_color.r + font_color.g * 256 + font_color.b * 256 * 256; 
+    i32 font_color_alpha = (i32)font_color.a;
     
-    /*
-    jsLogInt(text[0]);
-    jsLogInt(text[1]);
-    jsLogInt(text[2]);
-    jsLogInt(text[3]);
-    jsLogInt(text[4]);
-    jsLogInt(text[5]);
-    */
-    jsLog(text, string_length(text));
-    // jsLog(base_font, string_length(base_font));
-    // jsDrawText(x, y, text, string_length(text), font_height, font_color_rgb, font_color_alpha, base_font, string_length(base_font));
+    jsDrawText(x, y, text, string_length(text), font_height, font_color_rgb, font_color_alpha); //, base_font, string_length(base_font));
 }
 
 void log(u8 * text)

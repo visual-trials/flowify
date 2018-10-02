@@ -233,12 +233,29 @@ extern "C" {
         }
         
         // TODO: use entities with a text-property instead
+        
+        u8 test_text[20];
+        test_text[0] = 'M';
+        test_text[1] = 'y';
+        test_text[2] = ' ';
+        test_text[3] = 'f';
+        test_text[4] = 'i';
+        test_text[5] = 'r';
+        test_text[6] = 's';
+        test_text[7] = 't';
+        test_text[8] = ' ';
+        test_text[9] = 't';
+        test_text[10] = 'e';
+        test_text[11] = 'x';
+        test_text[12] = 't';
+        test_text[13] = '!';
+        test_text[14] = 0;
+
         color4 font_color;
         font_color.r = 0;
         font_color.g = 0;
         font_color.b = 0;
         font_color.a = 255;
-        draw_text(50, 200, (u8*)"My first text!", 10, font_color);
-
+        draw_text(50, 200, test_text, 10, font_color);
     }
 }
