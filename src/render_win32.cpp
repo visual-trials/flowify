@@ -115,6 +115,7 @@ void draw_text(i32 x, i32 y, u8 * text, i32 font_height, color4 font_color)
     HFONT hFont = (HFONT)GetStockObject(ANSI_VAR_FONT); 
     SelectObject(backbuffer_dc, hFont);
     
+    SetBkMode(backbuffer_dc, TRANSPARENT);
     SetTextColor(backbuffer_dc, RGB(font_color.r, font_color.g, font_color.b));
     
     TextOut(backbuffer_dc, x, y, (LPCSTR)text, string_length(text));
