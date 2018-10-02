@@ -101,6 +101,27 @@ extern "C" {
         world->nr_of_entities = 0;
         world->an_entity_is_selected = false;
         
+        world->third_entity_index = create_new_entity_index();
+        entity * third_entity = world->entities + world->third_entity_index;
+        
+        third_entity->line_color.r = 255;
+        third_entity->line_color.g = 0;
+        third_entity->line_color.b = 0;
+        third_entity->line_color.a = 255;
+        
+        third_entity->fill_color.r = 255;
+        third_entity->fill_color.g = 255;
+        third_entity->fill_color.b = 0;
+        third_entity->fill_color.a = 255;
+        
+        third_entity->line_width = 3;
+        
+        third_entity->pos.x = 200;
+        third_entity->pos.y = world->y_offset + 50;
+        
+        third_entity->size.width = 40;
+        third_entity->size.height = 40;
+        
         world->first_entity_index = create_new_entity_index();
         entity * first_entity = world->entities + world->first_entity_index;
         
@@ -130,27 +151,6 @@ extern "C" {
         second_entity->pos.x = 10;
         second_entity->pos.y = 10;
 
-        
-        world->third_entity_index = create_new_entity_index();
-        entity * third_entity = world->entities + world->third_entity_index;
-        
-        third_entity->line_color.r = 255;
-        third_entity->line_color.g = 0;
-        third_entity->line_color.b = 0;
-        third_entity->line_color.a = 255;
-        
-        third_entity->fill_color.r = 255;
-        third_entity->fill_color.g = 255;
-        third_entity->fill_color.b = 0;
-        third_entity->fill_color.a = 255;
-        
-        third_entity->line_width = 3;
-        
-        third_entity->pos.x = 200;
-        third_entity->pos.y = world->y_offset + 50;
-        
-        third_entity->size.width = 40;
-        third_entity->size.height = 40;
         
     }
     
