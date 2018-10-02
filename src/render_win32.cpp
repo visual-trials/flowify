@@ -109,3 +109,14 @@ void draw_rectangle(i32 x, i32 y, i32 width, i32 height, color4 line_color, colo
     DeleteObject(pen);
     DeleteObject(brush);
 }
+
+void draw_text(i32 x, i32 y, u8 * text, i32 font_height, color4 font_color)
+{
+    // TODO: implement this!
+    OutputDebugStringA((LPCSTR)text);
+}
+
+void log(u8 * text)
+{
+    OutputDebugStringA((LPCSTR)text);
+}

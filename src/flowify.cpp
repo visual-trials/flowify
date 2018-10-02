@@ -87,7 +87,7 @@ extern "C" {
         
         color4 font_color;
         draw_text(3, 7, (u8*)"My first log!", 11, font_color);
-        //draw_text(3, 7, (u8*)"My first log!", 11, &font_color);
+        draw_text(3, 7, (u8*)"My first log!", 11, font_color);
         //log((u8*)"Second log!");
         //log((u8*)"Second log!");
         

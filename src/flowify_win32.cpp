@@ -156,7 +156,8 @@ inline r32 get_seconds_elapsed(LARGE_INTEGER start_counter, LARGE_INTEGER end_co
 
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, int cmd_show)
 {
-    
+    OutputDebugStringA("Starting!\n");
+
     init_world();
     
     WNDCLASSA window_class = {};
