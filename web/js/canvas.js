@@ -119,11 +119,11 @@ Flowify.canvas = function () {
 
             _jsDrawText: function (x, y, stringIndex, stringLength, fontHeight, fontColorRGB, fontColorAlpha, baseFontIndex, baseFontLength) {
                 var string = ""
-                for (var i = stringIndex; i < stringIndex + stringLength; ++i) {
+                for (var i = stringIndex; i < stringIndex + stringLength; i++) {
                     string += String.fromCharCode(Flowify.main.bufferU8[i])
                 }
                 var baseFont = ""
-                for (var i = baseFontIndex; i < baseFontIndex + baseFontLength; ++i) {
+                for (var i = baseFontIndex; i < baseFontIndex + baseFontLength; i++) {
                     baseFont += String.fromCharCode(Flowify.main.bufferU8[i])
                 }
 
@@ -140,7 +140,7 @@ Flowify.canvas = function () {
 
             _jsLog: function(stringIndex, stringLength) {
                 var string = ""
-                for (var i = stringIndex; i < stringIndex + stringLength; ++i) {
+                for (var i = stringIndex; i < stringIndex + stringLength; i++) {
                     string += String.fromCharCode(Flowify.main.bufferU8[i])
                 }
                 console.log(string)
