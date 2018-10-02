@@ -250,12 +250,23 @@ extern "C" {
         test_text[12] = 't';
         test_text[13] = '!';
         test_text[14] = 0;
+        
+        char temp_string[] = "My real string!";
+        char temp_string2[] = "Really!?!";
+        u8 real_string[255];
+        //real_string[0] = temp_string[0];
+        //real_string[1] = 0;
+        copy_string(temp_string, real_string);
 
         color4 font_color;
         font_color.r = 0;
         font_color.g = 0;
         font_color.b = 0;
         font_color.a = 255;
-        draw_text(200, 200, test_text, 10, font_color);
+        draw_text(200, 200, real_string, 10, font_color);
+        
+        copy_string(temp_string2, real_string);
+        draw_text(200, 220, real_string, 10, font_color);
+        
     }
 }

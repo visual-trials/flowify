@@ -56,14 +56,12 @@ i32 string_length(u8 * string)
     return count;
 }
 
-/*
-void copy_string(u8 * dest, u8 * src)
+void copy_string(const char * src, u8 * dest)
 {
-    while (u8 ch = *src++)
+    while (char ch = *src++)
     {
         *dest++ = ch;
     }
-    *dest = '0';
+    *dest = 0;
 }
-*/
 
