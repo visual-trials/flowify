@@ -84,7 +84,7 @@ Flowify.main = function () {
     
     let wasmFile = 'wasm/flowify.wasm'
     let latestChangeToWasm = null
-    
+
     let request = new XMLHttpRequest()
     request.onload = function() {
     
@@ -93,16 +93,18 @@ Flowify.main = function () {
         
         latestChangeToWasm = responseHeaders[1] // FIXME: ugly way of getting the latest changed time
         
-        let wasmModule = new WebAssembly.Module(wasmCode)
-        my.wasmInstance = new WebAssembly.Instance(wasmModule, {
-            env: wasmEnv
-        })
-        
-        my.wasmInstance.exports._init_world()
+        WebAssembly.instantiate(wasmCode, { env: wasmEnv })
+        .then( wasm_module => {
+            
+            my.wasmInstance = wasm_module.instance
+            
+            my.wasmInstance.exports._init_world()
 
-        Flowify.input.addInputListeners()
-        
-        my.mainLoop()
+            Flowify.input.addInputListeners()
+            
+            my.mainLoop()
+            
+        })
     }
     request.open('GET', wasmFile)
     request.responseType = 'arraybuffer'
