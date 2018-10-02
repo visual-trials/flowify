@@ -117,7 +117,7 @@ void draw_text(i32 x, i32 y, u8 * text, i32 font_height, color4 font_color)
     
     SetTextColor(backbuffer_dc, RGB(font_color.r, font_color.g, font_color.b));
     
-    TextOut(backbuffer_dc, 200, 200, (LPCSTR)text, string_length(text));
+    TextOut(backbuffer_dc, x, y, (LPCSTR)text, string_length(text));
 }
 
 void log(u8 * text)
