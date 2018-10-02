@@ -256,6 +256,6 @@ extern "C" {
         font_color.g = 0;
         font_color.b = 0;
         font_color.a = 255;
-        draw_text(50, 200, test_text, 10, font_color);
+        draw_text(200, 200, test_text, 10, font_color);
     }
 }
