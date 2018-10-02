@@ -18,7 +18,7 @@
 
 Flowify.input = function () {
 
-    var my = {}
+    let my = {}
 
     // Note: we have a single thread in javascript. So we can *record* events in the 
     // variables below and *read* them in the main loop, without them interfering.
@@ -80,7 +80,7 @@ Flowify.input = function () {
 
     my.mouseButtonDown = function (e) {
         
-        var now = Date.now()
+        let now = Date.now()
         
         if (e.button == 0) {
             my.leftMouseButtonHasGoneDown = true
@@ -173,8 +173,8 @@ Flowify.input = function () {
     }
 
     my.keyDown = function (e) {
-        var key = e.keyCode ? e.keyCode : e.which;
-        // FIXME: should we use this? var ctrl = e.ctrlKey ? e.ctrlKey : ((key === 17) ? true : false) // ctrl detection
+        let key = e.keyCode ? e.keyCode : e.which;
+        // FIXME: should we use this? let ctrl = e.ctrlKey ? e.ctrlKey : ((key === 17) ? true : false) // ctrl detection
 
         if (e.ctrlKey) {
             if (!my.ctrlKeyIsDown) {
@@ -223,7 +223,7 @@ Flowify.input = function () {
                     my.clipboardTextArea.select()
 
                     try {
-                        var successful = document.execCommand('copy')
+                        let successful = document.execCommand('copy')
 
                         if (!successful) {
                             console.log('Error: unable to copy to clipboard')
@@ -266,7 +266,7 @@ Flowify.input = function () {
     }
 
     my.keyUp = function (e) {
-        var key = e.keyCode ? e.keyCode : e.which;
+        let key = e.keyCode ? e.keyCode : e.which;
 
         if (e.ctrlKey) {
             if (my.ctrlKeyIsDown) {
@@ -347,7 +347,7 @@ Flowify.input = function () {
         my.touchHasStarted = true
 
         if (e.touches.length === 1) {
-            var touch = e.touches[0]
+            let touch = e.touches[0]
 
             my.oneTouchActive = true
             my.twoTouchesActive = false
@@ -359,8 +359,8 @@ Flowify.input = function () {
             my.secondTouchTopPx = null
         }
         else if (e.touches.length === 2) {
-            var touch1 = e.touches[0]
-            var touch2 = e.touches[1]
+            let touch1 = e.touches[0]
+            let touch2 = e.touches[1]
 
             my.oneTouchActive = false
             my.twoTouchesActive = true
@@ -382,7 +382,7 @@ Flowify.input = function () {
         my.touchHasEnded = true
 
         if (e.touches.length === 1) {
-            var touch = e.touches[0]
+            let touch = e.touches[0]
 
             my.oneTouchActive = true
             my.twoTouchesActive = false
@@ -421,7 +421,7 @@ Flowify.input = function () {
         my.touchHasMoved = true
 
         if (e.touches.length === 1) {
-            var touch = e.touches[0]
+            let touch = e.touches[0]
 
             my.oneTouchActive = true
             my.twoTouchesActive = false
@@ -433,8 +433,8 @@ Flowify.input = function () {
             my.secondTouchTopPx = null
         }
         else if (e.touches.length === 2) {
-            var touch1 = e.touches[0]
-            var touch2 = e.touches[1]
+            let touch1 = e.touches[0]
+            let touch2 = e.touches[1]
 
             my.oneTouchActive = false
             my.twoTouchesActive = true
@@ -481,7 +481,7 @@ Flowify.input = function () {
     }
 
     my.addClipboard = function () {
-        // var body = document.getElementById("body")
+        // let body = document.getElementById("body")
         my.clipboardTextArea = document.createElement("textarea");
 
         my.clipboardTextArea.style="width:100px; height:100px; position: absolute; top: -200px; left: -200px;"
@@ -490,11 +490,11 @@ Flowify.input = function () {
     }
 
     my.getCookie = function (cname) {
-        var name = cname + "="
-        var decodedCookie = decodeURIComponent(document.cookie)
-        var ca = decodedCookie.split(';')
-        for(var i = 0; i < ca.length; i++) {
-            var c = ca[i]
+        let name = cname + "="
+        let decodedCookie = decodeURIComponent(document.cookie)
+        let ca = decodedCookie.split(';')
+        for(let i = 0; i < ca.length; i++) {
+            let c = ca[i]
             while (c.charAt(0) === ' ') {
                 c = c.substring(1)
             }

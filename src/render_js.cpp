@@ -19,7 +19,7 @@
 #include "render.h"
 
 // TODO: put this function in a common place
-i32 string_length(char * string)
+i32 string_length(u8 * string)
 {
     i32 count = 0;
     while (*string++)
@@ -29,15 +29,28 @@ i32 string_length(char * string)
     return count;
 }
 
+/*
+void copy_string(u8 * dest, u8 * src)
+{
+    while (u8 ch = *src++)
+    {
+        *dest++ = ch;
+    }
+    *dest = '0';
+}
+*/
+
 extern "C" { 
     extern void jsDrawRect(i32 x, i32 y, i32 width, i32 height, 
                            i32 line_color_rgb, i32 line_color_alpha, i32 fill_color_rgb, i32 fill_color_alpha, i32 line_width);
                            
-    extern void jsDrawText(i32 x, i32 y, char * text_data, i32 text_length,
+    extern void jsDrawText(i32 x, i32 y, u8 * text_data, i32 text_length,
                            i32 font_height, i32 font_color_rgb, i32 font_color_alpha, 
-                           char * base_font_data, i32 base_font_length );
+                           u8 * base_font_data, i32 base_font_length );
+                           
+    extern void jsLog(u8 * text_data, i32 text_length);
     
-    extern void jsLog(char * text_data, i32 text_length);
+    extern void jsLogInt(i32 log_integer);
 }
 
 void draw_rectangle(i32 x, i32 y, i32 width, i32 height, 
@@ -52,19 +65,30 @@ void draw_rectangle(i32 x, i32 y, i32 width, i32 height,
     jsDrawRect(x, y, width, height, line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
 }
 
+
 // FIXME: use length-strings instead of null-terminated strings!
 // FIXME: add color, font, size etc
-void draw_text(i32 x, i32 y, char * text, i32 font_height, color4 font_color)
+void draw_text(i32 x, i32 y, u8 * text, i32 font_height, color4 font_color)
 {
-    char base_font[] = "Arial"; // FIXME: hardcoded (btw: do we really want to pass this each time?)
+    // u8 base_font[] = "Arial"; // FIXME: hardcoded (btw: do we really want to pass this each time?)
     
-    i32 font_color_rgb = font_color.r + font_color.g * 256 + font_color.b * 256 * 256; 
-    i32 font_color_alpha = (i32)font_color.a;
+    // i32 font_color_rgb = font_color.r + font_color.g * 256 + font_color.b * 256 * 256; 
+    // i32 font_color_alpha = (i32)font_color.a;
     
-    jsDrawText(x, y, text, string_length(text), font_height, font_color_rgb, font_color_alpha, base_font, string_length(base_font));
+    /*
+    jsLogInt(text[0]);
+    jsLogInt(text[1]);
+    jsLogInt(text[2]);
+    jsLogInt(text[3]);
+    jsLogInt(text[4]);
+    jsLogInt(text[5]);
+    */
+    jsLog(text, string_length(text));
+    // jsLog(base_font, string_length(base_font));
+    // jsDrawText(x, y, text, string_length(text), font_height, font_color_rgb, font_color_alpha, base_font, string_length(base_font));
 }
 
-void log(char * text)
+void log(u8 * text)
 {
     jsLog(text, string_length(text));
 }

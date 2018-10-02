@@ -16,11 +16,11 @@
 
  */
 
-var Flowify = {}
+let Flowify = {}
 
 Flowify.canvas = function () {
 
-    var my = {}
+    let my = {}
 
     my.canvasElement = document.getElementById("canvas")
     my.context2d = my.canvasElement.getContext("2d")
@@ -30,12 +30,12 @@ Flowify.canvas = function () {
     my.isIE = false
 
     // Check if IE
-    var ua = window.navigator.userAgent;
+    let ua = window.navigator.userAgent;
     if (ua.indexOf('MSIE ') > 0 || ua.indexOf('Trident/') > 0 || ua.indexOf('Edge/') > 0) {
         my.isIE = true
     }
 
-    var requestAnimFrame = function () {
+    let requestAnimFrame = function () {
         return  window.requestAnimationFrame ||
             window.webkitRequestAnimationFrame   ||
             window.mozRequestAnimationFrame      ||
@@ -85,20 +85,20 @@ Flowify.canvas = function () {
     
     my.getCanvasRGBAColor = function (colorRGB, colorAlpha) {
         
-        var red = colorRGB % 256
+        let red = colorRGB % 256
         colorRGB = (colorRGB - red) / 256
-        var green = colorRGB % 256
+        let green = colorRGB % 256
         colorRGB = (colorRGB - green) / 256
-        var blue = colorRGB % 256
+        let blue = colorRGB % 256
         
         return "rgba(" + red + "," + green + "," + blue + "," + colorAlpha/255 + ")"
     }
     
     my.getExportedFunctions = function () {
         
-        var ctx = my.context2d
+        let ctx = my.context2d
         
-        var exportedFunctions = {
+        let exportedFunctions = {
         
             _jsDrawRect: function (x, y, width, height, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
                 ctx.beginPath()
@@ -118,33 +118,41 @@ Flowify.canvas = function () {
             },
 
             _jsDrawText: function (x, y, stringIndex, stringLength, fontHeight, fontColorRGB, fontColorAlpha, baseFontIndex, baseFontLength) {
-                var string = ""
-                for (var i = stringIndex; i < stringIndex + stringLength; i++) {
+                let string = ""
+                for (let i = stringIndex; i < stringIndex + stringLength; i++) {
                     string += String.fromCharCode(Flowify.main.bufferU8[i])
                 }
-                var baseFont = ""
-                for (var i = baseFontIndex; i < baseFontIndex + baseFontLength; i++) {
+                let baseFont = ""
+                for (let i = baseFontIndex; i < baseFontIndex + baseFontLength; i++) {
                     baseFont += String.fromCharCode(Flowify.main.bufferU8[i])
                 }
 
+                console.log(baseFontLength)
+                
                 // Note: fontHeight is the distance between the top of a capital and the bottom of a capital (note that a non-capital can stick out below!)
-                var fontHeight2FontPx = 1.3  // TODO: is this multiplier correct?
-                var fontPx = fontHeight * fontHeight2FontPx
+                let fontHeight2FontPx = 1.3  // TODO: is this multiplier correct?
+                let fontPx = fontHeight * fontHeight2FontPx
 
                 ctx.font = fontPx + "px " + baseFont
-                var fontHeightPx = fontHeight
+                let fontHeightPx = fontHeight
                 ctx.fillStyle = my.getCanvasRGBAColor(fontColorRGB, fontColorAlpha)
-                ctx.fillText(text, x, y + fontHeightPx)
-                // TODO: restore this! ctx.fillText(text, leftPx, topPx)
+                ctx.fillText(string, x, y + fontHeightPx)
             },
 
             _jsLog: function(stringIndex, stringLength) {
-                var string = ""
-                for (var i = stringIndex; i < stringIndex + stringLength; i++) {
+                let string = ""
+                for (let i = stringIndex; i < stringIndex + stringLength; i++) {
                     string += String.fromCharCode(Flowify.main.bufferU8[i])
                 }
+                console.log(stringIndex)
+                console.log(stringLength)
                 console.log(string)
+            },
+            
+            _jsLogInt: function(logInteger) {
+                console.log(logInteger)
             }
+            
         }
         
         return exportedFunctions

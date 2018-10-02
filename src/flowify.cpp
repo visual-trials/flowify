@@ -84,7 +84,12 @@ extern "C" {
     {
         world = &allocated_world;  // FIXME: allocate this properly!
         
-        log((char*)"My first log!");
+        
+        color4 font_color;
+        draw_text(3, 7, (u8*)"My first log!", 11, font_color);
+        //draw_text(3, 7, (u8*)"My first log!", 11, &font_color);
+        //log((u8*)"Second log!");
+        //log((u8*)"Second log!");
         
         world->increment = 0;
         world->y_offset = 0;
@@ -155,8 +160,9 @@ extern "C" {
         font_color.g = 0;
         font_color.b = 0;
         font_color.a = 255;
-        // log((char*)"My first text!");
-        // FIXME: almost works: draw_text(50, 200, (char*)"My first text!", 10, font_color);
+        // log((u8*)"My first text!");
+        // FIXME: almost works: 
+        // draw_text(50, 200, (u8*)"My first text!", 10, font_color);
 
         world->increment++;
 

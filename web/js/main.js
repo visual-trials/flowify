@@ -19,18 +19,18 @@
 Flowify.main = function () {
     "use strict"
 
-    var my = {}
+    let my = {}
     
     my.autoReload = false
     
     my.mainLoop = function () {
 
-        var currentTime = new Date()
+        let currentTime = new Date()
 
         Flowify.canvas.resizeCanvas()
         Flowify.canvas.clearCanvas()
 
-        var input = Flowify.input
+        let input = Flowify.input
         
         my.wasmInstance.exports._set_left_mouse_button_data(
             input.leftMouseButtonIsDown, input.leftMouseButtonHasGoneUp,
@@ -60,7 +60,7 @@ Flowify.main = function () {
         Flowify.canvas.requestAnimFrame(my.mainLoop)
     }
     
-    var wasmEnv = {
+    let wasmEnv = {
         memoryBase: 0,
         tableBase: 0,
         memory: new WebAssembly.Memory({
@@ -77,23 +77,23 @@ Flowify.main = function () {
     
     my.bufferU8 = new Uint8Array(wasmEnv.memory.buffer)
     
-    var exportedFunctions = Flowify.canvas.getExportedFunctions()
-    for (var functionName in exportedFunctions) {
+    let exportedFunctions = Flowify.canvas.getExportedFunctions()
+    for (let functionName in exportedFunctions) {
         wasmEnv[functionName] = exportedFunctions[functionName]; 
     }
     
-    var wasmFile = 'wasm/flowify.wasm'
-    var latestChangeToWasm = null
+    let wasmFile = 'wasm/flowify.wasm'
+    let latestChangeToWasm = null
     
-    var request = new XMLHttpRequest()
+    let request = new XMLHttpRequest()
     request.onload = function() {
     
-        var wasmCode = request.response
-        var responseHeaders = request.getAllResponseHeaders().split("\n")
+        let wasmCode = request.response
+        let responseHeaders = request.getAllResponseHeaders().split("\n")
         
         latestChangeToWasm = responseHeaders[1] // FIXME: ugly way of getting the latest changed time
         
-        var wasmModule = new WebAssembly.Module(wasmCode)
+        let wasmModule = new WebAssembly.Module(wasmCode)
         my.wasmInstance = new WebAssembly.Instance(wasmModule, {
             env: wasmEnv
         })
@@ -109,17 +109,17 @@ Flowify.main = function () {
     request.send()
     
     if (my.autoReload) {
-        var reloadWhenWasmChanged = function() {
+        let reloadWhenWasmChanged = function() {
         
-            var request = new XMLHttpRequest()
+            let request = new XMLHttpRequest()
             request.open('HEAD', wasmFile)
             request.setRequestHeader('cache-control', 'no-cache, must-revalidate, post-check=0, pre-check=0');
             request.send()
 
             request.onload = function() {
-                var responseHeaders = request.getAllResponseHeaders().split("\n")
+                let responseHeaders = request.getAllResponseHeaders().split("\n")
                 
-                var newChangeToWasm = responseHeaders[1] // FIXME: ugly way of getting the latest changed time
+                let newChangeToWasm = responseHeaders[1] // FIXME: ugly way of getting the latest changed time
                 // console.log('checking wasm: ' + newChangeToWasm + " -- " + latestChangeToWasm)
                 if (latestChangeToWasm != null && newChangeToWasm !== latestChangeToWasm) {
                     location.reload()
