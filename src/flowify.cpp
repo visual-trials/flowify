@@ -84,19 +84,10 @@ extern "C" {
     {
         world = &allocated_world;  // FIXME: allocate this properly!
         
-        
-        color4 font_color;
-        draw_text(3, 7, (u8*)"My first log!", 11, font_color);
-        draw_text(3, 7, (u8*)"My first log!", 11, font_color);
-        //log((u8*)"Second log!");
-        //log((u8*)"Second log!");
-        
         world->increment = 0;
         world->y_offset = 0;
         world->nr_of_entities = 0;
         world->an_entity_is_selected = false;
-        
-        // TODO: add the 3 default entities (and store their indexes to be retrieved later on)
         
         world->first_entity_index = create_new_entity_index();
         entity * first_entity = world->entities + world->first_entity_index;
@@ -155,15 +146,6 @@ extern "C" {
     {
         mouse_input mouse = global_input.mouse;
         
-        color4 font_color;
-        font_color.r = 0;
-        font_color.g = 0;
-        font_color.b = 0;
-        font_color.a = 255;
-        // log((u8*)"My first text!");
-        // FIXME: almost works: 
-        // draw_text(50, 200, (u8*)"My first text!", 10, font_color);
-
         world->increment++;
 
         i32 offset;
@@ -250,5 +232,13 @@ extern "C" {
                            current_entity->line_width);
         }
         
+        // TODO: use entities with a text-property instead
+        color4 font_color;
+        font_color.r = 0;
+        font_color.g = 0;
+        font_color.b = 0;
+        font_color.a = 255;
+        draw_text(50, 200, (u8*)"My first text!", 10, font_color);
+
     }
 }

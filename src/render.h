@@ -45,3 +45,25 @@ struct color4
     u8 a;
 };
 
+// TODO: put this function in a more common place
+i32 string_length(u8 * string)
+{
+    i32 count = 0;
+    while (*string++)
+    {
+        count++;
+    }
+    return count;
+}
+
+/*
+void copy_string(u8 * dest, u8 * src)
+{
+    while (u8 ch = *src++)
+    {
+        *dest++ = ch;
+    }
+    *dest = '0';
+}
+*/
+

@@ -112,8 +112,12 @@ void draw_rectangle(i32 x, i32 y, i32 width, i32 height, color4 line_color, colo
 
 void draw_text(i32 x, i32 y, u8 * text, i32 font_height, color4 font_color)
 {
-    // TODO: implement this!
-    OutputDebugStringA((LPCSTR)text);
+    HFONT hFont = (HFONT)GetStockObject(ANSI_VAR_FONT); 
+    SelectObject(backbuffer_dc, hFont);
+    
+    SetTextColor(backbuffer_dc, RGB(font_color.r, font_color.g, font_color.b));
+    
+    TextOut(backbuffer_dc, 200, 200, (LPCSTR)text, string_length(text));
 }
 
 void log(u8 * text)

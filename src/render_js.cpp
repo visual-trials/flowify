@@ -18,28 +18,6 @@
 
 #include "render.h"
 
-// TODO: put this function in a common place
-i32 string_length(u8 * string)
-{
-    i32 count = 0;
-    while (*string++)
-    {
-        count++;
-    }
-    return count;
-}
-
-/*
-void copy_string(u8 * dest, u8 * src)
-{
-    while (u8 ch = *src++)
-    {
-        *dest++ = ch;
-    }
-    *dest = '0';
-}
-*/
-
 extern "C" { 
     extern void jsDrawRect(i32 x, i32 y, i32 width, i32 height, 
                            i32 line_color_rgb, i32 line_color_alpha, i32 fill_color_rgb, i32 fill_color_alpha, i32 line_width);
