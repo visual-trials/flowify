@@ -78,10 +78,22 @@ i32 create_new_entity_index()
     return world->nr_of_entities++;
 }
 
+// Warning: do not use string literals here!
+u8 temp_string1[20];
+u8 temp_string2[20];
+
+
 extern "C" {
     
     void init_world()
     {
+        // FIXME: how to deal with this? (below if only for emcc!)
+        // Lesson learned: a string literal is valid only the very first time!
+        //    So if a function (which has a string literal in it) is called TWICE,
+        //    then the second time the string literal is not valid anymore!
+        copy_string((const char*)"My real string!", (u8*)temp_string1);
+        copy_string((const char*)"Really!?!", (u8*)temp_string2);
+
         world = &allocated_world;  // FIXME: allocate this properly!
         
         world->increment = 0;
@@ -234,39 +246,13 @@ extern "C" {
         
         // TODO: use entities with a text-property instead
         
-        u8 test_text[20];
-        test_text[0] = 'M';
-        test_text[1] = 'y';
-        test_text[2] = ' ';
-        test_text[3] = 'f';
-        test_text[4] = 'i';
-        test_text[5] = 'r';
-        test_text[6] = 's';
-        test_text[7] = 't';
-        test_text[8] = ' ';
-        test_text[9] = 't';
-        test_text[10] = 'e';
-        test_text[11] = 'x';
-        test_text[12] = 't';
-        test_text[13] = '!';
-        test_text[14] = 0;
-        
-        char temp_string[] = "My real string!";
-        char temp_string2[] = "Really!?!";
-        u8 real_string[255];
-        //real_string[0] = temp_string[0];
-        //real_string[1] = 0;
-        copy_string(temp_string, real_string);
-
         color4 font_color;
         font_color.r = 0;
         font_color.g = 0;
         font_color.b = 0;
         font_color.a = 255;
-        draw_text(200, 200, real_string, 10, font_color);
-        
-        copy_string(temp_string2, real_string);
-        draw_text(200, 220, real_string, 10, font_color);
+        draw_text(200, 200, temp_string1, 10, font_color);
+        draw_text(200, 220, temp_string2, 10, font_color);
         
     }
 }
