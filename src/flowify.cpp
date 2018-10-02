@@ -182,7 +182,7 @@ extern "C" {
         
         if (mouse.mouse_wheel_has_moved)
         {
-            world->y_offset += mouse.mouse_wheel_delta;
+            world->y_offset += mouse.mouse_wheel_delta * 10;
         }
 
         if (mouse.left_mouse_button_has_gone_down)
@@ -238,7 +238,7 @@ extern "C" {
         {
             entity * current_entity = world->entities + entity_index;
             
-            draw_rectangle(current_entity->pos.x, current_entity->pos.y, 
+            draw_rectangle(current_entity->pos.x, current_entity->pos.y + world->y_offset, 
                            current_entity->size.width, current_entity->size.height, 
                            current_entity->line_color, current_entity->fill_color, 
                            current_entity->line_width);
