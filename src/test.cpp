@@ -16,12 +16,12 @@
 
  */
  
-#if BUILD_FOR_NATIVE_PLATFORM
-    #include "test_render_win32.cpp"
-#else
-    #include "test_render_js.cpp"
-#endif
+#include "test_render_js.cpp"
 
+void draw_rectangle(color4 line_color, color4 fill_color)
+{
+    jsLogInt(line_color.a);
+}
 
 extern "C" {
     
@@ -53,10 +53,7 @@ extern "C" {
 
         for (i32 entity_index = 0; entity_index < 1; entity_index++)
         {
-            draw_rectangle(/*200, 150, 
-                           40, 40, */
-                           line_color, fill_color/*, 
-                           3*/);
+            draw_rectangle(line_color, fill_color);
         }
     }
 }
