@@ -48,7 +48,7 @@ struct entity
     i32     line_width;
 };
 
-#define MAX_ENTITIES 10
+#define MAX_ENTITIES 1
 
 struct world_data
 {
@@ -82,14 +82,16 @@ extern "C" {
     
     void init_world()
     {
+        /*
         world = &allocated_world;  // FIXME: allocate this properly!
         
         world->increment = 0;
         world->y_offset = 0;
         world->nr_of_entities = 0;
         world->an_entity_is_selected = false;
+        */
         
-        world->nr_of_entities++; // NOTE: THIS breaks it?!?! 
+        //world->nr_of_entities; // NOTE: THIS breaks it?!?! 
         
         // world->third_entity_index = world->nr_of_entities++; // create_new_entity_index();
         /*
@@ -137,12 +139,12 @@ extern "C" {
         fill_color.b = 0;
         fill_color.a = 255;
 
-        for (i32 entity_index = 0; entity_index < world->nr_of_entities; entity_index++)
+        for (i32 entity_index = 0; entity_index < 1; entity_index++)
         {
-        draw_rectangle(/*200, 150, 
-                       40, 40, */
-                       line_color/*, fill_color, 
-                       3*/);
+            draw_rectangle(/*200, 150, 
+                           40, 40, */
+                           line_color/*, fill_color, 
+                           3*/);
         }
                        /*
         for (i32 entity_index = 0; entity_index < world->nr_of_entities; entity_index++)
