@@ -89,7 +89,10 @@ extern "C" {
         world->nr_of_entities = 0;
         world->an_entity_is_selected = false;
         
-        world->third_entity_index = create_new_entity_index();
+        world->nr_of_entities++; // NOTE: THIS breaks it?!?! 
+        
+        // world->third_entity_index = world->nr_of_entities++; // create_new_entity_index();
+        /*
         entity * third_entity = world->entities + world->third_entity_index;
         
         third_entity->line_color.r = 255;
@@ -109,7 +112,7 @@ extern "C" {
         
         third_entity->size.width = 40;
         third_entity->size.height = 40;
-        
+        */
     }
     
     void update_frame()
