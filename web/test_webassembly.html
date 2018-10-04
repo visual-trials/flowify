@@ -12,25 +12,6 @@
     var ctx = canvas.getContext("2d")
 
     var env = {
-        _jsDrawRect: function (x, y, w, h) {
-            ctx.strokeStyle = "black"
-            ctx.rect(x, y, w, h)
-            ctx.stroke()
-        },
-        _jsClearRect: function (x, y, w, h) {
-            ctx.clearRect(x, y, w, h)
-            ctx.beginPath()   // see: http://codetheory.in/why-clearrect-might-not-be-clearing-canvas-pixels/        
-            ctx.closePath()
-        },
-        _jsDrawText: function (x, y, stringIndex, stringLength, fontHeight, fontColorRGB, fontColorAlpha) { // , baseFontIndex, baseFontLength) {
-            let string = ""
-            for (let i = stringIndex; i < stringIndex + stringLength; i++) {
-                string += String.fromCharCode(bufferU8[i])
-            }
-            let baseFont = "Arial"
-            
-            console.log(string)
-        },
         _jsLog: function(stringIndex, stringLength) {
             let string = ""
             for (let i = stringIndex; i < stringIndex + stringLength; i++) {
@@ -77,44 +58,10 @@
           env: env
         })
 
-        // Frame loop
-        var requestAnimFrame = function () {
-            return  window.requestAnimationFrame ||
-                window.webkitRequestAnimationFrame   ||
-                window.mozRequestAnimationFrame      ||
-                window.oRequestAnimationFrame        ||
-                window.msRequestAnimationFrame       ||
-                function(callback, element){
-                    window.setTimeout(function(){
-
-                        callback(+new Date)
-                    }, 1000 / 60)
-                }
-        }()
-        
-        // Taken from here: https://stackoverflow.com/questions/9677985/uncaught-typeerror-illegal-invocation-in-chrome
-        requestAnimFrame = requestAnimFrame ? requestAnimFrame.bind(window) : null
-        
         wasmInstance.exports._init_world()
         wasmInstance.exports._update_frame()
-        
         wasmInstance.exports._render_frame()
-    
         wasmInstance.exports._update_frame()
-        /*
-        var iteration = 0
-        var frameLoop = function() {
-            
-            
-            //env._jsClearRect(0, 0, 640, 480)
-            //env._jsDrawRect(iteration % 256 + 10, 10, 100, 100)
-            
-            iteration++
-            requestAnimFrame(frameLoop)
-        }
-        
-        frameLoop()
-        */
     }
     
   </script>

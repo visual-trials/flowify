@@ -16,7 +16,17 @@
 
  */
  
-#include "test_render_js.cpp"
+#include "render.h"
+
+extern "C" { 
+    extern void jsLog(u8 * text_data, i32 text_length);    
+    extern void jsLogInt(i32 log_integer);
+}
+
+void log(u8 * text)
+{
+    jsLog(text, string_length(text));
+}
 
 void draw_rectangle(color4 line_color, color4 fill_color)
 {
