@@ -143,7 +143,7 @@ extern "C" {
         {
             draw_rectangle(/*200, 150, 
                            40, 40, */
-                           line_color/*, fill_color, 
+                           line_color, fill_color/*, 
                            3*/);
         }
                        /*
