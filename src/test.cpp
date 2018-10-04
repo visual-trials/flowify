@@ -16,14 +16,31 @@
 
  */
  
-#include "render.h"
+struct color4
+{
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
+    unsigned char a;
+};
 
-extern "C" { 
-    extern void jsLog(u8 * text_data, i32 text_length);    
-    extern void jsLogInt(i32 log_integer);
+// TODO: put this function in a more common place
+int string_length(char * string)
+{
+    int count = 0;
+    while (*string++)
+    {
+        count++;
+    }
+    return count;
 }
 
-void log(u8 * text)
+extern "C" { 
+    extern void jsLog(char * text_data, int text_length);    
+    extern void jsLogInt(int log_integer);
+}
+
+void log(char * text)
 {
     jsLog(text, string_length(text));
 }
@@ -41,10 +58,10 @@ extern "C" {
     
     void update_frame()
     {
-        log((u8*)"First");
-        log((u8*)"Second");
-        log((u8*)"Third");
-        log((u8*)"Fourth");
+        log((char*)"First");
+        log((char*)"Second");
+        log((char*)"Third");
+        log((char*)"Fourth");
     }
     
     void render_frame()
@@ -61,7 +78,7 @@ extern "C" {
         fill_color.b = 0;
         fill_color.a = 255;
 
-        for (i32 entity_index = 0; entity_index < 1; entity_index++)
+        for (int entity_index = 0; entity_index < 1; entity_index++)
         {
             draw_rectangle(line_color, fill_color);
         }
