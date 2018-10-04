@@ -122,6 +122,26 @@ extern "C" {
     
     void render_frame()
     {
+        color4 line_color;
+        line_color.r = 255;
+        line_color.g = 0;
+        line_color.b = 0;
+        line_color.a = 255;
+        
+        color4 fill_color;
+        fill_color.r = 255;
+        fill_color.g = 255;
+        fill_color.b = 0;
+        fill_color.a = 255;
+
+        for (i32 entity_index = 0; entity_index < world->nr_of_entities; entity_index++)
+        {
+        draw_rectangle(/*200, 150, 
+                       40, 40, */
+                       line_color/*, fill_color, 
+                       3*/);
+        }
+                       /*
         for (i32 entity_index = 0; entity_index < world->nr_of_entities; entity_index++)
         {
             entity * current_entity = world->entities + entity_index;
@@ -130,5 +150,6 @@ extern "C" {
                            current_entity->line_color, current_entity->fill_color, 
                            current_entity->line_width);
         }
+        */
     }
 }
