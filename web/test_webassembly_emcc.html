@@ -12,7 +12,7 @@
     var ctx = canvas.getContext("2d")
 
     var env = {
-        jsLog: function(stringIndex, stringLength) {
+        _jsLog: function(stringIndex, stringLength) {
             let string = ""
             for (let i = stringIndex; i < stringIndex + stringLength; i++) {
                 string += String.fromCharCode(bufferU8[i])
@@ -20,13 +20,25 @@
             console.log(string)
         },
         
-        jsLogInt: function(logInteger) {
+        _jsLogInt: function(logInteger) {
             //console.log(logInteger)
         },
+        memoryBase: 0,
+        tableBase: 0,
+        memory: new WebAssembly.Memory({
+            initial: 256,
+            // maximum: 512,
+        }),
+        table: new WebAssembly.Table({
+            initial: 40,
+            // maximum: 4,
+            element: 'anyfunc',
+        }),
+        abort: Math.log, // FIXME
     }
-    var bufferU8
+    var bufferU8 = new Uint8Array(env.memory.buffer)
 
-    var wasmFile = 'wasm/program.wasm'
+    var wasmFile = 'wasm/test.wasm'
     var request = new XMLHttpRequest()
     request.open('GET', wasmFile)
     request.responseType = 'arraybuffer'
@@ -44,12 +56,11 @@
         var wasmInstance = new WebAssembly.Instance(wasmModule, {
           env: env
         })
-        bufferU8 = new Uint8Array(wasmInstance.exports.memory.buffer)
 
-        wasmInstance.exports.init_world()
-        wasmInstance.exports.update_frame()
-        wasmInstance.exports.render_frame()
-        wasmInstance.exports.update_frame()
+        wasmInstance.exports._init_world()
+        wasmInstance.exports._update_frame()
+        wasmInstance.exports._render_frame()
+        wasmInstance.exports._update_frame()
     }
     
   </script>
