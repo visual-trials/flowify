@@ -1,3 +1,5 @@
+// https://wasdk.github.io/WasmFiddle/?ksvlc
+
 struct color4
 {
     unsigned char r;
