@@ -24,7 +24,6 @@ struct color4
     unsigned char a;
 };
 
-// TODO: put this function in a more common place
 int string_length(char * string)
 {
     int count = 0;
