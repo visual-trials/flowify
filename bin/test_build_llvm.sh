@@ -8,5 +8,5 @@
 #/home/llvm/bin/llvm-link -o test.bc dist/*\.bc
 #/home/llvm/bin/opt -O3 test.bc -o test.bc
 /home/llvm/bin/llc -filetype=obj dist/test.bc -o dist/test.o
-/home/llvm/bin/wasm-ld --no-entry dist/test.o -o web/wasm/test_llvm.wasm -allow-undefined-file src/test.js_externals
+/home/llvm/bin/wasm-ld --no-entry --export=init_world dist/test.o -o web/wasm/test_llvm.wasm -allow-undefined-file src/test.js_externals
 wasm2wat web/wasm/test_llvm.wasm
