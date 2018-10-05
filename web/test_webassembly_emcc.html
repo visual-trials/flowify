@@ -23,15 +23,16 @@
         _jsLogInt: function(logInteger) {
             //console.log(logInteger)
         },
+        STACKTOP: 0,
         memoryBase: 0,
         tableBase: 0,
         memory: new WebAssembly.Memory({
             initial: 256,
-            // maximum: 512,
+            maximum: 256,
         }),
         table: new WebAssembly.Table({
             initial: 40,
-            // maximum: 4,
+            maximum: 40,
             element: 'anyfunc',
         }),
         abort: Math.log, // FIXME
