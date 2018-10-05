@@ -26,7 +26,8 @@
     }
     var bufferU8
 
-    var wasmFile = 'wasm/program.wasm'
+    // var wasmFile = 'wasm/program.wasm'
+    var wasmFile = 'wasm/test_clang.wasm'
     var request = new XMLHttpRequest()
     request.open('GET', wasmFile)
     request.responseType = 'arraybuffer'
@@ -41,10 +42,16 @@
         latestChangeToWasm = responseHeaders[1] // FIXME: ugly way of getting the latest changed time
         
         var wasmModule = new WebAssembly.Module(wasmCode)
+        
+        env.__linear_memory = new WebAssembly.Memory({ initial: 256 });
+        
+        env.__indirect_function_table = new WebAssembly.Table({ initial: 0, element: 'anyfunc' });
+        
         var wasmInstance = new WebAssembly.Instance(wasmModule, {
           env: env
         })
-        bufferU8 = new Uint8Array(wasmInstance.exports.memory.buffer)
+        
+        bufferU8 = new Uint8Array(env.__linear_memory.buffer)
 
         wasmInstance.exports.init_world()
         wasmInstance.exports.update_frame()
