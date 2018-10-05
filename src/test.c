@@ -1,7 +1,5 @@
 // https://wasdk.github.io/WasmFiddle/?ksvlc
 
-#define export __attribute__( ( visibility( "default" ) ) )
-
 struct color4
 {
     unsigned char r;
@@ -33,13 +31,11 @@ void draw_rectangle(struct color4 line_color, struct color4 fill_color)
     jsLogInt(line_color.a);
 }
 
-export void init_world();
-export void init_world()
+void init_world()
 {
 }
 
-export void update_frame();
-export void update_frame()
+void update_frame()
 {
     log232((char*)"First");
     log232((char*)"Second");
@@ -47,8 +43,7 @@ export void update_frame()
     log232((char*)"Fourth");
 }
 
-export void render_frame();
-export void render_frame()
+void render_frame()
 {
     struct color4 line_color;
     line_color.r = 255;
