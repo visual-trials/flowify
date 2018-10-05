@@ -61,18 +61,18 @@ Flowify.main = function () {
     }
     
     let wasmEnv = {
+        STACKTOP: 0,
         memoryBase: 0,
         tableBase: 0,
         memory: new WebAssembly.Memory({
             initial: 256,
-            // maximum: 512,
+            maximum: 256,
         }),
         table: new WebAssembly.Table({
-            initial: 40, // FIXME: can we set/grow this automatically?
-            // maximum: 40,
+            initial: 40,
+            maximum: 40,
             element: 'anyfunc',
         }),
-        abort: Math.log, // FIXME
     }
     
     my.bufferU8 = new Uint8Array(wasmEnv.memory.buffer)

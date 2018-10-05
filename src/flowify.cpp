@@ -253,6 +253,11 @@ extern "C" {
         font_color.a = 255;
         draw_text(200, 200, temp_string1, 10, font_color);
         draw_text(200, 220, temp_string2, 10, font_color);
+        draw_text(200, 240, (u8*)"My static text!", 10, font_color);
+        draw_text(200, 260, (u8*)"My really cool text!", 10, font_color);
+        draw_text(200, 280, (u8*)"I'm happy!", 10, font_color);
+        draw_text(200, 300, (u8*)"So soo happy!!!", 10, font_color);
+        draw_text(200, 320, (u8*)":) :) :) :)", 10, font_color);
         
     }
 }
