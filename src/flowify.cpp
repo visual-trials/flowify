@@ -46,6 +46,9 @@ struct entity
     color4  line_color;
     color4  fill_color;
     i32     line_width;
+    
+    b32          has_text;
+    short_string text;
 };
 
 #define MAX_ENTITIES 10
@@ -78,10 +81,8 @@ i32 create_new_entity_index()
     return world->nr_of_entities++;
 }
 
-// Warning: do not use string literals here!
-u8 temp_string1[20];
-u8 temp_string2[20];
-
+short_string temp_string1;
+short_string temp_string2;
 
 extern "C" {
     
@@ -91,8 +92,8 @@ extern "C" {
         // Lesson learned: a string literal is valid only the very first time!
         //    So if a function (which has a string literal in it) is called TWICE,
         //    then the second time the string literal is not valid anymore!
-        copy_string((const char*)"My real string!", (u8*)temp_string1);
-        copy_string((const char*)"Really!?!", (u8*)temp_string2);
+        copy_cstring_to_short_string("My real string!", &temp_string1);
+        copy_cstring_to_short_string("Really!?!", &temp_string2);
 
         world = &allocated_world;  // FIXME: allocate this properly!
         
@@ -121,6 +122,10 @@ extern "C" {
         
         third_entity->size.width = 40;
         third_entity->size.height = 40;
+        
+        
+        copy_cstring_to_short_string("My", &third_entity->text);
+        third_entity->has_text = true;
         
         world->first_entity_index = create_new_entity_index();
         entity * first_entity = world->entities + world->first_entity_index;
@@ -242,6 +247,16 @@ extern "C" {
                            current_entity->size.width, current_entity->size.height, 
                            current_entity->line_color, current_entity->fill_color, 
                            current_entity->line_width);
+                           
+            if (current_entity->has_text)
+            {
+                color4 font_color;
+                font_color.r = 0;
+                font_color.g = 0;
+                font_color.b = 0;
+                font_color.a = 255;
+                draw_text(current_entity->pos.x, current_entity->pos.y, &current_entity->text, 10, font_color);
+            }
         }
         
         // TODO: use entities with a text-property instead
@@ -251,13 +266,15 @@ extern "C" {
         font_color.g = 0;
         font_color.b = 0;
         font_color.a = 255;
-        draw_text(200, 200, temp_string1, 10, font_color);
-        draw_text(200, 220, temp_string2, 10, font_color);
+        draw_text(200, 200, &temp_string1, 10, font_color);
+        draw_text(200, 220, &temp_string2, 10, font_color);
+        /*
         draw_text(200, 240, (u8*)"My static text!", 10, font_color);
         draw_text(200, 260, (u8*)"My really cool text!", 10, font_color);
         draw_text(200, 280, (u8*)"I'm happy!", 10, font_color);
         draw_text(200, 300, (u8*)"So soo happy!!!", 10, font_color);
         draw_text(200, 320, (u8*)":) :) :) :)", 10, font_color);
+        */
         
     }
 }

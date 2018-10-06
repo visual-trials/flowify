@@ -36,7 +36,6 @@ typedef uint64_t u64;
 typedef float  r32;
 typedef double r64;
 
-
 struct color4
 {
     u8 r;
@@ -45,8 +44,16 @@ struct color4
     u8 a;
 };
 
+#define MAX_LENGTH_SHORT_STRING 255
+
+struct short_string
+{
+    u8 data[MAX_LENGTH_SHORT_STRING];
+    i32 length;
+};
+
 // TODO: put this function in a more common place
-i32 string_length(u8 * string)
+i32 cstring_length(u8 * string)
 {
     i32 count = 0;
     while (*string++)
@@ -56,12 +63,21 @@ i32 string_length(u8 * string)
     return count;
 }
 
-void copy_string(const char * src, u8 * dest)
+i32 copy_cstring(const char * src, u8 * dest, i32 max_length)
 {
-    while (char ch = *src++)
+    i32 count = 0;
+    while (char ch = *src++ && count < max_length)
     {
         *dest++ = ch;
+        count++;
     }
     *dest = 0;
+    return count;
+}
+
+void copy_cstring_to_short_string(const char * src, short_string * dest)
+{
+    i32 length = copy_cstring(src, dest->data, MAX_LENGTH_SHORT_STRING);
+    dest->length = length;
 }
 

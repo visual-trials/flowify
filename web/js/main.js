@@ -77,9 +77,15 @@ Flowify.main = function () {
     
     my.bufferU8 = new Uint8Array(wasmEnv.memory.buffer)
     
+    // TODO: we try to implement the emscripten_memcpy_big-function here. Check if this is correct!
+    wasmEnv._emscripten_memcpy_big = function(dest, src, num) {
+        my.bufferU8.set(my.bufferU8.subarray(src, src+num), dest)
+        return dest
+    }
+    
     let exportedFunctions = Flowify.canvas.getExportedFunctions()
     for (let functionName in exportedFunctions) {
-        wasmEnv[functionName] = exportedFunctions[functionName]; 
+        wasmEnv[functionName] = exportedFunctions[functionName]
     }
     
     let wasmFile = 'wasm/flowify.wasm'
