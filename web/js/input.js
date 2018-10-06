@@ -144,9 +144,13 @@ Flowify.input = function () {
     my.altKeyHasGoneUp = false
 
     my.keyIsDown = false
-    my.keyHasGoneDown = false
-    my.keyHasGoneUp = false
     my.keyThatIsDown = null
+    
+    my.keyHasGoneDown = false
+    my.keyThatHasGoneDown = null
+    
+    my.keyHasGoneUp = false
+    my.keyThatHasGoneUp = null
 
     // -- Clipboard data --
 
@@ -166,15 +170,22 @@ Flowify.input = function () {
         my.altKeyHasGoneUp = false
 
         my.keyHasGoneDown = false
+        my.keyThatHasGoneDown = null
+        
         my.keyHasGoneUp = false
+        my.keyThatHasGoneUp = null
 
         my.textHasComeFromClipboard = false
         my.textComingFromClipboard = null
     }
 
     my.keyDown = function (e) {
-        let key = e.keyCode ? e.keyCode : e.which;
-        // FIXME: should we use this? let ctrl = e.ctrlKey ? e.ctrlKey : ((key === 17) ? true : false) // ctrl detection
+        
+        // Using Key Values ( https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values )
+        
+        // FIXME: e.keyCode and e.which are deprecated, so we should not use them ( https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent )
+        // let keyValue = e.key;
+        let keyCode = e.keyCode ? e.keyCode : e.which
 
         if (e.ctrlKey) {
             if (!my.ctrlKeyIsDown) {
@@ -185,7 +196,7 @@ Flowify.input = function () {
                 // A key has gone down, but it wasn't the ctrl-key (since it was already down)
             }
         }
-        else if (e.altKey) {
+        if (e.altKey) {
             if (!my.altKeyIsDown) {
                 my.altKeyIsDown = true
                 my.altKeyHasGoneDown = true
@@ -194,7 +205,7 @@ Flowify.input = function () {
                 // A key has gone down, but it wasn't the alt-key (since it was already down)
             }
         }
-        else if (e.shiftKey) {
+        if (e.shiftKey) {
             if (!my.shiftKeyIsDown) {
                 my.shiftKeyIsDown = true
                 my.shiftKeyHasGoneDown = true
@@ -204,19 +215,23 @@ Flowify.input = function () {
             }
         }
 
+        // FIXME: we should check per key if it was down and set keyIsDown/Up per key and hasGoneDown/hasGoneUp in a sequence (with each a keyValue)
         if (!my.keyIsDown) {
             my.keyIsDown = true
+            my.keyThatIsDown = keyCode
+            
             my.keyHasGoneDown = true
-            my.keyThatIsDown = key
+            my.keyThatHasGoneDown = keyCode
 
-            // FIXME: we probably want to record all key-downs until the main-loop-function runs again...
+            my.keyHasGoneUp = false
+            my.keyThatHasGoneUp = null
         }
         else {
             // FIXME: a key is down, but there was already one down. This could be multiple keys pressed at once. Not supported atm.
         }
 
         // Ctrl-c
-        if (key == 67 && e.ctrlKey) {   // FIXME: what is the proper way of checking for the key 'c'?
+        if (keyCode == 67 && e.ctrlKey) {   // FIXME: what is the proper way of checking for the key 'c'?
             if (my.clipboardTextArea != null) {
                 if (my.textToCopyFrom != null) {
                     my.clipboardTextArea.value = my.textToCopyFrom
@@ -243,7 +258,7 @@ Flowify.input = function () {
         }
 
         // Ctrl-v
-        if (key == 86 && e.ctrlKey) {   // FIXME: what is the proper way of checking for the key 'v'?
+        if (keyCode == 86 && e.ctrlKey) {   // FIXME: what is the proper way of checking for the key 'v'?
             if (my.clipboardTextArea != null) {
                 // This ensures the copy-pasted text goes into the textarea
                 my.clipboardTextArea.select()
@@ -266,7 +281,11 @@ Flowify.input = function () {
     }
 
     my.keyUp = function (e) {
-        let key = e.keyCode ? e.keyCode : e.which;
+        // Using Key Values ( https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values )
+        
+        // FIXME: e.keyCode and e.which are deprecated, so we should not use them ( https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent )
+        // let keyValue = e.key;
+        let keyCode = e.keyCode ? e.keyCode : e.which
 
         if (e.ctrlKey) {
             if (my.ctrlKeyIsDown) {
@@ -277,7 +296,7 @@ Flowify.input = function () {
                 // A key has gone up, but it wasn't the ctrl-key (since it was not down)
             }
         }
-        else if (e.altKey) {
+        if (e.altKey) {
             if (my.altKeyIsDown) {
                 my.altKeyIsDown = false
                 my.altKeyHasGoneUp = true
@@ -286,7 +305,7 @@ Flowify.input = function () {
                 // A key has gone up, but it wasn't the alt-key (since it was not down)
             }
         }
-        else if (e.shiftKey) {
+        if (e.shiftKey) {
             if (my.shiftKeyIsDown) {
                 my.shiftKeyIsDown = false
                 my.shiftKeyHasGoneUp = true
@@ -296,12 +315,16 @@ Flowify.input = function () {
             }
         }
 
+        // FIXME: we should check per key if it was down and set keyIsDown/Up per key and hasGoneDown/hasGoneUp in a sequence (with each a keyValue)
         if (my.keyIsDown) {
             my.keyIsDown = false
-            my.keyHasGoneUp = true
             my.keyThatIsDown = null
-
-            // TODO: record what key went up?
+            
+            my.keyHasGoneDown = false
+            my.keyThatHasGoneDown = null
+            
+            my.keyHasGoneUp = true
+            my.keyThatHasGoneUp = keyCode
         }
         else {
             // FIXME: No key was down, but a key went up. What happened?
@@ -467,10 +490,8 @@ Flowify.input = function () {
         // Firefox
         Flowify.canvas.canvasElement.addEventListener("DOMMouseScroll", my.mouseWheelMoved, false)
 
-        /*
         document.addEventListener("keydown", my.keyDown, false)
         document.addEventListener("keyup", my.keyUp, false)
-        */
         
         /*
         Flowify.canvas.canvasElement.addEventListener("touchstart", my.touchStarted, false)

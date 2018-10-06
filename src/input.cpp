@@ -38,7 +38,26 @@ struct mouse_input
 
 struct keyboard_input
 {
+    b32 ctrl_key_is_down;
+    b32 ctrl_key_has_gone_down;
+    b32 ctrl_key_has_gone_up;
+
+    b32 shift_key_is_down;
+    b32 shift_key_has_gone_down;
+    b32 shift_key_has_gone_up;
+
+    b32 alt_key_is_down;
+    b32 alt_key_has_gone_down;
+    b32 alt_key_has_gone_up;
+   
+    b32 key_is_down;
+    i32 key_that_is_down;
     
+    b32 key_has_gone_down;
+    i32 key_that_has_gone_down;
+    
+    b32 key_has_gone_up;
+    i32 key_that_has_gone_up;
 };
 
 struct touch_input
@@ -57,6 +76,8 @@ input global_input = {};
 input new_input = {};
 
 extern "C" {
+    
+    // Mouse
     void set_left_mouse_button_data(b32 left_mouse_button_is_down, b32 left_mouse_button_has_gone_up,
                                     b32 left_mouse_button_has_gone_down, b32 left_mouse_button_has_gone_down_twice)
     {
@@ -87,4 +108,39 @@ extern "C" {
        global_input.mouse.mouse_position_left = mouse_position_left;
        global_input.mouse.mouse_position_top = mouse_position_top;
     }
+    
+    // Keyboard
+    void set_ctrl_key_data(b32 ctrl_key_is_down, b32 ctrl_key_has_gone_down, b32 ctrl_key_has_gone_up)
+    {
+       global_input.keyboard.ctrl_key_is_down = ctrl_key_is_down;
+       global_input.keyboard.ctrl_key_has_gone_down = ctrl_key_has_gone_down;
+       global_input.keyboard.ctrl_key_has_gone_up = ctrl_key_has_gone_up;
+    }
+    
+    void set_shift_key_data(b32 shift_key_is_down, b32 shift_key_has_gone_down, b32 shift_key_has_gone_up)
+    {
+       global_input.keyboard.shift_key_is_down = shift_key_is_down;
+       global_input.keyboard.shift_key_has_gone_down = shift_key_has_gone_down;
+       global_input.keyboard.shift_key_has_gone_up = shift_key_has_gone_up;
+    }
+    
+    void set_alt_key_data(b32 alt_key_is_down, b32 alt_key_has_gone_down, b32 alt_key_has_gone_up)
+    {
+       global_input.keyboard.alt_key_is_down = alt_key_is_down;
+       global_input.keyboard.alt_key_has_gone_down = alt_key_has_gone_down;
+       global_input.keyboard.alt_key_has_gone_up = alt_key_has_gone_up;
+    }
+    
+    void set_other_key_data(b32 key_is_down, i32 key_that_is_down, 
+                            b32 key_has_gone_down, i32 key_that_has_gone_down,
+                            b32 key_has_gone_up, i32 key_that_has_gone_up)
+    {
+        global_input.keyboard.key_is_down = key_is_down;
+        global_input.keyboard.key_that_is_down = key_that_is_down; 
+        global_input.keyboard.key_has_gone_down = key_has_gone_down;
+        global_input.keyboard.key_that_has_gone_down = key_that_has_gone_down;
+        global_input.keyboard.key_has_gone_up = key_has_gone_up; 
+        global_input.keyboard.key_that_has_gone_up = key_that_has_gone_up;
+    }
+    
 }

@@ -32,6 +32,7 @@ Flowify.main = function () {
 
         let input = Flowify.input
         
+        // Mouse input
         my.wasmInstance.exports._set_left_mouse_button_data(
             input.leftMouseButtonIsDown, input.leftMouseButtonHasGoneUp,
             input.leftMouseButtonHasGoneDown, input.leftMouseButtonHasGoneDownTwice
@@ -45,6 +46,24 @@ Flowify.main = function () {
         )
         my.wasmInstance.exports._set_mouse_position_data(
             input.mouseHasMoved, input.mousePositionLeft, input.mousePositionTop
+        )
+        
+        // Keyboard input
+        my.wasmInstance.exports._set_ctrl_key_data(
+            input.ctrlKeyIsDown, input.ctrlKeyHasGoneDown, input.ctrlKeyHasGoneUp
+        )
+        my.wasmInstance.exports._set_shift_key_data(
+            input.shiftKeyIsDown, input.shiftKeyHasGoneDown, input.shiftKeyHasGoneUp
+        )
+        my.wasmInstance.exports._set_alt_key_data(
+            input.altKeyIsDown, input.altKeyHasGoneDown, input.altKeyHasGoneUp
+        )
+        // FIXME: allow multiple keys to be down, have gone down (and in what sequence) and have gone up (and in what sequence)
+        //        maybe an array of all normal keys being up or down + a list of up- and down- events with the key nrs in it
+        my.wasmInstance.exports._set_other_key_data(
+            input.keyIsDown, input.keyThatIsDown, 
+            input.keyHasGoneDown, input.keyThatHasGoneDown,
+            input.keyHasGoneUp, input.keyThatHasGoneUp
         )
 
         // Update world
