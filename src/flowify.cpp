@@ -247,7 +247,6 @@ extern "C" {
                            current_entity->size.width, current_entity->size.height, 
                            current_entity->line_color, current_entity->fill_color, 
                            current_entity->line_width);
-                           
             if (current_entity->has_text)
             {
                 color4 font_color;
@@ -275,6 +274,11 @@ extern "C" {
         draw_text(300, 300, copy_cstring_to_short_string("I'm happy!", &temp_string), 10, font_color);
         draw_text(350, 320, copy_cstring_to_short_string("So soo happy!!!", &temp_string), 10, font_color);
         draw_text(420, 360, copy_cstring_to_short_string(":) :) :) :)", &temp_string), 10, font_color);
+        draw_text(420, 380, copy_cstring_to_short_string("Ctrl!", &temp_string), 10, font_color);
+        
+        if (global_input.keyboard.ctrl_key_is_down) {
+            
+        }
         
     }
 }
