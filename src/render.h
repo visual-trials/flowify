@@ -66,8 +66,12 @@ i32 cstring_length(u8 * string)
 i32 copy_cstring(const char * src, u8 * dest, i32 max_length)
 {
     i32 count = 0;
-    while (char ch = *src++ && count < max_length)
+    while (char ch = *src++)
     {
+        if (count >= max_length)
+        {
+            break;
+        }
         *dest++ = ch;
         count++;
     }
