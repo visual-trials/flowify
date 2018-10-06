@@ -87,3 +87,28 @@ short_string * copy_cstring_to_short_string(const char * src, short_string * des
     return dest;
 }
 
+short_string * int_to_string(i32 number, short_string * decimal_string)
+{
+    i32 left_over = number;
+    i32 nr_of_digits = 0;
+    while (left_over > 0)
+    {
+        i32 decimal_digit = left_over % 10;
+        left_over = (left_over - decimal_digit) / 10;
+        nr_of_digits++;
+    }
+    
+    left_over = number;
+    i32 digit_index = nr_of_digits - 1;
+    while (left_over > 0)
+    {
+        i32 decimal_digit = left_over % 10;
+        
+        decimal_string->data[digit_index] = 48 + decimal_digit;
+        
+        left_over = (left_over - decimal_digit) / 10;
+        digit_index--;
+    }
+    decimal_string->length = nr_of_digits;
+    return decimal_string;
+}

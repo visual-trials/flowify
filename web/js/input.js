@@ -184,10 +184,10 @@ Flowify.input = function () {
         // Using Key Values ( https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values )
         
         // FIXME: e.keyCode and e.which are deprecated, so we should not use them ( https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent )
-        // let keyValue = e.key;
+        let keyValue = e.key;
         let keyCode = e.keyCode ? e.keyCode : e.which
 
-        if (e.ctrlKey) {
+        if (keyValue === 'Control') {
             if (!my.ctrlKeyIsDown) {
                 my.ctrlKeyIsDown = true
                 my.ctrlKeyHasGoneDown = true
@@ -196,7 +196,7 @@ Flowify.input = function () {
                 // A key has gone down, but it wasn't the ctrl-key (since it was already down)
             }
         }
-        if (e.altKey) {
+        if (keyValue === 'Alt') {
             if (!my.altKeyIsDown) {
                 my.altKeyIsDown = true
                 my.altKeyHasGoneDown = true
@@ -205,7 +205,7 @@ Flowify.input = function () {
                 // A key has gone down, but it wasn't the alt-key (since it was already down)
             }
         }
-        if (e.shiftKey) {
+        if (keyValue === 'Shift') {
             if (!my.shiftKeyIsDown) {
                 my.shiftKeyIsDown = true
                 my.shiftKeyHasGoneDown = true
@@ -271,6 +271,7 @@ Flowify.input = function () {
 
         }
 
+        // TODO: whould we prevent the alt-key? e.preventDefault()
     }
 
     my.getClipboardDataFromTextArea = function () {
@@ -282,12 +283,11 @@ Flowify.input = function () {
 
     my.keyUp = function (e) {
         // Using Key Values ( https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values )
-        
         // FIXME: e.keyCode and e.which are deprecated, so we should not use them ( https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent )
-        // let keyValue = e.key;
+        let keyValue = e.key;
         let keyCode = e.keyCode ? e.keyCode : e.which
-
-        if (e.ctrlKey) {
+        
+        if (keyValue === 'Control') {
             if (my.ctrlKeyIsDown) {
                 my.ctrlKeyIsDown = false
                 my.ctrlKeyHasGoneUp = true
@@ -296,7 +296,7 @@ Flowify.input = function () {
                 // A key has gone up, but it wasn't the ctrl-key (since it was not down)
             }
         }
-        if (e.altKey) {
+        if (keyValue === 'Alt') {
             if (my.altKeyIsDown) {
                 my.altKeyIsDown = false
                 my.altKeyHasGoneUp = true
@@ -305,7 +305,7 @@ Flowify.input = function () {
                 // A key has gone up, but it wasn't the alt-key (since it was not down)
             }
         }
-        if (e.shiftKey) {
+        if (keyValue === 'Shift') {
             if (my.shiftKeyIsDown) {
                 my.shiftKeyIsDown = false
                 my.shiftKeyHasGoneUp = true
@@ -330,6 +330,8 @@ Flowify.input = function () {
             // FIXME: No key was down, but a key went up. What happened?
 
         }
+        
+        // TODO: whould we prevent the alt-key? e.preventDefault()
 
     }
     

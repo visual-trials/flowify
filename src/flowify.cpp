@@ -276,7 +276,21 @@ extern "C" {
         draw_text(420, 360, copy_cstring_to_short_string(":) :) :) :)", &temp_string), 10, font_color);
         
         if (global_input.keyboard.ctrl_key_is_down) {
-            draw_text(420, 380, copy_cstring_to_short_string("Ctrl!", &temp_string), 10, font_color);
+            draw_text(400, 180, copy_cstring_to_short_string("Ctrl", &temp_string), 10, font_color);
+        }
+        
+        if (global_input.keyboard.alt_key_is_down) {
+            draw_text(500, 180, copy_cstring_to_short_string("Alt", &temp_string), 10, font_color);
+        }
+        
+        if (global_input.keyboard.shift_key_is_down) {
+            draw_text(600, 180, copy_cstring_to_short_string("Shift", &temp_string), 10, font_color);
+        }
+        
+        if (global_input.keyboard.key_is_down) {
+            short_string decimal_string;
+
+            draw_text(500, 220, int_to_string(global_input.keyboard.key_that_is_down, &decimal_string), 10, font_color);
         }
         
     }
