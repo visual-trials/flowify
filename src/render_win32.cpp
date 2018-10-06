@@ -110,15 +110,22 @@ void draw_rectangle(i32 x, i32 y, i32 width, i32 height, color4 line_color, colo
     DeleteObject(brush);
 }
 
-void draw_text(i32 x, i32 y, u8 * text, i32 font_height, color4 font_color)
+void draw_text(i32 x, i32 y, short_string * text, i32 font_height, color4 font_color)
 {
     HFONT hFont = (HFONT)GetStockObject(ANSI_VAR_FONT); 
     SelectObject(backbuffer_dc, hFont);
     
     SetBkMode(backbuffer_dc, TRANSPARENT);
     SetTextColor(backbuffer_dc, RGB(font_color.r, font_color.g, font_color.b));
-    
-    TextOut(backbuffer_dc, x, y, (LPCSTR)text, string_length(text));
+
+    TextOut(backbuffer_dc, x, y, (LPCSTR)text->data, text->length);
+}
+
+void draw_text_c(i32 x, i32 y, const char * cstring, i32 font_height, color4 font_color)
+{
+    short_string text;
+    copy_cstring_to_short_string(cstring, &text);
+    draw_text(x, y, &text, font_height, font_color);
 }
 
 void log(u8 * text)
