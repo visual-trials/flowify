@@ -268,13 +268,13 @@ extern "C" {
         font_color.a = 255;
         draw_text(200, 200, &temp_string1, 10, font_color);
         draw_text(200, 220, &temp_string2, 10, font_color);
-        /*
-        draw_text(200, 240, (u8*)"My static text!", 10, font_color);
-        draw_text(200, 260, (u8*)"My really cool text!", 10, font_color);
-        draw_text(200, 280, (u8*)"I'm happy!", 10, font_color);
-        draw_text(200, 300, (u8*)"So soo happy!!!", 10, font_color);
-        draw_text(200, 320, (u8*)":) :) :) :)", 10, font_color);
-        */
+        
+        short_string temp_string;
+        draw_text(200, 240, copy_cstring_to_short_string("My static text!", &temp_string), 10, font_color);
+        draw_text(200, 260, copy_cstring_to_short_string("My really cool text!", &temp_string), 10, font_color);
+        draw_text(300, 300, copy_cstring_to_short_string("I'm happy!", &temp_string), 10, font_color);
+        draw_text(350, 320, copy_cstring_to_short_string("So soo happy!!!", &temp_string), 10, font_color);
+        draw_text(420, 360, copy_cstring_to_short_string(":) :) :) :)", &temp_string), 10, font_color);
         
     }
 }
