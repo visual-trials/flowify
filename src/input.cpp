@@ -58,6 +58,14 @@ struct keyboard_input
     
     b32 key_has_gone_up;
     i32 key_that_has_gone_up;
+    
+    u8 keys_that_are_down[255];
+    u8 sequence_keys_up_down[100];
+    i32 sequence_keys_length;
+    
+    // TODO: maybe add these (or compute it using the others) u8 keys_that_have_gone_down[255];
+    // u8 keys_that_have_gone_down[255];
+    // u8 keys_that_have_gone_up[255];
 };
 
 struct touch_input
@@ -110,6 +118,21 @@ extern "C" {
     }
     
     // Keyboard
+    u8 * get_address_keys_that_are_down()
+    {
+        return global_input.keyboard.keys_that_are_down;
+    }
+    
+    u8 * get_address_sequence_keys_up_down()
+    {
+        return global_input.keyboard.sequence_keys_up_down;
+    }
+    
+    void set_sequence_keys_length(i32 sequence_keys_length)
+    {
+       global_input.keyboard.sequence_keys_length = sequence_keys_length;
+    }
+    
     void set_ctrl_key_data(b32 ctrl_key_is_down, b32 ctrl_key_has_gone_down, b32 ctrl_key_has_gone_up)
     {
        global_input.keyboard.ctrl_key_is_down = ctrl_key_is_down;

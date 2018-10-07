@@ -61,9 +61,12 @@ Flowify.main = function () {
         // FIXME: allow multiple keys to be down, have gone down (and in what sequence) and have gone up (and in what sequence)
         //        maybe an array of all normal keys being up or down + a list of up- and down- events with the key nrs in it
         my.wasmInstance.exports._set_other_key_data(
-            input.keyIsDown, input.keyThatIsDown, 
+            input.keyIsDown, input.keyThatIsDown,  // FIXME: depricate keyThatIsDown
             input.keyHasGoneDown, input.keyThatHasGoneDown,
             input.keyHasGoneUp, input.keyThatHasGoneUp
+        )
+        my.wasmInstance.exports._set_sequence_keys_length(
+            input.sequenceKeysLength
         )
 
         // Update world
@@ -124,6 +127,9 @@ Flowify.main = function () {
             my.wasmInstance = wasm_module.instance
             
             my.wasmInstance.exports._init_world()
+            
+            Flowify.input.addressKeysThatAreDown = my.wasmInstance.exports._get_address_keys_that_are_down()
+            Flowify.input.addressSequenceKeysUpDown = my.wasmInstance.exports._get_address_sequence_keys_up_down()
 
             Flowify.input.addInputListeners()
             

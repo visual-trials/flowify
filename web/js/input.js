@@ -144,7 +144,7 @@ Flowify.input = function () {
     my.altKeyHasGoneUp = false
 
     my.keyIsDown = false
-    my.keyThatIsDown = null
+    // my.keyThatIsDown = null
     
     my.keyHasGoneDown = false
     my.keyThatHasGoneDown = null
@@ -174,6 +174,12 @@ Flowify.input = function () {
         
         my.keyHasGoneUp = false
         my.keyThatHasGoneUp = null
+        /*
+        for (let i = 0; i < 255; i++) {
+            Flowify.main.bufferU8[my.addressKeysThatAreDown + i] = 0
+        }
+        */
+        my.sequenceKeysLength = 0
 
         my.textHasComeFromClipboard = false
         my.textComingFromClipboard = null
@@ -215,19 +221,26 @@ Flowify.input = function () {
             }
         }
 
-        // FIXME: we should check per key if it was down and set keyIsDown/Up per key and hasGoneDown/hasGoneUp in a sequence (with each a keyValue)
-        if (!my.keyIsDown) {
-            my.keyIsDown = true
-            my.keyThatIsDown = keyCode
-            
-            my.keyHasGoneDown = true
-            my.keyThatHasGoneDown = keyCode
+        if (keyCode <= 255) {
+            // FIXME: we should check per key if it was down and set keyIsDown/Up per key and hasGoneDown/hasGoneUp in a sequence (with each a keyValue)
+            if (!Flowify.main.bufferU8[my.addressKeysThatAreDown + keyCode]) {
+                my.keyIsDown = true
+                //my.keyThatIsDown = keyCode
 
-            my.keyHasGoneUp = false
-            my.keyThatHasGoneUp = null
+                Flowify.main.bufferU8[my.addressKeysThatAreDown + keyCode] = 1;
+                
+                my.keyHasGoneDown = true
+                my.keyThatHasGoneDown = keyCode
+
+                my.keyHasGoneUp = false
+                my.keyThatHasGoneUp = null
+            }
+            else {
+                // FIXME: a key is down, but there was already one down. This could be multiple keys pressed at once. Not supported atm.
+            }
         }
         else {
-            // FIXME: a key is down, but there was already one down. This could be multiple keys pressed at once. Not supported atm.
+            console.log("ERROR: Invalid keyCode (" + keyCode + ") encountered!") 
         }
 
         // Ctrl-c
@@ -316,19 +329,25 @@ Flowify.input = function () {
         }
 
         // FIXME: we should check per key if it was down and set keyIsDown/Up per key and hasGoneDown/hasGoneUp in a sequence (with each a keyValue)
-        if (my.keyIsDown) {
-            my.keyIsDown = false
-            my.keyThatIsDown = null
-            
-            my.keyHasGoneDown = false
-            my.keyThatHasGoneDown = null
-            
-            my.keyHasGoneUp = true
-            my.keyThatHasGoneUp = keyCode
+        if (keyCode <= 255) {
+            if (Flowify.main.bufferU8[my.addressKeysThatAreDown + keyCode]) {
+                my.keyIsDown = false
+                //my.keyThatIsDown = null
+                Flowify.main.bufferU8[my.addressKeysThatAreDown + keyCode] = 0;
+
+                my.keyHasGoneDown = false
+                my.keyThatHasGoneDown = null
+                
+                my.keyHasGoneUp = true
+                my.keyThatHasGoneUp = keyCode
+            }
+            else {
+                // FIXME: No key was down, but a key went up. What happened?
+
+            }
         }
         else {
-            // FIXME: No key was down, but a key went up. What happened?
-
+            console.log("ERROR: Invalid keyCode (" + keyCode + ") encountered!") 
         }
         
         // TODO: whould we prevent the alt-key? e.preventDefault()

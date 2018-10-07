@@ -81,20 +81,10 @@ i32 create_new_entity_index()
     return world->nr_of_entities++;
 }
 
-short_string temp_string1;
-short_string temp_string2;
-
 extern "C" {
     
     void init_world()
     {
-        // FIXME: how to deal with this? (below if only for emcc!)
-        // Lesson learned: a string literal is valid only the very first time!
-        //    So if a function (which has a string literal in it) is called TWICE,
-        //    then the second time the string literal is not valid anymore!
-        copy_cstring_to_short_string("My real string!", &temp_string1);
-        copy_cstring_to_short_string("Really!?!", &temp_string2);
-
         world = &allocated_world;  // FIXME: allocate this properly!
         
         world->increment = 0;
@@ -155,8 +145,6 @@ extern "C" {
         
         second_entity->pos.x = 10;
         second_entity->pos.y = 10;
-
-        
     }
     
     void update_frame()
@@ -265,15 +253,10 @@ extern "C" {
         font_color.g = 0;
         font_color.b = 0;
         font_color.a = 255;
-        draw_text(200, 200, &temp_string1, 10, font_color);
-        draw_text(200, 220, &temp_string2, 10, font_color);
         
         short_string temp_string;
-        draw_text(200, 240, copy_cstring_to_short_string("My static text!", &temp_string), 10, font_color);
-        draw_text(200, 260, copy_cstring_to_short_string("My really cool text!", &temp_string), 10, font_color);
-        draw_text(300, 300, copy_cstring_to_short_string("I'm happy!", &temp_string), 10, font_color);
-        draw_text(350, 320, copy_cstring_to_short_string("So soo happy!!!", &temp_string), 10, font_color);
-        draw_text(420, 360, copy_cstring_to_short_string(":) :) :) :)", &temp_string), 10, font_color);
+        draw_text(200, 240, copy_cstring_to_short_string("My first text!", &temp_string), 10, font_color);
+        
         
         if (global_input.keyboard.ctrl_key_is_down) {
             draw_text(400, 180, copy_cstring_to_short_string("Ctrl", &temp_string), 10, font_color);
@@ -287,10 +270,31 @@ extern "C" {
             draw_text(600, 180, copy_cstring_to_short_string("Shift", &temp_string), 10, font_color);
         }
         
+        short_string decimal_string;
         if (global_input.keyboard.key_is_down) {
-            short_string decimal_string;
-
             draw_text(500, 220, int_to_string(global_input.keyboard.key_that_is_down, &decimal_string), 10, font_color);
+        }
+        
+        short_string character;
+        character.data[0] = ' ';
+        character.length = 1;
+        for (i32 letter_index = 0; letter_index < 10; letter_index++)
+        {
+            u8 ch = '0' + letter_index;
+            character.data[0] = ch;
+            if (global_input.keyboard.keys_that_are_down[ch])
+            {
+                draw_text(350 + letter_index * 10, 150, &character, 10, font_color);
+            }
+        }
+        for (i32 letter_index = 0; letter_index < 26; letter_index++)
+        {
+            u8 ch = 'A' + letter_index;
+            character.data[0] = ch;
+            if (global_input.keyboard.keys_that_are_down[ch])
+            {
+                draw_text(350 + letter_index * 10, 170, &character, 10, font_color);
+            }
         }
         
     }
