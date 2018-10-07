@@ -32,52 +32,19 @@ Flowify.main = function () {
 
         let input = Flowify.input
         
-        // Mouse input
-        my.wasmInstance.exports._set_left_mouse_button_data(
-            input.leftMouseButtonIsDown, input.leftMouseButtonHasGoneUp,
-            input.leftMouseButtonHasGoneDown, input.leftMouseButtonHasGoneDownTwice
-        )
-        my.wasmInstance.exports._set_right_mouse_button_data(
-            input.rightMouseButtonIsDown, input.rightMouseButtonHasGoneUp,
-            input.rightMouseButtonHasGoneDown, input.rightMouseButtonHasGoneDownTwice
-        )
-        my.wasmInstance.exports._set_mouse_wheel_data(
-            input.mouseWheelHasMoved, input.mouseWheelDelta
-        )
-        my.wasmInstance.exports._set_mouse_position_data(
-            input.mouseHasMoved, input.mousePositionLeft, input.mousePositionTop
-        )
+        input.sendMouseData()
+        input.sendTouchData()
+        input.sendKeyboardData()
         
-        // Keyboard input
-        my.wasmInstance.exports._set_ctrl_key_data(
-            input.ctrlKeyIsDown, input.ctrlKeyHasGoneDown, input.ctrlKeyHasGoneUp
-        )
-        my.wasmInstance.exports._set_shift_key_data(
-            input.shiftKeyIsDown, input.shiftKeyHasGoneDown, input.shiftKeyHasGoneUp
-        )
-        my.wasmInstance.exports._set_alt_key_data(
-            input.altKeyIsDown, input.altKeyHasGoneDown, input.altKeyHasGoneUp
-        )
-        // FIXME: allow multiple keys to be down, have gone down (and in what sequence) and have gone up (and in what sequence)
-        //        maybe an array of all normal keys being up or down + a list of up- and down- events with the key nrs in it
-        my.wasmInstance.exports._set_other_key_data(
-            input.keyIsDown, input.keyThatIsDown,  // FIXME: depricate keyThatIsDown
-            input.keyHasGoneDown, input.keyThatHasGoneDown,
-            input.keyHasGoneUp, input.keyThatHasGoneUp
-        )
-        my.wasmInstance.exports._set_sequence_keys_length(
-            input.sequenceKeysLength
-        )
-
         // Update world
         my.wasmInstance.exports._update_frame()
         
         // Render world
         my.wasmInstance.exports._render_frame()
 
-        Flowify.input.resetMouseData()
-        Flowify.input.resetTouchData()
-        Flowify.input.resetKeyboardData()
+        input.resetMouseData()
+        input.resetTouchData()
+        input.resetKeyboardData()
 
         Flowify.canvas.requestAnimFrame(my.mainLoop)
     }

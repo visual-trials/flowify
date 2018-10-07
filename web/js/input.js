@@ -62,6 +62,23 @@ Flowify.input = function () {
         my.mouseHasMoved = false
         my.lastMouseCoords = [ my.mousePositionLeft, my.mousePositionTop ]
     }
+    
+    my.sendMouseData = function () {
+        Flowify.main.wasmInstance.exports._set_left_mouse_button_data(
+            my.leftMouseButtonIsDown, my.leftMouseButtonHasGoneUp,
+            my.leftMouseButtonHasGoneDown, my.leftMouseButtonHasGoneDownTwice
+        )
+        Flowify.main.wasmInstance.exports._set_right_mouse_button_data(
+            my.rightMouseButtonIsDown, my.rightMouseButtonHasGoneUp,
+            my.rightMouseButtonHasGoneDown, my.rightMouseButtonHasGoneDownTwice
+        )
+        Flowify.main.wasmInstance.exports._set_mouse_wheel_data(
+            my.mouseWheelHasMoved, my.mouseWheelDelta
+        )
+        Flowify.main.wasmInstance.exports._set_mouse_position_data(
+            my.mouseHasMoved, my.mousePositionLeft, my.mousePositionTop
+        )
+    }
 
     // -- Mouse events --
 
@@ -174,15 +191,37 @@ Flowify.input = function () {
         
         my.keyHasGoneUp = false
         my.keyThatHasGoneUp = null
-        /*
+        
+        /* maybe do this here:
         for (let i = 0; i < 255; i++) {
-            Flowify.main.bufferU8[my.addressKeysThatAreDown + i] = 0
+            Flowify.main.bufferU8[my.addressKeysThatHaveGoneDown + i] = 0
+            Flowify.main.bufferU8[my.addressKeysThatHaveGoneUp + i] = 0
         }
         */
         my.sequenceKeysLength = 0
 
         my.textHasComeFromClipboard = false
         my.textComingFromClipboard = null
+    }
+    
+    my.sendKeyboardData = function() {
+        Flowify.main.wasmInstance.exports._set_ctrl_key_data(
+            my.ctrlKeyIsDown, my.ctrlKeyHasGoneDown, my.ctrlKeyHasGoneUp
+        )
+        Flowify.main.wasmInstance.exports._set_shift_key_data(
+            my.shiftKeyIsDown, my.shiftKeyHasGoneDown, my.shiftKeyHasGoneUp
+        )
+        Flowify.main.wasmInstance.exports._set_alt_key_data(
+            my.altKeyIsDown, my.altKeyHasGoneDown, my.altKeyHasGoneUp
+        )
+        Flowify.main.wasmInstance.exports._set_other_key_data(
+            my.keyIsDown, my.keyThatIsDown,  // FIXME: depricate keyThatIsDown
+            my.keyHasGoneDown, my.keyThatHasGoneDown,
+            my.keyHasGoneUp, my.keyThatHasGoneUp
+        )
+        Flowify.main.wasmInstance.exports._set_sequence_keys_length(
+            my.sequenceKeysLength
+        )
     }
 
     my.keyDown = function (e) {
@@ -383,6 +422,10 @@ Flowify.input = function () {
         my.touchHasMoved = false
         my.touchHasStarted = false
         my.touchHasEnded = false
+    }
+    
+    my.sendTouchData = function () {
+        // FIXME: implement this
     }
     
     // -- Touch events --
