@@ -136,6 +136,7 @@ extern "C" {
        global_input.keyboard.sequence_keys_length = sequence_keys_length;
     }
     
+    // TODO: We can deprecate this
     void set_ctrl_key_data(b32 ctrl_key_is_down, b32 ctrl_key_has_gone_down, b32 ctrl_key_has_gone_up)
     {
        global_input.keyboard.ctrl_key_is_down = ctrl_key_is_down;
@@ -143,6 +144,7 @@ extern "C" {
        global_input.keyboard.ctrl_key_has_gone_up = ctrl_key_has_gone_up;
     }
     
+    // TODO: We can deprecate this
     void set_shift_key_data(b32 shift_key_is_down, b32 shift_key_has_gone_down, b32 shift_key_has_gone_up)
     {
        global_input.keyboard.shift_key_is_down = shift_key_is_down;
@@ -150,6 +152,7 @@ extern "C" {
        global_input.keyboard.shift_key_has_gone_up = shift_key_has_gone_up;
     }
     
+    // TODO: We can deprecate this
     void set_alt_key_data(b32 alt_key_is_down, b32 alt_key_has_gone_down, b32 alt_key_has_gone_up)
     {
        global_input.keyboard.alt_key_is_down = alt_key_is_down;
@@ -157,6 +160,7 @@ extern "C" {
        global_input.keyboard.alt_key_has_gone_up = alt_key_has_gone_up;
     }
     
+    // TODO: We can deprecate this
     void set_other_key_data(b32 key_is_down, i32 key_that_is_down, 
                             b32 key_has_gone_down, i32 key_that_has_gone_down,
                             b32 key_has_gone_up, i32 key_that_has_gone_up)

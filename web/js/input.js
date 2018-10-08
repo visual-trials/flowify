@@ -180,22 +180,29 @@ Flowify.input = function () {
     my.textComingFromClipboard = null
 
     my.resetKeyboardData = function() {
+        // TODO: We can deprecate this
         my.ctrlKeyHasGoneDown = false
         my.ctrlKeyHasGoneUp = false
 
+        // TODO: We can deprecate this
         my.shiftKeyHasGoneDown = false
         my.shiftKeyHasGoneUp = false
 
+        // TODO: We can deprecate this
         my.altKeyHasGoneDown = false
         my.altKeyHasGoneUp = false
 
+        // TODO: We can deprecate this
         my.keyHasGoneDown = false
         my.keyThatHasGoneDown = null
         
+        // TODO: We can deprecate this
         my.keyHasGoneUp = false
         my.keyThatHasGoneUp = null
         
         my.sequenceKeysUpDown = []
+        
+        // TODO: maybe add: nr of keys that has gone down (and gone up)? (so you know if you have to do anything at all)
 
         my.textHasComeFromClipboard = false
         my.textComingFromClipboard = null
