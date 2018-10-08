@@ -52,6 +52,7 @@ struct entity
 };
 
 #define MAX_ENTITIES 10
+#define MAX_KEY_SEQUENCE 30
 
 struct world_data
 {
@@ -69,6 +70,8 @@ struct world_data
     // TODO: create separate camera/user-interaction struct?
     b32 an_entity_is_selected;
     u32 selected_entity_index;
+    
+    u8 key_sequence[MAX_KEY_SEQUENCE];
     
 };
 
@@ -145,6 +148,11 @@ extern "C" {
         
         second_entity->pos.x = 10;
         second_entity->pos.y = 10;
+        
+        for (i32 sequence_index = 0; sequence_index < MAX_KEY_SEQUENCE; sequence_index++)
+        {
+            world->key_sequence[sequence_index] = ' ';
+        }
     }
     
     void update_frame()
@@ -154,10 +162,12 @@ extern "C" {
         world->increment++;
 
         i32 offset;
-        if (world->increment % 512 < 256) {
+        if (world->increment % 512 < 256)
+        {
             offset = world->increment % 256;
         }
-        else {
+        else
+        {
             offset = 256 - (world->increment % 256);
         }
         
@@ -223,6 +233,32 @@ extern "C" {
             }
         }
         
+        
+        keyboard_input keyboard = global_input.keyboard;
+        
+        for (i32 frame_sequence_index = 0; frame_sequence_index < keyboard.sequence_keys_length; frame_sequence_index++)
+        {
+            b32 is_down = (b32)keyboard.sequence_keys_up_down[frame_sequence_index * 2];
+            u8 key_code = keyboard.sequence_keys_up_down[frame_sequence_index * 2 + 1];
+            if ((key_code >= '0' && key_code <= '9') || (key_code >= 'A' && key_code <= 'Z'))
+            {
+                if (is_down)
+                {
+                    // TODO: this is very slow!
+                    for (i32 sequence_index = 0; sequence_index < MAX_KEY_SEQUENCE - 1; sequence_index++)
+                    {
+                        world->key_sequence[sequence_index] = world->key_sequence[sequence_index + 1];
+                    }
+                    world->key_sequence[MAX_KEY_SEQUENCE - 1] = key_code;
+                }
+                else
+                {
+                    // Ignoring up-keys atm
+                }
+            }
+        }
+        
+        
     }
     
     void render_frame()
@@ -255,43 +291,53 @@ extern "C" {
         font_color.a = 255;
         
         short_string temp_string;
-        draw_text(200, 240, copy_cstring_to_short_string("My first text!", &temp_string), 10, font_color);
+        draw_text(200, 340, copy_cstring_to_short_string("My first text!", &temp_string), 10, font_color);
         
         
-        if (global_input.keyboard.ctrl_key_is_down) {
+        keyboard_input keyboard = global_input.keyboard;
+        
+        if (keyboard.ctrl_key_is_down)
+        {
             draw_text(400, 180, copy_cstring_to_short_string("Ctrl", &temp_string), 10, font_color);
         }
         
-        if (global_input.keyboard.alt_key_is_down) {
+        if (keyboard.alt_key_is_down)
+        {
             draw_text(500, 180, copy_cstring_to_short_string("Alt", &temp_string), 10, font_color);
         }
         
-        if (global_input.keyboard.shift_key_is_down) {
+        if (keyboard.shift_key_is_down)
+        {
             draw_text(600, 180, copy_cstring_to_short_string("Shift", &temp_string), 10, font_color);
         }
         
-        short_string decimal_string;
-        if (global_input.keyboard.key_is_down) {
-            draw_text(500, 220, int_to_string(global_input.keyboard.key_that_is_down, &decimal_string), 10, font_color);
-        }
-        
+        // short_string decimal_string;
+        // draw_text(500, 220, int_to_string(keyboard.sequence_keys_length, &decimal_string), 10, font_color);
+
         short_string character;
         character.data[0] = ' ';
         character.length = 1;
-        for (i32 letter_index = 0; letter_index < 10; letter_index++)
+        for (i32 sequence_index = 0; sequence_index < MAX_KEY_SEQUENCE; sequence_index++)
         {
-            u8 ch = '0' + letter_index;
+            character.data[0] = world->key_sequence[sequence_index];
+            character.length = 1;
+            draw_text(320 + sequence_index * 10, 220, &character, 10, font_color);
+        }
+        
+        for (i32 number_index = 0; number_index < 10; number_index++)
+        {
+            u8 ch = '0' + number_index;
             character.data[0] = ch;
-            if (global_input.keyboard.keys_that_are_down[ch])
+            if (keyboard.keys_that_are_down[ch])
             {
-                draw_text(350 + letter_index * 10, 150, &character, 10, font_color);
+                draw_text(350 + number_index * 10, 150, &character, 10, font_color);
             }
         }
         for (i32 letter_index = 0; letter_index < 26; letter_index++)
         {
             u8 ch = 'A' + letter_index;
             character.data[0] = ch;
-            if (global_input.keyboard.keys_that_are_down[ch])
+            if (keyboard.keys_that_are_down[ch])
             {
                 draw_text(350 + letter_index * 10, 170, &character, 10, font_color);
             }

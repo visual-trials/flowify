@@ -36,6 +36,8 @@ struct mouse_input
     i32 mouse_position_top;
 };
 
+#define MAX_KEY_SEQUENCE_PER_FRAME 25 // Keep this the same in input.js!
+
 struct keyboard_input
 {
     b32 ctrl_key_is_down;
@@ -60,7 +62,8 @@ struct keyboard_input
     i32 key_that_has_gone_up;
     
     u8 keys_that_are_down[255];
-    u8 sequence_keys_up_down[100];
+    
+    u8 sequence_keys_up_down[MAX_KEY_SEQUENCE_PER_FRAME * 2];
     i32 sequence_keys_length;
     
     // TODO: maybe add these (or compute it using the others) u8 keys_that_have_gone_down[255];

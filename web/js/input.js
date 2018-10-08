@@ -169,6 +169,9 @@ Flowify.input = function () {
     my.keyHasGoneUp = false
     my.keyThatHasGoneUp = null
 
+    my.keysThatAreDown = {}
+    my.sequenceKeysUpDown = []
+        
     // -- Clipboard data --
 
     my.clipboardTextArea = null
@@ -192,13 +195,7 @@ Flowify.input = function () {
         my.keyHasGoneUp = false
         my.keyThatHasGoneUp = null
         
-        /* maybe do this here:
-        for (let i = 0; i < 255; i++) {
-            Flowify.main.bufferU8[my.addressKeysThatHaveGoneDown + i] = 0
-            Flowify.main.bufferU8[my.addressKeysThatHaveGoneUp + i] = 0
-        }
-        */
-        my.sequenceKeysLength = 0
+        my.sequenceKeysUpDown = []
 
         my.textHasComeFromClipboard = false
         my.textComingFromClipboard = null
@@ -219,8 +216,14 @@ Flowify.input = function () {
             my.keyHasGoneDown, my.keyThatHasGoneDown,
             my.keyHasGoneUp, my.keyThatHasGoneUp
         )
+        for (let sequenceIndex = 0; sequenceIndex < my.sequenceKeysUpDown.length; sequenceIndex++) {
+            let keyUpDownEntry = my.sequenceKeysUpDown[sequenceIndex]
+            let keyCode = keyUpDownEntry.keyCode
+            Flowify.main.bufferU8[my.addressSequenceKeysUpDown + (sequenceIndex * 2) ] = keyUpDownEntry.isDown
+            Flowify.main.bufferU8[my.addressSequenceKeysUpDown + (sequenceIndex * 2) + 1] = keyUpDownEntry.keyCode
+        }        
         Flowify.main.wasmInstance.exports._set_sequence_keys_length(
-            my.sequenceKeysLength
+            my.sequenceKeysUpDown.length
         )
     }
 
@@ -261,7 +264,14 @@ Flowify.input = function () {
         }
 
         if (keyCode <= 255) {
-            // FIXME: we should check per key if it was down and set keyIsDown/Up per key and hasGoneDown/hasGoneUp in a sequence (with each a keyValue)
+            
+            if (my.sequenceKeysUpDown.length < 25) {
+                my.sequenceKeysUpDown.push({ "isDown" : true, "keyCode" : keyCode})
+            }
+            else {
+                console.log("ERRRO: Too many keys have gone up and down during this frame")
+            }
+            
             if (!Flowify.main.bufferU8[my.addressKeysThatAreDown + keyCode]) {
                 my.keyIsDown = true
                 //my.keyThatIsDown = keyCode
@@ -367,8 +377,15 @@ Flowify.input = function () {
             }
         }
 
-        // FIXME: we should check per key if it was down and set keyIsDown/Up per key and hasGoneDown/hasGoneUp in a sequence (with each a keyValue)
         if (keyCode <= 255) {
+            
+            if (my.sequenceKeysUpDown.length < 25) {
+                my.sequenceKeysUpDown.push({ "isDown" : false, "keyCode" : keyCode})
+            }
+            else {
+                console.log("ERRRO: Too many keys have gone up and down during this frame")
+            }
+            
             if (Flowify.main.bufferU8[my.addressKeysThatAreDown + keyCode]) {
                 my.keyIsDown = false
                 //my.keyThatIsDown = null
