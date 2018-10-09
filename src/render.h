@@ -87,6 +87,14 @@ short_string * copy_cstring_to_short_string(const char * src, short_string * des
     return dest;
 }
 
+short_string * copy_char_to_string(char ch, short_string * dest)
+{
+    dest->data[0] = ch;
+    dest->length = 1;
+    
+    return dest;
+}
+
 short_string * int_to_string(i32 number, short_string * decimal_string)
 {
     i32 left_over = number;

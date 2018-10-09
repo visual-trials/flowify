@@ -271,7 +271,7 @@ extern "C" {
         font_color.g = 0;
         font_color.b = 0;
         font_color.a = 255;
-        
+
         if (keyboard->ctrl_key_is_down)
         {
             draw_text(400, 180, copy_cstring_to_short_string("Ctrl", &temp_string), 10, font_color);
@@ -290,7 +290,7 @@ extern "C" {
         for (i32 number_index = 0; number_index < 10; number_index++)
         {
             u8 ch = '0' + number_index;
-            character.data[0] = ch;
+            copy_char_to_string(ch, &character);
             if (keyboard->keys_that_are_down[ch])
             {
                 draw_text(350 + number_index * 10, 150, &character, 10, font_color);
@@ -299,12 +299,13 @@ extern "C" {
         for (i32 letter_index = 0; letter_index < 26; letter_index++)
         {
             u8 ch = 'A' + letter_index;
-            character.data[0] = ch;
+            copy_char_to_string(ch, &character);
             if (keyboard->keys_that_are_down[ch])
             {
                 draw_text(350 + letter_index * 10, 170, &character, 10, font_color);
             }
         }
+       
     }
     
     void draw_sequence (world_data * world)
@@ -317,16 +318,12 @@ extern "C" {
         font_color.b = 0;
         font_color.a = 255;
         
-        character.data[0] = ' ';
-        character.length = 1;
+        copy_char_to_string(' ', &character);
         for (i32 sequence_index = 0; sequence_index < MAX_KEY_SEQUENCE; sequence_index++)
         {
-            character.data[0] = world->key_sequence[sequence_index];
-            character.length = 1;
+            copy_char_to_string(world->key_sequence[sequence_index], &character);
             draw_text(320 + sequence_index * 10, 220, &character, 10, font_color);
         }
-        
-        
     }
     
     void render_frame()
@@ -363,11 +360,11 @@ extern "C" {
         short_string temp_string;
         draw_text(200, 340, copy_cstring_to_short_string("My first text!", &temp_string), 10, font_color);
         
-        draw_sequence(world);
+        //draw_sequence(world);
         
         keyboard_input * keyboard = &global_input.keyboard;
         
-        //draw_keyboard(keyboard);
+        draw_keyboard(keyboard);
         
     }
 }
