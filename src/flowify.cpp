@@ -360,7 +360,7 @@ extern "C" {
         short_string temp_string;
         draw_text(200, 340, copy_cstring_to_short_string("My first text!", &temp_string), 10, font_color);
         
-        //draw_sequence(world);
+        draw_sequence(world);
         
         keyboard_input * keyboard = &global_input.keyboard;
         
