@@ -75,10 +75,9 @@ struct world_data
     
 };
 
-world_data allocated_world;  // FIXME: allocate this properly!
-world_data * world;
+world_data global_world;  // FIXME: allocate this properly!
 
-i32 create_new_entity_index()
+i32 create_new_entity_index(world_data * world)
 {
     // TODO: check MAX_ENTITIES!
     return world->nr_of_entities++;
@@ -88,14 +87,14 @@ extern "C" {
     
     void init_world()
     {
-        world = &allocated_world;  // FIXME: allocate this properly!
+        world_data * world = &global_world;
         
         world->increment = 0;
         world->y_offset = 0;
         world->nr_of_entities = 0;
         world->an_entity_is_selected = false;
         
-        world->third_entity_index = create_new_entity_index();
+        world->third_entity_index = create_new_entity_index(world);
         entity * third_entity = world->entities + world->third_entity_index;
         
         third_entity->line_color.r = 255;
@@ -120,7 +119,7 @@ extern "C" {
         copy_cstring_to_short_string("My", &third_entity->text);
         third_entity->has_text = true;
         
-        world->first_entity_index = create_new_entity_index();
+        world->first_entity_index = create_new_entity_index(world);
         entity * first_entity = world->entities + world->first_entity_index;
         
         first_entity->line_color.r = 0;
@@ -141,7 +140,7 @@ extern "C" {
         first_entity->pos.x = 10;
         first_entity->pos.y = 10;
             
-        world->second_entity_index = create_new_entity_index();
+        world->second_entity_index = create_new_entity_index(world);
         entity * second_entity = world->entities + world->second_entity_index;
         
         *second_entity = *first_entity;
@@ -157,7 +156,8 @@ extern "C" {
     
     void update_frame()
     {
-        mouse_input mouse = global_input.mouse;
+        mouse_input * mouse = &global_input.mouse;
+        world_data * world = &global_world;
         
         world->increment++;
 
@@ -183,16 +183,16 @@ extern "C" {
         
         // Mouse driven movement/placement
         
-        if (mouse.mouse_wheel_has_moved)
+        if (mouse->mouse_wheel_has_moved)
         {
-            world->y_offset += mouse.mouse_wheel_delta * 10;
+            world->y_offset += mouse->mouse_wheel_delta * 10;
         }
 
-        if (mouse.left_mouse_button_has_gone_down)
+        if (mouse->left_mouse_button_has_gone_down)
         {
             // TODO: determine which entity is selected, using positions and sizes of all entities
             
-            world->selected_entity_index = create_new_entity_index();
+            world->selected_entity_index = create_new_entity_index(world);
             world->an_entity_is_selected = true;
             
             entity * current_entity = world->entities + world->selected_entity_index;
@@ -212,24 +212,24 @@ extern "C" {
             current_entity->size.width = 150;
             current_entity->size.height = 150;
             
-            current_entity->pos.x = mouse.mouse_position_left;
-            current_entity->pos.y = mouse.mouse_position_top;
+            current_entity->pos.x = mouse->mouse_position_left;
+            current_entity->pos.y = mouse->mouse_position_top;
             
         }
         
-        if (mouse.left_mouse_button_has_gone_up)
+        if (mouse->left_mouse_button_has_gone_up)
         {
             world->an_entity_is_selected = true;
         }
         
-        if (mouse.left_mouse_button_is_down)
+        if (mouse->left_mouse_button_is_down)
         {
             if (world->an_entity_is_selected)
             {
                 entity * current_entity = world->entities + world->selected_entity_index;
                 
-                current_entity->pos.x = mouse.mouse_position_left;
-                current_entity->pos.y = mouse.mouse_position_top;
+                current_entity->pos.x = mouse->mouse_position_left;
+                current_entity->pos.y = mouse->mouse_position_top;
             }
         }
         
@@ -261,8 +261,78 @@ extern "C" {
         
     }
     
+    void draw_keyboard(keyboard_input * keyboard)
+    {
+        short_string temp_string;
+        short_string character;
+
+        color4 font_color;
+        font_color.r = 0;
+        font_color.g = 0;
+        font_color.b = 0;
+        font_color.a = 255;
+        
+        if (keyboard->ctrl_key_is_down)
+        {
+            draw_text(400, 180, copy_cstring_to_short_string("Ctrl", &temp_string), 10, font_color);
+        }
+        
+        if (keyboard->alt_key_is_down)
+        {
+            draw_text(500, 180, copy_cstring_to_short_string("Alt", &temp_string), 10, font_color);
+        }
+        
+        if (keyboard->shift_key_is_down)
+        {
+            draw_text(600, 180, copy_cstring_to_short_string("Shift", &temp_string), 10, font_color);
+        }
+        
+        for (i32 number_index = 0; number_index < 10; number_index++)
+        {
+            u8 ch = '0' + number_index;
+            character.data[0] = ch;
+            if (keyboard->keys_that_are_down[ch])
+            {
+                draw_text(350 + number_index * 10, 150, &character, 10, font_color);
+            }
+        }
+        for (i32 letter_index = 0; letter_index < 26; letter_index++)
+        {
+            u8 ch = 'A' + letter_index;
+            character.data[0] = ch;
+            if (keyboard->keys_that_are_down[ch])
+            {
+                draw_text(350 + letter_index * 10, 170, &character, 10, font_color);
+            }
+        }
+    }
+    
+    void draw_sequence (world_data * world)
+    {
+        short_string character;
+        
+        color4 font_color;
+        font_color.r = 0;
+        font_color.g = 0;
+        font_color.b = 0;
+        font_color.a = 255;
+        
+        character.data[0] = ' ';
+        character.length = 1;
+        for (i32 sequence_index = 0; sequence_index < MAX_KEY_SEQUENCE; sequence_index++)
+        {
+            character.data[0] = world->key_sequence[sequence_index];
+            character.length = 1;
+            draw_text(320 + sequence_index * 10, 220, &character, 10, font_color);
+        }
+        
+        
+    }
+    
     void render_frame()
     {
+        world_data * world = &global_world;
+
         for (i32 entity_index = 0; entity_index < world->nr_of_entities; entity_index++)
         {
             entity * current_entity = world->entities + entity_index;
@@ -293,55 +363,11 @@ extern "C" {
         short_string temp_string;
         draw_text(200, 340, copy_cstring_to_short_string("My first text!", &temp_string), 10, font_color);
         
+        draw_sequence(world);
         
-        keyboard_input keyboard = global_input.keyboard;
+        keyboard_input * keyboard = &global_input.keyboard;
         
-        if (keyboard.ctrl_key_is_down)
-        {
-            draw_text(400, 180, copy_cstring_to_short_string("Ctrl", &temp_string), 10, font_color);
-        }
-        
-        if (keyboard.alt_key_is_down)
-        {
-            draw_text(500, 180, copy_cstring_to_short_string("Alt", &temp_string), 10, font_color);
-        }
-        
-        if (keyboard.shift_key_is_down)
-        {
-            draw_text(600, 180, copy_cstring_to_short_string("Shift", &temp_string), 10, font_color);
-        }
-        
-        // short_string decimal_string;
-        // draw_text(500, 220, int_to_string(keyboard.sequence_keys_length, &decimal_string), 10, font_color);
-
-        short_string character;
-        character.data[0] = ' ';
-        character.length = 1;
-        for (i32 sequence_index = 0; sequence_index < MAX_KEY_SEQUENCE; sequence_index++)
-        {
-            character.data[0] = world->key_sequence[sequence_index];
-            character.length = 1;
-            draw_text(320 + sequence_index * 10, 220, &character, 10, font_color);
-        }
-        
-        for (i32 number_index = 0; number_index < 10; number_index++)
-        {
-            u8 ch = '0' + number_index;
-            character.data[0] = ch;
-            if (keyboard.keys_that_are_down[ch])
-            {
-                draw_text(350 + number_index * 10, 150, &character, 10, font_color);
-            }
-        }
-        for (i32 letter_index = 0; letter_index < 26; letter_index++)
-        {
-            u8 ch = 'A' + letter_index;
-            character.data[0] = ch;
-            if (keyboard.keys_that_are_down[ch])
-            {
-                draw_text(350 + letter_index * 10, 170, &character, 10, font_color);
-            }
-        }
+        //draw_keyboard(keyboard);
         
     }
 }
