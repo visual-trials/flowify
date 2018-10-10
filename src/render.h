@@ -52,7 +52,19 @@ struct short_string
     i32 length;
 };
 
-// TODO: put this function in a more common place
+// TODO: put these function in a more common place
+
+// TODO: can we make one common array_length here?
+i32 array_length(i32 * array)
+{
+    return sizeof(array)/sizeof(array[0]);
+}
+
+i32 array_length(u8 * array)
+{
+    return sizeof(array)/sizeof(array[0]);
+}
+
 i32 cstring_length(u8 * string)
 {
     i32 count = 0;

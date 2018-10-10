@@ -54,6 +54,22 @@ struct entity
 #define MAX_ENTITIES 10
 #define MAX_KEY_SEQUENCE 30
 
+#define MAX_KEYS_PER_KEYBOARD_ROW 15
+#define MAX_ROWS_PER_KEYBOARD 6
+
+struct keyboard_row
+{
+    u8 keys[MAX_KEYS_PER_KEYBOARD_ROW];
+    i32 nr_of_keys;
+    i32 x_offset;
+};
+
+struct keyboard_layout
+{
+    keyboard_row rows[MAX_ROWS_PER_KEYBOARD];
+    i32 nr_of_rows;
+};
+
 struct world_data
 {
     entity entities[MAX_ENTITIES];
@@ -73,6 +89,7 @@ struct world_data
     
     u8 key_sequence[MAX_KEY_SEQUENCE];
     
+    keyboard_layout keyboard_layout;
 };
 
 world_data global_world;  // FIXME: allocate this properly!
@@ -152,6 +169,35 @@ extern "C" {
         {
             world->key_sequence[sequence_index] = ' ';
         }
+        
+        
+        u8 * rows[MAX_ROWS_PER_KEYBOARD];
+        i32 row_offsets[MAX_ROWS_PER_KEYBOARD];
+        
+        i32 nr_of_rows = 4;
+        
+        // TODO: how to deal with other keys here!? Maybe use an enum with their names iterated below? And their values represent the keyCodes?
+        rows[0] = (u8*) "`1234567890-=";
+        rows[1] = (u8*) "\tQWERTYUIOP[]\\";
+        rows[2] = (u8*)   "ASDFGHJKL;'\n";
+        rows[3] = (u8*)    "ZXCVBNM,./";
+        
+        row_offsets[0] = 0;
+        row_offsets[1] = 1;
+        row_offsets[2] = 4;
+        row_offsets[3] = 5;
+
+        for (i32 row_index = 0; row_index < nr_of_rows; row_index++)
+        {
+            i32 row_length = cstring_length(rows[row_index]);
+            for (i32 column_index = 0; column_index < row_length; column_index++) {
+                world->keyboard_layout.rows[row_index].keys[column_index] = rows[row_index][column_index];
+            }
+            world->keyboard_layout.rows[row_index].nr_of_keys = row_length;
+            world->keyboard_layout.rows[row_index].x_offset = row_offsets[row_index];
+        }
+        world->keyboard_layout.nr_of_rows = nr_of_rows;
+        
     }
     
     void update_frame()
@@ -261,50 +307,62 @@ extern "C" {
         
     }
     
-    void draw_keyboard(keyboard_input * keyboard)
+    void draw_keyboard(keyboard_input * keyboard, keyboard_layout * keyboard_layout)
     {
         short_string temp_string;
         short_string character;
 
-        color4 font_color;
-        font_color.r = 0;
-        font_color.g = 0;
-        font_color.b = 0;
-        font_color.a = 255;
+        color4 black;
+        black.r = 0;
+        black.g = 0;
+        black.b = 0;
+        black.a = 255;
+        
+        color4 white;
+        white.r = 255;
+        white.g = 255;
+        white.b = 255;
+        white.a = 255;
 
         if (keyboard->ctrl_key_is_down)
         {
-            draw_text(400, 180, copy_cstring_to_short_string("Ctrl", &temp_string), 10, font_color);
+            draw_text(400, 180, copy_cstring_to_short_string("Ctrl", &temp_string), 10, black);
         }
         
         if (keyboard->alt_key_is_down)
         {
-            draw_text(500, 180, copy_cstring_to_short_string("Alt", &temp_string), 10, font_color);
+            draw_text(500, 180, copy_cstring_to_short_string("Alt", &temp_string), 10, black);
         }
         
         if (keyboard->shift_key_is_down)
         {
-            draw_text(600, 180, copy_cstring_to_short_string("Shift", &temp_string), 10, font_color);
+            draw_text(600, 180, copy_cstring_to_short_string("Shift", &temp_string), 10, black);
         }
         
-        for (i32 number_index = 0; number_index < 10; number_index++)
+        
+        for (i32 row_index = 0; row_index < keyboard_layout->nr_of_rows; row_index++)
         {
-            u8 ch = '0' + number_index;
-            copy_char_to_string(ch, &character);
-            if (keyboard->keys_that_are_down[ch])
+            for (i32 column_index = 0; column_index < keyboard_layout->rows[row_index].nr_of_keys; column_index++)
             {
-                draw_text(350 + number_index * 10, 150, &character, 10, font_color);
+                u8 key_code = keyboard_layout->rows[row_index].keys[column_index];
+                u8 x_offset = keyboard_layout->rows[row_index].x_offset;
+                
+                copy_char_to_string(key_code, &character);
+                i32 x = 350 + column_index * 40 + x_offset * 20;
+                i32 y = 150 + row_index * 40;
+                if (keyboard->keys_that_are_down[key_code])
+                {
+                    draw_rectangle(x - 10, y - 10, 30, 30, black, black, 1);
+                    draw_text(x, y, &character, 10, white);
+                }
+                else {
+                    draw_rectangle(x - 10, y - 10, 30, 30, black, white, 1);
+                    draw_text(x, y, &character, 10, black);
+                }
+                
             }
         }
-        for (i32 letter_index = 0; letter_index < 26; letter_index++)
-        {
-            u8 ch = 'A' + letter_index;
-            copy_char_to_string(ch, &character);
-            if (keyboard->keys_that_are_down[ch])
-            {
-                draw_text(350 + letter_index * 10, 170, &character, 10, font_color);
-            }
-        }
+
        
     }
     
@@ -322,13 +380,14 @@ extern "C" {
         for (i32 sequence_index = 0; sequence_index < MAX_KEY_SEQUENCE; sequence_index++)
         {
             copy_char_to_string(world->key_sequence[sequence_index], &character);
-            draw_text(320 + sequence_index * 10, 220, &character, 10, font_color);
+            draw_text(450 + sequence_index * 10, 100, &character, 10, font_color);
         }
     }
     
     void render_frame()
     {
         world_data * world = &global_world;
+        input * input = &global_input;
 
         for (i32 entity_index = 0; entity_index < world->nr_of_entities; entity_index++)
         {
@@ -362,9 +421,7 @@ extern "C" {
         
         draw_sequence(world);
         
-        keyboard_input * keyboard = &global_input.keyboard;
-        
-        draw_keyboard(keyboard);
+        draw_keyboard(&input->keyboard, &world->keyboard_layout);
         
     }
 }
