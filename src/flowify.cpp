@@ -54,12 +54,20 @@ struct entity
 #define MAX_ENTITIES 10
 #define MAX_KEY_SEQUENCE 30
 
-#define MAX_KEYS_PER_KEYBOARD_ROW 15
+#define MAX_KEYS_PER_KEYBOARD_ROW 20
 #define MAX_ROWS_PER_KEYBOARD 6
+
+struct keyboard_key
+{
+    u8 key_code;
+    short_string key_name;  // TODO: this is memory-intensive!
+    i32 width;
+    // TODO: maybe add height too (for vertically smaller keys)
+};
 
 struct keyboard_row
 {
-    u8 keys[MAX_KEYS_PER_KEYBOARD_ROW];
+    keyboard_key keys[MAX_KEYS_PER_KEYBOARD_ROW];
     i32 nr_of_keys;
     i32 x_offset;
 };
@@ -171,27 +179,56 @@ extern "C" {
         }
         
         
-        u8 * rows[MAX_ROWS_PER_KEYBOARD];
+        short_string rows[MAX_ROWS_PER_KEYBOARD];
         i32 row_offsets[MAX_ROWS_PER_KEYBOARD];
         
         i32 nr_of_rows = 4;
         
         // TODO: how to deal with other keys here!? Maybe use an enum with their names iterated below? And their values represent the keyCodes?
-        rows[0] = (u8*) "`1234567890-=";
-        rows[1] = (u8*) "\tQWERTYUIOP[]\\";
-        rows[2] = (u8*)   "ASDFGHJKL;'\n";
-        rows[3] = (u8*)    "ZXCVBNM,./";
+        u8 row1[] = { Key_Backtick, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', Key_Minus, Key_Equals, Key_Backspace, 0};
+        u8 row2[] = { Key_Tab, 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', Key_OpeningSquareBracket, Key_ClosingSquareBracket, Key_BackSlash, 0};
+        u8 row3[] = { Key_CapsLock, 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', Key_SemiColon, Key_SingleQuote, Key_Enter, 0};
+        u8 row4[] = { Key_Shift, 'Z', 'X', 'C', 'V', 'B', 'N', 'M', Key_Comma, Key_Period, Key_ForwardSlash, Key_Shift, 0};
         
+        copy_cstring_to_short_string((const char*)row1, &rows[0]);
+        copy_cstring_to_short_string((const char*)row2, &rows[1]);
+        copy_cstring_to_short_string((const char*)row3, &rows[2]);
+        copy_cstring_to_short_string((const char*)row4, &rows[3]);
+`        
+        u8 * key_names[255];
+        key_names[Key_Backtick] = (u8*) "`";
+        key_names[Key_Minus] = (u8*) "-";
+        key_names[Key_Equals] = (u8*) "=";
+        key_names[Key_Backspace] = (u8*) "Backspace";
+        
+        key_names[Key_Enter] = (u8*) "Enter";
+        
+        // TODO: add width of wider keys
+
         row_offsets[0] = 0;
         row_offsets[1] = 1;
         row_offsets[2] = 4;
         row_offsets[3] = 5;
-
+        
         for (i32 row_index = 0; row_index < nr_of_rows; row_index++)
         {
-            i32 row_length = cstring_length(rows[row_index]);
+            i32 row_length = rows[row_index].length;
             for (i32 column_index = 0; column_index < row_length; column_index++) {
-                world->keyboard_layout.rows[row_index].keys[column_index] = rows[row_index][column_index];
+                keyboard_key * key = &world->keyboard_layout.rows[row_index].keys[column_index];
+                key->key_code = rows[row_index].data[column_index];
+                if (cstring_length(key_names[key->key_code]) > 0)
+                {
+                    // key->key_name.length = 0;
+                    // copy_cstring_to_short_string("My2", &key->key_name);
+                    // copy_cstring_to_short_string((const char*)key_names[key->key_code], &key->key_name);
+                    //copy_cstring_to_short_string("My2", &key->key_name);
+                    // FIXME: why does this not work? copy_cstring_to_short_string("My", &key->key_name);
+                    
+                    copy_char_to_string(key->key_code, &key->key_name);
+                }
+                else {
+                    copy_char_to_string(key->key_code, &key->key_name);
+                }
             }
             world->keyboard_layout.rows[row_index].nr_of_keys = row_length;
             world->keyboard_layout.rows[row_index].x_offset = row_offsets[row_index];
@@ -344,20 +381,20 @@ extern "C" {
         {
             for (i32 column_index = 0; column_index < keyboard_layout->rows[row_index].nr_of_keys; column_index++)
             {
-                u8 key_code = keyboard_layout->rows[row_index].keys[column_index];
+                u8 key_code = keyboard_layout->rows[row_index].keys[column_index].key_code;
+                short_string key_name = keyboard_layout->rows[row_index].keys[column_index].key_name;
                 u8 x_offset = keyboard_layout->rows[row_index].x_offset;
                 
-                copy_char_to_string(key_code, &character);
                 i32 x = 350 + column_index * 40 + x_offset * 20;
                 i32 y = 150 + row_index * 40;
                 if (keyboard->keys_that_are_down[key_code])
                 {
                     draw_rectangle(x - 10, y - 10, 30, 30, black, black, 1);
-                    draw_text(x, y, &character, 10, white);
+                    draw_text(x, y, &key_name, 10, white);
                 }
                 else {
                     draw_rectangle(x - 10, y - 10, 30, 30, black, white, 1);
-                    draw_text(x, y, &character, 10, black);
+                    draw_text(x, y, &key_name, 10, black);
                 }
                 
             }

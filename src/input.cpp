@@ -174,3 +174,105 @@ extern "C" {
     }
     
 }
+
+
+// Used this as basis: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
+
+enum keyboard_key_code
+{
+    Key_Unidentified = 0x00,
+
+    Key_Backspace = 0x08,
+    Key_Tab = 0x09,
+    Key_Clear = 0x0C,
+    Key_Enter = 0x0D,
+    Key_Shift = 0x10,
+    Key_Control = 0x11,
+    Key_Alt = 0x12,
+    Key_Pause = 0x13,
+    Key_CapsLock = 0x14,
+    Key_Escape = 0x1B,
+    Key_Space = 0x20,
+
+    Key_PageUp = 0x21,
+    Key_PageDown = 0x22,
+    Key_End = 0x23,
+    Key_Home = 0x24,
+
+    Key_ArrowLeft = 0x25,
+    Key_ArrowUp = 0x26,
+    Key_ArrowRight = 0x27,
+    Key_ArrowDown = 0x28,
+
+    Key_Select = 0x29,
+    Key_PrintScreen = 0x2C,
+
+    Key_Insert = 0x2D,
+    Key_Delete = 0x2E,
+
+    Key_LeftMeta = 0x5B,
+    Key_RightMeta = 0x5C,
+
+    Key_StandBy = 0x5F,
+
+    Key_Pad_0 = 0x60,
+    Key_Pad_1 = 0x61,
+    Key_Pad_2 = 0x62,
+    Key_Pad_3 = 0x63,
+    Key_Pad_4 = 0x64,
+    Key_Pad_5 = 0x65,
+    Key_Pad_6 = 0x66,
+    Key_Pad_7 = 0x67,
+    Key_Pad_8 = 0x68,
+    Key_Pad_9 = 0x69,
+
+    Key_F1 = 0x70,
+    Key_F2 = 0x71,
+    Key_F3 = 0x72,
+    Key_F4 = 0x73,
+    Key_F5 = 0x74,
+    Key_F6 = 0x75,
+    Key_F7 = 0x76,
+    Key_F8 = 0x77,
+    Key_F9 = 0x78,
+    Key_F10 = 0x79,
+    Key_F11 = 0x7A,
+    Key_F12 = 0x7B,
+    Key_F13 = 0x7C,
+    Key_F14 = 0x7D,
+    Key_F15 = 0x7E,
+    Key_F16 = 0x7F,
+    Key_F17 = 0x80,
+    Key_F18 = 0x81,
+    Key_F19 = 0x82,
+    Key_F20 = 0x83,
+
+    Key_NumLock = 0x90,
+    Key_ScrollLock = 0x91,
+
+    Key_LeftShift = 0xA0,
+    Key_RightShift = 0xA1,
+
+    Key_LeftControl = 0xA2,
+    Key_RightControl = 0xA3,
+
+    Key_LeftAlt = 0xA4,
+    Key_RightAlt = 0xA5,
+
+    Key_SemiColon = 0xBA,
+    Key_Equals = 0xBB,
+    Key_Comma = 0xBC,
+    Key_Minus = 0xBD,
+    Key_Period = 0xBE,
+    Key_ForwardSlash = 0xBF,
+    Key_Backtick = 0xC0,
+    Key_OpeningSquareBracket = 0xDB,
+    Key_BackSlash = 0xDC,
+    Key_ClosingSquareBracket = 0xDD,
+    Key_SingleQuote = 0xDE,
+
+    Key_ExSel = 0xF8,
+    Key_EraseEof = 0xF9,
+    Key_Play = 0xFA,
+    Key_Oem_Clear = 0xFE
+};
