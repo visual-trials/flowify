@@ -242,6 +242,7 @@ extern "C" {
 		key_names[Key_Alt] = "Alt";
 		key_names[Key_LeftMeta] = "_";
 		key_names[Key_RightMeta] = "_";
+		key_names[Key_Clear] = "";
         
         i32 key_widths[255] = {};
 
