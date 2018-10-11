@@ -1,1 +1,1 @@
-cl /EHsc /Od /Zi src\flowify_win32.cpp User32.lib Gdi32.lib Winmm.lib Msimg32.lib Comdlg32.lib /DBUILD_FOR_NATIVE_PLATFORM=1 /Fodist\flowify.obj /Fedist\flowify.exe
+cl /EHsc /Od /Zi /Fddist\vc.pdb src\flowify_win32.cpp User32.lib Gdi32.lib Winmm.lib Msimg32.lib Comdlg32.lib /DBUILD_FOR_NATIVE_PLATFORM=1 /Fodist\flowify.obj /Fedist\flowify.exe
