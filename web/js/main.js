@@ -49,27 +49,73 @@ Flowify.main = function () {
         Flowify.canvas.requestAnimFrame(my.mainLoop)
     }
     
-    let wasmEnv = {
-        STACKTOP: 0,
-        memoryBase: 0,
-        tableBase: 0,
-        memory: new WebAssembly.Memory({
-            initial: 512,  // 512 = 32MB
-            maximum: 512,
-        }),
-        table: new WebAssembly.Table({
-            initial: 40,
-            maximum: 40,
-            element: 'anyfunc',
-        }),
-    }
+    let wasmEnv = {}
     
-    my.bufferU8 = new Uint8Array(wasmEnv.memory.buffer)
-    
-    // TODO: we try to implement the emscripten_memcpy_big-function here. Check if this is correct!
-    wasmEnv._emscripten_memcpy_big = function(dest, src, num) {
-        my.bufferU8.set(my.bufferU8.subarray(src, src+num), dest)
-        return dest
+    // This calculation of STACKTOP, DYNAMICTOP_PTR and DYNAMIC_BASE is extracted from the .js file emcc generated
+    {
+        function alignMemory(size, factor) {
+            if (!factor) factor = STACK_ALIGN
+            var ret = size = Math.ceil(size / factor) * factor
+            return ret
+        }
+        
+        function staticAlloc(size) {
+            let ret = STATICTOP
+            STATICTOP = STATICTOP + size + 15 & -16
+            return ret
+        }
+
+        let WASM_PAGE_SIZE = 65536
+
+        let STACK_ALIGN = 16
+        let STATIC_BASE, STATICTOP, staticSealed
+        let STACK_BASE, STACKTOP, STACK_MAX
+        let DYNAMIC_BASE, DYNAMICTOP_PTR
+        
+        STATIC_BASE = STATICTOP = STACK_BASE = STACKTOP = STACK_MAX = DYNAMIC_BASE = DYNAMICTOP_PTR = 0
+        
+        let TOTAL_STACK =   5242880 // Module["TOTAL_STACK"]
+        let TOTAL_MEMORY = 33554432 // Module["TOTAL_MEMORY"]
+
+        let GLOBAL_BASE = 1024
+        STATIC_BASE = GLOBAL_BASE
+        STATICTOP = STATIC_BASE + 16992
+        let STATIC_BUMP = 16992
+        STATICTOP += 16
+        
+        let memory = new WebAssembly.Memory({
+                initial: TOTAL_MEMORY / WASM_PAGE_SIZE,  // 512 = 32MB
+                maximum: TOTAL_MEMORY / WASM_PAGE_SIZE,
+        })
+        
+        let table = new WebAssembly.Table({
+                initial: 1024,
+                maximum: 1024,
+                element: 'anyfunc',
+        })
+        
+        DYNAMICTOP_PTR = staticAlloc(4)
+        STACK_BASE = STACKTOP = alignMemory(STATICTOP)
+        STACK_MAX = STACK_BASE + TOTAL_STACK
+        DYNAMIC_BASE = alignMemory(STACK_MAX)
+        
+        my.bufferU8 = new Uint8Array(memory.buffer)
+        my.bufferI32 = new Int32Array(memory.buffer)
+
+        my.bufferI32[DYNAMICTOP_PTR >> 2] = DYNAMIC_BASE
+        
+        wasmEnv = {
+            STACKTOP: STACKTOP,
+            memoryBase: 0,
+            tableBase: 0,
+            memory: memory,
+            table: table,
+        }
+        
+        wasmEnv._emscripten_memcpy_big = function(dest, src, num) {
+            my.bufferU8.set(my.bufferU8.subarray(src, src+num), dest)
+            return dest
+        }
     }
     
     let exportedFunctions = Flowify.canvas.getExportedFunctions()
