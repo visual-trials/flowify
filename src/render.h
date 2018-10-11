@@ -75,6 +75,15 @@ i32 cstring_length(u8 * string)
     return count;
 }
 
+void copy_string(short_string * src, short_string * dest)
+{
+    for (i32 i = 0; i < src->length; i++)
+    {
+        dest->data[i] = src->data[i];
+    }
+    dest->length = src->length;
+}
+
 i32 copy_cstring(const char * src, u8 * dest, i32 max_length)
 {
     i32 count = 0;

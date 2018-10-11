@@ -195,13 +195,17 @@ extern "C" {
         copy_cstring_to_short_string((const char*)row3, &rows[2]);
         copy_cstring_to_short_string((const char*)row4, &rows[3]);
         
-        u8 * key_names[255];
-        key_names[Key_Backtick] = (u8*) "`";
-        key_names[Key_Minus] = (u8*) "-";
-        key_names[Key_Equals] = (u8*) "=";
-        key_names[Key_Backspace] = (u8*) "Backspace";
+        short_string key_names[255];
+        for (i32 i = 0; i < 255; i++)
+        {
+            key_names[i].length = 0;
+        }
+        copy_cstring_to_short_string("`", &key_names[Key_Backtick]);
+        //key_names[Key_Minus] = (u8*) "-";
+        //key_names[Key_Equals] = (u8*) "=";
+        //key_names[Key_Backspace] = (u8*) "Backspace";
         
-        key_names[Key_Enter] = (u8*) "Enter";
+        //key_names[Key_Enter] = (u8*) "Enter";
         
         // TODO: add width of wider keys
 
@@ -216,15 +220,9 @@ extern "C" {
             for (i32 column_index = 0; column_index < row_length; column_index++) {
                 keyboard_key * key = &world->keyboard_layout.rows[row_index].keys[column_index];
                 key->key_code = rows[row_index].data[column_index];
-                if (cstring_length(key_names[key->key_code]) > 0)
+                if (key_names[key->key_code].length > 0)
                 {
-                    // key->key_name.length = 0;
-                    // copy_cstring_to_short_string("My2", &key->key_name);
-                    // copy_cstring_to_short_string((const char*)key_names[key->key_code], &key->key_name);
-                    //copy_cstring_to_short_string("My2", &key->key_name);
-                    // FIXME: why does this not work? copy_cstring_to_short_string("My", &key->key_name);
-                    
-                    copy_char_to_string(key->key_code, &key->key_name);
+                    copy_string(&key_names[key->key_code], &key->key_name);
                 }
                 else {
                     copy_char_to_string(key->key_code, &key->key_name);
