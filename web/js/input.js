@@ -241,7 +241,7 @@ Flowify.input = function () {
         // FIXME: e.keyCode and e.which are deprecated, so we should not use them ( https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent )
         let keyValue = e.key;
         let keyCode = e.keyCode ? e.keyCode : e.which
-        
+console.log(keyCode)   
         if (keyValue === 'Control') {
             if (!my.ctrlKeyIsDown) {
                 my.ctrlKeyIsDown = true

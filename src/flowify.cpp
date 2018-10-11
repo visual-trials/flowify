@@ -179,10 +179,9 @@ extern "C" {
 
         
         short_string rows[MAX_ROWS_PER_KEYBOARD];
-        i32 row_offsets[MAX_ROWS_PER_KEYBOARD];
         i32 row_heights[MAX_ROWS_PER_KEYBOARD];
         
-        i32 nr_of_rows = 5;
+        i32 nr_of_rows = 6;
         
         // TODO: how to deal with other keys here!? Maybe use an enum with their names iterated below? And their values represent the keyCodes?
         u8 row0[] = { Key_Escape, Key_Invisible, Key_F1, Key_F2, Key_F3, Key_F4, Key_Invisible, Key_F5, Key_F6, Key_F7, Key_F8, Key_Invisible, Key_F9, Key_F10, Key_F11, Key_F12, 0};
@@ -190,12 +189,14 @@ extern "C" {
         u8 row2[] = { Key_Tab, 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', Key_OpeningSquareBracket, Key_ClosingSquareBracket, Key_BackSlash, 0};
         u8 row3[] = { Key_CapsLock, 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', Key_SemiColon, Key_SingleQuote, Key_Enter, 0};
         u8 row4[] = { Key_Shift, 'Z', 'X', 'C', 'V', 'B', 'N', 'M', Key_Comma, Key_Period, Key_ForwardSlash, Key_Shift, 0};
+        u8 row5[] = { Key_Control, Key_RightMeta, Key_Alt, Key_Space, Key_Alt, Key_RightMeta, Key_Clear, Key_Control, 0};
         
         copy_cstring_to_short_string((const char*)row0, &rows[0]);
         copy_cstring_to_short_string((const char*)row1, &rows[1]);
         copy_cstring_to_short_string((const char*)row2, &rows[2]);
         copy_cstring_to_short_string((const char*)row3, &rows[3]);
         copy_cstring_to_short_string((const char*)row4, &rows[4]);
+        copy_cstring_to_short_string((const char*)row5, &rows[5]);
         
         const char * key_names[255] = {};
 
@@ -237,6 +238,11 @@ extern "C" {
 		key_names[Key_Period] = ".";
 		key_names[Key_ForwardSlash] = "/";
         
+		key_names[Key_Control] = "Ctrl";
+		key_names[Key_Alt] = "Alt";
+		key_names[Key_LeftMeta] = "_";
+		key_names[Key_RightMeta] = "_";
+        
         i32 key_widths[255] = {};
 
         key_widths[Key_Invisible] = 27;
@@ -253,17 +259,19 @@ extern "C" {
         key_widths[Key_LeftShift] = 100;
         key_widths[Key_RightShift] = 100;
         
-        row_offsets[0] = 0;
-        row_offsets[1] = 0;
-        row_offsets[2] = 0;
-        row_offsets[3] = 0;
-        row_offsets[4] = 0;
+        key_widths[Key_Control] = 60;
+        key_widths[Key_Alt] = 50;
+        key_widths[Key_Space] = 250;
+        key_widths[Key_LeftMeta] = 40;
+        key_widths[Key_RightMeta] = 40;
+        key_widths[Key_Clear] = 50;
         
         row_heights[0] = 30;
         row_heights[1] = 40;
         row_heights[2] = 40;
         row_heights[3] = 40;
         row_heights[4] = 40;
+        row_heights[5] = 40;
         
         for (i32 row_index = 0; row_index < nr_of_rows; row_index++)
         {
@@ -521,17 +529,6 @@ extern "C" {
                 draw_text(current_entity->pos.x, current_entity->pos.y, &current_entity->text, 10, font_color);
             }
         }
-        
-        // TODO: use entities with a text-property instead
-        
-        color4 font_color;
-        font_color.r = 0;
-        font_color.g = 0;
-        font_color.b = 0;
-        font_color.a = 255;
-        
-        short_string temp_string;
-        draw_text(200, 340, copy_cstring_to_short_string("My first text!", &temp_string), 10, font_color);
         
         draw_sequence(world);
         
