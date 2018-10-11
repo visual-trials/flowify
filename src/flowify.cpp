@@ -195,21 +195,14 @@ extern "C" {
         copy_cstring_to_short_string((const char*)row3, &rows[2]);
         copy_cstring_to_short_string((const char*)row4, &rows[3]);
         
-        short_string key_names[255];
-        for (i32 i = 0; i < 255; i++)
-        {
-            key_names[i].length = 0;
-        }
-        copy_cstring_to_short_string("`", &key_names[Key_Backtick]);
-		copy_cstring_to_short_string("-", &key_names[Key_Minus]);
-		copy_cstring_to_short_string("=", &key_names[Key_Equals]);
-		copy_cstring_to_short_string("Backspace", &key_names[Key_Backspace]);
-		//key_names[Key_Minus] = (u8*) "-";
-        //key_names[Key_Equals] = (u8*) "=";
-        //key_names[Key_Backspace] = (u8*) "Backspace";
+        const char * key_names[255] = {};
         
-		copy_cstring_to_short_string("Enter", &key_names[Key_Enter]);
-		//key_names[Key_Enter] = (u8*) "Enter";
+		key_names[Key_Backtick] = "`";
+		key_names[Key_Minus] = "-";
+        key_names[Key_Equals] = "=";
+        key_names[Key_Backspace] = "Backspace";
+        
+		key_names[Key_Enter] = "Enter";
         
         // TODO: add width of wider keys
 
@@ -224,9 +217,9 @@ extern "C" {
             for (i32 column_index = 0; column_index < row_length; column_index++) {
                 keyboard_key * key = &world->keyboard_layout.rows[row_index].keys[column_index];
                 key->key_code = rows[row_index].data[column_index];
-                if (key_names[key->key_code].length > 0)
+                if (key_names[key->key_code])
                 {
-                    copy_string(&key_names[key->key_code], &key->key_name);
+                    copy_cstring_to_short_string(key_names[key->key_code], &key->key_name);
                 }
                 else {
                     copy_char_to_string(key->key_code, &key->key_name);
