@@ -106,7 +106,7 @@ Flowify.main = function () {
         
         wasmEnv = {
             STACKTOP: STACKTOP,
-            memoryBase: 0,
+            memoryBase: STATIC_BASE,
             tableBase: 0,
             memory: memory,
             table: table,
