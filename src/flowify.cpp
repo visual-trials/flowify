@@ -194,7 +194,7 @@ extern "C" {
         copy_cstring_to_short_string((const char*)row2, &rows[1]);
         copy_cstring_to_short_string((const char*)row3, &rows[2]);
         copy_cstring_to_short_string((const char*)row4, &rows[3]);
-`        
+        
         u8 * key_names[255];
         key_names[Key_Backtick] = (u8*) "`";
         key_names[Key_Minus] = (u8*) "-";
