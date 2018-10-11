@@ -198,14 +198,18 @@ extern "C" {
         short_string key_names[255];
         for (i32 i = 0; i < 255; i++)
         {
-            // key_names[i].length = 0;
+            key_names[i].length = 0;
         }
-        //copy_cstring_to_short_string("`", &key_names[Key_Backtick]);
-        //key_names[Key_Minus] = (u8*) "-";
+        copy_cstring_to_short_string("`", &key_names[Key_Backtick]);
+		copy_cstring_to_short_string("-", &key_names[Key_Minus]);
+		copy_cstring_to_short_string("=", &key_names[Key_Equals]);
+		copy_cstring_to_short_string("Backspace", &key_names[Key_Backspace]);
+		//key_names[Key_Minus] = (u8*) "-";
         //key_names[Key_Equals] = (u8*) "=";
         //key_names[Key_Backspace] = (u8*) "Backspace";
         
-        //key_names[Key_Enter] = (u8*) "Enter";
+		copy_cstring_to_short_string("Enter", &key_names[Key_Enter]);
+		//key_names[Key_Enter] = (u8*) "Enter";
         
         // TODO: add width of wider keys
 
