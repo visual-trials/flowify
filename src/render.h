@@ -44,7 +44,7 @@ struct color4
     u8 a;
 };
 
-#define MAX_LENGTH_SHORT_STRING 100
+#define MAX_LENGTH_SHORT_STRING 255
 
 struct short_string
 {
