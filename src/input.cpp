@@ -181,6 +181,8 @@ extern "C" {
 enum keyboard_key_code
 {
     Key_Unidentified = 0x00,
+    
+    Key_Invisible = 0x01,
 
     Key_Backspace = 0x08,
     Key_Tab = 0x09,

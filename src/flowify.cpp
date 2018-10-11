@@ -62,14 +62,13 @@ struct keyboard_key
     u8 key_code;
     short_string key_name;  // TODO: this is memory-intensive!
     i32 width;
-    // TODO: maybe add height too (for vertically smaller keys)
 };
 
 struct keyboard_row
 {
     keyboard_key keys[MAX_KEYS_PER_KEYBOARD_ROW];
     i32 nr_of_keys;
-    i32 x_offset;
+    i32 height;
 };
 
 struct keyboard_layout
@@ -181,52 +180,118 @@ extern "C" {
         
         short_string rows[MAX_ROWS_PER_KEYBOARD];
         i32 row_offsets[MAX_ROWS_PER_KEYBOARD];
+        i32 row_heights[MAX_ROWS_PER_KEYBOARD];
         
-        i32 nr_of_rows = 4;
+        i32 nr_of_rows = 5;
         
         // TODO: how to deal with other keys here!? Maybe use an enum with their names iterated below? And their values represent the keyCodes?
+        u8 row0[] = { Key_Escape, Key_Invisible, Key_F1, Key_F2, Key_F3, Key_F4, Key_Invisible, Key_F5, Key_F6, Key_F7, Key_F8, Key_Invisible, Key_F9, Key_F10, Key_F11, Key_F12, 0};
         u8 row1[] = { Key_Backtick, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', Key_Minus, Key_Equals, Key_Backspace, 0};
         u8 row2[] = { Key_Tab, 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', Key_OpeningSquareBracket, Key_ClosingSquareBracket, Key_BackSlash, 0};
         u8 row3[] = { Key_CapsLock, 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', Key_SemiColon, Key_SingleQuote, Key_Enter, 0};
         u8 row4[] = { Key_Shift, 'Z', 'X', 'C', 'V', 'B', 'N', 'M', Key_Comma, Key_Period, Key_ForwardSlash, Key_Shift, 0};
         
-        copy_cstring_to_short_string((const char*)row1, &rows[0]);
-        copy_cstring_to_short_string((const char*)row2, &rows[1]);
-        copy_cstring_to_short_string((const char*)row3, &rows[2]);
-        copy_cstring_to_short_string((const char*)row4, &rows[3]);
+        copy_cstring_to_short_string((const char*)row0, &rows[0]);
+        copy_cstring_to_short_string((const char*)row1, &rows[1]);
+        copy_cstring_to_short_string((const char*)row2, &rows[2]);
+        copy_cstring_to_short_string((const char*)row3, &rows[3]);
+        copy_cstring_to_short_string((const char*)row4, &rows[4]);
         
         const char * key_names[255] = {};
+
+		key_names[Key_Invisible] = "";
+        
+		key_names[Key_Escape] = "Esc";
+		key_names[Key_F1] = "F1";
+		key_names[Key_F2] = "F2";
+		key_names[Key_F3] = "F3";
+		key_names[Key_F4] = "F4";
+		key_names[Key_F5] = "F5";
+		key_names[Key_F6] = "F6";
+		key_names[Key_F7] = "F7";
+		key_names[Key_F8] = "F8";
+		key_names[Key_F9] = "F9";
+		key_names[Key_F10] = "F10";
+		key_names[Key_F11] = "F11";
+		key_names[Key_F12] = "F12";
         
 		key_names[Key_Backtick] = "`";
 		key_names[Key_Minus] = "-";
         key_names[Key_Equals] = "=";
         key_names[Key_Backspace] = "Backspace";
         
+		key_names[Key_Tab] = "Tab";
+		key_names[Key_OpeningSquareBracket] = "[";
+		key_names[Key_ClosingSquareBracket] = "]";
+		key_names[Key_BackSlash] = "\\";
+        
+		key_names[Key_CapsLock] = "Capslock";
+		key_names[Key_SemiColon] = ";";
+		key_names[Key_SingleQuote] = "'";
 		key_names[Key_Enter] = "Enter";
         
-        // TODO: add width of wider keys
+		key_names[Key_Shift] = "Shift";
+		key_names[Key_LeftShift] = "Shift";
+		key_names[Key_RightShift] = "Shift";
+		key_names[Key_Comma] = ",";
+		key_names[Key_Period] = ".";
+		key_names[Key_ForwardSlash] = "/";
+        
+        i32 key_widths[255] = {};
 
+        key_widths[Key_Invisible] = 27;
+        
+        key_widths[Key_Backspace] = 80;
+        
+        key_widths[Key_Tab] = 60;
+        key_widths[Key_BackSlash] = 60;
+        
+        key_widths[Key_CapsLock] = 70;
+        key_widths[Key_Enter] = 90;
+        
+        key_widths[Key_Shift] = 100;
+        key_widths[Key_LeftShift] = 100;
+        key_widths[Key_RightShift] = 100;
+        
         row_offsets[0] = 0;
-        row_offsets[1] = 1;
-        row_offsets[2] = 4;
-        row_offsets[3] = 5;
+        row_offsets[1] = 0;
+        row_offsets[2] = 0;
+        row_offsets[3] = 0;
+        row_offsets[4] = 0;
+        
+        row_heights[0] = 30;
+        row_heights[1] = 40;
+        row_heights[2] = 40;
+        row_heights[3] = 40;
+        row_heights[4] = 40;
         
         for (i32 row_index = 0; row_index < nr_of_rows; row_index++)
         {
             i32 row_length = rows[row_index].length;
-            for (i32 column_index = 0; column_index < row_length; column_index++) {
+            for (i32 column_index = 0; column_index < row_length; column_index++)
+            {
                 keyboard_key * key = &world->keyboard_layout.rows[row_index].keys[column_index];
                 key->key_code = rows[row_index].data[column_index];
                 if (key_names[key->key_code])
                 {
                     copy_cstring_to_short_string(key_names[key->key_code], &key->key_name);
                 }
-                else {
+                else 
+                {
                     copy_char_to_string(key->key_code, &key->key_name);
+                }
+                
+                if (key_widths[key->key_code]) 
+                {
+                    key->width = key_widths[key->key_code];
+                }
+                else
+                {
+                    key->width = 40; // default
                 }
             }
             world->keyboard_layout.rows[row_index].nr_of_keys = row_length;
-            world->keyboard_layout.rows[row_index].x_offset = row_offsets[row_index];
+            world->keyboard_layout.rows[row_index].height = row_heights[row_index];
         }
         world->keyboard_layout.nr_of_rows = nr_of_rows;
         
@@ -356,6 +421,7 @@ extern "C" {
         white.b = 255;
         white.a = 255;
 
+        /*
         if (keyboard->ctrl_key_is_down)
         {
             draw_text(400, 180, copy_cstring_to_short_string("Ctrl", &temp_string), 10, black);
@@ -370,29 +436,45 @@ extern "C" {
         {
             draw_text(600, 180, copy_cstring_to_short_string("Shift", &temp_string), 10, black);
         }
+        */
         
         
+        i32 y_row = 150;
         for (i32 row_index = 0; row_index < keyboard_layout->nr_of_rows; row_index++)
         {
+            i32 row_height = keyboard_layout->rows[row_index].height;
+            
+            i32 x_column = 350;
             for (i32 column_index = 0; column_index < keyboard_layout->rows[row_index].nr_of_keys; column_index++)
             {
                 u8 key_code = keyboard_layout->rows[row_index].keys[column_index].key_code;
                 short_string key_name = keyboard_layout->rows[row_index].keys[column_index].key_name;
-                u8 x_offset = keyboard_layout->rows[row_index].x_offset;
+                i32 key_width = keyboard_layout->rows[row_index].keys[column_index].width;
                 
-                i32 x = 350 + column_index * 40 + x_offset * 20;
-                i32 y = 150 + row_index * 40;
-                if (keyboard->keys_that_are_down[key_code])
+                i32 x = x_column;
+                i32 y = y_row;
+                if (key_code != Key_Invisible)
                 {
-                    draw_rectangle(x - 10, y - 10, 30, 30, black, black, 1);
-                    draw_text(x, y, &key_name, 10, white);
-                }
-                else {
-                    draw_rectangle(x - 10, y - 10, 30, 30, black, white, 1);
-                    draw_text(x, y, &key_name, 10, black);
+                    i32 text_margin = 10;
+                    if (row_height < 40)
+                    {
+                        text_margin = 5;
+                    }
+                    if (keyboard->keys_that_are_down[key_code])
+                    {
+                        draw_rectangle(x, y, key_width - 10, row_height - 10, black, black, 1);
+                        draw_text(x + text_margin, y + text_margin, &key_name, 10, white);
+                    }
+                    else {
+                        draw_rectangle(x, y, key_width - 10, row_height - 10, black, white, 1);
+                        draw_text(x + text_margin, y + text_margin, &key_name, 10, black);
+                    }
                 }
                 
+                x_column += key_width;
             }
+            
+            y_row += row_height;
         }
 
        
