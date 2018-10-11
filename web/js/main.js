@@ -54,8 +54,8 @@ Flowify.main = function () {
         memoryBase: 0,
         tableBase: 0,
         memory: new WebAssembly.Memory({
-            initial: 256,
-            maximum: 256,
+            initial: 512,  // 512 = 32MB
+            maximum: 512,
         }),
         table: new WebAssembly.Table({
             initial: 40,

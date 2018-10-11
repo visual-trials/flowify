@@ -100,7 +100,7 @@ struct world_data
     keyboard_layout keyboard_layout;
 };
 
-world_data global_world;  // FIXME: allocate this properly!
+world_data global_world = {};  // FIXME: allocate this properly!
 
 i32 create_new_entity_index(world_data * world)
 {
@@ -177,7 +177,7 @@ extern "C" {
         {
             world->key_sequence[sequence_index] = ' ';
         }
-        
+
         
         short_string rows[MAX_ROWS_PER_KEYBOARD];
         i32 row_offsets[MAX_ROWS_PER_KEYBOARD];
@@ -198,9 +198,9 @@ extern "C" {
         short_string key_names[255];
         for (i32 i = 0; i < 255; i++)
         {
-            key_names[i].length = 0;
+            // key_names[i].length = 0;
         }
-        copy_cstring_to_short_string("`", &key_names[Key_Backtick]);
+        //copy_cstring_to_short_string("`", &key_names[Key_Backtick]);
         //key_names[Key_Minus] = (u8*) "-";
         //key_names[Key_Equals] = (u8*) "=";
         //key_names[Key_Backspace] = (u8*) "Backspace";
