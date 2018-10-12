@@ -19,17 +19,38 @@
 #include "render.h"
 
 extern "C" { 
-    extern void jsDrawRect(i32 x, i32 y, i32 width, i32 height, 
-                           i32 line_color_rgb, i32 line_color_alpha, i32 fill_color_rgb, i32 fill_color_alpha, i32 line_width);
+    extern void jsDrawRoundedRect(i32 x, i32 y, i32 width, i32 height, i32 r,
+                                  i32 line_color_rgb, i32 line_color_alpha, 
+                                  i32 fill_color_rgb, i32 fill_color_alpha, 
+                                  i32 line_width);
                            
-    extern void jsDrawText(i32 x, i32 y, u8 * string_data, i32 string_length,
-                           i32 font_height, i32 font_color_rgb, i32 font_color_alpha);
-                           //, 
+    extern void jsDrawRect(i32 x, i32 y, i32 width, i32 height, 
+                           i32 line_color_rgb, i32 line_color_alpha, 
+                           i32 fill_color_rgb, i32 fill_color_alpha, 
+                           i32 line_width);
+                           
+    extern void jsDrawText(i32 x, i32 y, 
+                           u8 * string_data, i32 string_length,
+                           i32 font_height, 
+                           i32 font_color_rgb, i32 font_color_alpha);
+                           // TODO: base font choice
                            //u8 * base_font_data, i32 base_font_length );
                            
     extern void jsLog(u8 * text_data, i32 text_length);
     
     extern void jsLogInt(i32 log_integer);
+}
+
+void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r,
+                            color4 line_color, color4 fill_color, i32 line_width)
+{
+    i32 line_color_rgb = line_color.r + line_color.g * 256 + line_color.b * 256 * 256; 
+    i32 line_color_alpha = (i32)line_color.a;
+    
+    i32 fill_color_rgb = fill_color.r + fill_color.g * 256 + fill_color.b * 256 * 256;
+    i32 fill_color_alpha = (i32)fill_color.a;
+    
+    jsDrawRoundedRect(x, y, width, height, r, line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
 }
 
 void draw_rectangle(i32 x, i32 y, i32 width, i32 height, 

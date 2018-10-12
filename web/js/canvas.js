@@ -100,6 +100,27 @@ Flowify.canvas = function () {
         
         let exportedFunctions = {
         
+            _jsDrawRoundedRect: function (x, y, width, height, r, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
+                ctx.beginPath()     
+                ctx.moveTo(x + r, y)
+                ctx.arcTo(x + width, y, x + width, y + height, r)
+                ctx.arcTo(x + width, y + height, x, y + height, r)
+                ctx.arcTo(x, y + height, x, y, r)
+                ctx.arcTo(x, y, x + width, y, r)
+                ctx.closePath()
+                
+                if (fillColorAlpha) {
+                    ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
+                    ctx.fill()
+                }
+
+                if (lineColorAlpha) {
+                    ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
+                    ctx.lineWidth = lineWidth
+                    ctx.stroke()
+                }
+            },
+            
             _jsDrawRect: function (x, y, width, height, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
                 ctx.beginPath()
                 ctx.rect(x, y, width, height)
@@ -114,9 +135,8 @@ Flowify.canvas = function () {
                     ctx.lineWidth = lineWidth
                     ctx.stroke()
                 }
-                
             },
-
+            
             _jsDrawText: function (x, y, stringIndex, stringLength, fontHeight, fontColorRGB, fontColorAlpha) { // , baseFontIndex, baseFontLength) {
                 let string = ""
                 for (let i = stringIndex; i < stringIndex + stringLength; i++) {
