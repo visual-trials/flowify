@@ -1,1 +1,2 @@
-cl /EHsc /Od /Zi /Fddist\vc.pdb src\flowify_win32.cpp User32.lib Gdi32.lib Winmm.lib Msimg32.lib Comdlg32.lib /DBUILD_FOR_NATIVE_PLATFORM=1 /Fodist\flowify.obj /Fedist\flowify.exe
+SET PROJECT_NAME=testing_ground
+cl /EHsc /Od /Zi /Fddist\vc.pdb src\main_win32.cpp User32.lib Gdi32.lib Winmm.lib Msimg32.lib Comdlg32.lib /DPROJECT_NAME=%PROJECT_NAME% /DBUILD_FOR_NATIVE_PLATFORM=1 /Fodist\%PROJECT_NAME%.obj /Fedist\%PROJECT_NAME%.exe

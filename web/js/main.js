@@ -125,7 +125,7 @@ Flowify.main = function () {
         wasmEnv[functionName] = exportedFunctions[functionName]
     }
     
-    let wasmFile = 'wasm/flowify.wasm'
+    let wasmFile = Flowify.canvas.canvasElement.dataset.wasmFile
     let latestChangeToWasm = null
 
     let request = new XMLHttpRequest()
