@@ -471,11 +471,11 @@ extern "C" {
                     }
                     if (keyboard->keys_that_are_down[key_code])
                     {
-                        draw_rounded_rectangle(x, y, key_width - 10, row_height - 10, 2, black, black, 1);
+                        draw_rounded_rectangle(x, y, key_width - 10, row_height - 10, 3, black, black, 1);
                         draw_text(x + text_margin, y + text_margin, &key_name, 10, white);
                     }
                     else {
-                        draw_rounded_rectangle(x, y, key_width - 10, row_height - 10, 2, black, white, 1);
+                        draw_rounded_rectangle(x, y, key_width - 10, row_height - 10, 3, black, white, 1);
                         draw_text(x + text_margin, y + text_margin, &key_name, 10, black);
                     }
                 }
