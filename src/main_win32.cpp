@@ -25,7 +25,7 @@
 static HDC window_dc;
 static HDC backbuffer_dc;
 
-#include "flowify.cpp"
+#include INCLUDE_PROJECT_FILE
 
 b32 keep_running;
 i64 performance_count_frequency;
