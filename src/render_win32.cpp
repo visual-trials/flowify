@@ -20,8 +20,8 @@
 
 struct blend_info
 {
-    HDC dc_to_draw_to;
-    HBITMAP alpha_buffer_bitmap;
+    HDC dc;
+    HBITMAP alpha_bitmap;
     BLENDFUNCTION blend_function;
     
     color4 color;
@@ -31,53 +31,36 @@ struct blend_info
     i32 height;
 };
 
-blend_info init_blend(i32 x, i32 y, i32 width, i32 height, color4 color)
+void init_blend(i32 x, i32 y, i32 width, i32 height, color4 color, blend_info * blend_info)
 {
-    blend_info blend_info = {};
     
-    blend_info.color = color;
+    blend_info->color = color;
+    blend_info->x = x;
+    blend_info->y = y;
+    blend_info->width = width;
+    blend_info->height = height;
     
-    if (blend_info.color.a != 255)
-    {
-        blend_info.x = x;
-        blend_info.y = y;
-        blend_info.width = width;
-        blend_info.height = height;
-        
-        blend_info.dc_to_draw_to = CreateCompatibleDC(backbuffer_dc);
+    blend_info->dc = CreateCompatibleDC(backbuffer_dc);
 
-        blend_info.blend_function.BlendOp = AC_SRC_OVER;
-        blend_info.blend_function.BlendFlags = 0;
-        blend_info.blend_function.SourceConstantAlpha = blend_info.color.a;
-        blend_info.blend_function.AlphaFormat = 0;
+    blend_info->blend_function.BlendOp = AC_SRC_OVER;
+    blend_info->blend_function.BlendFlags = 0;
+    blend_info->blend_function.SourceConstantAlpha = blend_info->color.a;
+    blend_info->blend_function.AlphaFormat = 0;
 
-        // FIXME: what if width or height are bigger than the width or height of the backbuffer?
-        blend_info.alphabuffer_bitmap = CreateCompatibleBitmap(backbuffer_dc, blend_info.width, blend_info.height);
-        
-        SelectObject(blend_info.dc_to_draw_to, blend_info.alphabuffer_bitmap);
-    }
-    else {
-        blend_info.dc = backbuffer_dc;
-    }
+    // FIXME: what if width or height are bigger than the width or height of the backbuffer?
+    blend_info->alpha_bitmap = CreateCompatibleBitmap(backbuffer_dc, blend_info->width, blend_info->height);
     
-    return blend_info;
+    SelectObject(blend_info->dc, blend_info->alpha_bitmap);
 }
 
 void end_blend(blend_info * blend_info)
 {
-    if (blend_info->color.a != 255)
-    {
-        AlphaBlend(backbuffer_dc, blend_info->x, blend_info->y, blend_info->width, blend_info->height, 
-                   blend_info->dc, 0, 0, blend_info->width, blend_info->height, 
-                   blend_info->blend_function);
+    AlphaBlend(backbuffer_dc, blend_info->x, blend_info->y, blend_info->width, blend_info->height, 
+               blend_info->dc, 0, 0, blend_info->width, blend_info->height, 
+               blend_info->blend_function);
 
-        DeleteObject(blend_info->bitmap);
-        DeleteDC(blend_info->dc);
-    }
-    else
-    {
-        // Nothing to do when not blending
-    }
+    DeleteObject(blend_info->alpha_bitmap);
+    DeleteDC(blend_info->dc);
 }
 
 void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r, color4 line_color, color4 fill_color, i32 line_width)
@@ -122,110 +105,53 @@ void draw_rectangle(i32 x, i32 y, i32 width, i32 height, color4 line_color, colo
     // FIXME: when doing alpha, take into account the line_width makes the reactangle bigger!
     
     // FIXME: when setting the alpha of the pen, the entire rectangle get darker!
+    
+    // FIXME: when not drawing the line (only the fill), you can see one pixel-line at the bottom and right are not blending right!
 
     HPEN pen = CreatePen(PS_SOLID, line_width, RGB(line_color.r, line_color.g, line_color.b));
     HBRUSH brush = CreateSolidBrush(RGB(fill_color.r, fill_color.g, fill_color.b));
     
-    // GetStockObject(NULL_BRUSH)
-    // GetStockObject(NULL_PEN)
-    
-    blend_info = init_blend(x, y, width, height, fill_color);
-    {
-        SelectObject(backbuffer_dc, GetStockObject(NULL_PEN));
-        SelectObject(backbuffer_dc, brush);
-
-        Rectangle(backbuffer_dc, x, y, x + width, y + height);
-    }
-    end_blend(&blend_info);
-
-    blend_info = init_blend(x, y, width, height, line_color);
-    {
-        SelectObject(backbuffer_dc, pen);
-        SelectObject(backbuffer_dc, GetStockObject(NULL_BRUSH));
-
-        Rectangle(backbuffer_dc, x, y, x + width, y + height);
-    }
-    end_blend(&blend_info);
-    
-/*
     if (fill_color.a != 255)
     {
-        HDC alphabuffer_dc = CreateCompatibleDC(backbuffer_dc);
-
-        BLENDFUNCTION blend;
-        blend.BlendOp = AC_SRC_OVER;
-        blend.BlendFlags = 0;
-        blend.SourceConstantAlpha = fill_color.a;
-        blend.AlphaFormat = 0;
-
-        // FIXME: what if width or height are bigger than the width or height of the backbuffer?
-        HBITMAP alphabuffer_bitmap = CreateCompatibleBitmap(backbuffer_dc, width, height);
-        
-        SelectObject(alphabuffer_dc, alphabuffer_bitmap);
-
-        // Drawing to alphabuffer
+        blend_info blend_info;
+        i32 x_blend = x;
+        i32 y_blend = y;
+        init_blend(x_blend, y_blend, width, height, fill_color, &blend_info);
         {
-            SelectObject(alphabuffer_dc, GetStockObject(NULL_PEN));
-            SelectObject(alphabuffer_dc, brush);
+            SelectObject(blend_info.dc, GetStockObject(NULL_PEN));
+            SelectObject(blend_info.dc, brush);
 
-            Rectangle(alphabuffer_dc, 0, 0, width, height);
+            Rectangle(blend_info.dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend);
         }
-        
-        AlphaBlend(backbuffer_dc, x, y, width, height, alphabuffer_dc, 0, 0, width, height, blend);
-
-        DeleteObject(alphabuffer_bitmap);
-        DeleteDC(alphabuffer_dc);
+        end_blend(&blend_info);
     }
-    else
-    {
+    else {
         SelectObject(backbuffer_dc, GetStockObject(NULL_PEN));
         SelectObject(backbuffer_dc, brush);
 
         Rectangle(backbuffer_dc, x, y, x + width, y + height);
     }
-    */
     
-    /*
     if (line_color.a != 255)
     {
-        HDC alphabuffer_dc = CreateCompatibleDC(backbuffer_dc);
-
-        BLENDFUNCTION blend;
-        blend.BlendOp = AC_SRC_OVER;
-        blend.BlendFlags = 0;
-        blend.SourceConstantAlpha = fill_color.a;
-        blend.AlphaFormat = 0;
-
-        // FIXME: what if width or height are bigger than the width or height of the backbuffer?
-        
-        // FIXME: take into account the width of the line! So your rectangle exactly that much bigger (width aswell as height)
-        //        and you should start to draw from half of the thickness (x and y)
-        //        Problem: rounding issues (either with even or odd line_widths)
-        HBITMAP alphabuffer_bitmap = CreateCompatibleBitmap(backbuffer_dc, width, height);
-        
-        SelectObject(alphabuffer_dc, alphabuffer_bitmap);
-
-        // Drawing to alphabuffer
+        blend_info blend_info;
+        i32 x_blend = x;
+        i32 y_blend = y;
+        init_blend(x_blend, y_blend, width, height, line_color, &blend_info);
         {
-            SelectObject(alphabuffer_dc, pen);
-            SelectObject(alphabuffer_dc, GetStockObject(NULL_BRUSH));
+            SelectObject(blend_info.dc, pen);
+            SelectObject(blend_info.dc, GetStockObject(NULL_BRUSH));
 
-            Rectangle(alphabuffer_dc, 0, 0, width, height);
+            Rectangle(blend_info.dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend);
         }
-        
-        AlphaBlend(backbuffer_dc, x, y, width, height, alphabuffer_dc, 0, 0, width, height, blend);
-
-        DeleteObject(alphabuffer_bitmap);
-        DeleteDC(alphabuffer_dc);
+        end_blend(&blend_info);
     }
-    else
-    {
+    else {
         SelectObject(backbuffer_dc, pen);
         SelectObject(backbuffer_dc, GetStockObject(NULL_BRUSH));
 
         Rectangle(backbuffer_dc, x, y, x + width, y + height);
     }
-    */
     
     DeleteObject(pen);
     DeleteObject(brush);
