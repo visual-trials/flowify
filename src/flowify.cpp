@@ -430,24 +430,6 @@ extern "C" {
         white.b = 255;
         white.a = 255;
 
-        /*
-        if (keyboard->ctrl_key_is_down)
-        {
-            draw_text(400, 180, copy_cstring_to_short_string("Ctrl", &temp_string), 10, black);
-        }
-        
-        if (keyboard->alt_key_is_down)
-        {
-            draw_text(500, 180, copy_cstring_to_short_string("Alt", &temp_string), 10, black);
-        }
-        
-        if (keyboard->shift_key_is_down)
-        {
-            draw_text(600, 180, copy_cstring_to_short_string("Shift", &temp_string), 10, black);
-        }
-        */
-        
-        
         i32 y_row = 150;
         for (i32 row_index = 0; row_index < keyboard_layout->nr_of_rows; row_index++)
         {
