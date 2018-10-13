@@ -237,7 +237,20 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
                 {
                     keep_running = false;
                 } break;
-                
+                case WM_SYSKEYDOWN:
+                case WM_SYSKEYUP:
+                case WM_KEYDOWN:
+                case WM_KEYUP:
+                {
+                    // TODO: can we be sure to cast to u8 here?
+                    u8 vk_code = (u8)msg.wParam;
+                    
+                    b32 was_down = ((msg.lParam & (1 << 30)) != 0);
+                    b32 is_down = ((msg.lParam & (1 << 31)) == 0);
+                    
+                    new_input.keyboard.keys_that_are_down[vk_code] = (u8)is_down;
+                    
+                } break;                
                 default:
                 {
                     TranslateMessage(&msg);
@@ -292,6 +305,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
         new_input.mouse.mouse_has_moved = false;
         
         // FIXME: reset other input
+        // new_input.keyboard
         
         
         // Update world
