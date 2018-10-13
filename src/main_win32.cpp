@@ -203,7 +203,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
         window_class.lpszClassName,
         "Flowify",
         WS_OVERLAPPEDWINDOW|WS_VISIBLE,
-        CW_USEDEFAULT, CW_USEDEFAULT, 640, 480,
+        CW_USEDEFAULT, CW_USEDEFAULT, 800, 600,
         0, 0, instance, 0);
 
     if(window == 0)
