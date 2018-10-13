@@ -67,33 +67,51 @@ void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r, color4 l
 {
     HPEN pen = CreatePen(PS_SOLID, line_width, RGB(line_color.r, line_color.g, line_color.b));
     HBRUSH brush = CreateSolidBrush(RGB(fill_color.r, fill_color.g, fill_color.b));
+    
+    i32 d = r * 2;
 
     if (fill_color.a != 255)
     {
-        // FIXME: implement rounded rectangle with alpha using dc = start_alpha_blend() and end_alpha_blend() functions
+        blend_info blend_info;
+        i32 x_blend = x;
+        i32 y_blend = y;
+        init_blend(x_blend, y_blend, width, height, fill_color, &blend_info);
+        {
+            SelectObject(blend_info.dc, GetStockObject(NULL_PEN));
+            SelectObject(blend_info.dc, brush);
+
+            RoundRect(blend_info.dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend, d, d);
+        }
+        end_blend(&blend_info);
     }
     else
     {
         SelectObject(backbuffer_dc, GetStockObject(NULL_PEN));
         SelectObject(backbuffer_dc, brush);
 
-        Rectangle(backbuffer_dc, x, y, x + width, y + height);
+        RoundRect(backbuffer_dc, x, y, x + width, y + height, d, d);
     }
     
     if (line_color.a != 255)
     {
-        // FIXME: implement rounded rectangle with alpha using:
-        //            blend_info = init_alpha_blend(line_color, width, height) 
-        //            dc = blend_info.dc (which could be the back buffer or the alpha buffer)
-        //            THEN: draw something
-        //            end_alpha_blend(blend_info)
+        blend_info blend_info;
+        i32 x_blend = x;
+        i32 y_blend = y;
+        init_blend(x_blend, y_blend, width, height, line_color, &blend_info);
+        {
+            SelectObject(blend_info.dc, pen);
+            SelectObject(blend_info.dc, GetStockObject(NULL_BRUSH));
+
+            RoundRect(blend_info.dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend, d, d);
+        }
+        end_blend(&blend_info);
     }
     else
     {
         SelectObject(backbuffer_dc, pen);
         SelectObject(backbuffer_dc, GetStockObject(NULL_BRUSH));
 
-        Rectangle(backbuffer_dc, x, y, x + width, y + height);
+        RoundRect(backbuffer_dc, x, y, x + width, y + height, d, d);
     }
     
     DeleteObject(pen);
