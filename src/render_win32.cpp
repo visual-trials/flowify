@@ -18,6 +18,105 @@
  
 #include "render.h"
 
+struct blend_info
+{
+    HDC dc_to_draw_to;
+    HBITMAP alpha_buffer_bitmap;
+    BLENDFUNCTION blend_function;
+    
+    color4 color;
+    i32 x;
+    i32 y;
+    i32 width;
+    i32 height;
+};
+
+blend_info init_blend(i32 x, i32 y, i32 width, i32 height, color4 color)
+{
+    blend_info blend_info = {};
+    
+    blend_info.color = color;
+    
+    if (blend_info.color.a != 255)
+    {
+        blend_info.x = x;
+        blend_info.y = y;
+        blend_info.width = width;
+        blend_info.height = height;
+        
+        blend_info.dc_to_draw_to = CreateCompatibleDC(backbuffer_dc);
+
+        blend_info.blend_function.BlendOp = AC_SRC_OVER;
+        blend_info.blend_function.BlendFlags = 0;
+        blend_info.blend_function.SourceConstantAlpha = blend_info.color.a;
+        blend_info.blend_function.AlphaFormat = 0;
+
+        // FIXME: what if width or height are bigger than the width or height of the backbuffer?
+        blend_info.alphabuffer_bitmap = CreateCompatibleBitmap(backbuffer_dc, blend_info.width, blend_info.height);
+        
+        SelectObject(blend_info.dc_to_draw_to, blend_info.alphabuffer_bitmap);
+    }
+    else {
+        blend_info.dc = backbuffer_dc;
+    }
+    
+    return blend_info;
+}
+
+void end_blend(blend_info * blend_info)
+{
+    if (blend_info->color.a != 255)
+    {
+        AlphaBlend(backbuffer_dc, blend_info->x, blend_info->y, blend_info->width, blend_info->height, 
+                   blend_info->dc, 0, 0, blend_info->width, blend_info->height, 
+                   blend_info->blend_function);
+
+        DeleteObject(blend_info->bitmap);
+        DeleteDC(blend_info->dc);
+    }
+    else
+    {
+        // Nothing to do when not blending
+    }
+}
+
+void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r, color4 line_color, color4 fill_color, i32 line_width)
+{
+    HPEN pen = CreatePen(PS_SOLID, line_width, RGB(line_color.r, line_color.g, line_color.b));
+    HBRUSH brush = CreateSolidBrush(RGB(fill_color.r, fill_color.g, fill_color.b));
+
+    if (fill_color.a != 255)
+    {
+        // FIXME: implement rounded rectangle with alpha using dc = start_alpha_blend() and end_alpha_blend() functions
+    }
+    else
+    {
+        SelectObject(backbuffer_dc, GetStockObject(NULL_PEN));
+        SelectObject(backbuffer_dc, brush);
+
+        Rectangle(backbuffer_dc, x, y, x + width, y + height);
+    }
+    
+    if (line_color.a != 255)
+    {
+        // FIXME: implement rounded rectangle with alpha using:
+        //            blend_info = init_alpha_blend(line_color, width, height) 
+        //            dc = blend_info.dc (which could be the back buffer or the alpha buffer)
+        //            THEN: draw something
+        //            end_alpha_blend(blend_info)
+    }
+    else
+    {
+        SelectObject(backbuffer_dc, pen);
+        SelectObject(backbuffer_dc, GetStockObject(NULL_BRUSH));
+
+        Rectangle(backbuffer_dc, x, y, x + width, y + height);
+    }
+    
+    DeleteObject(pen);
+    DeleteObject(brush);
+}
+
 void draw_rectangle(i32 x, i32 y, i32 width, i32 height, color4 line_color, color4 fill_color, i32 line_width)
 {
     // FIXME: when doing alpha, take into account the line_width makes the reactangle bigger!
@@ -30,6 +129,25 @@ void draw_rectangle(i32 x, i32 y, i32 width, i32 height, color4 line_color, colo
     // GetStockObject(NULL_BRUSH)
     // GetStockObject(NULL_PEN)
     
+    blend_info = init_blend(x, y, width, height, fill_color);
+    {
+        SelectObject(backbuffer_dc, GetStockObject(NULL_PEN));
+        SelectObject(backbuffer_dc, brush);
+
+        Rectangle(backbuffer_dc, x, y, x + width, y + height);
+    }
+    end_blend(&blend_info);
+
+    blend_info = init_blend(x, y, width, height, line_color);
+    {
+        SelectObject(backbuffer_dc, pen);
+        SelectObject(backbuffer_dc, GetStockObject(NULL_BRUSH));
+
+        Rectangle(backbuffer_dc, x, y, x + width, y + height);
+    }
+    end_blend(&blend_info);
+    
+/*
     if (fill_color.a != 255)
     {
         HDC alphabuffer_dc = CreateCompatibleDC(backbuffer_dc);
@@ -65,7 +183,9 @@ void draw_rectangle(i32 x, i32 y, i32 width, i32 height, color4 line_color, colo
 
         Rectangle(backbuffer_dc, x, y, x + width, y + height);
     }
+    */
     
+    /*
     if (line_color.a != 255)
     {
         HDC alphabuffer_dc = CreateCompatibleDC(backbuffer_dc);
@@ -105,6 +225,7 @@ void draw_rectangle(i32 x, i32 y, i32 width, i32 height, color4 line_color, colo
 
         Rectangle(backbuffer_dc, x, y, x + width, y + height);
     }
+    */
     
     DeleteObject(pen);
     DeleteObject(brush);
