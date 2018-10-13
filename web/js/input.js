@@ -142,33 +142,6 @@ Flowify.input = function () {
     
     // -- Keyboard data --
 
-    // TODO: multiple pressed keys? (apart from ctrl/shift/alt keys)
-
-    // FIXME: what if a sequence of key presses have been made? Should we keep a record here? Since we might not run the main update function before that!
-    // my.keysHaveBeenPressed = false
-    // my.keysThatHaveBeenPressed = []
-
-    my.ctrlKeyIsDown = false
-    my.ctrlKeyHasGoneDown = false
-    my.ctrlKeyHasGoneUp = false
-
-    my.shiftKeyIsDown = false
-    my.shiftKeyHasGoneDown = false
-    my.shiftKeyHasGoneUp = false
-
-    my.altKeyIsDown = false
-    my.altKeyHasGoneDown = false
-    my.altKeyHasGoneUp = false
-
-    my.keyIsDown = false
-    // my.keyThatIsDown = null
-    
-    my.keyHasGoneDown = false
-    my.keyThatHasGoneDown = null
-    
-    my.keyHasGoneUp = false
-    my.keyThatHasGoneUp = null
-
     my.keysThatAreDown = {}
     my.sequenceKeysUpDown = []
         
@@ -180,25 +153,6 @@ Flowify.input = function () {
     my.textComingFromClipboard = null
 
     my.resetKeyboardData = function() {
-        // TODO: We can deprecate this
-        my.ctrlKeyHasGoneDown = false
-        my.ctrlKeyHasGoneUp = false
-
-        // TODO: We can deprecate this
-        my.shiftKeyHasGoneDown = false
-        my.shiftKeyHasGoneUp = false
-
-        // TODO: We can deprecate this
-        my.altKeyHasGoneDown = false
-        my.altKeyHasGoneUp = false
-
-        // TODO: We can deprecate this
-        my.keyHasGoneDown = false
-        my.keyThatHasGoneDown = null
-        
-        // TODO: We can deprecate this
-        my.keyHasGoneUp = false
-        my.keyThatHasGoneUp = null
         
         my.sequenceKeysUpDown = []
         
@@ -209,20 +163,6 @@ Flowify.input = function () {
     }
     
     my.sendKeyboardData = function() {
-        Flowify.main.wasmInstance.exports._set_ctrl_key_data(
-            my.ctrlKeyIsDown, my.ctrlKeyHasGoneDown, my.ctrlKeyHasGoneUp
-        )
-        Flowify.main.wasmInstance.exports._set_shift_key_data(
-            my.shiftKeyIsDown, my.shiftKeyHasGoneDown, my.shiftKeyHasGoneUp
-        )
-        Flowify.main.wasmInstance.exports._set_alt_key_data(
-            my.altKeyIsDown, my.altKeyHasGoneDown, my.altKeyHasGoneUp
-        )
-        Flowify.main.wasmInstance.exports._set_other_key_data(
-            my.keyIsDown, my.keyThatIsDown,  // FIXME: depricate keyThatIsDown
-            my.keyHasGoneDown, my.keyThatHasGoneDown,
-            my.keyHasGoneUp, my.keyThatHasGoneUp
-        )
         for (let sequenceIndex = 0; sequenceIndex < my.sequenceKeysUpDown.length; sequenceIndex++) {
             let keyUpDownEntry = my.sequenceKeysUpDown[sequenceIndex]
             let keyCode = keyUpDownEntry.keyCode
@@ -241,34 +181,6 @@ Flowify.input = function () {
         // FIXME: e.keyCode and e.which are deprecated, so we should not use them ( https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent )
         let keyValue = e.key;
         let keyCode = e.keyCode ? e.keyCode : e.which
-console.log(keyCode)   
-        if (keyValue === 'Control') {
-            if (!my.ctrlKeyIsDown) {
-                my.ctrlKeyIsDown = true
-                my.ctrlKeyHasGoneDown = true
-            }
-            else {
-                // A key has gone down, but it wasn't the ctrl-key (since it was already down)
-            }
-        }
-        if (keyValue === 'Alt') {
-            if (!my.altKeyIsDown) {
-                my.altKeyIsDown = true
-                my.altKeyHasGoneDown = true
-            }
-            else {
-                // A key has gone down, but it wasn't the alt-key (since it was already down)
-            }
-        }
-        if (keyValue === 'Shift') {
-            if (!my.shiftKeyIsDown) {
-                my.shiftKeyIsDown = true
-                my.shiftKeyHasGoneDown = true
-            }
-            else {
-                // A key has gone down, but it wasn't the shift-key (since it was already down)
-            }
-        }
 
         if (keyCode <= 255) {
             
@@ -280,16 +192,7 @@ console.log(keyCode)
             }
             
             if (!Flowify.main.bufferU8[my.addressKeysThatAreDown + keyCode]) {
-                my.keyIsDown = true
-                //my.keyThatIsDown = keyCode
-
                 Flowify.main.bufferU8[my.addressKeysThatAreDown + keyCode] = 1;
-                
-                my.keyHasGoneDown = true
-                my.keyThatHasGoneDown = keyCode
-
-                my.keyHasGoneUp = false
-                my.keyThatHasGoneUp = null
             }
             else {
                 // FIXME: a key is down, but there was already one down. This could be multiple keys pressed at once. Not supported atm.
@@ -356,34 +259,6 @@ console.log(keyCode)
         let keyValue = e.key;
         let keyCode = e.keyCode ? e.keyCode : e.which
         
-        if (keyValue === 'Control') {
-            if (my.ctrlKeyIsDown) {
-                my.ctrlKeyIsDown = false
-                my.ctrlKeyHasGoneUp = true
-            }
-            else {
-                // A key has gone up, but it wasn't the ctrl-key (since it was not down)
-            }
-        }
-        if (keyValue === 'Alt') {
-            if (my.altKeyIsDown) {
-                my.altKeyIsDown = false
-                my.altKeyHasGoneUp = true
-            }
-            else {
-                // A key has gone up, but it wasn't the alt-key (since it was not down)
-            }
-        }
-        if (keyValue === 'Shift') {
-            if (my.shiftKeyIsDown) {
-                my.shiftKeyIsDown = false
-                my.shiftKeyHasGoneUp = true
-            }
-            else {
-                // A key has gone up, but it wasn't the alt-key (since it was not down)
-            }
-        }
-
         if (keyCode <= 255) {
             
             if (my.sequenceKeysUpDown.length < 25) {
@@ -394,19 +269,10 @@ console.log(keyCode)
             }
             
             if (Flowify.main.bufferU8[my.addressKeysThatAreDown + keyCode]) {
-                my.keyIsDown = false
-                //my.keyThatIsDown = null
                 Flowify.main.bufferU8[my.addressKeysThatAreDown + keyCode] = 0;
-
-                my.keyHasGoneDown = false
-                my.keyThatHasGoneDown = null
-                
-                my.keyHasGoneUp = true
-                my.keyThatHasGoneUp = keyCode
             }
             else {
                 // FIXME: No key was down, but a key went up. What happened?
-
             }
         }
         else {

@@ -245,10 +245,17 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
                     // TODO: can we be sure to cast to u8 here?
                     u8 vk_code = (u8)msg.wParam;
                     
-                    b32 was_down = ((msg.lParam & (1 << 30)) != 0);
-                    b32 is_down = ((msg.lParam & (1 << 31)) == 0);
+                    b32 was_down = ((msg.lParam & (1 << 30)) != 0); // the last != 0 converts it to 0 or 1
+                    b32 is_down = ((msg.lParam & (1 << 31)) == 0);  // the last == 0 converts it to 0 or 1
                     
                     new_input.keyboard.keys_that_are_down[vk_code] = (u8)is_down;
+                    
+                    if (new_input.keyboard.sequence_keys_length < MAX_KEY_SEQUENCE_PER_FRAME)
+                    {
+                        new_input.keyboard.sequence_keys_up_down[new_input.keyboard.sequence_keys_length * 2] = is_down;
+                        new_input.keyboard.sequence_keys_up_down[new_input.keyboard.sequence_keys_length * 2 + 1] = vk_code;
+                        new_input.keyboard.sequence_keys_length++;
+                    }
                     
                 } break;                
                 default:
@@ -303,10 +310,11 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
         new_input.mouse.mouse_wheel_has_moved = false;
        
         new_input.mouse.mouse_has_moved = false;
+
+        // Resetting keyboard input
+        new_input.keyboard.sequence_keys_length = 0;
         
         // FIXME: reset other input
-        // new_input.keyboard
-        
         
         // Update world
         update_frame();

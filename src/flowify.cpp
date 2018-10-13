@@ -505,6 +505,7 @@ extern "C" {
             copy_char_to_string(world->key_sequence[sequence_index], &character);
             draw_text(450 + sequence_index * 10, 100, &character, 10, font_color);
         }
+        
     }
     
     void render_frame()
