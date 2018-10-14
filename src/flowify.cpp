@@ -503,8 +503,9 @@ extern "C" {
         
         color4 transparant = {};
         
-        int_to_string(touch_info->touch_count, &nr_of_touches_string);
-        draw_text(500 , 50, &nr_of_touches_string, 10, green);
+        // int_to_string(touch_info->touch_count, &nr_of_touches_string);
+        // draw_text(500 , 50, &nr_of_touches_string, 10, green);
+        
         for (i32 touch_index = 0; touch_index < touch_info->touch_count; touch_index++)
         {
             touch_input touch = touch_info->touches[touch_index];
