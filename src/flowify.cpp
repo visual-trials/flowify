@@ -492,17 +492,25 @@ extern "C" {
     
     void draw_touches()
     {
-        touches_input * touch = &global_input.touch;
+        touches_input * touch_info = &global_input.touch;
         short_string nr_of_touches_string;
         
         color4 font_color;
-        font_color.r = 0;
-        font_color.g = 0;
-        font_color.b = 0;
+        font_color.r = 40;
+        font_color.g = 200;
+        font_color.b = 80;
         font_color.a = 255;
         
-        int_to_string(touch->touch_count, &nr_of_touches_string);
+        int_to_string(touch_info->touch_count, &nr_of_touches_string);
         draw_text(500 , 50, &nr_of_touches_string, 10, font_color);
+        for (i32 touch_index = 0; touch_index < touch_info->touch_count; touch_index++)
+        {
+            touch_input touch = touch_info->touches[touch_index];
+            draw_ellipse(touch.position_left - 25, touch.position_top - 25, 
+                           50, 50,
+                           font_color, font_color, 
+                           3);
+        }
     }
     
     void render_frame()

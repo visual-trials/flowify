@@ -137,6 +137,47 @@ Flowify.canvas = function () {
                 }
             },
             
+            _jsDrawEllipse: function (x, y, width, height, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
+                
+                function drawEllipseIE(x, y, w, h) {
+                    
+                    // This is from: http://stackoverflow.com/questions/2172798/how-to-draw-an-oval-in-html5-canvas
+                    var kappa = .5522848,
+                        ox = (w / 2) * kappa, // control point offset horizontal
+                        oy = (h / 2) * kappa, // control point offset vertical
+                        xe = x + w,           // x-end
+                        ye = y + h,           // y-end
+                        xm = x + w / 2,       // x-middle
+                        ym = y + h / 2;       // y-middle
+
+                    ctx.beginPath();
+                    ctx.moveTo(x, ym);
+                    ctx.bezierCurveTo(x, ym - oy, xm - ox, y, xm, y);
+                    ctx.bezierCurveTo(xm + ox, y, xe, ym - oy, xe, ym);
+                    ctx.bezierCurveTo(xe, ym + oy, xm + ox, ye, xm, ye);
+                    ctx.bezierCurveTo(xm - ox, ye, x, ym + oy, x, ym);
+                    // ctx.stroke();  not doing this here
+                }
+                
+                ctx.beginPath()
+                if (my.isIE) {
+                    drawEllipseIE(x, y, width, height)
+                }
+                else {
+                    ctx.ellipse(x + width / 2, y + height / 2, width / 2, height / 2, 0, 0, 2 * Math.PI);
+                }
+
+                if (fillColorAlpha) {
+                    ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
+                    ctx.fill()
+                }
+                if (lineColorAlpha) {
+                    ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
+                    ctx.lineWidth = lineWidth
+                    ctx.stroke()
+                }
+            },
+            
             _jsDrawText: function (x, y, stringIndex, stringLength, fontHeight, fontColorRGB, fontColorAlpha) { // , baseFontIndex, baseFontLength) {
                 let string = ""
                 for (let i = stringIndex; i < stringIndex + stringLength; i++) {

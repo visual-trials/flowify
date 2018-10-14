@@ -2,4 +2,5 @@
 // However, when emcc compiles, it needs these external functions, otherwise it will give warnings. 
 mergeInto(LibraryManager.library, { jsDrawRoundedRect: function(){} })
 mergeInto(LibraryManager.library, { jsDrawRect: function(){} })
+mergeInto(LibraryManager.library, { jsDrawEllipse: function(){} })
 mergeInto(LibraryManager.library, { jsDrawText: function(){} })
