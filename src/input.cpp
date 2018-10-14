@@ -18,6 +18,8 @@
 
 struct mouse_input
 {
+    // FIXME: remove the term 'mouse' here, it's implicit!
+    
     b32 left_mouse_button_is_down;
     b32 left_mouse_button_has_gone_up;
     b32 left_mouse_button_has_gone_down;
@@ -50,16 +52,30 @@ struct keyboard_input
     // u8 keys_that_have_gone_up[255];
 };
 
+#define MAX_TOUCH_COUNT 10 // Keep this the same in input.js!
+
 struct touch_input
 {
+    i32 identifier;
+    b32 has_moved;
+    b32 has_started;
+    b32 has_ended;
+    b32 was_canceled;
+    i32 position_left;
+    i32 position_top;
+};
 
+struct touches_input
+{
+    touch_input touches[MAX_TOUCH_COUNT];
+    i32 touch_count;
 };    
 
 struct input
 {
     mouse_input     mouse;
     keyboard_input  keyboard;
-    touch_input     touch;
+    touches_input   touch;
 };
 
 input global_input = {};
@@ -113,6 +129,30 @@ extern "C" {
     void set_sequence_keys_length(i32 sequence_keys_length)
     {
        global_input.keyboard.sequence_keys_length = sequence_keys_length;
+    }
+    
+    void set_touch_count(i32 touch_count)
+    {
+        // TODO: make sure touch_count <= MAX_TOUCH_COUNT
+        global_input.touch.touch_count = touch_count;
+    }
+    
+    void set_touch_data(i32 touch_index, i32 identifier,
+                        b32 has_moved, b32 has_started, 
+                        b32 has_ended, b32 was_canceled, 
+                        i32 position_left, i32 position_top)
+    {
+        // TODO: make sure touch_index < MAX_TOUCH_COUNT
+        
+        // TODO: what if a touch (with a identifier) has BOTH *ended* and then *started* in the SAME frame?
+        
+        global_input.touch.touches[touch_index].identifier = identifier;
+        global_input.touch.touches[touch_index].has_moved = has_moved;
+        global_input.touch.touches[touch_index].has_started = has_started;
+        global_input.touch.touches[touch_index].has_ended = has_ended;
+        global_input.touch.touches[touch_index].was_canceled = was_canceled;
+        global_input.touch.touches[touch_index].position_left = position_left;
+        global_input.touch.touches[touch_index].position_top = position_top;
     }
     
 }

@@ -286,151 +286,149 @@ Flowify.input = function () {
     
     // -- Touch data --
 
-    my.touchHasMoved = false
-    my.touchHasStarted = false
-    my.touchHasEnded = false
-
-    my.oneTouchActive = false
-    my.twoTouchesActive = false
-
-    my.previousTouchDistance = 0
-    my.previousTouchCoords = []
-
-    // FIXME: use Touch.identifier!!
-    my.firstTouchLeftPx = null
-    my.firstTouchTopPx = null
-    my.secondTouchLeftPx = null
-    my.secondTouchTopPx = null
-
-    my.resetTouchData = function () {
-
-        // TODO: we are NOT recording the lastTouchCoords using e.changedTouches right now! (during TouchEnd)
-        if ((my.touchHasStarted || my.touchHasMoved) && my.oneTouchActive) {
-            my.previousTouchCoords = [ my.firstTouchLeftPx, my.firstTouchTopPx ]
-        }
-
-        my.touchHasMoved = false
-        my.touchHasStarted = false
-        my.touchHasEnded = false
-    }
+    // Note that IE, Opera, Safari do not support touch!  ( https://developer.mozilla.org/en-US/docs/Web/API/Touch )
+    
+    my.touches = {}
     
     my.sendTouchData = function () {
-        // FIXME: implement this
+        
+        let touchIndex = 0
+        for (let touch_identifier in my.touches){
+            
+            let touch =  my.touches[touch_identifier]
+
+            Flowify.main.wasmInstance.exports._set_touch_data(
+                touchIndex, 
+                touch_identifier,
+                touch.hasMoved, 
+                touch.hasStarted, 
+                touch.hasEnded,
+                touch.wasCanceled, 
+                touch.positionLeft, 
+                touch.positionTop
+            )
+            
+            touchIndex++
+        }
+        
+        Flowify.main.wasmInstance.exports._set_touch_count(touchIndex)
+        
+    }
+    
+    my.resetTouchData = function () {
+
+        let touchesToDelete = {}
+        for (let touch_identifier in my.touches) {
+            
+            let touch =  my.touches[touch_identifier]
+            
+            if (touch.hasEnded || touch.wasCanceled) {
+                touchesToDelete[touch_identifier] = true
+            }
+            touch.hasMoved = false
+            touch.hasStarted = false
+            // touch.hasEnded = false // this is irrelevant, since we are going to delete it anyway
+            // touch.wasCanceled = false // this is irrelevant, since we are going to delete it anyway
+        }
+        
+        for (let touch_identifier in touchesToDelete) {
+            delete my.touches[touch_identifier]
+        }
     }
     
     // -- Touch events --
 
     my.touchStarted = function (e) {
-        my.touchHasStarted = true
-
-        if (e.touches.length === 1) {
-            let touch = e.touches[0]
-
-            my.oneTouchActive = true
-            my.twoTouchesActive = false
-
-            my.firstTouchLeftPx = touch.pageX
-            my.firstTouchTopPx = touch.pageY
-
-            my.secondTouchLeftPx = null
-            my.secondTouchTopPx = null
-        }
-        else if (e.touches.length === 2) {
-            let touch1 = e.touches[0]
-            let touch2 = e.touches[1]
-
-            my.oneTouchActive = false
-            my.twoTouchesActive = true
-
-            my.firstTouchLeftPx = touch1.pageX
-            my.firstTouchTopPx = touch1.pageY
-
-            my.secondTouchLeftPx = touch2.pageX
-            my.secondTouchTopPx = touch2.pageY
-        }
-        else {
-            // TODO
+        
+        let changedTouches = e.changedTouches;
+        
+        for (let touchIndex = 0; touchIndex < changedTouches.length; touchIndex++) {
+            let changedTouch = changedTouches[touchIndex]
+            
+            let newTouch = {}
+            newTouch.isActive = true
+            newTouch.identifier = changedTouch.identifier
+            newTouch.hasMoved = false
+            newTouch.hasStarted = true
+            newTouch.hasEnded = false
+            newTouch.wasCanceled = false
+            newTouch.positionLeft = changedTouch.pageX
+            newTouch.positionTop = changedTouch.pageY
+            
+            my.touches[changedTouch.identifier] = newTouch
+            
         }
 
         e.preventDefault()
     }
 
     my.touchEnded = function (e) {
-        my.touchHasEnded = true
+        
+        let changedTouches = e.changedTouches;
+        
+        for (let touchIndex = 0; touchIndex < changedTouches.length; touchIndex++) {
+            let changedTouch = changedTouches[touchIndex]
 
-        if (e.touches.length === 1) {
-            let touch = e.touches[0]
-
-            my.oneTouchActive = true
-            my.twoTouchesActive = false
-
-            my.firstTouchLeftPx = touch.pageX
-            my.firstTouchTopPx = touch.pageY
-
-            // TODO: this is a bit of a workaround/hack:
-            // Since we could have 'switched' the firstTouch (if we let go the actual first touch, the second touch now has become the first).
-            // So we better make sure the previousTouchCoords (which in that case is still from the actual first touch) is replaced by the NEW first touch (which was the actual second touch).
-            // This prevents 'jumping around' when letting go of the actual first touch (and moving the new first touch)
-            my.previousTouchCoords = [ my.firstTouchLeftPx, my.firstTouchTopPx ]
-
-            my.secondTouchLeftPx = null
-            my.secondTouchTopPx = null
-
-        }
-        else if (e.touches.length === 0) {
-            my.oneTouchActive = false
-            my.twoTouchesActive = false
-
-            my.firstTouchLeftPx = null
-            my.firstTouchTopPx = null
-
-            my.secondTouchLeftPx = null
-            my.secondTouchTopPx = null
-        }
-        else {
-            // TODO
-        }
-
-        e.preventDefault()
-    }
-
-    my.touchMoved = function (e) {
-        my.touchHasMoved = true
-
-        if (e.touches.length === 1) {
-            let touch = e.touches[0]
-
-            my.oneTouchActive = true
-            my.twoTouchesActive = false
-
-            my.firstTouchLeftPx = touch.pageX
-            my.firstTouchTopPx = touch.pageY
-
-            my.secondTouchLeftPx = null
-            my.secondTouchTopPx = null
-        }
-        else if (e.touches.length === 2) {
-            let touch1 = e.touches[0]
-            let touch2 = e.touches[1]
-
-            my.oneTouchActive = false
-            my.twoTouchesActive = true
-
-            my.firstTouchLeftPx = touch1.pageX
-            my.firstTouchTopPx = touch1.pageY
-
-            my.secondTouchLeftPx = touch2.pageX
-            my.secondTouchTopPx = touch2.pageY
-        }
-        else {
-            // TODO
+            if (my.touches.hasOwnProperty(changedTouch.identifier)) {
+                let endedTouch = my.touches[changedTouch.identifier]
+                
+                endedTouch.hasEnded = true
+                // TODO: should we do this?: endedTouch.touchHasStarted = false
+                
+                if (endedTouch.positionLeft !== changedTouch.pageX || 
+                    endedTouch.positionTop !== changedTouch.pageY) {
+                        
+                    endedTouch.hasMoved = true
+                    endedTouch.positionLeft = changedTouch.pageX
+                    endedTouch.positionTop = changedTouch.pageY
+                }
+            }
+            else {
+                console.log("ERROR: touch ended that did not start!")
+            }
+            
         }
 
         e.preventDefault()
     }
 
     my.touchCanceled = function (e) {
-        // TODO: implement this?
+        let changedTouches = e.changedTouches;
+        
+        for (let touchIndex = 0; touchIndex < changedTouches.length; touchIndex++) {
+            let changedTouch = changedTouches[touchIndex]
+
+            if (my.touches.hasOwnProperty(changedTouch.identifier)) {
+                let canceledTouch = my.touches[changedTouch.identifier]
+                canceled.wasCanceled = true
+                // TODO: should we do this?: canceled.touchHasStarted = false
+            }
+            else {
+                console.log("ERROR: touch canceled that did not start!")
+            }
+            
+        }
+
+        e.preventDefault()
+    }
+
+    my.touchMoved = function (e) {
+
+        let changedTouches = e.changedTouches;
+        
+        for (let touchIndex = 0; touchIndex < changedTouches.length; touchIndex++) {
+            let changedTouch = changedTouches[touchIndex]
+            
+            if (my.touches.hasOwnProperty(changedTouch.identifier)) {
+                let movedTouch = my.touches[changedTouch.identifier]
+                movedTouch.hasMoved = true
+                movedTouch.positionLeft = changedTouch.pageX
+                movedTouch.positionTop = changedTouch.pageY
+            }
+            else {
+                console.log("ERROR: touch moved that did not start!")
+            }
+        }
 
         e.preventDefault()
     }
@@ -447,12 +445,10 @@ Flowify.input = function () {
         document.addEventListener("keydown", my.keyDown, false)
         document.addEventListener("keyup", my.keyUp, false)
         
-        /*
         Flowify.canvas.canvasElement.addEventListener("touchstart", my.touchStarted, false)
         Flowify.canvas.canvasElement.addEventListener("touchend", my.touchEnded, false)
         Flowify.canvas.canvasElement.addEventListener("touchcancel", my.touchCanceled, false)
         Flowify.canvas.canvasElement.addEventListener("touchmove", my.touchMoved, false)
-        */
     }
 
     my.addClipboard = function () {
