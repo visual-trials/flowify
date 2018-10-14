@@ -36,15 +36,15 @@ Flowify.main = function () {
         input.sendTouchData()
         input.sendKeyboardData()
         
+        input.resetMouseData()
+        input.resetTouchData()
+        input.resetKeyboardData()
+
         // Update world
         my.wasmInstance.exports._update_frame()
         
         // Render world
         my.wasmInstance.exports._render_frame()
-
-        input.resetMouseData()
-        input.resetTouchData()
-        input.resetKeyboardData()
 
         Flowify.canvas.requestAnimFrame(my.mainLoop)
     }
