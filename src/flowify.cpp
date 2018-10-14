@@ -490,6 +490,21 @@ extern "C" {
         
     }
     
+    void draw_touches()
+    {
+        touches_input * touch = &global_input.touch;
+        short_string nr_of_touches_string;
+        
+        color4 font_color;
+        font_color.r = 0;
+        font_color.g = 0;
+        font_color.b = 0;
+        font_color.a = 255;
+        
+        int_to_string(touch->touch_count, &nr_of_touches_string);
+        draw_text(500 , 50, &nr_of_touches_string, 10, font_color);
+    }
+    
     void render_frame()
     {
         world_data * world = &global_world;
@@ -517,6 +532,8 @@ extern "C" {
         draw_sequence(world);
         
         draw_keyboard(&input->keyboard, &world->keyboard_layout);
+        
+        draw_touches();
         
     }
 }
