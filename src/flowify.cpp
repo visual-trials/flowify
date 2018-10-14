@@ -495,21 +495,23 @@ extern "C" {
         touches_input * touch_info = &global_input.touch;
         short_string nr_of_touches_string;
         
-        color4 font_color;
-        font_color.r = 40;
-        font_color.g = 200;
-        font_color.b = 80;
-        font_color.a = 255;
+        color4 green;
+        green.r = 40;
+        green.g = 200;
+        green.b = 80;
+        green.a = 255;
+        
+        color4 transparant = {};
         
         int_to_string(touch_info->touch_count, &nr_of_touches_string);
-        draw_text(500 , 50, &nr_of_touches_string, 10, font_color);
+        draw_text(500 , 50, &nr_of_touches_string, 10, green);
         for (i32 touch_index = 0; touch_index < touch_info->touch_count; touch_index++)
         {
             touch_input touch = touch_info->touches[touch_index];
             draw_ellipse(touch.position_left - 25, touch.position_top - 25, 
                            50, 50,
-                           font_color, font_color, 
-                           3);
+                           green, transparant, 
+                           6);
         }
     }
     
