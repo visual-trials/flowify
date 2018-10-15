@@ -30,6 +30,8 @@ static HDC backbuffer_dc;
 b32 keep_running;
 i64 performance_count_frequency;
 
+b32 touch_is_enabled;
+
 void render(HWND window)
 {
     RECT window_rect;
@@ -180,7 +182,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
     {
       // ERROR
     }
-    */    
+    */
     
     init_world();
     
@@ -214,6 +216,15 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
     
     window_dc = GetDC(window);
 
+    // Checking if touch is enabled on this machine and if so, registering for touch messages
+    i32 touch_info = GetSystemMetrics(SM_DIGITIZER);
+    touch_is_enabled = false;
+    if ((touch_info & NID_READY) && (touch_info & NID_MULTI_INPUT))
+    {
+        RegisterTouchWindow(window, 0);
+        touch_is_enabled = true;
+    }
+    
     LARGE_INTEGER performance_count_frequency_result;
     QueryPerformanceFrequency(&performance_count_frequency_result);
     performance_count_frequency = performance_count_frequency_result.QuadPart;
@@ -225,6 +236,18 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
     
     LARGE_INTEGER last_clock_counter = get_clock_counter();
     
+// Testing
+new_input.touch.touch_count = 1;
+i32 touch_index = 0;
+new_input.touch.touches[touch_index].identifier = 2364;
+new_input.touch.touches[touch_index].has_moved = false;
+new_input.touch.touches[touch_index].has_started = false;
+new_input.touch.touches[touch_index].has_ended = false;
+new_input.touch.touches[touch_index].was_canceled = false;
+new_input.touch.touches[touch_index].position_left = 300;
+new_input.touch.touches[touch_index].position_top = 300;
+
+
     keep_running = true;
     while(keep_running)
     {
@@ -266,7 +289,8 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
             }
 
         }
-        
+
+
         // Ensuring a stable frame rate
         {
             LARGE_INTEGER current_clock_counter = get_clock_counter();
@@ -314,7 +338,33 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
         // Resetting keyboard input
         new_input.keyboard.sequence_keys_length = 0;
         
-        // FIXME: reset other input
+        // Resetting touch input
+        i32 touches_to_delete[MAX_NR_OF_TOUCHES];
+        i32 nr_of_touches_to_delete = 0;
+        for (i32 touch_index = 0; touch_index < new_input.touch.touch_count; touch_index++)
+        {
+            if (new_input.touch.touches[touch_index].has_ended || new_input.touch.touches[touch_index].was_canceled)
+            {
+                touches_to_delete[nr_of_touches_to_delete] = touch_index;
+            }
+            
+            new_input.touch.touches[touch_index].has_moved = false;
+            new_input.touch.touches[touch_index].has_started = false;
+            // new_input.touch.touches[touch_index].has_ended = false; // this is irrelevant, since we are going to delete it anyway
+            // new_input.touch.touches[touch_index].was_canceled = false; // this is irrelevant, since we are going to delete it anyway
+        }
+        
+        for (i32 touch_to_delete_index = 0; touch_to_delete_index < nr_of_touches_to_delete; touch_to_delete_index++)
+        {
+            // Delete touch from new_input.touch.touches by copying all touches one index back
+            i32 touch_index_to_delete = touches_to_delete[touch_to_delete_index];
+            for(i32 touch_index_to_move = touch_index_to_delete + 1; touch_index_to_move < new_input.touch.touch_count; touch_index_to_move++)
+            {
+                // Copy each touch back to the previous index (removing the 'hole' of the deleted touch)
+                new_input.touch.touches[touch_index_to_move - 1] = new_input.touch.touches[touch_index_to_move];
+            }
+            new_input.touch.touch_count--;
+        }
         
         // Update world
         update_frame();
