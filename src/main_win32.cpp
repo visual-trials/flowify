@@ -31,6 +31,7 @@ b32 keep_running;
 i64 performance_count_frequency;
 
 b32 touch_is_enabled;
+TOUCHINPUT touch_inputs[MAX_NR_OF_TOUCHES];
 
 void render(HWND window)
 {
@@ -136,6 +137,43 @@ LRESULT CALLBACK WindowProcedure(HWND window,
             new_input.mouse.mouse_wheel_delta = GET_WHEEL_DELTA_WPARAM(w_param) / 120;
         }
         break;
+        
+        case WM_TOUCH:
+        {
+            i32 nr_of_touch_inputs = LOWORD(w_param);
+            
+            if (nr_of_touch_inputs > 0)
+            {
+// FIXME: remove this!
+new_input.touch.touch_count = nr_of_touch_inputs;
+                
+                if (nr_of_touch_inputs <= MAX_NR_OF_TOUCHES)
+                {
+                    if (GetTouchInputInfo((HTOUCHINPUT)l_param, nr_of_touch_inputs, (PTOUCHINPUT)&touch_inputs, sizeof(TOUCHINPUT)))
+                    {
+                        for (i32 touch_index = 0; touch_index < nr_of_touch_inputs; touch_index++)
+                        {
+                            TOUCHINPUT touch_input = touch_inputs[touch_index];
+                            
+                            // TODO: do something with each touch input entry
+                        }    
+                    }
+                    else
+                    {
+                         // TODO: handle the error
+                    }
+                }
+                else {
+                    // TODO: too many touches. handle this appropriately.
+                }
+            }
+            
+            // TODO: do we always handle all touch-input events? if not, let DefWindowProc do it.
+            CloseTouchInputHandle((HTOUCHINPUT)l_param);
+            
+        }
+        break;
+        
         default:
             // OutputDebugStringA("default\n");
             return DefWindowProc(window, msg, w_param, l_param);

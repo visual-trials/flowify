@@ -344,28 +344,31 @@ extern "C" {
         {
             // TODO: determine which entity is selected, using positions and sizes of all entities
             
-            world->selected_entity_index = create_new_entity_index(world);
-            world->an_entity_is_selected = true;
-            
-            entity * current_entity = world->entities + world->selected_entity_index;
-            
-            current_entity->line_color.r = 50;
-            current_entity->line_color.g = 50;
-            current_entity->line_color.b = 50;
-            current_entity->line_color.a = 255;
-            
-            current_entity->fill_color.r = 240;
-            current_entity->fill_color.g = 200;
-            current_entity->fill_color.b = 255;
-            current_entity->fill_color.a = 255;
-            
-            current_entity->line_width = 2;
-            
-            current_entity->size.width = 150;
-            current_entity->size.height = 150;
-            
-            current_entity->pos.x = mouse->mouse_position_left;
-            current_entity->pos.y = mouse->mouse_position_top;
+            if (world->nr_of_entities < MAX_ENTITIES)
+            {
+                world->selected_entity_index = create_new_entity_index(world);
+                world->an_entity_is_selected = true;
+                
+                entity * current_entity = world->entities + world->selected_entity_index;
+                
+                current_entity->line_color.r = 50;
+                current_entity->line_color.g = 50;
+                current_entity->line_color.b = 50;
+                current_entity->line_color.a = 255;
+                
+                current_entity->fill_color.r = 240;
+                current_entity->fill_color.g = 200;
+                current_entity->fill_color.b = 255;
+                current_entity->fill_color.a = 255;
+                
+                current_entity->line_width = 2;
+                
+                current_entity->size.width = 150;
+                current_entity->size.height = 150;
+                
+                current_entity->pos.x = mouse->mouse_position_left;
+                current_entity->pos.y = mouse->mouse_position_top;
+            }
             
         }
         
@@ -503,8 +506,8 @@ extern "C" {
         
         color4 transparant = {};
         
-        // int_to_string(touch_info->touch_count, &nr_of_touches_string);
-        // draw_text(500 , 50, &nr_of_touches_string, 10, green);
+        int_to_string(touch_info->touch_count, &nr_of_touches_string);
+        draw_text(500 , 50, &nr_of_touches_string, 10, green);
         
         // draw_ellipse(50, 50, 50, 50, green, transparant, 6);
         
