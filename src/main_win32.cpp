@@ -247,7 +247,6 @@ new_input.touch.touches[touch_index].was_canceled = false;
 new_input.touch.touches[touch_index].position_left = 300;
 new_input.touch.touches[touch_index].position_top = 300;
 
-
     keep_running = true;
     while(keep_running)
     {
@@ -319,8 +318,11 @@ new_input.touch.touches[touch_index].position_top = 300;
         }
         
 
-        // Copy the new input (recieved via WindowProcedure) into the global input 
+        // Copy the new input (recieved via WindowProcedure) into the global input (TODO: shouldn't this be atomic by swapping pointers instead?)
         global_input = new_input;
+        
+        // TODO: The resetting-code below changed new_input. But WindowProcedure also changes it. 
+        //       How do we make sure they don't do it at the same time?
         
         // Resetting mouse input
         new_input.mouse.left_mouse_button_has_gone_up = false;
@@ -346,6 +348,7 @@ new_input.touch.touches[touch_index].position_top = 300;
             if (new_input.touch.touches[touch_index].has_ended || new_input.touch.touches[touch_index].was_canceled)
             {
                 touches_to_delete[nr_of_touches_to_delete] = touch_index;
+                nr_of_touches_to_delete++;
             }
             
             new_input.touch.touches[touch_index].has_moved = false;
