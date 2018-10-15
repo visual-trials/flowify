@@ -52,7 +52,7 @@ struct keyboard_input
     // u8 keys_that_have_gone_up[255];
 };
 
-#define MAX_TOUCH_COUNT 10 // Keep this the same in input.js!
+#define MAX_NR_OF_TOUCHES 10 // Keep this the same in input.js!
 
 struct touch_input
 {
@@ -67,7 +67,7 @@ struct touch_input
 
 struct touches_input
 {
-    touch_input touches[MAX_TOUCH_COUNT];
+    touch_input touches[MAX_NR_OF_TOUCHES];
     i32 touch_count;
 };    
 
@@ -133,7 +133,7 @@ extern "C" {
     
     void set_touch_count(i32 touch_count)
     {
-        // TODO: make sure touch_count <= MAX_TOUCH_COUNT
+        // TODO: make sure touch_count <= MAX_NR_OF_TOUCHES
         global_input.touch.touch_count = touch_count;
     }
     
@@ -142,7 +142,7 @@ extern "C" {
                         b32 has_ended, b32 was_canceled, 
                         i32 position_left, i32 position_top)
     {
-        // TODO: make sure touch_index < MAX_TOUCH_COUNT
+        // TODO: make sure touch_index < MAX_NR_OF_TOUCHES
         
         // TODO: what if a touch (with a identifier) has BOTH *ended* and then *started* in the SAME frame?
         
