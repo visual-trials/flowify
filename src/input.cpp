@@ -20,22 +20,22 @@ struct mouse_input
 {
     // FIXME: remove the term 'mouse' here, it's implicit!
     
-    b32 left_mouse_button_is_down;
-    b32 left_mouse_button_has_gone_up;
-    b32 left_mouse_button_has_gone_down;
-    b32 left_mouse_button_has_gone_down_twice;
+    b32 left_button_is_down;
+    b32 left_button_has_gone_up;
+    b32 left_button_has_gone_down;
+    b32 left_button_has_gone_down_twice;
     
-    b32 right_mouse_button_is_down;
-    b32 right_mouse_button_has_gone_up;
-    b32 right_mouse_button_has_gone_down;
-    b32 right_mouse_button_has_gone_down_twice;
+    b32 right_button_is_down;
+    b32 right_button_has_gone_up;
+    b32 right_button_has_gone_down;
+    b32 right_button_has_gone_down_twice;
     
-    b32 mouse_wheel_has_moved;
-    r32 mouse_wheel_delta;
+    b32 wheel_has_moved;
+    r32 wheel_delta;
 
-    b32 mouse_has_moved;
-    i32 mouse_position_left;
-    i32 mouse_position_top;
+    b32 has_moved;
+    i32 x;
+    i32 y;
 };
 
 #define MAX_KEY_SEQUENCE_PER_FRAME 25 // Keep this the same in input.js!
@@ -61,8 +61,8 @@ struct touch_input
     b32 has_started;
     b32 has_ended;
     b32 was_canceled;
-    i32 position_left;
-    i32 position_top;
+    i32 x;
+    i32 y;
 };
 
 struct touches_input
@@ -84,35 +84,35 @@ input new_input = {};
 extern "C" {
     
     // Mouse
-    void set_left_mouse_button_data(b32 left_mouse_button_is_down, b32 left_mouse_button_has_gone_up,
-                                    b32 left_mouse_button_has_gone_down, b32 left_mouse_button_has_gone_down_twice)
+    void set_left_mouse_button_data(b32 left_button_is_down, b32 left_button_has_gone_up,
+                                    b32 left_button_has_gone_down, b32 left_button_has_gone_down_twice)
     {
-       global_input.mouse.left_mouse_button_is_down = left_mouse_button_is_down;
-       global_input.mouse.left_mouse_button_has_gone_up = left_mouse_button_has_gone_up;
-       global_input.mouse.left_mouse_button_has_gone_down = left_mouse_button_has_gone_down;
-       global_input.mouse.left_mouse_button_has_gone_down_twice = left_mouse_button_has_gone_down_twice;
+       global_input.mouse.left_button_is_down = left_button_is_down;
+       global_input.mouse.left_button_has_gone_up = left_button_has_gone_up;
+       global_input.mouse.left_button_has_gone_down = left_button_has_gone_down;
+       global_input.mouse.left_button_has_gone_down_twice = left_button_has_gone_down_twice;
     }
     
-    void set_right_mouse_button_data(b32 right_mouse_button_is_down, b32 right_mouse_button_has_gone_up,
-                                    b32 right_mouse_button_has_gone_down, b32 right_mouse_button_has_gone_down_twice)
+    void set_right_mouse_button_data(b32 right_button_is_down, b32 right_button_has_gone_up,
+                                    b32 right_button_has_gone_down, b32 right_button_has_gone_down_twice)
     {
-       global_input.mouse.right_mouse_button_is_down = right_mouse_button_is_down;
-       global_input.mouse.right_mouse_button_has_gone_up = right_mouse_button_has_gone_up;
-       global_input.mouse.right_mouse_button_has_gone_down = right_mouse_button_has_gone_down;
-       global_input.mouse.right_mouse_button_has_gone_down_twice = right_mouse_button_has_gone_down_twice;
+       global_input.mouse.right_button_is_down = right_button_is_down;
+       global_input.mouse.right_button_has_gone_up = right_button_has_gone_up;
+       global_input.mouse.right_button_has_gone_down = right_button_has_gone_down;
+       global_input.mouse.right_button_has_gone_down_twice = right_button_has_gone_down_twice;
     }
 
-    void set_mouse_wheel_data(b32 mouse_wheel_has_moved, r32 mouse_wheel_delta)
+    void set_mouse_wheel_data(b32 wheel_has_moved, r32 wheel_delta)
     {
-       global_input.mouse.mouse_wheel_has_moved = mouse_wheel_has_moved;
-       global_input.mouse.mouse_wheel_delta = mouse_wheel_delta;
+       global_input.mouse.wheel_has_moved = wheel_has_moved;
+       global_input.mouse.wheel_delta = wheel_delta;
     }
     
-    void set_mouse_position_data(b32 mouse_has_moved, i32 mouse_position_left, i32 mouse_position_top)
+    void set_mouse_position_data(b32 has_moved, i32 x, i32 y)
     {
-       global_input.mouse.mouse_has_moved = mouse_has_moved;
-       global_input.mouse.mouse_position_left = mouse_position_left;
-       global_input.mouse.mouse_position_top = mouse_position_top;
+       global_input.mouse.has_moved = has_moved;
+       global_input.mouse.x = x;
+       global_input.mouse.y = y;
     }
     
     // Keyboard
@@ -140,7 +140,7 @@ extern "C" {
     void set_touch_data(i32 touch_index, i32 identifier,
                         b32 has_moved, b32 has_started, 
                         b32 has_ended, b32 was_canceled, 
-                        i32 position_left, i32 position_top)
+                        i32 x, i32 y)
     {
         // TODO: make sure touch_index < MAX_NR_OF_TOUCHES
         
@@ -151,8 +151,8 @@ extern "C" {
         global_input.touch.touches[touch_index].has_started = has_started;
         global_input.touch.touches[touch_index].has_ended = has_ended;
         global_input.touch.touches[touch_index].was_canceled = was_canceled;
-        global_input.touch.touches[touch_index].position_left = position_left;
-        global_input.touch.touches[touch_index].position_top = position_top;
+        global_input.touch.touches[touch_index].x = x;
+        global_input.touch.touches[touch_index].y = y;
     }
     
 }

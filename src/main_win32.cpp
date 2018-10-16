@@ -100,41 +100,41 @@ LRESULT CALLBACK WindowProcedure(HWND window,
            
         case WM_LBUTTONDOWN: 
         {
-           new_input.mouse.left_mouse_button_has_gone_down = true;
-           new_input.mouse.left_mouse_button_is_down = true;
-           // FIXME: new_input.mouse.left_mouse_button_has_gone_down_twice = ...;
+           new_input.mouse.left_button_has_gone_down = true;
+           new_input.mouse.left_button_is_down = true;
+           // FIXME: new_input.mouse.left_button_has_gone_down_twice = ...;
         }
         break;
         case WM_LBUTTONUP:
         {
-            new_input.mouse.left_mouse_button_has_gone_up = true;
-            new_input.mouse.left_mouse_button_is_down = false;
+            new_input.mouse.left_button_has_gone_up = true;
+            new_input.mouse.left_button_is_down = false;
         }
         break;
         case WM_RBUTTONDOWN: 
         {
-           new_input.mouse.right_mouse_button_has_gone_down = true;
-           new_input.mouse.right_mouse_button_is_down = true;
-           // FIXME: new_input.mouse.right_mouse_button_has_gone_down_twice = ...;
+           new_input.mouse.right_button_has_gone_down = true;
+           new_input.mouse.right_button_is_down = true;
+           // FIXME: new_input.mouse.right_button_has_gone_down_twice = ...;
         }
         break;
         case WM_RBUTTONUP:
         {
-            new_input.mouse.right_mouse_button_has_gone_up = true;
-            new_input.mouse.right_mouse_button_is_down = false;
+            new_input.mouse.right_button_has_gone_up = true;
+            new_input.mouse.right_button_is_down = false;
         }
         break;
         case WM_MOUSEMOVE: 
         {
-            new_input.mouse.mouse_has_moved = true;
-            new_input.mouse.mouse_position_left = LOWORD(l_param);
-            new_input.mouse.mouse_position_top = HIWORD(l_param);
+            new_input.mouse.has_moved = true;
+            new_input.mouse.x = LOWORD(l_param);
+            new_input.mouse.y = HIWORD(l_param);
         }
         break;
         case WM_MOUSEWHEEL:
         {
-            new_input.mouse.mouse_wheel_has_moved = true;
-            new_input.mouse.mouse_wheel_delta = GET_WHEEL_DELTA_WPARAM(w_param) / 120;
+            new_input.mouse.wheel_has_moved = true;
+            new_input.mouse.wheel_delta = GET_WHEEL_DELTA_WPARAM(w_param) / 120;
         }
         break;
         
@@ -144,18 +144,82 @@ LRESULT CALLBACK WindowProcedure(HWND window,
             
             if (nr_of_touch_inputs > 0)
             {
-// FIXME: remove this!
-new_input.touch.touch_count = nr_of_touch_inputs;
                 
                 if (nr_of_touch_inputs <= MAX_NR_OF_TOUCHES)
                 {
                     if (GetTouchInputInfo((HTOUCHINPUT)l_param, nr_of_touch_inputs, (PTOUCHINPUT)&touch_inputs, sizeof(TOUCHINPUT)))
                     {
-                        for (i32 touch_index = 0; touch_index < nr_of_touch_inputs; touch_index++)
+                        for (i32 touch_input_index = 0; touch_input_index < nr_of_touch_inputs; touch_input_index++)
                         {
-                            TOUCHINPUT touch_input = touch_inputs[touch_index];
+                            TOUCHINPUT touch_input = touch_inputs[touch_input_index];
                             
-                            // TODO: do something with each touch input entry
+                            i32 identifier = touch_input.dwID;
+                            
+                            POINT point_input;
+                            point_input.x = TOUCH_COORD_TO_PIXEL(touch_input.x);
+                            point_input.y = TOUCH_COORD_TO_PIXEL(touch_input.y);
+                            ScreenToClient(window, &point_input);
+                            i32 x = point_input.x;
+                            i32 y = point_input.y;
+
+                            // Find (or create) corresponding touch in the list we currenlty keep
+                            b32 touch_found = false;
+                            i32 touch_index;
+                            for (touch_index = 0; touch_index < new_input.touch.touch_count; touch_index++)
+                            {
+                                if (new_input.touch.touches[touch_index].identifier == identifier)
+                                {
+                                    touch_found = true;
+                                    break;
+                                }
+                            }
+                            if (touch_found)
+                            {
+                                if (touch_input.dwFlags & TOUCHEVENTF_UP)
+                                {
+                                    // The touch_input has ended, so we should mark it as such
+                                    new_input.touch.touches[touch_index].has_ended = true;
+                                    
+                                    if (new_input.touch.touches[touch_index].x != x ||
+                                        new_input.touch.touches[touch_index].y != y)
+                                    {
+                                        new_input.touch.touches[touch_index].has_moved = true;
+                                        new_input.touch.touches[touch_index].x = x;
+                                        new_input.touch.touches[touch_index].y = y;
+                                    }
+                                }
+                                
+                                if (touch_input.dwFlags & TOUCHEVENTF_MOVE)
+                                {
+                                    // The touch_input has moved, so we should mark it as such
+                                    new_input.touch.touches[touch_index].has_moved = true;
+                                    new_input.touch.touches[touch_index].x = x;
+                                    new_input.touch.touches[touch_index].y = y;
+                                }
+                            }
+                            else
+                            {
+                                if (touch_input.dwFlags & TOUCHEVENTF_DOWN)
+                                {
+                                    // Create new touch
+                                    touch_index = new_input.touch.touch_count;
+                                    new_input.touch.touches[touch_index].identifier = identifier;
+                                    new_input.touch.touches[touch_index].has_moved = false;
+                                    new_input.touch.touches[touch_index].has_started = false;
+                                    new_input.touch.touches[touch_index].has_ended = false;
+                                    new_input.touch.touches[touch_index].was_canceled = false;
+                                    new_input.touch.touches[touch_index].x = x;
+                                    new_input.touch.touches[touch_index].y = y;
+                                    
+                                    new_input.touch.touch_count += 1;
+                                }
+                                else {
+                                    // TODO: we only add it if dwFlags & TOUCHEVENTF_DOWN is the case 
+                                    //       if we reach this point, we somehow got an unknown touch identifier (maybe log?)
+                                    
+                                }
+                            }
+                            
                         }    
                     }
                     else
@@ -274,17 +338,6 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
     
     LARGE_INTEGER last_clock_counter = get_clock_counter();
     
-// Testing
-new_input.touch.touch_count = 1;
-i32 touch_index = 0;
-new_input.touch.touches[touch_index].identifier = 2364;
-new_input.touch.touches[touch_index].has_moved = false;
-new_input.touch.touches[touch_index].has_started = false;
-new_input.touch.touches[touch_index].has_ended = false;
-new_input.touch.touches[touch_index].was_canceled = false;
-new_input.touch.touches[touch_index].position_left = 300;
-new_input.touch.touches[touch_index].position_top = 300;
-
     keep_running = true;
     while(keep_running)
     {
@@ -363,17 +416,17 @@ new_input.touch.touches[touch_index].position_top = 300;
         //       How do we make sure they don't do it at the same time?
         
         // Resetting mouse input
-        new_input.mouse.left_mouse_button_has_gone_up = false;
-        new_input.mouse.left_mouse_button_has_gone_down = false;
-        new_input.mouse.left_mouse_button_has_gone_down_twice = false;
+        new_input.mouse.left_button_has_gone_up = false;
+        new_input.mouse.left_button_has_gone_down = false;
+        new_input.mouse.left_button_has_gone_down_twice = false;
        
-        new_input.mouse.right_mouse_button_has_gone_up = false;
-        new_input.mouse.right_mouse_button_has_gone_down = false;
-        new_input.mouse.right_mouse_button_has_gone_down_twice = false;
+        new_input.mouse.right_button_has_gone_up = false;
+        new_input.mouse.right_button_has_gone_down = false;
+        new_input.mouse.right_button_has_gone_down_twice = false;
        
-        new_input.mouse.mouse_wheel_has_moved = false;
+        new_input.mouse.wheel_has_moved = false;
        
-        new_input.mouse.mouse_has_moved = false;
+        new_input.mouse.has_moved = false;
 
         // Resetting keyboard input
         new_input.keyboard.sequence_keys_length = 0;

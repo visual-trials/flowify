@@ -335,12 +335,12 @@ extern "C" {
         
         // Mouse driven movement/placement
         
-        if (mouse->mouse_wheel_has_moved)
+        if (mouse->wheel_has_moved)
         {
-            world->y_offset += mouse->mouse_wheel_delta * 10;
+            world->y_offset += mouse->wheel_delta * 10;
         }
 
-        if (mouse->left_mouse_button_has_gone_down)
+        if (mouse->left_button_has_gone_down)
         {
             // TODO: determine which entity is selected, using positions and sizes of all entities
             
@@ -366,25 +366,25 @@ extern "C" {
                 current_entity->size.width = 150;
                 current_entity->size.height = 150;
                 
-                current_entity->pos.x = mouse->mouse_position_left;
-                current_entity->pos.y = mouse->mouse_position_top;
+                current_entity->pos.x = mouse->x;
+                current_entity->pos.y = mouse->y;
             }
             
         }
         
-        if (mouse->left_mouse_button_has_gone_up)
+        if (mouse->left_button_has_gone_up)
         {
             world->an_entity_is_selected = true;
         }
         
-        if (mouse->left_mouse_button_is_down)
+        if (mouse->left_button_is_down)
         {
             if (world->an_entity_is_selected)
             {
                 entity * current_entity = world->entities + world->selected_entity_index;
                 
-                current_entity->pos.x = mouse->mouse_position_left;
-                current_entity->pos.y = mouse->mouse_position_top;
+                current_entity->pos.x = mouse->x;
+                current_entity->pos.y = mouse->y;
             }
         }
         
@@ -514,7 +514,7 @@ extern "C" {
         for (i32 touch_index = 0; touch_index < touch_info->touch_count; touch_index++)
         {
             touch_input touch = touch_info->touches[touch_index];
-            draw_ellipse(touch.position_left - 25, touch.position_top - 25, 
+            draw_ellipse(touch.x - 25, touch.y - 25, 
                            50, 50,
                            green, transparant, 
                            6);
