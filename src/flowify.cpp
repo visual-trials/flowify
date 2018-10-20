@@ -16,13 +16,9 @@
 
  */
  
-#if BUILD_FOR_NATIVE_PLATFORM
-    #include "render_win32.cpp"
-#else
-    #include "render_js.cpp"
-#endif
-
+#include "generic.h"
 #include "input.cpp"
+#include "render.cpp"
 
 // FIXME: mouse position should also be a pos_2d, right?
 

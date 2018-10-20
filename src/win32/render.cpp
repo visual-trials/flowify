@@ -16,8 +16,6 @@
 
  */
  
-#include "render.h"
-
 struct blend_info
 {
     HDC dc;

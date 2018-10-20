@@ -16,8 +16,6 @@
 
  */
 
-#include "render.h"
-
 extern "C" { 
     extern void jsDrawRoundedRect(i32 x, i32 y, i32 width, i32 height, i32 r,
                                   i32 line_color_rgb, i32 line_color_alpha, 
