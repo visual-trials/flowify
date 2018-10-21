@@ -290,7 +290,12 @@ void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r, color4 l
     }
     
     DeleteObject(pen);
+    DeleteObject(black_pen);
+    DeleteObject(white_pen);
+    
     DeleteObject(brush);
+    DeleteObject(black_brush);
+    DeleteObject(white_brush);
 }
 
 void draw_ellipse(i32 x, i32 y, i32 width, i32 height, 
@@ -385,7 +390,12 @@ void draw_ellipse(i32 x, i32 y, i32 width, i32 height,
     }
     
     DeleteObject(pen);
+    DeleteObject(black_pen);
+    DeleteObject(white_pen);
+    
     DeleteObject(brush);
+    DeleteObject(black_brush);
+    DeleteObject(white_brush);
 }
 
 void draw_text(i32 x, i32 y, short_string * text, i32 font_height, color4 font_color)
