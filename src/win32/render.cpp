@@ -99,8 +99,6 @@ void init_blend(i32 x, i32 y, i32 width, i32 height, color4 color, blend_info * 
 
 void do_blend(blend_info * blend_info)
 {
-//    BitBlt(backbuffer_dc, blend_info->x, blend_info->y, blend_info->width, blend_info->height, 
-//           blend_info->backup_dc, 0, 0, SRCCOPY);
     // TODO: we should check the result of AlphaBlend and log if something goes wrong
     AlphaBlend(backbuffer_dc, blend_info->x, blend_info->y, blend_info->width, blend_info->height, 
                blend_info->dc, 0, 0, blend_info->width, blend_info->height, 
