@@ -16,11 +16,41 @@
 
  */
  
+
+/*
+    TODO: we should use something else than GDI to render with alpha
+    
+    We are using basic GDI here. But alpha-blending is not really supported in GDI.
+    To make blending work anyway we now use a workaround: an alpha buffer AND a backup buffer.
+    Note: we only have to use this backup buffer when we are not drawing a pure rectangle.
+    
+    The procedure is as follows:
+    
+    1) We make a backup of the area we are going to draw/blend into (this goes into the backup buffer)
+    2) We draw into the alpha buffer
+    3) We then use AlphaBlend to blend our drawing to the back buffer.
+           Note: The problem is that AlphaBlend has a 24 bpp source bitmap 
+                 and cannot know which parts it shouln't blend. This causes it
+                 to blend parts we didn't draw into. We need to restore those.
+    4) We draw the same figure to the backup buffer, but set our brush/pen to WHITE
+    5) We use TransparentBlt to copy back (aka restore) the pixels that are not WHITE
+        Note: By doing this we restored most of the parts we blended incorrectly to
+              But if the original image had white pixel in them, we didn't restore those pixel.
+              So we have to use another color and do the same.
+    6) We draw the same figure to the backup buffer, but set our brush/pen to BLACK
+    7) We use TransparentBlt to copy back (aka restore) the pixels that are not BLACK
+    
+*/
+
 struct blend_info
 {
     HDC dc;
     HBITMAP alpha_bitmap;
     BLENDFUNCTION blend_function;
+    
+    b32 make_backup;
+    HDC backup_dc;
+    HBITMAP backup_bitmap;
     
     color4 color;
     i32 x;
@@ -29,7 +59,7 @@ struct blend_info
     i32 height;
 };
 
-void init_blend(i32 x, i32 y, i32 width, i32 height, color4 color, blend_info * blend_info)
+void init_blend(i32 x, i32 y, i32 width, i32 height, color4 color, blend_info * blend_info, b32 make_backup)
 {
     
     blend_info->color = color;
@@ -37,6 +67,8 @@ void init_blend(i32 x, i32 y, i32 width, i32 height, color4 color, blend_info * 
     blend_info->y = y;
     blend_info->width = width;
     blend_info->height = height;
+    
+    blend_info->make_backup = make_backup;
     
     blend_info->dc = CreateCompatibleDC(backbuffer_dc);
 
@@ -49,71 +81,57 @@ void init_blend(i32 x, i32 y, i32 width, i32 height, color4 color, blend_info * 
     blend_info->alpha_bitmap = CreateCompatibleBitmap(backbuffer_dc, blend_info->width, blend_info->height);
     
     SelectObject(blend_info->dc, blend_info->alpha_bitmap);
+    
+    if (make_backup)
+    {
+        blend_info->backup_dc = CreateCompatibleDC(backbuffer_dc);
+        
+        // FIXME: what if width or height are bigger than the width or height of the backbuffer?
+        blend_info->backup_bitmap = CreateCompatibleBitmap(backbuffer_dc, blend_info->width, blend_info->height);
+        
+        SelectObject(blend_info->backup_dc, blend_info->backup_bitmap);
+        
+        // Creating a backup of the part of the image we are going to alpha blend into
+        // TODO: we should check the result of BitBlt and log if something goes wrong
+        BitBlt(blend_info->backup_dc, 0, 0, blend_info->width, blend_info->height, backbuffer_dc, blend_info->x, blend_info->y, SRCCOPY);
+    }
+}
+
+void do_blend(blend_info * blend_info)
+{
+//    BitBlt(backbuffer_dc, blend_info->x, blend_info->y, blend_info->width, blend_info->height, 
+//           blend_info->backup_dc, 0, 0, SRCCOPY);
+    // TODO: we should check the result of AlphaBlend and log if something goes wrong
+    AlphaBlend(backbuffer_dc, blend_info->x, blend_info->y, blend_info->width, blend_info->height, 
+               blend_info->dc, 0, 0, blend_info->width, blend_info->height, 
+               blend_info->blend_function);
+}
+
+void retore_blend_white(blend_info * blend_info)
+{
+    // TODO: we should check the result of TransparentBlt and log if something goes wrong
+    TransparentBlt(backbuffer_dc, blend_info->x, blend_info->y, blend_info->width, blend_info->height,
+                   blend_info->backup_dc, 0, 0, blend_info->width, blend_info->height,
+                   RGB(255, 255, 255));
+}
+
+void retore_blend_black(blend_info * blend_info)
+{
+    // TODO: we should check the result of TransparentBlt and log if something goes wrong
+    TransparentBlt(backbuffer_dc, blend_info->x, blend_info->y, blend_info->width, blend_info->height,
+                   blend_info->backup_dc, 0, 0, blend_info->width, blend_info->height,
+                   RGB(0, 0, 0));
 }
 
 void end_blend(blend_info * blend_info)
 {
-    AlphaBlend(backbuffer_dc, blend_info->x, blend_info->y, blend_info->width, blend_info->height, 
-               blend_info->dc, 0, 0, blend_info->width, blend_info->height, 
-               blend_info->blend_function);
-
+    if (blend_info->make_backup)
+    {
+        DeleteObject(blend_info->backup_bitmap);
+        DeleteDC(blend_info->backup_dc);
+    }
     DeleteObject(blend_info->alpha_bitmap);
     DeleteDC(blend_info->dc);
-}
-
-void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r, color4 line_color, color4 fill_color, i32 line_width)
-{
-    HPEN pen = CreatePen(PS_SOLID, line_width, RGB(line_color.r, line_color.g, line_color.b));
-    HBRUSH brush = CreateSolidBrush(RGB(fill_color.r, fill_color.g, fill_color.b));
-    
-    i32 d = r * 2;
-
-    if (fill_color.a != 255)
-    {
-        blend_info blend_info;
-        i32 x_blend = x;
-        i32 y_blend = y;
-        init_blend(x_blend, y_blend, width, height, fill_color, &blend_info);
-        {
-            SelectObject(blend_info.dc, GetStockObject(NULL_PEN));
-            SelectObject(blend_info.dc, brush);
-
-            RoundRect(blend_info.dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend, d, d);
-        }
-        end_blend(&blend_info);
-    }
-    else
-    {
-        SelectObject(backbuffer_dc, GetStockObject(NULL_PEN));
-        SelectObject(backbuffer_dc, brush);
-
-        RoundRect(backbuffer_dc, x, y, x + width, y + height, d, d);
-    }
-    
-    if (line_color.a != 255)
-    {
-        blend_info blend_info;
-        i32 x_blend = x;
-        i32 y_blend = y;
-        init_blend(x_blend, y_blend, width, height, line_color, &blend_info);
-        {
-            SelectObject(blend_info.dc, pen);
-            SelectObject(blend_info.dc, GetStockObject(NULL_BRUSH));
-
-            RoundRect(blend_info.dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend, d, d);
-        }
-        end_blend(&blend_info);
-    }
-    else
-    {
-        SelectObject(backbuffer_dc, pen);
-        SelectObject(backbuffer_dc, GetStockObject(NULL_BRUSH));
-
-        RoundRect(backbuffer_dc, x, y, x + width, y + height, d, d);
-    }
-    
-    DeleteObject(pen);
-    DeleteObject(brush);
 }
 
 void draw_rectangle(i32 x, i32 y, i32 width, i32 height, color4 line_color, color4 fill_color, i32 line_width)
@@ -132,12 +150,15 @@ void draw_rectangle(i32 x, i32 y, i32 width, i32 height, color4 line_color, colo
         blend_info blend_info;
         i32 x_blend = x;
         i32 y_blend = y;
-        init_blend(x_blend, y_blend, width, height, fill_color, &blend_info);
+        b32 make_backup = false;
+        init_blend(x_blend, y_blend, width, height, fill_color, &blend_info, make_backup);
         {
             SelectObject(blend_info.dc, GetStockObject(NULL_PEN));
             SelectObject(blend_info.dc, brush);
 
             Rectangle(blend_info.dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend);
+            
+            do_blend(&blend_info);
         }
         end_blend(&blend_info);
     }
@@ -153,12 +174,15 @@ void draw_rectangle(i32 x, i32 y, i32 width, i32 height, color4 line_color, colo
         blend_info blend_info;
         i32 x_blend = x;
         i32 y_blend = y;
-        init_blend(x_blend, y_blend, width, height, line_color, &blend_info);
+        b32 make_backup = false;
+        init_blend(x_blend, y_blend, width, height, line_color, &blend_info, make_backup);
         {
             SelectObject(blend_info.dc, pen);
             SelectObject(blend_info.dc, GetStockObject(NULL_BRUSH));
 
             Rectangle(blend_info.dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend);
+            
+            do_blend(&blend_info);
         }
         end_blend(&blend_info);
     }
@@ -173,23 +197,145 @@ void draw_rectangle(i32 x, i32 y, i32 width, i32 height, color4 line_color, colo
     DeleteObject(brush);
 }
 
+void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r, color4 line_color, color4 fill_color, i32 line_width)
+{
+    HPEN pen = CreatePen(PS_SOLID, line_width, RGB(line_color.r, line_color.g, line_color.b));
+    HPEN black_pen = CreatePen(PS_SOLID, line_width, RGB(0, 0, 0));
+    HPEN white_pen = CreatePen(PS_SOLID, line_width, RGB(255, 255, 255));
+    
+    HBRUSH brush = CreateSolidBrush(RGB(fill_color.r, fill_color.g, fill_color.b));
+    HBRUSH black_brush = CreateSolidBrush(RGB(0, 0, 0));
+    HBRUSH white_brush = CreateSolidBrush(RGB(255, 255, 255));
+    
+    i32 d = r * 2;
+
+    if (fill_color.a != 255)
+    {
+        blend_info blend_info;
+        i32 x_blend = x;
+        i32 y_blend = y;
+        b32 make_backup = true;
+        init_blend(x_blend, y_blend, width, height, fill_color, &blend_info, make_backup);
+        {
+            SelectObject(blend_info.dc, GetStockObject(NULL_PEN));
+            SelectObject(blend_info.dc, brush);
+
+            RoundRect(blend_info.dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend, d, d);
+            
+            do_blend(&blend_info);
+        }
+        {
+            SelectObject(blend_info.backup_dc, GetStockObject(NULL_PEN));
+            SelectObject(blend_info.backup_dc, white_brush);
+
+            RoundRect(blend_info.backup_dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend, d, d);
+            
+            retore_blend_white(&blend_info);
+        }
+        {
+            SelectObject(blend_info.backup_dc, GetStockObject(NULL_PEN));
+            SelectObject(blend_info.backup_dc, black_brush);
+
+            RoundRect(blend_info.backup_dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend, d, d);
+            
+            retore_blend_black(&blend_info);
+        }
+        end_blend(&blend_info);
+    }
+    else
+    {
+        SelectObject(backbuffer_dc, GetStockObject(NULL_PEN));
+        SelectObject(backbuffer_dc, brush);
+
+        RoundRect(backbuffer_dc, x, y, x + width, y + height, d, d);
+    }
+    
+    if (line_color.a != 255)
+    {
+        blend_info blend_info;
+        i32 x_blend = x;
+        i32 y_blend = y;
+        b32 make_backup = true;
+        init_blend(x_blend, y_blend, width, height, line_color, &blend_info, make_backup);
+        {
+            SelectObject(blend_info.dc, pen);
+            SelectObject(blend_info.dc, GetStockObject(NULL_BRUSH));
+
+            RoundRect(blend_info.dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend, d, d);
+            
+            do_blend(&blend_info);
+        }
+        {
+            SelectObject(blend_info.backup_dc, white_pen);
+            SelectObject(blend_info.backup_dc, GetStockObject(NULL_BRUSH));
+
+            RoundRect(blend_info.backup_dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend, d, d);
+            
+            retore_blend_white(&blend_info);
+        }
+        {
+            SelectObject(blend_info.backup_dc, black_pen);
+            SelectObject(blend_info.backup_dc, GetStockObject(NULL_BRUSH));
+
+            RoundRect(blend_info.backup_dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend, d, d);
+            
+            retore_blend_black(&blend_info);
+        }
+        end_blend(&blend_info);
+    }
+    else
+    {
+        SelectObject(backbuffer_dc, pen);
+        SelectObject(backbuffer_dc, GetStockObject(NULL_BRUSH));
+
+        RoundRect(backbuffer_dc, x, y, x + width, y + height, d, d);
+    }
+    
+    DeleteObject(pen);
+    DeleteObject(brush);
+}
+
 void draw_ellipse(i32 x, i32 y, i32 width, i32 height, 
                   color4 line_color, color4 fill_color, i32 line_width)
 {
     HPEN pen = CreatePen(PS_SOLID, line_width, RGB(line_color.r, line_color.g, line_color.b));
+    HPEN black_pen = CreatePen(PS_SOLID, line_width, RGB(0, 0, 0));
+    HPEN white_pen = CreatePen(PS_SOLID, line_width, RGB(255, 255, 255));
+    
     HBRUSH brush = CreateSolidBrush(RGB(fill_color.r, fill_color.g, fill_color.b));
+    HBRUSH black_brush = CreateSolidBrush(RGB(0, 0, 0));
+    HBRUSH white_brush = CreateSolidBrush(RGB(255, 255, 255));
     
     if (fill_color.a != 255)
     {
         blend_info blend_info;
         i32 x_blend = x;
         i32 y_blend = y;
-        init_blend(x_blend, y_blend, width, height, fill_color, &blend_info);
+        b32 make_backup = true;
+        init_blend(x_blend, y_blend, width, height, fill_color, &blend_info, make_backup);
         {
             SelectObject(blend_info.dc, GetStockObject(NULL_PEN));
             SelectObject(blend_info.dc, brush);
 
             Ellipse(blend_info.dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend);
+            
+            do_blend(&blend_info);
+        }
+        {
+            SelectObject(blend_info.backup_dc, GetStockObject(NULL_PEN));
+            SelectObject(blend_info.backup_dc, white_brush);
+
+            Ellipse(blend_info.backup_dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend);
+            
+            retore_blend_white(&blend_info);
+        }
+        {
+            SelectObject(blend_info.backup_dc, GetStockObject(NULL_PEN));
+            SelectObject(blend_info.backup_dc, black_brush);
+
+            Ellipse(blend_info.backup_dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend);
+            
+            retore_blend_black(&blend_info);
         }
         end_blend(&blend_info);
     }
@@ -205,12 +351,31 @@ void draw_ellipse(i32 x, i32 y, i32 width, i32 height,
         blend_info blend_info;
         i32 x_blend = x;
         i32 y_blend = y;
-        init_blend(x_blend, y_blend, width, height, line_color, &blend_info);
+        b32 make_backup = true;
+        init_blend(x_blend, y_blend, width, height, line_color, &blend_info, make_backup);
         {
             SelectObject(blend_info.dc, pen);
             SelectObject(blend_info.dc, GetStockObject(NULL_BRUSH));
 
             Ellipse(blend_info.dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend);
+            
+            do_blend(&blend_info);
+        }
+        {
+            SelectObject(blend_info.backup_dc, white_pen);
+            SelectObject(blend_info.backup_dc, GetStockObject(NULL_BRUSH));
+
+            Ellipse(blend_info.backup_dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend);
+            
+            retore_blend_white(&blend_info);
+        }
+        {
+            SelectObject(blend_info.backup_dc, black_pen);
+            SelectObject(blend_info.backup_dc, GetStockObject(NULL_BRUSH));
+
+            Ellipse(blend_info.backup_dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend);
+            
+            retore_blend_black(&blend_info);
         }
         end_blend(&blend_info);
     }
