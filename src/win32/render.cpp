@@ -99,8 +99,6 @@ void init_blend(i32 x, i32 y, i32 width, i32 height, Color4 color, BlendInfo * b
 
 void do_blend(BlendInfo * blend_info)
 {
-//    BitBlt(backbuffer_dc, blend_info->x, blend_info->y, blend_info->width, blend_info->height, 
-//           blend_info->backup_dc, 0, 0, SRCCOPY);
     // TODO: we should check the result of AlphaBlend and log if something goes wrong
     AlphaBlend(backbuffer_dc, blend_info->x, blend_info->y, blend_info->width, blend_info->height, 
                blend_info->dc, 0, 0, blend_info->width, blend_info->height, 
@@ -292,7 +290,12 @@ void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r, Color4 l
     }
     
     DeleteObject(pen);
+    DeleteObject(black_pen);
+    DeleteObject(white_pen);
+    
     DeleteObject(brush);
+    DeleteObject(black_brush);
+    DeleteObject(white_brush);
 }
 
 void draw_ellipse(i32 x, i32 y, i32 width, i32 height, 
@@ -387,7 +390,12 @@ void draw_ellipse(i32 x, i32 y, i32 width, i32 height,
     }
     
     DeleteObject(pen);
+    DeleteObject(black_pen);
+    DeleteObject(white_pen);
+    
     DeleteObject(brush);
+    DeleteObject(black_brush);
+    DeleteObject(white_brush);
 }
 
 void draw_text(i32 x, i32 y, ShortString * text, i32 font_height, Color4 font_color)
