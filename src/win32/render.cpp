@@ -178,7 +178,7 @@ void draw_rectangle(i32 x, i32 y, i32 width, i32 height, Color4 line_color, Colo
             SelectObject(blend_info.dc, pen);
             SelectObject(blend_info.dc, GetStockObject(NULL_BRUSH));
 
-            Rectangle(blend_info.dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend);
+            Rectangle(blend_info.dc, x - x_blend, y - y_blend, x + width - x_blend, y + height - y_blend);
             
             do_blend(&blend_info);
         }
@@ -193,6 +193,50 @@ void draw_rectangle(i32 x, i32 y, i32 width, i32 height, Color4 line_color, Colo
     
     DeleteObject(pen);
     DeleteObject(brush);
+}
+
+void draw_line(i32 x_start, i32 y_start, i32 x_end, i32 y_end, Color4 line_color, i32 line_width)
+{
+    HPEN pen = CreatePen(PS_SOLID, line_width, RGB(line_color.r, line_color.g, line_color.b));
+    
+    if (line_color.a != 255)
+    {
+        /*
+            TODO: in order to draw a line with alpha we have to blend it
+                  so we should create a blend area. But we don't have a width and height atm
+                  We should determine the width and height of the rectangle the line covers 
+                  (so including the line-width and the fact that the line could be diagonal)
+                  so that we can use that as the blend-area.
+            
+        BlendInfo blend_info;
+        i32 x_blend = ??;
+        i32 y_blend = ??;
+        i32 width = ??;
+        i32 hieght = ??;
+        b32 make_backup = false;
+        init_blend(x_blend, y_blend, width, height, line_color, &blend_info, make_backup);
+        {
+            SelectObject(blend_info.dc, pen);
+            SelectObject(blend_info.dc, GetStockObject(NULL_BRUSH));
+
+            MoveToEx(blend_info.dc, x_start - x_blend, y_start - y_blend, (LPPOINT) NULL); 
+            LineTo(blend_info.dc, x_end - x_blend, y_end - y_blend); 
+            
+            do_blend(&blend_info);
+        }
+        end_blend(&blend_info);
+        
+        */
+    }
+    else {
+        SelectObject(backbuffer_dc, pen);
+        SelectObject(backbuffer_dc, GetStockObject(NULL_BRUSH));
+
+        MoveToEx(backbuffer_dc, x_start, y_start, (LPPOINT) NULL); 
+        LineTo(backbuffer_dc, x_end, y_end); 
+    }
+    
+    DeleteObject(pen);
 }
 
 void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r, Color4 line_color, Color4 fill_color, i32 line_width)
