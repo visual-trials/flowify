@@ -41,6 +41,9 @@ Flowify.input = function () {
     my.mouseWheelHasMoved = false
     my.mouseWheelDelta = null
 
+    // TODO: my.mouseHasEntered
+    // TODO: my.mouseHasExited
+    
     my.mouseHasMoved = false
     my.mousePositionLeft = null
     my.mousePositionTop = null
@@ -130,6 +133,24 @@ Flowify.input = function () {
         e.preventDefault()
     }
 
+    my.mouseEntered = function (e) {
+        // TODO: my.mouseHasEntered = true
+        
+        my.mousePositionLeft = e.offsetX
+        my.mousePositionTop = e.offsetY
+
+        e.preventDefault()
+    }
+
+    my.mouseExited = function (e) {
+        // TODO: my.mouseHasExited = true
+
+        my.mousePositionLeft = e.offsetX
+        my.mousePositionTop = e.offsetY
+
+        e.preventDefault()
+    }
+
     my.mouseWheelMoved = function (e) {
         my.mouseWheelHasMoved = true
 
@@ -188,7 +209,7 @@ Flowify.input = function () {
                 my.sequenceKeysUpDown.push({ "isDown" : true, "keyCode" : keyCode})
             }
             else {
-                console.log("ERRRO: Too many keys have gone up and down during this frame")
+                console.log("ERROR: Too many keys have gone up and down during this frame")
             }
             
             if (!Flowify.main.bufferU8[my.addressKeysThatAreDown + keyCode]) {
@@ -265,7 +286,7 @@ Flowify.input = function () {
                 my.sequenceKeysUpDown.push({ "isDown" : false, "keyCode" : keyCode})
             }
             else {
-                console.log("ERRRO: Too many keys have gone up and down during this frame")
+                console.log("ERROR: Too many keys have gone up and down during this frame")
             }
             
             if (Flowify.main.bufferU8[my.addressKeysThatAreDown + keyCode]) {
@@ -437,6 +458,11 @@ Flowify.input = function () {
         Flowify.canvas.canvasElement.addEventListener("mousedown", my.mouseButtonDown, false)
         Flowify.canvas.canvasElement.addEventListener("mouseup", my.mouseButtonUp, false)
         Flowify.canvas.canvasElement.addEventListener("mousemove", my.mouseMoved, false)
+        // TODO: the mouseenter is not triggered on *page load* for Chrome. It is for FF.
+        //       See this link *why* we want to use it: 
+        //       https://stackoverflow.com/questions/2601097/how-to-get-the-mouse-position-without-events-without-moving-the-mouse
+        Flowify.canvas.canvasElement.addEventListener("mouseenter", my.mouseEntered, false)
+        Flowify.canvas.canvasElement.addEventListener("mouseleave", my.mouseExited, false)
         // IE9, Chrome, Safari, Opera
         Flowify.canvas.canvasElement.addEventListener("mousewheel", my.mouseWheelMoved, false)
         // Firefox
