@@ -16,10 +16,6 @@
 
  */
  
-#define internal static 
-#define local_persist static 
-#define global_variable static
-
 #include <stdint.h>
 
 typedef int8_t  i8;
@@ -36,7 +32,7 @@ typedef uint64_t u64;
 typedef float  r32;
 typedef double r64;
 
-struct color4
+struct Color4
 {
     u8 r;
     u8 g;
@@ -46,7 +42,7 @@ struct color4
 
 #define MAX_LENGTH_SHORT_STRING 100
 
-struct short_string
+struct ShortString
 {
     u8 data[MAX_LENGTH_SHORT_STRING];
     i32 length;
@@ -75,7 +71,7 @@ i32 cstring_length(u8 * string)
     return count;
 }
 
-void copy_string(short_string * src, short_string * dest)
+void copy_string(ShortString * src, ShortString * dest)
 {
     for (i32 i = 0; i < src->length; i++)
     {
@@ -100,7 +96,7 @@ i32 copy_cstring(const char * src, u8 * dest, i32 max_length)
     return count;
 }
 
-short_string * copy_cstring_to_short_string(const char * src, short_string * dest)
+ShortString * copy_cstring_to_ShortString(const char * src, ShortString * dest)
 {
     i32 length = copy_cstring(src, dest->data, MAX_LENGTH_SHORT_STRING);
     dest->length = length;
@@ -108,7 +104,7 @@ short_string * copy_cstring_to_short_string(const char * src, short_string * des
     return dest;
 }
 
-short_string * copy_char_to_string(char ch, short_string * dest)
+ShortString * copy_char_to_string(char ch, ShortString * dest)
 {
     dest->data[0] = ch;
     dest->length = 1;
@@ -116,7 +112,7 @@ short_string * copy_char_to_string(char ch, short_string * dest)
     return dest;
 }
 
-short_string * int_to_string(i32 number, short_string * decimal_string)
+ShortString * int_to_string(i32 number, ShortString * decimal_string)
 {
     i32 left_over = number;
     i32 nr_of_digits = 0;

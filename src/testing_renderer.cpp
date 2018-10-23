@@ -32,8 +32,8 @@ extern "C" {
     
     void render_frame()
     {
-        color4 line_color;
-        color4 fill_color;
+        Color4 line_color;
+        Color4 fill_color;
         
         line_color.r = 20;
         line_color.g = 80;

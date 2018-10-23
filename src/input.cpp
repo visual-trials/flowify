@@ -16,7 +16,7 @@
 
  */
 
-struct mouse_input
+struct MouseInput
 {
     // FIXME: remove the term 'mouse' here, it's implicit!
     
@@ -40,7 +40,7 @@ struct mouse_input
 
 #define MAX_KEY_SEQUENCE_PER_FRAME 25 // Keep this the same in input.js!
 
-struct keyboard_input
+struct KeyboardInput
 {
     u8 keys_that_are_down[255];
     
@@ -54,7 +54,7 @@ struct keyboard_input
 
 #define MAX_NR_OF_TOUCHES 10 // Keep this the same in input.js!
 
-struct touch_input
+struct TouchInput
 {
     i32 identifier;
     b32 has_moved;
@@ -65,21 +65,21 @@ struct touch_input
     i32 y;
 };
 
-struct touches_input
+struct TouchesInput
 {
-    touch_input touches[MAX_NR_OF_TOUCHES];
+    TouchInput touches[MAX_NR_OF_TOUCHES];
     i32 touch_count;
 };    
 
-struct input
+struct Input
 {
-    mouse_input     mouse;
-    keyboard_input  keyboard;
-    touches_input   touch;
+    MouseInput     mouse;
+    KeyboardInput  keyboard;
+    TouchesInput   touch;
 };
 
-input global_input = {};
-input new_input = {};
+Input global_input = {};
+Input new_input = {};
 
 extern "C" {
     

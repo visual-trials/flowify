@@ -22,34 +22,34 @@
 
 #define MAX_ENTITIES 10
 
-struct pos_2d
+struct Pos2d
 {
     i32 x;
     i32 y;
 };
 
-struct size_2d
+struct Size2d
 {
     i32 width;
     i32 height;
 };
 
-struct entity
+struct Entity
 {
     // TODO: shape
-    pos_2d  pos;
-    size_2d size;
-    color4  line_color;
-    color4  fill_color;
+    Pos2d  pos;
+    Size2d size;
+    Color4  line_color;
+    Color4  fill_color;
     i32     line_width;
     
     b32          has_text;
-    short_string text;
+    ShortString text;
 };
 
-struct world_data
+struct WorldData
 {
-    entity entities[MAX_ENTITIES];
+    Entity entities[MAX_ENTITIES];
     i32 nr_of_entities;
     
     i32 increment;
@@ -59,19 +59,19 @@ struct world_data
     u32 third_entity_index;
 };
 
-world_data global_world = {};  // FIXME: allocate this properly!
+WorldData global_world = {};  // FIXME: allocate this properly!
 
 extern "C" {
     
     void init_world()
     {
-        world_data * world = &global_world;
+        WorldData * world = &global_world;
         
         world->increment = 0;
         world->nr_of_entities = 0;
         
         world->third_entity_index = world->nr_of_entities++;
-        entity * third_entity = world->entities + world->third_entity_index;
+        Entity * third_entity = world->entities + world->third_entity_index;
         
         third_entity->line_color.r = 255;
         third_entity->line_color.g = 0;
@@ -92,11 +92,11 @@ extern "C" {
         third_entity->size.height = 40;
         
         
-        copy_cstring_to_short_string("My", &third_entity->text);
+        copy_cstring_to_ShortString("My", &third_entity->text);
         third_entity->has_text = true;
         
         world->first_entity_index = world->nr_of_entities++;
-        entity * first_entity = world->entities + world->first_entity_index;
+        Entity * first_entity = world->entities + world->first_entity_index;
         
         first_entity->line_color.r = 0;
         first_entity->line_color.g = 255;
@@ -117,7 +117,7 @@ extern "C" {
         first_entity->pos.y = 10;
             
         world->second_entity_index = world->nr_of_entities++;
-        entity * second_entity = world->entities + world->second_entity_index;
+        Entity * second_entity = world->entities + world->second_entity_index;
         
         *second_entity = *first_entity;
         
@@ -127,7 +127,7 @@ extern "C" {
     
     void update_frame()
     {
-        world_data * world = &global_world;
+        WorldData * world = &global_world;
         
         world->increment++;
 
@@ -141,23 +141,23 @@ extern "C" {
             offset = 256 - (world->increment % 256);
         }
         
-        entity * first_entity = world->entities + world->first_entity_index;
+        Entity * first_entity = world->entities + world->first_entity_index;
         first_entity->pos.x = offset + 10;
         
-        entity * second_entity = world->entities + world->second_entity_index;
+        Entity * second_entity = world->entities + world->second_entity_index;
         second_entity->pos.y = offset + 10;
         
-        entity * third_entity = world->entities + world->third_entity_index;
+        Entity * third_entity = world->entities + world->third_entity_index;
         third_entity->pos.y = 50;
     }
     
     void render_frame()
     {
-        world_data * world = &global_world;
+        WorldData * world = &global_world;
 
         for (i32 entity_index = 0; entity_index < world->nr_of_entities; entity_index++)
         {
-            entity * current_entity = world->entities + entity_index;
+            Entity * current_entity = world->entities + entity_index;
             
             draw_rectangle(current_entity->pos.x, current_entity->pos.y, 
                            current_entity->size.width, current_entity->size.height,
@@ -165,7 +165,7 @@ extern "C" {
                            current_entity->line_width);
             if (current_entity->has_text)
             {
-                color4 font_color;
+                Color4 font_color;
                 font_color.r = 0;
                 font_color.g = 0;
                 font_color.b = 0;

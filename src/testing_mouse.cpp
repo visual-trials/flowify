@@ -20,15 +20,15 @@
 #include "input.cpp"
 #include "render.cpp"
 
-// FIXME: mouse position should also be a pos_2d, right?
+// FIXME: mouse position should also be a Pos2d, right?
 
-struct pos_2d
+struct Pos2d
 {
     i32 x;
     i32 y;
 };
 
-struct size_2d
+struct Size2d
 {
     i32 width;
     i32 height;
@@ -37,19 +37,19 @@ struct size_2d
 struct entity
 {
     // TODO: shape
-    pos_2d  pos;
-    size_2d size;
-    color4  line_color;
-    color4  fill_color;
-    i32     line_width;
+    Pos2d  pos;
+    Size2d size;
+    Color4 line_color;
+    Color4 fill_color;
+    i32 line_width;
     
-    b32          has_text;
-    short_string text;
+    b32 has_text;
+    ShortString text;
 };
 
 #define MAX_ENTITIES 10
 
-struct world_data
+struct WorldData
 {
     entity entities[MAX_ENTITIES];
     i32 nr_of_entities;
@@ -59,9 +59,9 @@ struct world_data
     u32 selected_entity_index;
 };
 
-world_data global_world = {};  // FIXME: allocate this properly!
+WorldData global_world = {};  // FIXME: allocate this properly!
 
-i32 create_new_entity_index(world_data * world)
+i32 create_new_entity_index(WorldData * world)
 {
     // TODO: check MAX_ENTITIES!
     return world->nr_of_entities++;
@@ -71,7 +71,7 @@ extern "C" {
     
     void init_world()
     {
-        world_data * world = &global_world;
+        WorldData * world = &global_world;
         
         world->an_entity_is_selected = false;
         world->nr_of_entities = 0;
@@ -79,8 +79,8 @@ extern "C" {
     
     void update_frame()
     {
-        mouse_input * mouse = &global_input.mouse;
-        world_data * world = &global_world;
+        MouseInput * mouse = &global_input.mouse;
+        WorldData * world = &global_world;
         
         // Mouse driven movement/placement
         
@@ -145,7 +145,7 @@ extern "C" {
     
     void render_frame()
     {
-        world_data * world = &global_world;
+        WorldData * world = &global_world;
 
         for (i32 entity_index = 0; entity_index < world->nr_of_entities; entity_index++)
         {
@@ -157,7 +157,7 @@ extern "C" {
                            current_entity->line_width);
             if (current_entity->has_text)
             {
-                color4 font_color;
+                Color4 font_color;
                 font_color.r = 0;
                 font_color.g = 0;
                 font_color.b = 0;

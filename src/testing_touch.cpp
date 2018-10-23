@@ -32,16 +32,16 @@ extern "C" {
     
     void draw_touches()
     {
-        touches_input * touch_info = &global_input.touch;
-        short_string nr_of_touches_string;
+        TouchesInput * touch_info = &global_input.touch;
+        ShortString nr_of_touches_string;
         
-        color4 green;
+        Color4 green;
         green.r = 40;
         green.g = 200;
         green.b = 80;
         green.a = 255;
         
-        color4 transparant = {};
+        Color4 transparant = {};
         
         int_to_string(touch_info->touch_count, &nr_of_touches_string);
         draw_text(500 , 50, &nr_of_touches_string, 10, green);
@@ -50,7 +50,7 @@ extern "C" {
         
         for (i32 touch_index = 0; touch_index < touch_info->touch_count; touch_index++)
         {
-            touch_input touch = touch_info->touches[touch_index];
+            TouchInput touch = touch_info->touches[touch_index];
             draw_ellipse(touch.x - 25, touch.y - 25, 
                            50, 50,
                            green, transparant, 

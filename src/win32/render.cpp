@@ -42,7 +42,7 @@
     
 */
 
-struct blend_info
+struct BlendInfo
 {
     HDC dc;
     HBITMAP alpha_bitmap;
@@ -52,14 +52,14 @@ struct blend_info
     HDC backup_dc;
     HBITMAP backup_bitmap;
     
-    color4 color;
+    Color4 color;
     i32 x;
     i32 y;
     i32 width;
     i32 height;
 };
 
-void init_blend(i32 x, i32 y, i32 width, i32 height, color4 color, blend_info * blend_info, b32 make_backup)
+void init_blend(i32 x, i32 y, i32 width, i32 height, Color4 color, BlendInfo * blend_info, b32 make_backup)
 {
     
     blend_info->color = color;
@@ -97,7 +97,7 @@ void init_blend(i32 x, i32 y, i32 width, i32 height, color4 color, blend_info * 
     }
 }
 
-void do_blend(blend_info * blend_info)
+void do_blend(BlendInfo * blend_info)
 {
 //    BitBlt(backbuffer_dc, blend_info->x, blend_info->y, blend_info->width, blend_info->height, 
 //           blend_info->backup_dc, 0, 0, SRCCOPY);
@@ -107,7 +107,7 @@ void do_blend(blend_info * blend_info)
                blend_info->blend_function);
 }
 
-void retore_blend_white(blend_info * blend_info)
+void retore_blend_white(BlendInfo * blend_info)
 {
     // TODO: we should check the result of TransparentBlt and log if something goes wrong
     TransparentBlt(backbuffer_dc, blend_info->x, blend_info->y, blend_info->width, blend_info->height,
@@ -115,7 +115,7 @@ void retore_blend_white(blend_info * blend_info)
                    RGB(255, 255, 255));
 }
 
-void retore_blend_black(blend_info * blend_info)
+void retore_blend_black(BlendInfo * blend_info)
 {
     // TODO: we should check the result of TransparentBlt and log if something goes wrong
     TransparentBlt(backbuffer_dc, blend_info->x, blend_info->y, blend_info->width, blend_info->height,
@@ -123,7 +123,7 @@ void retore_blend_black(blend_info * blend_info)
                    RGB(0, 0, 0));
 }
 
-void end_blend(blend_info * blend_info)
+void end_blend(BlendInfo * blend_info)
 {
     if (blend_info->make_backup)
     {
@@ -134,7 +134,7 @@ void end_blend(blend_info * blend_info)
     DeleteDC(blend_info->dc);
 }
 
-void draw_rectangle(i32 x, i32 y, i32 width, i32 height, color4 line_color, color4 fill_color, i32 line_width)
+void draw_rectangle(i32 x, i32 y, i32 width, i32 height, Color4 line_color, Color4 fill_color, i32 line_width)
 {
     // FIXME: when doing alpha, take into account the line_width makes the reactangle bigger!
     
@@ -147,7 +147,7 @@ void draw_rectangle(i32 x, i32 y, i32 width, i32 height, color4 line_color, colo
     
     if (fill_color.a != 255)
     {
-        blend_info blend_info;
+        BlendInfo blend_info;
         i32 x_blend = x;
         i32 y_blend = y;
         b32 make_backup = false;
@@ -171,7 +171,7 @@ void draw_rectangle(i32 x, i32 y, i32 width, i32 height, color4 line_color, colo
     
     if (line_color.a != 255)
     {
-        blend_info blend_info;
+        BlendInfo blend_info;
         i32 x_blend = x;
         i32 y_blend = y;
         b32 make_backup = false;
@@ -197,7 +197,7 @@ void draw_rectangle(i32 x, i32 y, i32 width, i32 height, color4 line_color, colo
     DeleteObject(brush);
 }
 
-void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r, color4 line_color, color4 fill_color, i32 line_width)
+void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r, Color4 line_color, Color4 fill_color, i32 line_width)
 {
     HPEN pen = CreatePen(PS_SOLID, line_width, RGB(line_color.r, line_color.g, line_color.b));
     HPEN black_pen = CreatePen(PS_SOLID, line_width, RGB(0, 0, 0));
@@ -211,7 +211,7 @@ void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r, color4 l
 
     if (fill_color.a != 255)
     {
-        blend_info blend_info;
+        BlendInfo blend_info;
         i32 x_blend = x;
         i32 y_blend = y;
         b32 make_backup = true;
@@ -252,7 +252,7 @@ void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r, color4 l
     
     if (line_color.a != 255)
     {
-        blend_info blend_info;
+        BlendInfo blend_info;
         i32 x_blend = x;
         i32 y_blend = y;
         b32 make_backup = true;
@@ -296,7 +296,7 @@ void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r, color4 l
 }
 
 void draw_ellipse(i32 x, i32 y, i32 width, i32 height, 
-                  color4 line_color, color4 fill_color, i32 line_width)
+                  Color4 line_color, Color4 fill_color, i32 line_width)
 {
     HPEN pen = CreatePen(PS_SOLID, line_width, RGB(line_color.r, line_color.g, line_color.b));
     HPEN black_pen = CreatePen(PS_SOLID, line_width, RGB(0, 0, 0));
@@ -308,7 +308,7 @@ void draw_ellipse(i32 x, i32 y, i32 width, i32 height,
     
     if (fill_color.a != 255)
     {
-        blend_info blend_info;
+        BlendInfo blend_info;
         i32 x_blend = x;
         i32 y_blend = y;
         b32 make_backup = true;
@@ -348,7 +348,7 @@ void draw_ellipse(i32 x, i32 y, i32 width, i32 height,
     
     if (line_color.a != 255)
     {
-        blend_info blend_info;
+        BlendInfo blend_info;
         i32 x_blend = x;
         i32 y_blend = y;
         b32 make_backup = true;
@@ -390,7 +390,7 @@ void draw_ellipse(i32 x, i32 y, i32 width, i32 height,
     DeleteObject(brush);
 }
 
-void draw_text(i32 x, i32 y, short_string * text, i32 font_height, color4 font_color)
+void draw_text(i32 x, i32 y, ShortString * text, i32 font_height, Color4 font_color)
 {
     HFONT hFont = (HFONT)GetStockObject(ANSI_VAR_FONT); 
     SelectObject(backbuffer_dc, hFont);
@@ -401,10 +401,10 @@ void draw_text(i32 x, i32 y, short_string * text, i32 font_height, color4 font_c
     TextOut(backbuffer_dc, x, y, (LPCSTR)text->data, text->length);
 }
 
-void draw_text_c(i32 x, i32 y, const char * cstring, i32 font_height, color4 font_color)
+void draw_text_c(i32 x, i32 y, const char * cstring, i32 font_height, Color4 font_color)
 {
-    short_string text;
-    copy_cstring_to_short_string(cstring, &text);
+    ShortString text;
+    copy_cstring_to_ShortString(cstring, &text);
     draw_text(x, y, &text, font_height, font_color);
 }
 

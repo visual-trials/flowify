@@ -45,7 +45,7 @@ extern "C" {
 }
 
 void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r,
-                            color4 line_color, color4 fill_color, i32 line_width)
+                            Color4 line_color, Color4 fill_color, i32 line_width)
 {
     i32 line_color_rgb = line_color.r + line_color.g * 256 + line_color.b * 256 * 256; 
     i32 line_color_alpha = (i32)line_color.a;
@@ -57,7 +57,7 @@ void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r,
 }
 
 void draw_rectangle(i32 x, i32 y, i32 width, i32 height, 
-                    color4 line_color, color4 fill_color, i32 line_width)
+                    Color4 line_color, Color4 fill_color, i32 line_width)
 {
     i32 line_color_rgb = line_color.r + line_color.g * 256 + line_color.b * 256 * 256; 
     i32 line_color_alpha = (i32)line_color.a;
@@ -69,7 +69,7 @@ void draw_rectangle(i32 x, i32 y, i32 width, i32 height,
 }
 
 void draw_ellipse(i32 x, i32 y, i32 width, i32 height, 
-                  color4 line_color, color4 fill_color, i32 line_width)
+                  Color4 line_color, Color4 fill_color, i32 line_width)
 {
     i32 line_color_rgb = line_color.r + line_color.g * 256 + line_color.b * 256 * 256; 
     i32 line_color_alpha = (i32)line_color.a;
@@ -81,7 +81,7 @@ void draw_ellipse(i32 x, i32 y, i32 width, i32 height,
 }
 
 // FIXME: add color, font, size etc
-void draw_text(i32 x, i32 y, short_string * text, i32 font_height, color4 font_color)
+void draw_text(i32 x, i32 y, ShortString * text, i32 font_height, Color4 font_color)
 {
     // u8 base_font[] = "Arial"; // FIXME: hardcoded (btw: do we really want to pass this each time?)
     
@@ -91,14 +91,14 @@ void draw_text(i32 x, i32 y, short_string * text, i32 font_height, color4 font_c
     jsDrawText(x, y, text->data, text->length, font_height, font_color_rgb, font_color_alpha); //, base_font, string_length(base_font));
 }
 
-void draw_text_c(i32 x, i32 y, const char * cstring, i32 font_height, color4 font_color)
+void draw_text_c(i32 x, i32 y, const char * cstring, i32 font_height, Color4 font_color)
 {
-    short_string text;
-    copy_cstring_to_short_string(cstring, &text);
+    ShortString text;
+    copy_cstring_to_ShortString(cstring, &text);
     draw_text(x, y, &text, font_height, font_color);
 }
 
-void log(short_string * text)
+void log(ShortString * text)
 {
     jsLog(text->data, text->length);
 }

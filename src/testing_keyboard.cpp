@@ -24,47 +24,47 @@
 #define MAX_KEYS_PER_KEYBOARD_ROW 20
 #define MAX_ROWS_PER_KEYBOARD 6
 
-struct keyboard_key
+struct KeyboardKey
 {
     u8 key_code;
-    short_string key_name;  // TODO: this is memory-intensive!
+    ShortString key_name;  // TODO: this is memory-intensive!
     i32 width;
 };
 
 struct keyboard_row
 {
-    keyboard_key keys[MAX_KEYS_PER_KEYBOARD_ROW];
+    KeyboardKey keys[MAX_KEYS_PER_KEYBOARD_ROW];
     i32 nr_of_keys;
     i32 height;
 };
 
-struct keyboard_layout
+struct KeyboardLayout
 {
     keyboard_row rows[MAX_ROWS_PER_KEYBOARD];
     i32 nr_of_rows;
 };
 
-struct world_data
+struct WorldData
 {
     u8 key_sequence[MAX_KEY_SEQUENCE];
     
-    keyboard_layout keyboard_layout;
+    KeyboardLayout keyboard_layout;
 };
 
-world_data global_world = {};  // FIXME: allocate this properly!
+WorldData global_world = {};  // FIXME: allocate this properly!
 
 extern "C" {
     
     void init_world()
     {
-        world_data * world = &global_world;
+        WorldData * world = &global_world;
         
         for (i32 sequence_index = 0; sequence_index < MAX_KEY_SEQUENCE; sequence_index++)
         {
             world->key_sequence[sequence_index] = ' ';
         }
         
-        short_string rows[MAX_ROWS_PER_KEYBOARD];
+        ShortString rows[MAX_ROWS_PER_KEYBOARD];
         i32 row_heights[MAX_ROWS_PER_KEYBOARD];
         
         i32 nr_of_rows = 6;
@@ -77,12 +77,12 @@ extern "C" {
         u8 row4[] = { Key_Shift, 'Z', 'X', 'C', 'V', 'B', 'N', 'M', Key_Comma, Key_Period, Key_ForwardSlash, Key_Shift, 0};
         u8 row5[] = { Key_Control, Key_RightMeta, Key_Alt, Key_Space, Key_Alt, Key_RightMeta, Key_Clear, Key_Control, 0};
         
-        copy_cstring_to_short_string((const char*)row0, &rows[0]);
-        copy_cstring_to_short_string((const char*)row1, &rows[1]);
-        copy_cstring_to_short_string((const char*)row2, &rows[2]);
-        copy_cstring_to_short_string((const char*)row3, &rows[3]);
-        copy_cstring_to_short_string((const char*)row4, &rows[4]);
-        copy_cstring_to_short_string((const char*)row5, &rows[5]);
+        copy_cstring_to_ShortString((const char*)row0, &rows[0]);
+        copy_cstring_to_ShortString((const char*)row1, &rows[1]);
+        copy_cstring_to_ShortString((const char*)row2, &rows[2]);
+        copy_cstring_to_ShortString((const char*)row3, &rows[3]);
+        copy_cstring_to_ShortString((const char*)row4, &rows[4]);
+        copy_cstring_to_ShortString((const char*)row5, &rows[5]);
         
         const char * key_names[255] = {};
 
@@ -165,11 +165,11 @@ extern "C" {
             i32 row_length = rows[row_index].length;
             for (i32 column_index = 0; column_index < row_length; column_index++)
             {
-                keyboard_key * key = &world->keyboard_layout.rows[row_index].keys[column_index];
+                KeyboardKey * key = &world->keyboard_layout.rows[row_index].keys[column_index];
                 key->key_code = rows[row_index].data[column_index];
                 if (key_names[key->key_code])
                 {
-                    copy_cstring_to_short_string(key_names[key->key_code], &key->key_name);
+                    copy_cstring_to_ShortString(key_names[key->key_code], &key->key_name);
                 }
                 else 
                 {
@@ -194,8 +194,8 @@ extern "C" {
     
     void update_frame()
     {
-        world_data * world = &global_world;
-        keyboard_input * keyboard = &global_input.keyboard;
+        WorldData * world = &global_world;
+        KeyboardInput * keyboard = &global_input.keyboard;
         
         for (i32 frame_sequence_index = 0; frame_sequence_index < keyboard->sequence_keys_length; frame_sequence_index++)
         {
@@ -221,18 +221,18 @@ extern "C" {
         
     }
     
-    void draw_keyboard(keyboard_input * keyboard, keyboard_layout * keyboard_layout)
+    void draw_keyboard(KeyboardInput * keyboard, KeyboardLayout * keyboard_layout)
     {
-        short_string temp_string;
-        short_string character;
+        ShortString temp_string;
+        ShortString character;
 
-        color4 black;
+        Color4 black;
         black.r = 0;
         black.g = 0;
         black.b = 0;
         black.a = 255;
         
-        color4 white;
+        Color4 white;
         white.r = 255;
         white.g = 255;
         white.b = 255;
@@ -247,7 +247,7 @@ extern "C" {
             for (i32 column_index = 0; column_index < keyboard_layout->rows[row_index].nr_of_keys; column_index++)
             {
                 u8 key_code = keyboard_layout->rows[row_index].keys[column_index].key_code;
-                short_string key_name = keyboard_layout->rows[row_index].keys[column_index].key_name;
+                ShortString key_name = keyboard_layout->rows[row_index].keys[column_index].key_name;
                 i32 key_width = keyboard_layout->rows[row_index].keys[column_index].width;
                 
                 i32 x = x_column;
@@ -279,11 +279,11 @@ extern "C" {
        
     }
     
-    void draw_sequence (world_data * world)
+    void draw_sequence (WorldData * world)
     {
-        short_string character;
+        ShortString character;
         
-        color4 font_color;
+        Color4 font_color;
         font_color.r = 0;
         font_color.g = 0;
         font_color.b = 0;
@@ -300,7 +300,7 @@ extern "C" {
     
     void render_frame()
     {
-        world_data * world = &global_world;
+        WorldData * world = &global_world;
         input * input = &global_input;
         
         draw_sequence(world);
