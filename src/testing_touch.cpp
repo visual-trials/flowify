@@ -51,10 +51,17 @@ extern "C" {
         for (i32 touch_index = 0; touch_index < touch_info->touch_count; touch_index++)
         {
             TouchInput touch = touch_info->touches[touch_index];
-            draw_ellipse(touch.x - 25, touch.y - 25, 
-                           50, 50,
+            draw_ellipse(touch.x - 20, touch.y - 20, 
+                           40, 40,
                            green, transparant, 
-                           6);
+                           4);
+                           
+            // Drawing a cross around the touch-point
+            
+            i32 line_width = 1;
+            i32 distance_from_center = 30;
+            i32 line_length = 30;
+            draw_cross(touch.x, touch.y, distance_from_center, line_length, green, line_width);
         }
     }
     

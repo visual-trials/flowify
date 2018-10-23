@@ -32,6 +32,10 @@ extern "C" {
                            i32 fill_color_rgb, i32 fill_color_alpha, 
                            i32 line_width);
                            
+    extern void jsDrawLine(i32 x_start, i32 y_start, i32 x_end, i32 y_end, 
+                           i32 line_color_rgb, i32 line_color_alpha, 
+                           i32 line_width);
+                           
     extern void jsDrawText(i32 x, i32 y, 
                            u8 * string_data, i32 string_length,
                            i32 font_height, 
@@ -68,6 +72,15 @@ void draw_rectangle(i32 x, i32 y, i32 width, i32 height,
     jsDrawRect(x, y, width, height, line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
 }
 
+void draw_line(i32 x_start, i32 y_start, i32 x_end, i32 y_end, 
+                    Color4 line_color, i32 line_width)
+{
+    i32 line_color_rgb = line_color.r + line_color.g * 256 + line_color.b * 256 * 256; 
+    i32 line_color_alpha = (i32)line_color.a;
+    
+    jsDrawLine(x_start, y_start, x_end, y_end, line_color_rgb, line_color_alpha, line_width);
+}
+
 void draw_ellipse(i32 x, i32 y, i32 width, i32 height, 
                   Color4 line_color, Color4 fill_color, i32 line_width)
 {
@@ -80,7 +93,6 @@ void draw_ellipse(i32 x, i32 y, i32 width, i32 height,
     jsDrawEllipse(x, y, width, height, line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
 }
 
-// FIXME: add color, font, size etc
 void draw_text(i32 x, i32 y, ShortString * text, i32 font_height, Color4 font_color)
 {
     // u8 base_font[] = "Arial"; // FIXME: hardcoded (btw: do we really want to pass this each time?)

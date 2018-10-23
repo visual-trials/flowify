@@ -21,3 +21,24 @@
 #else
     #include "browser/render.cpp"
 #endif
+
+
+void draw_cross(i32 x, i32 y, i32 distance_from_center, i32 line_length, Color4 line_color, i32 line_width)
+{
+    draw_line(x - distance_from_center, y, 
+              x - distance_from_center - line_length, y, 
+              line_color, line_width);
+    
+    draw_line(x + distance_from_center, y, 
+              x + distance_from_center + line_length, y, 
+              line_color, line_width);
+    
+    draw_line(x, y - distance_from_center, 
+              x, y - distance_from_center - line_length, 
+              line_color, line_width);
+              
+    draw_line(x, y + distance_from_center, 
+              x, y + distance_from_center + line_length, 
+              line_color, line_width);
+}
+

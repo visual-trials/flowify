@@ -135,8 +135,8 @@ extern "C" {
             {
                 entity * current_entity = world->entities + world->selected_entity_index;
                 
-                current_entity->pos.x = mouse->x;
-                current_entity->pos.y = mouse->y;
+                current_entity->pos.x = mouse->x - current_entity->size.width / 2;
+                current_entity->pos.y = mouse->y - current_entity->size.height / 2;
             }
         }
         
@@ -145,8 +145,11 @@ extern "C" {
     
     void render_frame()
     {
+        MouseInput * mouse = &global_input.mouse;
         WorldData * world = &global_world;
 
+        // Drawing all entities
+        
         for (i32 entity_index = 0; entity_index < world->nr_of_entities; entity_index++)
         {
             entity * current_entity = world->entities + entity_index;
@@ -165,6 +168,21 @@ extern "C" {
                 draw_text(current_entity->pos.x, current_entity->pos.y, &current_entity->text, 10, font_color);
             }
         }
+        
+        // Drawing a cross around the mouse-pointer
+        
+        Color4 line_color;
+        line_color.r = 0;
+        line_color.g = 0;
+        line_color.b = 100;
+        line_color.a = 255;
+        
+        i32 line_width = 1;
+        
+        i32 distance_from_center = 30;
+        i32 line_length = 30;
+        
+        draw_cross(mouse->x, mouse->y, distance_from_center, line_length, line_color, line_width);
         
     }
 }
