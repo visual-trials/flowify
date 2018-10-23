@@ -96,7 +96,7 @@ i32 copy_cstring(const char * src, u8 * dest, i32 max_length)
     return count;
 }
 
-ShortString * copy_cstring_to_ShortString(const char * src, ShortString * dest)
+ShortString * copy_cstring_to_short_string(const char * src, ShortString * dest)
 {
     i32 length = copy_cstring(src, dest->data, MAX_LENGTH_SHORT_STRING);
     dest->length = length;

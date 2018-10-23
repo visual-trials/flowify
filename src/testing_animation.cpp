@@ -42,9 +42,6 @@ struct Entity
     Color4  line_color;
     Color4  fill_color;
     i32     line_width;
-    
-    b32          has_text;
-    ShortString text;
 };
 
 struct WorldData
@@ -91,9 +88,6 @@ extern "C" {
         third_entity->size.width = 40;
         third_entity->size.height = 40;
         
-        
-        copy_cstring_to_ShortString("My", &third_entity->text);
-        third_entity->has_text = true;
         
         world->first_entity_index = world->nr_of_entities++;
         Entity * first_entity = world->entities + world->first_entity_index;
@@ -163,15 +157,6 @@ extern "C" {
                            current_entity->size.width, current_entity->size.height,
                            current_entity->line_color, current_entity->fill_color, 
                            current_entity->line_width);
-            if (current_entity->has_text)
-            {
-                Color4 font_color;
-                font_color.r = 0;
-                font_color.g = 0;
-                font_color.b = 0;
-                font_color.a = 255;
-                draw_text(current_entity->pos.x, current_entity->pos.y, &current_entity->text, 10, font_color);
-            }
         }
     }
     

@@ -77,12 +77,12 @@ extern "C" {
         u8 row4[] = { Key_Shift, 'Z', 'X', 'C', 'V', 'B', 'N', 'M', Key_Comma, Key_Period, Key_ForwardSlash, Key_Shift, 0};
         u8 row5[] = { Key_Control, Key_RightMeta, Key_Alt, Key_Space, Key_Alt, Key_RightMeta, Key_Clear, Key_Control, 0};
         
-        copy_cstring_to_ShortString((const char*)row0, &rows[0]);
-        copy_cstring_to_ShortString((const char*)row1, &rows[1]);
-        copy_cstring_to_ShortString((const char*)row2, &rows[2]);
-        copy_cstring_to_ShortString((const char*)row3, &rows[3]);
-        copy_cstring_to_ShortString((const char*)row4, &rows[4]);
-        copy_cstring_to_ShortString((const char*)row5, &rows[5]);
+        copy_cstring_to_short_string((const char*)row0, &rows[0]);
+        copy_cstring_to_short_string((const char*)row1, &rows[1]);
+        copy_cstring_to_short_string((const char*)row2, &rows[2]);
+        copy_cstring_to_short_string((const char*)row3, &rows[3]);
+        copy_cstring_to_short_string((const char*)row4, &rows[4]);
+        copy_cstring_to_short_string((const char*)row5, &rows[5]);
         
         const char * key_names[255] = {};
 
@@ -169,7 +169,7 @@ extern "C" {
                 key->key_code = rows[row_index].data[column_index];
                 if (key_names[key->key_code])
                 {
-                    copy_cstring_to_ShortString(key_names[key->key_code], &key->key_name);
+                    copy_cstring_to_short_string(key_names[key->key_code], &key->key_name);
                 }
                 else 
                 {

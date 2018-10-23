@@ -456,7 +456,7 @@ void draw_text(i32 x, i32 y, ShortString * text, i32 font_height, Color4 font_co
 void draw_text_c(i32 x, i32 y, const char * cstring, i32 font_height, Color4 font_color)
 {
     ShortString text;
-    copy_cstring_to_ShortString(cstring, &text);
+    copy_cstring_to_short_string(cstring, &text);
     draw_text(x, y, &text, font_height, font_color);
 }
 
