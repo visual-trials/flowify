@@ -69,13 +69,24 @@ struct TouchesInput
 {
     TouchInput touches[MAX_NR_OF_TOUCHES];
     i32 touch_count;
-};    
+};
+
+#define MAX_NR_OF_FRAMES_FOR_TIMING 60 // Keep this the same in input.js!
+
+struct Timing
+{
+    r32 dt;
+    r32 current_time;
+    r32 frame_times[MAX_NR_OF_FRAMES_FOR_TIMING];
+    i32 frame_index;
+};
 
 struct Input
 {
     MouseInput     mouse;
     KeyboardInput  keyboard;
     TouchesInput   touch;
+    Timing         timing;
 };
 
 Input global_input = {};

@@ -157,6 +157,9 @@ extern "C" {
                 draw_text(current_entity->pos.x, current_entity->pos.y, &current_entity->text, 10, font_color);
             }
         }
+
+        // Draw frame timing
+        draw_frame_timing(&global_input.timing, 100, 380);
     }
     
 }

@@ -380,6 +380,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
 
         }
 
+        LARGE_INTEGER clock_counter_before_wait = get_clock_counter();
 
         // Ensuring a stable frame rate
         {
@@ -405,9 +406,23 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
             else {
                 // Missed frame rate!
             }
+            
+            // Set timings in new_input
+            new_input.timing.dt = get_seconds_elapsed(last_clock_counter, clock_counter_before_wait);
+            if (new_input.timing.frame_index < MAX_NR_OF_FRAMES_FOR_TIMING)
+            {
+                new_input.timing.frame_index++;
+            }
+            else
+            {
+                new_input.timing.frame_index = 0;
+            }
+            new_input.timing.frame_times[new_input.timing.frame_index] = new_input.timing.dt;
+
+            // Set new last_clock_counter
             last_clock_counter = get_clock_counter();
         }
-        
+
 
         // Copy the new input (recieved via WindowProcedure) into the global input (TODO: shouldn't this be atomic by swapping pointers instead?)
         global_input = new_input;
@@ -459,6 +474,8 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
             }
             new_input.touch.touch_count--;
         }
+        
+        
         
         // Update world
         update_frame();
