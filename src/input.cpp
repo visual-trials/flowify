@@ -76,7 +76,6 @@ struct TouchesInput
 struct Timing
 {
     r32 dt;
-    r32 current_time;
     r32 frame_times[MAX_NR_OF_FRAMES_FOR_TIMING];
     i32 frame_index;
 };
