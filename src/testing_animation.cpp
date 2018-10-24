@@ -158,6 +158,9 @@ extern "C" {
                            current_entity->line_color, current_entity->fill_color, 
                            current_entity->line_width);
         }
+        
+        // Draw frame timing
+        draw_frame_timing(&global_input.timing, 100, 350);
     }
     
 }

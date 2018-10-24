@@ -301,7 +301,7 @@ extern "C" {
     void render_frame()
     {
         WorldData * world = &global_world;
-        input * input = &global_input;
+        Input * input = &global_input;
         
         draw_sequence(world);
         
