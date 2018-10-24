@@ -165,6 +165,14 @@ extern "C" {
         global_input.touch.touches[touch_index].y = y;
     }
     
+    void set_frame_time(i32 frame_index, r32 dt)
+    {
+        // TODO: make sure frame_index <= MAX_NR_OF_FRAMES_FOR_TIMING
+        global_input.timing.dt = dt;
+        global_input.timing.frame_index = frame_index;
+        global_input.timing.frame_times[frame_index] = dt;
+    }
+    
 }
 
 

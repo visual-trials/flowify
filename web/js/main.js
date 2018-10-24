@@ -23,9 +23,12 @@ Flowify.main = function () {
     
     my.autoReload = false
     
+    my.frameIndex = 0
+    my.maxNrOfFramesForTiming = 60 // always keep this is sync with input.cpp!
+    my.clockBeforeUpdateAndRender = 0
+    my.clockBeforeWait = 0
+    
     my.mainLoop = function () {
-
-        let currentTime = new Date()
 
         Flowify.canvas.resizeCanvas()
         Flowify.canvas.clearCanvas()
@@ -35,6 +38,10 @@ Flowify.main = function () {
         input.sendMouseData()
         input.sendTouchData()
         input.sendKeyboardData()
+        
+        my.wasmInstance.exports._set_frame_time(my.frameIndex, (my.clockBeforeWait - my.clockBeforeUpdateAndRender) / 1000)
+        
+        my.clockBeforeUpdateAndRender = performance.now()
         
         input.resetMouseData()
         input.resetTouchData()
@@ -46,6 +53,12 @@ Flowify.main = function () {
         // Render world
         my.wasmInstance.exports._render_frame()
 
+        my.clockBeforeWait = performance.now()
+        
+        my.frameIndex++
+        if (my.frameIndex >= my.maxNrOfFramesForTiming) {
+            my.frameIndex = 0
+        }
         Flowify.canvas.requestAnimFrame(my.mainLoop)
     }
     

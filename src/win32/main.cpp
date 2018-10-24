@@ -409,6 +409,8 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
             
             // Set timings in new_input
             new_input.timing.dt = get_seconds_elapsed(last_clock_counter, clock_counter_before_wait);
+            new_input.timing.frame_times[new_input.timing.frame_index] = new_input.timing.dt;
+            
             if (new_input.timing.frame_index < MAX_NR_OF_FRAMES_FOR_TIMING)
             {
                 new_input.timing.frame_index++;
@@ -417,9 +419,9 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
             {
                 new_input.timing.frame_index = 0;
             }
-            new_input.timing.frame_times[new_input.timing.frame_index] = new_input.timing.dt;
 
             // Set new last_clock_counter
+            // TODO: should we call this: clock_counter_before_update_and_render?
             last_clock_counter = get_clock_counter();
         }
 
