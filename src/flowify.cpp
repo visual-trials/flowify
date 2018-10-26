@@ -36,7 +36,7 @@ extern "C" {
         line_color.r = 0;
         line_color.g = 100;
         line_color.b = 0;
-        line_color.a = 255;
+        line_color.a = 100;
         
         Color4 fill_color;
         fill_color.r = 255;
@@ -44,8 +44,13 @@ extern "C" {
         fill_color.b = 0;
         fill_color.a = 255;
         
-        i32 line_width = 1;
+        i32 line_width = 5;
         
         draw_rectangle(100, 100, 300, 200, line_color, fill_color, line_width);
+        
+        line_color.b = 255;
+        line_color.a = 255;
+        line_width = 1;
+        draw_line(50, 50, 400, 500, line_color, line_width);
     }
 }

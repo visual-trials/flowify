@@ -572,14 +572,15 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
         
     }
     
-    // FIXME: use template!
     if (render_target)
     {
         render_target->Release();
+        render_target = 0;
     }
     if (d2d_factory)
     {
         d2d_factory->Release();
+        d2d_factory = 0;
     }
     
     return(0);

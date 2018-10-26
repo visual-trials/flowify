@@ -16,11 +16,16 @@
 
  */
  
- 
- // FIXME: don't we want to pass two positions to most of these functions? Instead of pos + size?
- 
- // FIXME: don't we want r32 for colors?
- 
+// TODO: make this inline
+void release_brush(ID2D1SolidColorBrush * brush)
+{
+    if (brush)
+    {
+        brush->Release();
+        brush = 0;
+    }
+}
+
 // TODO: make this inline
 void get_brush(Color4 color, ID2D1SolidColorBrush ** brush)
 {
@@ -32,9 +37,11 @@ void get_brush(Color4 color, ID2D1SolidColorBrush ** brush)
     ), brush);
 };
  
+// FIXME: don't we want to pass two positions to most of these functions? Instead of pos + size?
+// FIXME: don't we want r32 for colors?
+ 
 void draw_rectangle(i32 x, i32 y, i32 width, i32 height, Color4 line_color, Color4 fill_color, i32 line_width)
 {
-
     ID2D1SolidColorBrush * line_brush = 0;
     ID2D1SolidColorBrush * fill_brush = 0;
     
@@ -44,51 +51,26 @@ void draw_rectangle(i32 x, i32 y, i32 width, i32 height, Color4 line_color, Colo
     D2D1_RECT_F rectangle = D2D1::RectF(x + 0.5, y + 0.5, x + width + 0.5,y + height + 0.5);
     
     render_target->FillRectangle(&rectangle, fill_brush);
-    render_target->DrawRectangle(&rectangle, line_brush);
+    render_target->DrawRectangle(&rectangle, line_brush, line_width);
 
-    // FIXME: use the template!
-    if (line_brush)
-    {
-        line_brush->Release();
-    }
-    
-    if (fill_brush)
-    {
-        fill_brush->Release();
-    }
-    
-    /*
-    HPEN pen = CreatePen(PS_SOLID, line_width, RGB(line_color.r, line_color.g, line_color.b));
-    HBRUSH brush = CreateSolidBrush(RGB(fill_color.r, fill_color.g, fill_color.b));
-    
-    SelectObject(backbuffer_dc, GetStockObject(NULL_PEN));
-    SelectObject(backbuffer_dc, brush);
-
-    Rectangle(backbuffer_dc, x, y, x + width, y + height);
-
-    SelectObject(backbuffer_dc, pen);
-    SelectObject(backbuffer_dc, GetStockObject(NULL_BRUSH));
-
-    Rectangle(backbuffer_dc, x, y, x + width, y + height);
-    
-    DeleteObject(pen);
-    DeleteObject(brush);
-    */
+    release_brush(line_brush);
+    release_brush(fill_brush);
 }
 
 void draw_line(i32 x_start, i32 y_start, i32 x_end, i32 y_end, Color4 line_color, i32 line_width)
 {
-    /*
-    HPEN pen = CreatePen(PS_SOLID, line_width, RGB(line_color.r, line_color.g, line_color.b));
+    D2D1_POINT_2F start_position, end_position;
+    ID2D1SolidColorBrush * line_brush = 0;
     
-    SelectObject(backbuffer_dc, pen);
-    SelectObject(backbuffer_dc, GetStockObject(NULL_BRUSH));
-
-    MoveToEx(backbuffer_dc, x_start, y_start, (LPPOINT) NULL); 
-    LineTo(backbuffer_dc, x_end, y_end); 
+	start_position.x = x_start;
+	start_position.y = y_start;
     
-    DeleteObject(pen);
-    */
+	end_position.x = x_end;
+	end_position.y = y_end;
+    
+    get_brush(line_color, &line_brush);
+    
+    render_target->DrawLine(start_position, end_position, line_brush);
 }
 
 void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r, Color4 line_color, Color4 fill_color, i32 line_width)
