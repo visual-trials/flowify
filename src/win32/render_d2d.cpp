@@ -37,8 +37,8 @@ void get_brush(Color4 color, ID2D1SolidColorBrush ** brush)
     ), brush);
 };
  
-// FIXME: don't we want to pass two positions to most of these functions? Instead of pos + size?
-// FIXME: don't we want r32 for colors?
+// TODO: don't we want to pass two positions to most of these functions? Instead of pos + size?
+// TODO: don't we want r32 for colors?
  
 void draw_rectangle(i32 x, i32 y, i32 width, i32 height, Color4 line_color, Color4 fill_color, i32 line_width)
 {
@@ -70,53 +70,46 @@ void draw_line(i32 x_start, i32 y_start, i32 x_end, i32 y_end, Color4 line_color
     
     get_brush(line_color, &line_brush);
     
-    render_target->DrawLine(start_position, end_position, line_brush);
+    render_target->DrawLine(start_position, end_position, line_brush, line_width);
+    
+    release_brush(line_brush);
 }
 
 void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r, Color4 line_color, Color4 fill_color, i32 line_width)
 {
-    /*
-    HPEN pen = CreatePen(PS_SOLID, line_width, RGB(line_color.r, line_color.g, line_color.b));
-    HBRUSH brush = CreateSolidBrush(RGB(fill_color.r, fill_color.g, fill_color.b));
+    ID2D1SolidColorBrush * line_brush = 0;
+    ID2D1SolidColorBrush * fill_brush = 0;
     
-    i32 d = r * 2;
-
-    SelectObject(backbuffer_dc, GetStockObject(NULL_PEN));
-    SelectObject(backbuffer_dc, brush);
-
-    RoundRect(backbuffer_dc, x, y, x + width, y + height, d, d);
+    get_brush(line_color, &line_brush);
+    get_brush(fill_color, &fill_brush);
     
-    SelectObject(backbuffer_dc, pen);
-    SelectObject(backbuffer_dc, GetStockObject(NULL_BRUSH));
-
-    RoundRect(backbuffer_dc, x, y, x + width, y + height, d, d);
+    D2D1_RECT_F rectangle = D2D1::RectF(x + 0.5, y + 0.5, x + width + 0.5,y + height + 0.5);
+    D2D1_ROUNDED_RECT rounded_rectangle = D2D1::RoundedRect(rectangle, r, r);
     
-    DeleteObject(pen);
-    DeleteObject(brush);
-    */
+    render_target->FillRoundedRectangle(&rounded_rectangle, fill_brush);
+    render_target->DrawRoundedRectangle(&rounded_rectangle, line_brush, line_width);
+
+    release_brush(line_brush);
+    release_brush(fill_brush);
 }
 
+// TODO: shouldn't we use radius x and radius y instead of using width and height?
 void draw_ellipse(i32 x, i32 y, i32 width, i32 height, 
                   Color4 line_color, Color4 fill_color, i32 line_width)
 {
-/*    
-    HPEN pen = CreatePen(PS_SOLID, line_width, RGB(line_color.r, line_color.g, line_color.b));
-    HBRUSH brush = CreateSolidBrush(RGB(fill_color.r, fill_color.g, fill_color.b));
+    ID2D1SolidColorBrush * line_brush = 0;
+    ID2D1SolidColorBrush * fill_brush = 0;
     
-    SelectObject(backbuffer_dc, GetStockObject(NULL_PEN));
-    SelectObject(backbuffer_dc, brush);
-
-    Ellipse(backbuffer_dc, x, y, x + width, y + height);
+    get_brush(line_color, &line_brush);
+    get_brush(fill_color, &fill_brush);
     
-    SelectObject(backbuffer_dc, pen);
-    SelectObject(backbuffer_dc, GetStockObject(NULL_BRUSH));
-
-    Ellipse(backbuffer_dc, x, y, x + width, y + height);
+    D2D1_ELLIPSE ellipse = D2D1::Ellipse(D2D1::Point2F(x + 0.5 + (r32)width/(r32)2, y + 0.5 + (r32)height/(r32)2), (r32)width/(r32)2, (r32)height/(r32)2);
     
-    DeleteObject(pen);
+    render_target->FillEllipse(&ellipse, fill_brush);
+    render_target->DrawEllipse(&ellipse, line_brush, line_width);
     
-    DeleteObject(brush);
-    */
+    release_brush(line_brush);
+    release_brush(fill_brush);
 }
 
 void draw_text(i32 x, i32 y, ShortString * text, i32 font_height, Color4 font_color)
