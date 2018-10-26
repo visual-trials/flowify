@@ -32,5 +32,20 @@ extern "C" {
     
     void render_frame()
     {
+        Color4 line_color;
+        line_color.r = 0;
+        line_color.g = 100;
+        line_color.b = 0;
+        line_color.a = 255;
+        
+        Color4 fill_color;
+        fill_color.r = 255;
+        fill_color.g = 255;
+        fill_color.b = 0;
+        fill_color.a = 255;
+        
+        i32 line_width = 1;
+        
+        draw_rectangle(100, 100, 300, 200, line_color, fill_color, line_width);
     }
 }

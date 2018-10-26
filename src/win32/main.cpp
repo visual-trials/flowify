@@ -18,12 +18,15 @@
 
 #include <windows.h>
 #include <stdio.h>
+#include <d2d1.h>
 
 // TODO: now using a global here for the device context in windows. 
 //       Is there a way to pass the hdc to render_win32.cpp without 
 //       cluttering the platform-independent code?
-static HDC window_dc;
-static HDC backbuffer_dc;
+// static HDC window_dc;
+// static HDC backbuffer_dc;
+ID2D1HwndRenderTarget * render_target;
+ID2D1Factory * d2d_factory;
 
 #include INCLUDE_PROJECT_FILE
 
@@ -33,6 +36,25 @@ i64 performance_count_frequency;
 b32 touch_is_enabled;
 TOUCHINPUT touch_inputs[MAX_NR_OF_TOUCHES];
 
+
+void render_d2d(HWND window)
+{
+    render_target->BeginDraw();
+
+    render_target->Clear( D2D1::ColorF(D2D1::ColorF::White) );
+
+    render_frame();
+
+    HRESULT draw_result = render_target->EndDraw();      
+    
+    if (FAILED(draw_result) || draw_result == D2DERR_RECREATE_TARGET)
+    {
+        // FIXME
+        // DiscardGraphicsResources();
+    }
+
+}
+/*
 void render(HWND window)
 {
     RECT window_rect;
@@ -67,6 +89,7 @@ void render(HWND window)
     DeleteObject(backbuffer_bitmap);
     DeleteDC(backbuffer_dc);
 }
+*/
 
 LRESULT CALLBACK WindowProcedure(HWND window, 
                                  UINT msg, 
@@ -81,6 +104,43 @@ LRESULT CALLBACK WindowProcedure(HWND window,
         case WM_DESTROY:
             keep_running = false;
         break;
+        case WM_SIZE:
+        {
+            // FIXME: how should we handle resizing with Direct2D?
+            
+            /*
+            RECT window_rect;
+            GetClientRect(window, &window_rect);
+            */
+            
+            /*
+            D2D1_SIZE_U size = D2D1::SizeU(window_rect.right, window_rect.bottom);
+
+            render_target->Resize(size);
+            InvalidateRect(window, NULL, FALSE);
+            */
+        
+            /*
+            // FIXME: we probably don't want to resize by re-creating the render_target each time!
+            if (render_target)
+            {
+                render_target->Release();
+                render_target = 0;
+            }
+            HRESULT render_target_result = d2d_factory->CreateHwndRenderTarget(
+                D2D1::RenderTargetProperties(),
+                D2D1::HwndRenderTargetProperties(
+                    window,
+                    D2D1::SizeU(
+                        window_rect.right - window_rect.left,
+                        window_rect.bottom - window_rect.top)
+                ),
+                &render_target
+            );    
+            */
+            
+        }
+        break;
         /*
         case WM_ERASEBKGND:
             return (LRESULT)1; // Say we handled it.
@@ -90,7 +150,11 @@ LRESULT CALLBACK WindowProcedure(HWND window,
         {
             PAINTSTRUCT ps;
             BeginPaint(window, &ps);
-            render(window);  // TODO: we should only do the BitBlt here
+     
+            // render(window);  // TODO: we should only do the BitBlt here
+            render_d2d(window);
+            
+            
             EndPaint(window, &ps);
         }
         break;
@@ -316,7 +380,29 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
         return 0;
     }
     
-    window_dc = GetDC(window);
+    // Initialize Direct2D
+    
+    d2d_factory = 0;
+    HRESULT factory_result = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &d2d_factory);
+    
+    RECT window_rect;
+    GetClientRect(window, &window_rect);
+    
+    render_target = 0;
+    HRESULT render_target_result = d2d_factory->CreateHwndRenderTarget(
+        D2D1::RenderTargetProperties(),
+        D2D1::HwndRenderTargetProperties(
+            window,
+            D2D1::SizeU(
+                window_rect.right - window_rect.left,
+                window_rect.bottom - window_rect.top)
+        ),
+        &render_target
+    );    
+    
+    
+    
+    // window_dc = GetDC(window);
 
     // Checking if touch is enabled on this machine and if so, registering for touch messages
     i32 touch_info = GetSystemMetrics(SM_DIGITIZER);
@@ -477,15 +563,23 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
             new_input.touch.touch_count--;
         }
         
-        
-        
         // Update world
         update_frame();
         
         // Render world
-        render(window);
+        render_d2d(window);
         
         
+    }
+    
+    // FIXME: use template!
+    if (render_target)
+    {
+        render_target->Release();
+    }
+    if (d2d_factory)
+    {
+        d2d_factory->Release();
     }
     
     return(0);
