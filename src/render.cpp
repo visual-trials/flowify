@@ -17,8 +17,7 @@
  */
  
 #if BUILD_FOR_NATIVE_PLATFORM
-    #include "win32/render_d2d.cpp"
-//    #include "win32/render.cpp"
+    #include "win32/render.cpp"
 #else
     #include "browser/render.cpp"
 #endif

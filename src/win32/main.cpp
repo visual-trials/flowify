@@ -24,8 +24,6 @@
 // TODO: now using a global here for the device context in windows. 
 //       Is there a way to pass the hdc to render_win32.cpp without 
 //       cluttering the platform-independent code?
-// static HDC window_dc;
-// static HDC backbuffer_dc;
 ID2D1HwndRenderTarget * render_target;
 ID2D1Factory * d2d_factory;
 IDWriteFactory * direct_write_factory;
@@ -54,44 +52,7 @@ void render_d2d(HWND window)
         // FIXME
         // DiscardGraphicsResources();
     }
-
 }
-/*
-void render(HWND window)
-{
-    RECT window_rect;
-    GetClientRect(window, &window_rect);
-
-    backbuffer_dc = CreateCompatibleDC(window_dc);
-
-    HBITMAP backbuffer_bitmap = CreateCompatibleBitmap(window_dc,
-                                                       window_rect.right - window_rect.left,
-                                                       window_rect.bottom - window_rect.top);
-
-    HBITMAP window_bitmap = (HBITMAP) SelectObject(backbuffer_dc, backbuffer_bitmap);
-
-    HBRUSH background_brush = CreateSolidBrush(GetSysColor(COLOR_WINDOW));
-    FillRect(backbuffer_dc, &window_rect, background_brush);
-    DeleteObject(background_brush);
-
-    // FIXME: we should only copy from the backbuffer to the window-buffer when 
-    //        we are only reacting to a PAINT message. Only when the world updates
-    //        should we (update the world and) draw to the backbuffer.
-    //        Right now we always throw away the back-buffer, so this is not possible now.
-    render_frame();
-    
-    BitBlt(window_dc,
-           window_rect.left, window_rect.top,
-           window_rect.right - window_rect.left, window_rect.bottom - window_rect.top,
-           backbuffer_dc,
-           0, 0,
-           SRCCOPY);
-
-    SelectObject(backbuffer_dc, window_bitmap);
-    DeleteObject(backbuffer_bitmap);
-    DeleteDC(backbuffer_dc);
-}
-*/
 
 LRESULT CALLBACK WindowProcedure(HWND window, 
                                  UINT msg, 
@@ -108,46 +69,28 @@ LRESULT CALLBACK WindowProcedure(HWND window,
         break;
         case WM_SIZE:
         {
-            // FIXME: how should we handle resizing with Direct2D?
-            
-            /*
             RECT window_rect;
             GetClientRect(window, &window_rect);
-            */
             
-            /*
-            D2D1_SIZE_U size = D2D1::SizeU(window_rect.right, window_rect.bottom);
-
-            render_target->Resize(size);
-            InvalidateRect(window, NULL, FALSE);
-            */
-        
-            /*
             // FIXME: we probably don't want to resize by re-creating the render_target each time!
             if (render_target)
             {
                 render_target->Release();
+                
                 render_target = 0;
+                HRESULT render_target_result = d2d_factory->CreateHwndRenderTarget(
+                    D2D1::RenderTargetProperties(),
+                    D2D1::HwndRenderTargetProperties(
+                        window,
+                        D2D1::SizeU(
+                            window_rect.right - window_rect.left,
+                            window_rect.bottom - window_rect.top)
+                    ),
+                    &render_target
+                );    
             }
-            HRESULT render_target_result = d2d_factory->CreateHwndRenderTarget(
-                D2D1::RenderTargetProperties(),
-                D2D1::HwndRenderTargetProperties(
-                    window,
-                    D2D1::SizeU(
-                        window_rect.right - window_rect.left,
-                        window_rect.bottom - window_rect.top)
-                ),
-                &render_target
-            );    
-            */
-            
         }
         break;
-        /*
-        case WM_ERASEBKGND:
-            return (LRESULT)1; // Say we handled it.
-        break;
-        */
         case WM_PAINT:
         {
             PAINTSTRUCT ps;
@@ -410,10 +353,6 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
         &render_target
     );    
     
-    
-    
-    // window_dc = GetDC(window);
-
     // Checking if touch is enabled on this machine and if so, registering for touch messages
     i32 touch_info = GetSystemMetrics(SM_DIGITIZER);
     touch_is_enabled = false;

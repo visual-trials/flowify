@@ -16,441 +16,134 @@
 
  */
  
-
-/*
-    TODO: we should use something else than GDI to render with alpha
-    
-    We are using basic GDI here. But alpha-blending is not really supported in GDI.
-    To make blending work anyway we now use a workaround: an alpha buffer AND a backup buffer.
-    Note: we only have to use this backup buffer when we are not drawing a pure rectangle.
-    
-    The procedure is as follows:
-    
-    1) We make a backup of the area we are going to draw/blend into (this goes into the backup buffer)
-    2) We draw into the alpha buffer
-    3) We then use AlphaBlend to blend our drawing to the back buffer.
-           Note: The problem is that AlphaBlend has a 24 bpp source bitmap 
-                 and cannot know which parts it shouln't blend. This causes it
-                 to blend parts we didn't draw into. We need to restore those.
-    4) We draw the same figure to the backup buffer, but set our brush/pen to WHITE
-    5) We use TransparentBlt to copy back (aka restore) the pixels that are not WHITE
-        Note: By doing this we restored most of the parts we blended incorrectly to
-              But if the original image had white pixel in them, we didn't restore those pixel.
-              So we have to use another color and do the same.
-    6) We draw the same figure to the backup buffer, but set our brush/pen to BLACK
-    7) We use TransparentBlt to copy back (aka restore) the pixels that are not BLACK
-    
-*/
-
-struct BlendInfo
+// TODO: make this inline
+void release_brush(ID2D1SolidColorBrush * brush)
 {
-    HDC dc;
-    HBITMAP alpha_bitmap;
-    BLENDFUNCTION blend_function;
-    
-    b32 make_backup;
-    HDC backup_dc;
-    HBITMAP backup_bitmap;
-    
-    Color4 color;
-    i32 x;
-    i32 y;
-    i32 width;
-    i32 height;
+    if (brush)
+    {
+        brush->Release();
+        brush = 0;
+    }
+}
+
+// TODO: make this inline
+void get_brush(Color4 color, ID2D1SolidColorBrush ** brush)
+{
+    render_target->CreateSolidColorBrush(D2D1::ColorF(
+        (r32)color.r/(r32)255, 
+        (r32)color.g/(r32)255, 
+        (r32)color.b/(r32)255, 
+        (r32)color.a/(r32)255
+    ), brush);
 };
-
-void init_blend(i32 x, i32 y, i32 width, i32 height, Color4 color, BlendInfo * blend_info, b32 make_backup)
-{
-    
-    blend_info->color = color;
-    blend_info->x = x;
-    blend_info->y = y;
-    blend_info->width = width;
-    blend_info->height = height;
-    
-    blend_info->make_backup = make_backup;
-    
-    blend_info->dc = CreateCompatibleDC(backbuffer_dc);
-
-    blend_info->blend_function.BlendOp = AC_SRC_OVER;
-    blend_info->blend_function.BlendFlags = 0;
-    blend_info->blend_function.SourceConstantAlpha = blend_info->color.a;
-    blend_info->blend_function.AlphaFormat = 0;
-
-    // FIXME: what if width or height are bigger than the width or height of the backbuffer?
-    blend_info->alpha_bitmap = CreateCompatibleBitmap(backbuffer_dc, blend_info->width, blend_info->height);
-    
-    SelectObject(blend_info->dc, blend_info->alpha_bitmap);
-    
-    if (make_backup)
-    {
-        blend_info->backup_dc = CreateCompatibleDC(backbuffer_dc);
-        
-        // FIXME: what if width or height are bigger than the width or height of the backbuffer?
-        blend_info->backup_bitmap = CreateCompatibleBitmap(backbuffer_dc, blend_info->width, blend_info->height);
-        
-        SelectObject(blend_info->backup_dc, blend_info->backup_bitmap);
-        
-        // Creating a backup of the part of the image we are going to alpha blend into
-        // TODO: we should check the result of BitBlt and log if something goes wrong
-        BitBlt(blend_info->backup_dc, 0, 0, blend_info->width, blend_info->height, backbuffer_dc, blend_info->x, blend_info->y, SRCCOPY);
-    }
-}
-
-void do_blend(BlendInfo * blend_info)
-{
-    // TODO: we should check the result of AlphaBlend and log if something goes wrong
-    AlphaBlend(backbuffer_dc, blend_info->x, blend_info->y, blend_info->width, blend_info->height, 
-               blend_info->dc, 0, 0, blend_info->width, blend_info->height, 
-               blend_info->blend_function);
-}
-
-void retore_blend_white(BlendInfo * blend_info)
-{
-    // TODO: we should check the result of TransparentBlt and log if something goes wrong
-    TransparentBlt(backbuffer_dc, blend_info->x, blend_info->y, blend_info->width, blend_info->height,
-                   blend_info->backup_dc, 0, 0, blend_info->width, blend_info->height,
-                   RGB(255, 255, 255));
-}
-
-void retore_blend_black(BlendInfo * blend_info)
-{
-    // TODO: we should check the result of TransparentBlt and log if something goes wrong
-    TransparentBlt(backbuffer_dc, blend_info->x, blend_info->y, blend_info->width, blend_info->height,
-                   blend_info->backup_dc, 0, 0, blend_info->width, blend_info->height,
-                   RGB(0, 0, 0));
-}
-
-void end_blend(BlendInfo * blend_info)
-{
-    if (blend_info->make_backup)
-    {
-        DeleteObject(blend_info->backup_bitmap);
-        DeleteDC(blend_info->backup_dc);
-    }
-    DeleteObject(blend_info->alpha_bitmap);
-    DeleteDC(blend_info->dc);
-}
-
+ 
+// TODO: don't we want to pass two positions to most of these functions? Instead of pos + size?
+// TODO: don't we want r32 for colors?
+ 
 void draw_rectangle(i32 x, i32 y, i32 width, i32 height, Color4 line_color, Color4 fill_color, i32 line_width)
 {
-    // FIXME: when doing alpha, take into account the line_width makes the reactangle bigger!
+    ID2D1SolidColorBrush * line_brush = 0;
+    ID2D1SolidColorBrush * fill_brush = 0;
     
-    // FIXME: when setting the alpha of the pen, the entire rectangle get darker!
+    get_brush(line_color, &line_brush);
+    get_brush(fill_color, &fill_brush);
     
-    // FIXME: when not drawing the line (only the fill), you can see one pixel-line at the bottom and right are not blending right!
-
-    HPEN pen = CreatePen(PS_SOLID, line_width, RGB(line_color.r, line_color.g, line_color.b));
-    HBRUSH brush = CreateSolidBrush(RGB(fill_color.r, fill_color.g, fill_color.b));
+    D2D1_RECT_F rectangle = D2D1::RectF(x + 0.5, y + 0.5, x + width + 0.5,y + height + 0.5);
     
-    if (fill_color.a != 255)
-    {
-        BlendInfo blend_info;
-        i32 x_blend = x;
-        i32 y_blend = y;
-        b32 make_backup = false;
-        init_blend(x_blend, y_blend, width, height, fill_color, &blend_info, make_backup);
-        {
-            SelectObject(blend_info.dc, GetStockObject(NULL_PEN));
-            SelectObject(blend_info.dc, brush);
+    render_target->FillRectangle(&rectangle, fill_brush);
+    render_target->DrawRectangle(&rectangle, line_brush, line_width);
 
-            Rectangle(blend_info.dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend);
-            
-            do_blend(&blend_info);
-        }
-        end_blend(&blend_info);
-    }
-    else {
-        SelectObject(backbuffer_dc, GetStockObject(NULL_PEN));
-        SelectObject(backbuffer_dc, brush);
-
-        Rectangle(backbuffer_dc, x, y, x + width, y + height);
-    }
-    
-    if (line_color.a != 255)
-    {
-        BlendInfo blend_info;
-        i32 x_blend = x;
-        i32 y_blend = y;
-        b32 make_backup = false;
-        init_blend(x_blend, y_blend, width, height, line_color, &blend_info, make_backup);
-        {
-            SelectObject(blend_info.dc, pen);
-            SelectObject(blend_info.dc, GetStockObject(NULL_BRUSH));
-
-            Rectangle(blend_info.dc, x - x_blend, y - y_blend, x + width - x_blend, y + height - y_blend);
-            
-            do_blend(&blend_info);
-        }
-        end_blend(&blend_info);
-    }
-    else {
-        SelectObject(backbuffer_dc, pen);
-        SelectObject(backbuffer_dc, GetStockObject(NULL_BRUSH));
-
-        Rectangle(backbuffer_dc, x, y, x + width, y + height);
-    }
-    
-    DeleteObject(pen);
-    DeleteObject(brush);
+    release_brush(line_brush);
+    release_brush(fill_brush);
 }
 
 void draw_line(i32 x_start, i32 y_start, i32 x_end, i32 y_end, Color4 line_color, i32 line_width)
 {
-    HPEN pen = CreatePen(PS_SOLID, line_width, RGB(line_color.r, line_color.g, line_color.b));
+    D2D1_POINT_2F start_position, end_position;
+    ID2D1SolidColorBrush * line_brush = 0;
     
-    if (line_color.a != 255)
-    {
-        /*
-            TODO: in order to draw a line with alpha we have to blend it
-                  so we should create a blend area. But we don't have a width and height atm
-                  We should determine the width and height of the rectangle the line covers 
-                  (so including the line-width and the fact that the line could be diagonal)
-                  so that we can use that as the blend-area.
-            
-        BlendInfo blend_info;
-        i32 x_blend = ??;
-        i32 y_blend = ??;
-        i32 width = ??;
-        i32 hieght = ??;
-        b32 make_backup = false;
-        init_blend(x_blend, y_blend, width, height, line_color, &blend_info, make_backup);
-        {
-            SelectObject(blend_info.dc, pen);
-            SelectObject(blend_info.dc, GetStockObject(NULL_BRUSH));
-
-            MoveToEx(blend_info.dc, x_start - x_blend, y_start - y_blend, (LPPOINT) NULL); 
-            LineTo(blend_info.dc, x_end - x_blend, y_end - y_blend); 
-            
-            do_blend(&blend_info);
-        }
-        end_blend(&blend_info);
-        
-        */
-    }
-    else {
-        SelectObject(backbuffer_dc, pen);
-        SelectObject(backbuffer_dc, GetStockObject(NULL_BRUSH));
-
-        MoveToEx(backbuffer_dc, x_start, y_start, (LPPOINT) NULL); 
-        LineTo(backbuffer_dc, x_end, y_end); 
-    }
+	start_position.x = x_start;
+	start_position.y = y_start;
     
-    DeleteObject(pen);
+	end_position.x = x_end;
+	end_position.y = y_end;
+    
+    get_brush(line_color, &line_brush);
+    
+    render_target->DrawLine(start_position, end_position, line_brush, line_width);
+    
+    release_brush(line_brush);
 }
 
 void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r, Color4 line_color, Color4 fill_color, i32 line_width)
 {
-    HPEN pen = CreatePen(PS_SOLID, line_width, RGB(line_color.r, line_color.g, line_color.b));
-    HPEN black_pen = CreatePen(PS_SOLID, line_width, RGB(0, 0, 0));
-    HPEN white_pen = CreatePen(PS_SOLID, line_width, RGB(255, 255, 255));
+    ID2D1SolidColorBrush * line_brush = 0;
+    ID2D1SolidColorBrush * fill_brush = 0;
     
-    HBRUSH brush = CreateSolidBrush(RGB(fill_color.r, fill_color.g, fill_color.b));
-    HBRUSH black_brush = CreateSolidBrush(RGB(0, 0, 0));
-    HBRUSH white_brush = CreateSolidBrush(RGB(255, 255, 255));
+    get_brush(line_color, &line_brush);
+    get_brush(fill_color, &fill_brush);
     
-    i32 d = r * 2;
-
-    if (fill_color.a != 255)
-    {
-        BlendInfo blend_info;
-        i32 x_blend = x;
-        i32 y_blend = y;
-        b32 make_backup = true;
-        init_blend(x_blend, y_blend, width, height, fill_color, &blend_info, make_backup);
-        {
-            SelectObject(blend_info.dc, GetStockObject(NULL_PEN));
-            SelectObject(blend_info.dc, brush);
-
-            RoundRect(blend_info.dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend, d, d);
-            
-            do_blend(&blend_info);
-        }
-        {
-            SelectObject(blend_info.backup_dc, GetStockObject(NULL_PEN));
-            SelectObject(blend_info.backup_dc, white_brush);
-
-            RoundRect(blend_info.backup_dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend, d, d);
-            
-            retore_blend_white(&blend_info);
-        }
-        {
-            SelectObject(blend_info.backup_dc, GetStockObject(NULL_PEN));
-            SelectObject(blend_info.backup_dc, black_brush);
-
-            RoundRect(blend_info.backup_dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend, d, d);
-            
-            retore_blend_black(&blend_info);
-        }
-        end_blend(&blend_info);
-    }
-    else
-    {
-        SelectObject(backbuffer_dc, GetStockObject(NULL_PEN));
-        SelectObject(backbuffer_dc, brush);
-
-        RoundRect(backbuffer_dc, x, y, x + width, y + height, d, d);
-    }
+    D2D1_RECT_F rectangle = D2D1::RectF(x + 0.5, y + 0.5, x + width + 0.5,y + height + 0.5);
+    D2D1_ROUNDED_RECT rounded_rectangle = D2D1::RoundedRect(rectangle, r, r);
     
-    if (line_color.a != 255)
-    {
-        BlendInfo blend_info;
-        i32 x_blend = x;
-        i32 y_blend = y;
-        b32 make_backup = true;
-        init_blend(x_blend, y_blend, width, height, line_color, &blend_info, make_backup);
-        {
-            SelectObject(blend_info.dc, pen);
-            SelectObject(blend_info.dc, GetStockObject(NULL_BRUSH));
+    render_target->FillRoundedRectangle(&rounded_rectangle, fill_brush);
+    render_target->DrawRoundedRectangle(&rounded_rectangle, line_brush, line_width);
 
-            RoundRect(blend_info.dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend, d, d);
-            
-            do_blend(&blend_info);
-        }
-        {
-            SelectObject(blend_info.backup_dc, white_pen);
-            SelectObject(blend_info.backup_dc, GetStockObject(NULL_BRUSH));
-
-            RoundRect(blend_info.backup_dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend, d, d);
-            
-            retore_blend_white(&blend_info);
-        }
-        {
-            SelectObject(blend_info.backup_dc, black_pen);
-            SelectObject(blend_info.backup_dc, GetStockObject(NULL_BRUSH));
-
-            RoundRect(blend_info.backup_dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend, d, d);
-            
-            retore_blend_black(&blend_info);
-        }
-        end_blend(&blend_info);
-    }
-    else
-    {
-        SelectObject(backbuffer_dc, pen);
-        SelectObject(backbuffer_dc, GetStockObject(NULL_BRUSH));
-
-        RoundRect(backbuffer_dc, x, y, x + width, y + height, d, d);
-    }
-    
-    DeleteObject(pen);
-    DeleteObject(black_pen);
-    DeleteObject(white_pen);
-    
-    DeleteObject(brush);
-    DeleteObject(black_brush);
-    DeleteObject(white_brush);
+    release_brush(line_brush);
+    release_brush(fill_brush);
 }
 
+// TODO: shouldn't we use radius x and radius y instead of using width and height?
 void draw_ellipse(i32 x, i32 y, i32 width, i32 height, 
                   Color4 line_color, Color4 fill_color, i32 line_width)
 {
-    HPEN pen = CreatePen(PS_SOLID, line_width, RGB(line_color.r, line_color.g, line_color.b));
-    HPEN black_pen = CreatePen(PS_SOLID, line_width, RGB(0, 0, 0));
-    HPEN white_pen = CreatePen(PS_SOLID, line_width, RGB(255, 255, 255));
+    ID2D1SolidColorBrush * line_brush = 0;
+    ID2D1SolidColorBrush * fill_brush = 0;
     
-    HBRUSH brush = CreateSolidBrush(RGB(fill_color.r, fill_color.g, fill_color.b));
-    HBRUSH black_brush = CreateSolidBrush(RGB(0, 0, 0));
-    HBRUSH white_brush = CreateSolidBrush(RGB(255, 255, 255));
+    get_brush(line_color, &line_brush);
+    get_brush(fill_color, &fill_brush);
     
-    if (fill_color.a != 255)
-    {
-        BlendInfo blend_info;
-        i32 x_blend = x;
-        i32 y_blend = y;
-        b32 make_backup = true;
-        init_blend(x_blend, y_blend, width, height, fill_color, &blend_info, make_backup);
-        {
-            SelectObject(blend_info.dc, GetStockObject(NULL_PEN));
-            SelectObject(blend_info.dc, brush);
-
-            Ellipse(blend_info.dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend);
-            
-            do_blend(&blend_info);
-        }
-        {
-            SelectObject(blend_info.backup_dc, GetStockObject(NULL_PEN));
-            SelectObject(blend_info.backup_dc, white_brush);
-
-            Ellipse(blend_info.backup_dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend);
-            
-            retore_blend_white(&blend_info);
-        }
-        {
-            SelectObject(blend_info.backup_dc, GetStockObject(NULL_PEN));
-            SelectObject(blend_info.backup_dc, black_brush);
-
-            Ellipse(blend_info.backup_dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend);
-            
-            retore_blend_black(&blend_info);
-        }
-        end_blend(&blend_info);
-    }
-    else {
-        SelectObject(backbuffer_dc, GetStockObject(NULL_PEN));
-        SelectObject(backbuffer_dc, brush);
-
-        Ellipse(backbuffer_dc, x, y, x + width, y + height);
-    }
+    D2D1_ELLIPSE ellipse = D2D1::Ellipse(D2D1::Point2F(x + 0.5 + (r32)width/(r32)2, y + 0.5 + (r32)height/(r32)2), (r32)width/(r32)2, (r32)height/(r32)2);
     
-    if (line_color.a != 255)
-    {
-        BlendInfo blend_info;
-        i32 x_blend = x;
-        i32 y_blend = y;
-        b32 make_backup = true;
-        init_blend(x_blend, y_blend, width, height, line_color, &blend_info, make_backup);
-        {
-            SelectObject(blend_info.dc, pen);
-            SelectObject(blend_info.dc, GetStockObject(NULL_BRUSH));
-
-            Ellipse(blend_info.dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend);
-            
-            do_blend(&blend_info);
-        }
-        {
-            SelectObject(blend_info.backup_dc, white_pen);
-            SelectObject(blend_info.backup_dc, GetStockObject(NULL_BRUSH));
-
-            Ellipse(blend_info.backup_dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend);
-            
-            retore_blend_white(&blend_info);
-        }
-        {
-            SelectObject(blend_info.backup_dc, black_pen);
-            SelectObject(blend_info.backup_dc, GetStockObject(NULL_BRUSH));
-
-            Ellipse(blend_info.backup_dc, x - x_blend, y - y_blend, x + width- x_blend, y + height - y_blend);
-            
-            retore_blend_black(&blend_info);
-        }
-        end_blend(&blend_info);
-    }
-    else {
-        SelectObject(backbuffer_dc, pen);
-        SelectObject(backbuffer_dc, GetStockObject(NULL_BRUSH));
-
-        Ellipse(backbuffer_dc, x, y, x + width, y + height);
-    }
+    render_target->FillEllipse(&ellipse, fill_brush);
+    render_target->DrawEllipse(&ellipse, line_brush, line_width);
     
-    DeleteObject(pen);
-    DeleteObject(black_pen);
-    DeleteObject(white_pen);
-    
-    DeleteObject(brush);
-    DeleteObject(black_brush);
-    DeleteObject(white_brush);
+    release_brush(line_brush);
+    release_brush(fill_brush);
 }
 
 void draw_text(i32 x, i32 y, ShortString * text, i32 font_height, Color4 font_color)
 {
-    HFONT hFont = (HFONT)GetStockObject(ANSI_VAR_FONT); 
-    SelectObject(backbuffer_dc, hFont);
-    
-    SetBkMode(backbuffer_dc, TRANSPARENT);
-    SetTextColor(backbuffer_dc, RGB(font_color.r, font_color.g, font_color.b));
+    ID2D1SolidColorBrush * font_brush = 0;
+    get_brush(font_color, &font_brush);
 
-    TextOut(backbuffer_dc, x, y, (LPCSTR)text->data, text->length);
+    u16 wide_text[MAX_LENGTH_SHORT_STRING];
+    MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, (LPCCH)text->data, text->length, (LPWSTR)wide_text, MAX_LENGTH_SHORT_STRING);
+
+    IDWriteTextFormat * text_format;
+    
+    // FIXME check result
+    // TODO: shouldn't we release the text format? Do we want to (re)create it here every time?
+    HRESULT text_format_result = direct_write_factory->CreateTextFormat(
+            L"Arial",
+            NULL,
+            DWRITE_FONT_WEIGHT_NORMAL,
+            DWRITE_FONT_STYLE_NORMAL,
+            DWRITE_FONT_STRETCH_NORMAL,
+            font_height * 1.3, // TODO: see canvas.js: we use this constant now
+            L"", //locale
+            &text_format
+    );
+            
+    render_target->DrawText(
+            (LPWSTR)wide_text,
+            text->length,
+            text_format,
+            D2D1::RectF(x + 0.5, y + 0.5, x + 0.5 + 200, y + 0.5 + 100), // FIXME: how to determine size of text?
+            font_brush
+    );
+            
+    release_brush(font_brush);
 }
 
 void draw_text_c(i32 x, i32 y, const char * cstring, i32 font_height, Color4 font_color)
