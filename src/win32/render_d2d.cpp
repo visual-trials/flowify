@@ -139,7 +139,7 @@ void draw_text(i32 x, i32 y, ShortString * text, i32 font_height, Color4 font_co
             (LPWSTR)wide_text,
             text->length,
             text_format,
-            D2D1::RectF(x, y, x + 200, y + 100), // FIXME: how to determine size of text?
+            D2D1::RectF(x + 0.5, y + 0.5, x + 0.5 + 200, y + 0.5 + 100), // FIXME: how to determine size of text?
             font_brush
     );
             
