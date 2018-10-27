@@ -531,6 +531,11 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
         d2d_factory->Release();
         d2d_factory = 0;
     }
+    if (direct_write_factory)
+    {
+        direct_write_factory->Release();
+        direct_write_factory = 0;
+    }
     
     return(0);
     
