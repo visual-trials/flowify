@@ -19,6 +19,7 @@
 #include <windows.h>
 #include <stdio.h>
 #include <d2d1.h>
+#include <dwrite.h>
 
 // TODO: now using a global here for the device context in windows. 
 //       Is there a way to pass the hdc to render_win32.cpp without 
@@ -27,6 +28,7 @@
 // static HDC backbuffer_dc;
 ID2D1HwndRenderTarget * render_target;
 ID2D1Factory * d2d_factory;
+IDWriteFactory * direct_write_factory;
 
 #include INCLUDE_PROJECT_FILE
 
@@ -383,7 +385,15 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
     // Initialize Direct2D
     
     d2d_factory = 0;
-    HRESULT factory_result = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &d2d_factory);
+    // FIXME: check result
+    HRESULT d2d_factory_result = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &d2d_factory);
+    
+    // FIXME: check result
+    HRESULT direct_write_factory_result = DWriteCreateFactory(
+            DWRITE_FACTORY_TYPE_SHARED,
+            __uuidof(direct_write_factory),
+            reinterpret_cast<IUnknown **>(&direct_write_factory)
+    );
     
     RECT window_rect;
     GetClientRect(window, &window_rect);

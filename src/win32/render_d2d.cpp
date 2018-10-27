@@ -114,15 +114,36 @@ void draw_ellipse(i32 x, i32 y, i32 width, i32 height,
 
 void draw_text(i32 x, i32 y, ShortString * text, i32 font_height, Color4 font_color)
 {
-    /*
-    HFONT hFont = (HFONT)GetStockObject(ANSI_VAR_FONT); 
-    SelectObject(backbuffer_dc, hFont);
-    
-    SetBkMode(backbuffer_dc, TRANSPARENT);
-    SetTextColor(backbuffer_dc, RGB(font_color.r, font_color.g, font_color.b));
+    ID2D1SolidColorBrush * font_brush = 0;
+    get_brush(font_color, &font_brush);
 
-    TextOut(backbuffer_dc, x, y, (LPCSTR)text->data, text->length);
-    */
+    u16 wide_text[MAX_LENGTH_SHORT_STRING];
+    MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, (LPCCH)text->data, text->length, (LPWSTR)wide_text, MAX_LENGTH_SHORT_STRING);
+
+    IDWriteTextFormat * text_format;
+    
+    // FIXME check result
+    // TODO: shouldn't we release the text format? Do we want to (re)create it here every time?
+    HRESULT text_format_result = direct_write_factory->CreateTextFormat(
+            L"Arial",
+            NULL,
+            DWRITE_FONT_WEIGHT_NORMAL,
+            DWRITE_FONT_STYLE_NORMAL,
+            DWRITE_FONT_STRETCH_NORMAL,
+            font_height * 1.3, // TODO: see canvas.js: we use this constant now
+            L"", //locale
+            &text_format
+    );
+            
+    render_target->DrawText(
+            (LPWSTR)wide_text,
+            text->length,
+            text_format,
+            D2D1::RectF(x, y, x + 200, y + 100), // FIXME: how to determine size of text?
+            font_brush
+    );
+            
+    release_brush(font_brush);
 }
 
 void draw_text_c(i32 x, i32 y, const char * cstring, i32 font_height, Color4 font_color)

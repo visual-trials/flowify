@@ -66,6 +66,13 @@ extern "C" {
         line_width = 7;
         draw_ellipse(100, 100, 300, 200, line_color, fill_color, line_width);
         
+        line_color.r = 0;
+        line_color.g = 0;
+        i32 font_height = 20;
+        ShortString text;
+        copy_cstring_to_short_string("My Text", &text);
+        draw_text(200, 200, &text, font_height, line_color);
+        
         // Draw frame timing
         draw_frame_timing(&global_input.timing, 100, 350);
     }
