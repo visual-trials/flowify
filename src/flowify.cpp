@@ -32,5 +32,36 @@ extern "C" {
     
     void render_frame()
     {
+        Color4 line_color;
+        Color4 fill_color;
+        
+        line_color.r = 200;
+        line_color.g = 200;
+        line_color.b = 200;
+        line_color.a = 255;
+        
+        draw_line(150, 100, 250, 100, line_color, 1);
+        draw_line(150, 300, 250, 300, line_color, 1);
+        draw_line(150, 500, 250, 500, line_color, 1);
+        
+        draw_line(450, 100, 550, 100, line_color, 1);
+        draw_line(350, 300, 450, 300, line_color, 1);
+        draw_line(450, 500, 550, 500, line_color, 1);
+        
+        line_color.r = 10;
+        line_color.g = 40;
+        line_color.b = 155;
+        line_color.a = 100;
+        
+        fill_color.r = 40;
+        fill_color.g = 173;
+        fill_color.b = 255;
+        fill_color.a = 0;
+
+        draw_line(200, 100, 200, 300, line_color, 8);
+        draw_line(200, 300, 200, 500, line_color, 8);
+        
+        draw_line(500, 100, 400, 300, line_color, 8);
+        draw_line(400, 300, 500, 500, line_color, 8);
     }
 }
