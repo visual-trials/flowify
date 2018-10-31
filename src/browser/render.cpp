@@ -22,6 +22,11 @@ extern "C" {
                                   i32 fill_color_rgb, i32 fill_color_alpha, 
                                   i32 line_width);
                            
+    extern void jsDrawArcedCorner(i32 x, i32 y, i32 r, i32 rotation, i32 convex,
+                                  i32 line_color_rgb, i32 line_color_alpha, 
+                                  i32 fill_color_rgb, i32 fill_color_alpha, 
+                                  i32 line_width);
+
     extern void jsDrawRect(i32 x, i32 y, i32 width, i32 height, 
                            i32 line_color_rgb, i32 line_color_alpha, 
                            i32 fill_color_rgb, i32 fill_color_alpha, 
@@ -58,6 +63,18 @@ void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r,
     i32 fill_color_alpha = (i32)fill_color.a;
     
     jsDrawRoundedRect(x, y, width, height, r, line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
+}
+
+void draw_arced_corner(i32 x, i32 y, i32 r, i32 rotation, i32 convex, 
+                       Color4 line_color, Color4 fill_color, i32 line_width)
+{
+    i32 line_color_rgb = line_color.r + line_color.g * 256 + line_color.b * 256 * 256; 
+    i32 line_color_alpha = (i32)line_color.a;
+    
+    i32 fill_color_rgb = fill_color.r + fill_color.g * 256 + fill_color.b * 256 * 256;
+    i32 fill_color_alpha = (i32)fill_color.a;
+    
+    jsDrawArcedCorner(x, y, r, rotation, convex, line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
 }
 
 void draw_rectangle(i32 x, i32 y, i32 width, i32 height, 

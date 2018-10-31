@@ -126,6 +126,42 @@ Flowify.canvas = function () {
                 }
             },
             
+            _jsDrawArcedCorner: function (x, y, r, rotation, convex, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
+                x += 0.5
+                y += 0.5
+                ctx.beginPath()     
+                ctx.moveTo(x, y)
+                if (rotation == 0) {
+                    ctx.arcTo(x + r, y, x + r, y + r, r)
+                }
+                else if (rotation == 90) {
+                    ctx.arcTo(x, y + r, x - r, y + r, r)
+                }
+                else if (rotation == 180) {
+                    ctx.arcTo(x - r, y, x - r, y - r, r)
+                }
+                else if (rotation == 270) {
+                    ctx.arcTo(x, y - r, x + r, y - r, r)
+                }
+                
+                // FIXME: use convex! (vs concave)
+                
+                // FIXME: we don't want to close the stroke, but we DO want to close the fill!! 
+                // ctx.closePath()
+                
+                /*
+                if (fillColorAlpha) {
+                    ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
+                    ctx.fill()
+                }
+                */
+
+                if (lineColorAlpha) {
+                    ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
+                    ctx.lineWidth = lineWidth
+                    ctx.stroke()
+                }
+            },
             _jsDrawRect: function (x, y, width, height, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
                 x += 0.5
                 y += 0.5
