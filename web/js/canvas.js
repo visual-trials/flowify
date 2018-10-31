@@ -127,8 +127,11 @@ Flowify.canvas = function () {
             },
             
             _jsDrawArcedCorner: function (x, y, r, rotation, convex, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
-                x += 0.5
-                y += 0.5
+                
+                // FIXME: the += 0.5 causes a seam when drawing two ArcedCorners adjacent to each other!!
+                
+                // x += 0.5
+                // y += 0.5
                 
                 if (fillColorAlpha) {
                     ctx.beginPath()     
