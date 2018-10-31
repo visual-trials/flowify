@@ -129,34 +129,68 @@ Flowify.canvas = function () {
             _jsDrawArcedCorner: function (x, y, r, rotation, convex, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
                 x += 0.5
                 y += 0.5
-                ctx.beginPath()     
-                ctx.moveTo(x, y)
-                if (rotation == 0) {
-                    ctx.arcTo(x + r, y, x + r, y + r, r)
-                }
-                else if (rotation == 90) {
-                    ctx.arcTo(x, y + r, x - r, y + r, r)
-                }
-                else if (rotation == 180) {
-                    ctx.arcTo(x - r, y, x - r, y - r, r)
-                }
-                else if (rotation == 270) {
-                    ctx.arcTo(x, y - r, x + r, y - r, r)
-                }
                 
-                // FIXME: use convex! (vs concave)
-                
-                // FIXME: we don't want to close the stroke, but we DO want to close the fill!! 
-                // ctx.closePath()
-                
-                /*
                 if (fillColorAlpha) {
+                    ctx.beginPath()     
+                    ctx.moveTo(x, y)
+                    if (rotation == 0) {
+                        ctx.arcTo(x + r, y, x + r, y + r, r)
+                        if (convex) {
+                            ctx.lineTo(x, y + r)
+                        }
+                        else {
+                            ctx.lineTo(x + r, y)
+                        }
+                    }
+                    else if (rotation == 90) {
+                        ctx.arcTo(x, y + r, x - r, y + r, r)
+                        if (convex) {
+                            ctx.lineTo(x - r, y)
+                        }
+                        else {
+                            ctx.lineTo(x, y + r)
+                        }
+                    }
+                    else if (rotation == 180) {
+                        ctx.arcTo(x - r, y, x - r, y - r, r)
+                        if (convex) {
+                            ctx.lineTo(x, y - r)
+                        }
+                        else {
+                            ctx.lineTo(x - r, y)
+                        }
+                    }
+                    else if (rotation == 270) {
+                        ctx.arcTo(x, y - r, x + r, y - r, r)
+                        if (convex) {
+                            ctx.lineTo(x + r, y)
+                        }
+                        else {
+                            ctx.lineTo(x, y - r)
+                        }
+                    }
+                    ctx.closePath()
+                
                     ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
                     ctx.fill()
                 }
-                */
 
                 if (lineColorAlpha) {
+                    ctx.beginPath()     
+                    ctx.moveTo(x, y)
+                    if (rotation == 0) {
+                        ctx.arcTo(x + r, y, x + r, y + r, r)
+                    }
+                    else if (rotation == 90) {
+                        ctx.arcTo(x, y + r, x - r, y + r, r)
+                    }
+                    else if (rotation == 180) {
+                        ctx.arcTo(x - r, y, x - r, y - r, r)
+                    }
+                    else if (rotation == 270) {
+                        ctx.arcTo(x, y - r, x + r, y - r, r)
+                    }
+                
                     ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
                     ctx.lineWidth = lineWidth
                     ctx.stroke()

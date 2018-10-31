@@ -49,7 +49,7 @@ extern "C" {
         fill_color.r = 40;
         fill_color.g = 173;
         fill_color.b = 255;
-        fill_color.a = 0;
+        fill_color.a = 100;
 
         {
             draw_line(150, 100, 250, 100, thin_line_color, 1);
@@ -74,9 +74,9 @@ extern "C" {
             draw_line(850, 300, 950, 300, thin_line_color, 1);
             draw_line(1050, 500, 1150, 500, thin_line_color, 1);
             
-            b32 convex = false;
-            draw_arced_corner(700, 100, 200, 0, convex, line_color, fill_color, 8);
-            draw_arced_corner(1100, 500, 200, 180, convex, line_color, fill_color, 8);
+            draw_arced_corner(700, 100, 200, 0, false, line_color, fill_color, 8);
+            draw_arced_corner(1100, 500, 200, 180, true, line_color, fill_color, 8);
+            draw_arced_corner(1300, 300, 200, 90, true, line_color, fill_color, 8);
         }
 
     }
