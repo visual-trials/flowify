@@ -18,15 +18,6 @@
 
 #include <windows.h>
 #include <stdio.h>
-#include <d2d1.h>
-#include <dwrite.h>
-
-// TODO: now using a global here for the device context in windows. 
-//       Is there a way to pass the hdc to render_win32.cpp without 
-//       cluttering the platform-independent code?
-ID2D1HwndRenderTarget * render_target;
-ID2D1Factory * d2d_factory;
-IDWriteFactory * direct_write_factory;
 
 #include INCLUDE_PROJECT_FILE
 
@@ -36,29 +27,6 @@ i64 performance_count_frequency;
 b32 touch_is_enabled;
 TOUCHINPUT touch_inputs[MAX_NR_OF_TOUCHES];
 
-
-void render_d2d(HWND window)
-{
-    if (render_target)
-    {
-        render_target->BeginDraw();
-
-        render_target->Clear( D2D1::ColorF(D2D1::ColorF::White) );
-
-        render_frame();
-
-        HRESULT draw_result = render_target->EndDraw();      
-        
-        if (FAILED(draw_result) || draw_result == D2DERR_RECREATE_TARGET)
-        {
-            // FIXME
-            // DiscardGraphicsResources();
-        }
-    }
-    else {
-        // FIXME: what to do here?
-    }
-}
 
 LRESULT CALLBACK WindowProcedure(HWND window, 
                                  UINT msg, 
@@ -75,27 +43,7 @@ LRESULT CALLBACK WindowProcedure(HWND window,
         break;
         case WM_SIZE:
         {
-            RECT window_rect;
-            GetClientRect(window, &window_rect);
-            
-            // FIXME: we probably don't want to resize by re-creating the render_target each time!
-            if (render_target)
-            {
-                render_target->Release();
-                
-                render_target = 0;
-                HRESULT render_target_result = d2d_factory->CreateHwndRenderTarget(
-                    D2D1::RenderTargetProperties(),
-                    D2D1::HwndRenderTargetProperties(
-                        window,
-                        D2D1::SizeU(
-                            window_rect.right - window_rect.left,
-                            window_rect.bottom - window_rect.top),
-                        D2D1_PRESENT_OPTIONS_IMMEDIATELY
-                    ),
-                    &render_target
-                );    
-            }
+            resize_d2d(window);
         }
         break;
         case WM_PAINT:
@@ -103,9 +51,7 @@ LRESULT CALLBACK WindowProcedure(HWND window,
             PAINTSTRUCT ps;
             BeginPaint(window, &ps);
      
-            // render(window);  // TODO: we should only do the BitBlt here
             render_d2d(window);
-            
             
             EndPaint(window, &ps);
         }
@@ -313,7 +259,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
     
     if(!RegisterClassA(&window_class))
     {
-        MessageBox(0, "Window Registration Failed!", "Error!", MB_ICONEXCLAMATION | MB_OK);
+        MessageBox(0, "Window registration failed!", "Error!", MB_ICONEXCLAMATION | MB_OK);
         return 0;
     }
     
@@ -328,39 +274,16 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
 
     if(window == 0)
     {
-        MessageBox(0, "Window Creation Failed!", "Error!", MB_ICONEXCLAMATION | MB_OK);
+        MessageBox(0, "Window creation failed!", "Error!", MB_ICONEXCLAMATION | MB_OK);
         return 0;
     }
     
     // Initialize Direct2D
-    
-    d2d_factory = 0;
-    // FIXME: check result
-    HRESULT d2d_factory_result = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &d2d_factory);
-    
-    // FIXME: check result
-    HRESULT direct_write_factory_result = DWriteCreateFactory(
-            DWRITE_FACTORY_TYPE_SHARED,
-            __uuidof(direct_write_factory),
-            reinterpret_cast<IUnknown **>(&direct_write_factory)
-    );
-    
-    RECT window_rect;
-    GetClientRect(window, &window_rect);
-    
-    render_target = 0;
-    HRESULT render_target_result = d2d_factory->CreateHwndRenderTarget(
-        D2D1::RenderTargetProperties(),
-        D2D1::HwndRenderTargetProperties(
-            window,
-            D2D1::SizeU(
-                window_rect.right - window_rect.left,
-                window_rect.bottom - window_rect.top),
-            D2D1_PRESENT_OPTIONS_IMMEDIATELY
-                
-        ),
-        &render_target
-    );    
+    if(!init_d2d(window))
+    {
+        MessageBox(0, "Direct2D init failed!", "Error!", MB_ICONEXCLAMATION | MB_OK);
+        return 0;
+    }
     
     // Checking if touch is enabled on this machine and if so, registering for touch messages
     i32 touch_info = GetSystemMetrics(SM_DIGITIZER);
@@ -527,24 +450,10 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
         // Render world
         render_d2d(window);
         
-        
     }
     
-    if (render_target)
-    {
-        render_target->Release();
-        render_target = 0;
-    }
-    if (d2d_factory)
-    {
-        d2d_factory->Release();
-        d2d_factory = 0;
-    }
-    if (direct_write_factory)
-    {
-        direct_write_factory->Release();
-        direct_write_factory = 0;
-    }
+    // Uninitialize Direct2D
+    uninit_d2d();
     
     return(0);
     

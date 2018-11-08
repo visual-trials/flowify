@@ -16,6 +16,13 @@
 
  */
  
+#include <d2d1.h>
+#include <dwrite.h>
+
+ID2D1HwndRenderTarget * render_target;
+ID2D1Factory * d2d_factory;
+IDWriteFactory * direct_write_factory;
+
 // TODO: make this inline
 void release_brush(ID2D1SolidColorBrush * brush)
 {
@@ -157,3 +164,119 @@ void log(u8 * text)
 {
     OutputDebugStringA((LPCSTR)text);
 }
+
+// Init functions
+
+b32 create_factory_d2d()
+{
+    d2d_factory = 0;
+    HRESULT d2d_factory_result = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &d2d_factory);
+    if (FAILED(d2d_factory_result))
+    {
+        return false;
+    }
+    return true;
+}
+
+b32 create_write_factory_d2d()
+{
+    HRESULT direct_write_factory_result = DWriteCreateFactory(
+            DWRITE_FACTORY_TYPE_SHARED,
+            __uuidof(direct_write_factory),
+            reinterpret_cast<IUnknown **>(&direct_write_factory)
+    );
+    if (FAILED(direct_write_factory_result))
+    {
+        return false;
+    }
+    return true;
+}
+
+void create_render_target_d2d(HWND window)
+{
+    RECT window_rect;
+    GetClientRect(window, &window_rect);
+    
+    render_target = 0;
+    // TODO: check render_target_result and return true or false accordingly
+    HRESULT render_target_result = d2d_factory->CreateHwndRenderTarget(
+        D2D1::RenderTargetProperties(),
+        D2D1::HwndRenderTargetProperties(
+            window,
+            D2D1::SizeU(
+                window_rect.right - window_rect.left,
+                window_rect.bottom - window_rect.top),
+            D2D1_PRESENT_OPTIONS_IMMEDIATELY
+        ),
+        &render_target
+    );
+}
+
+void resize_d2d(HWND window)
+{
+    // TODO: we probably don't want to resize by re-creating the render_target each time!
+    if (render_target)
+    {
+        render_target->Release();
+
+        create_render_target_d2d(window);
+    }
+}
+
+b32 init_d2d(HWND window)
+{
+    if (!create_factory_d2d())
+    {
+        return false;
+    }
+    
+    if(!create_write_factory_d2d())
+    {
+        return false;
+    }
+    
+    create_render_target_d2d(window);
+    return true;
+}    
+
+void uninit_d2d()
+{
+    if (render_target)
+    {
+        render_target->Release();
+        render_target = 0;
+    }
+    if (d2d_factory)
+    {
+        d2d_factory->Release();
+        d2d_factory = 0;
+    }
+    if (direct_write_factory)
+    {
+        direct_write_factory->Release();
+        direct_write_factory = 0;
+    }
+}
+
+
+extern "C" {
+    
+void render_frame();
+
+}
+
+void render_d2d(HWND window)
+{
+    if (render_target)
+    {
+        render_target->BeginDraw();
+
+        render_target->Clear( D2D1::ColorF(D2D1::ColorF::White) );
+
+        render_frame();
+
+        render_target->EndDraw();
+        
+    }
+}
+
