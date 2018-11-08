@@ -90,7 +90,8 @@ LRESULT CALLBACK WindowProcedure(HWND window,
                         window,
                         D2D1::SizeU(
                             window_rect.right - window_rect.left,
-                            window_rect.bottom - window_rect.top)
+                            window_rect.bottom - window_rect.top),
+                        D2D1_PRESENT_OPTIONS_IMMEDIATELY
                     ),
                     &render_target
                 );    
@@ -354,7 +355,9 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
             window,
             D2D1::SizeU(
                 window_rect.right - window_rect.left,
-                window_rect.bottom - window_rect.top)
+                window_rect.bottom - window_rect.top),
+            D2D1_PRESENT_OPTIONS_IMMEDIATELY
+                
         ),
         &render_target
     );    
