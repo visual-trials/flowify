@@ -226,30 +226,6 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
 {
     OutputDebugStringA("Starting!\n");
 
-    /*
-    char filename[ MAX_PATH ];
-
-    OPENFILENAME ofn;
-    ZeroMemory( &filename, sizeof( filename ) );
-    ZeroMemory( &ofn,      sizeof( ofn ) );
-    ofn.lStructSize  = sizeof( ofn );
-    ofn.hwndOwner    = NULL;  // If you have a window to center over, put its HANDLE here
-    ofn.lpstrFilter  = "Text Files\0*.txt\0Any File\0*.*\0";
-    ofn.lpstrFile    = filename;
-    ofn.nMaxFile     = MAX_PATH;
-    ofn.lpstrTitle   = "Select a File, yo!";
-    ofn.Flags        = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
-
-    if (GetOpenFileNameA( &ofn ))
-    {
-    // std::cout << "You chose the file \"" << filename << "\"\n";
-    }
-    else
-    {
-      // ERROR
-    }
-    */
-    
     init_world();
     
     WNDCLASSA window_class = {};
@@ -300,18 +276,13 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
     QueryPerformanceFrequency(&performance_count_frequency_result);
     performance_count_frequency = performance_count_frequency_result.QuadPart;
     
-    r32 target_seconds_per_frame = 1.0f / 60; // Note: aiming for 60 frames per second
-    
-    UINT desired_scheduler_in_ms = 1;
-    b32 sleep_is_granular = (timeBeginPeriod(desired_scheduler_in_ms) == TIMERR_NOERROR);
-    
     LARGE_INTEGER clock_counter_before_update_and_render = get_clock_counter();
-    
-    clock_counter_before_wait = get_clock_counter();
+    clock_counter_before_wait = clock_counter_before_update_and_render;
     
     keep_running = true;
     while(keep_running)
     {
+        // Get all keyboard events and set them in the new_input
         MSG msg;
         while(PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
         {
@@ -351,42 +322,11 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
 
         }
 
-        // Not using this here anymore. See workaround in win32/render.cpp
-        // LARGE_INTEGER clock_counter_before_wait = get_clock_counter();
-
-        /*
-        // Ensuring a stable frame rate
-        {
-            LARGE_INTEGER current_clock_counter = get_clock_counter();
-
-            r32 seconds_elapsed_for_frame = get_seconds_elapsed(clock_counter_before_update_and_render, current_clock_counter);
-            
-            r32 sleep_in_ms = 1000.0f * (target_seconds_per_frame - seconds_elapsed_for_frame);
-            DWORD sleep_in_ms_integer = (DWORD)sleep_in_ms;
-            if(sleep_in_ms > 0)
-            {
-                // Sleep a few (whole) milliseconds
-                if (sleep_is_granular && sleep_in_ms_integer > 1) {
-                    Sleep(sleep_in_ms_integer - 1);
-                }
-                
-                // Then loop the last micro seconds
-                while(seconds_elapsed_for_frame < target_seconds_per_frame)
-                {                            
-                    seconds_elapsed_for_frame = get_seconds_elapsed(clock_counter_before_update_and_render, get_clock_counter());
-                }
-            }
-            else {
-                // Missed frame rate!
-            }
-        }
-        */
-
         // Set timings in new_input
         new_input.timing.dt = get_seconds_elapsed(clock_counter_before_update_and_render, clock_counter_before_wait);
         new_input.timing.frame_times[new_input.timing.frame_index] = new_input.timing.dt;
 
-        // Copy the new input (recieved via WindowProcedure) into the global input (TODO: shouldn't this be atomic by swapping pointers instead?)
+        // Copy the new input (recieved via WindowProcedure and above) into the global input (TODO: shouldn't this be atomic by swapping pointers instead?)
         global_input = new_input;
         
         // TODO: The resetting-code below changed new_input. But WindowProcedure also changes it. 

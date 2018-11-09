@@ -279,9 +279,9 @@ void render_d2d(HWND window)
 
         render_frame();
 
-        // This is a workaround to measure the drawing time and NOT
-        // count the waiting time (until vsync). The EndDraw waits for the vsync
-        // so we can't measure time AFTER that.
+        // This is a workaround to measure the drawing time and NOT count 
+        // the waiting time (until vsync). The EndDraw waits for the vsync so 
+        // we can't measure time AFTER that. That's why we do a Flush first.
         render_target->Flush();
         clock_counter_before_wait = get_clock_counter();
         
