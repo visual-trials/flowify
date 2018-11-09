@@ -267,6 +267,8 @@ void render_frame();
 
 }
 
+inline LARGE_INTEGER get_clock_counter(void);
+
 void render_d2d(HWND window)
 {
     if (render_target)
@@ -277,6 +279,12 @@ void render_d2d(HWND window)
 
         render_frame();
 
+        // This is a workaround to measure the drawing time and NOT
+        // count the waiting time (until vsync). The EndDraw waits for the vsync
+        // so we can't measure time AFTER that.
+        render_target->Flush();
+        clock_counter_before_wait = get_clock_counter();
+        
         // TODO: check result
         render_target->EndDraw();
         

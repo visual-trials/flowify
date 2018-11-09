@@ -19,6 +19,8 @@
 #include <windows.h>
 #include <stdio.h>
 
+LARGE_INTEGER clock_counter_before_wait;
+
 #include INCLUDE_PROJECT_FILE
 
 b32 keep_running;
@@ -303,7 +305,9 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
     UINT desired_scheduler_in_ms = 1;
     b32 sleep_is_granular = (timeBeginPeriod(desired_scheduler_in_ms) == TIMERR_NOERROR);
     
-    LARGE_INTEGER last_clock_counter = get_clock_counter();
+    LARGE_INTEGER clock_counter_before_update_and_render = get_clock_counter();
+    
+    clock_counter_before_wait = get_clock_counter();
     
     keep_running = true;
     while(keep_running)
@@ -347,13 +351,15 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
 
         }
 
-        LARGE_INTEGER clock_counter_before_wait = get_clock_counter();
+        // Not using this here anymore. See workaround in win32/render.cpp
+        // LARGE_INTEGER clock_counter_before_wait = get_clock_counter();
 
+        /*
         // Ensuring a stable frame rate
         {
             LARGE_INTEGER current_clock_counter = get_clock_counter();
 
-            r32 seconds_elapsed_for_frame = get_seconds_elapsed(last_clock_counter, current_clock_counter);
+            r32 seconds_elapsed_for_frame = get_seconds_elapsed(clock_counter_before_update_and_render, current_clock_counter);
             
             r32 sleep_in_ms = 1000.0f * (target_seconds_per_frame - seconds_elapsed_for_frame);
             DWORD sleep_in_ms_integer = (DWORD)sleep_in_ms;
@@ -367,28 +373,18 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
                 // Then loop the last micro seconds
                 while(seconds_elapsed_for_frame < target_seconds_per_frame)
                 {                            
-                    seconds_elapsed_for_frame = get_seconds_elapsed(last_clock_counter, get_clock_counter());
+                    seconds_elapsed_for_frame = get_seconds_elapsed(clock_counter_before_update_and_render, get_clock_counter());
                 }
             }
             else {
                 // Missed frame rate!
             }
-            
-            new_input.timing.frame_index++;
-            if (new_input.timing.frame_index >= MAX_NR_OF_FRAMES_FOR_TIMING)
-            {
-                new_input.timing.frame_index = 0;
-            }
-
-            // Set timings in new_input
-            new_input.timing.dt = get_seconds_elapsed(last_clock_counter, clock_counter_before_wait);
-            new_input.timing.frame_times[new_input.timing.frame_index] = new_input.timing.dt;
-            
-            // Set new last_clock_counter
-            // TODO: should we call this: clock_counter_before_update_and_render?
-            last_clock_counter = get_clock_counter();
         }
+        */
 
+        // Set timings in new_input
+        new_input.timing.dt = get_seconds_elapsed(clock_counter_before_update_and_render, clock_counter_before_wait);
+        new_input.timing.frame_times[new_input.timing.frame_index] = new_input.timing.dt;
 
         // Copy the new input (recieved via WindowProcedure) into the global input (TODO: shouldn't this be atomic by swapping pointers instead?)
         global_input = new_input;
@@ -441,12 +437,21 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
             new_input.touch.touch_count--;
         }
         
+        // Set new clock_counter_before_update_and_render
+        clock_counter_before_update_and_render = get_clock_counter();
+        
         // Update world
         update_frame();
         
         // Render world
         render_d2d(window);
         
+        new_input.timing.frame_index++;
+        if (new_input.timing.frame_index >= MAX_NR_OF_FRAMES_FOR_TIMING)
+        {
+            new_input.timing.frame_index = 0;
+        }
+
     }
     
     // Uninitialize Direct2D
