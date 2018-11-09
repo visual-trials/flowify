@@ -206,8 +206,9 @@ void create_render_target_d2d(HWND window)
             window,
             D2D1::SizeU(
                 window_rect.right - window_rect.left,
-                window_rect.bottom - window_rect.top),
-            D2D1_PRESENT_OPTIONS_IMMEDIATELY
+                window_rect.bottom - window_rect.top)
+                //,
+            //D2D1_PRESENT_OPTIONS_IMMEDIATELY
         ),
         &render_target
     );

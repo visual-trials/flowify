@@ -374,11 +374,8 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
                 // Missed frame rate!
             }
             
-            if (new_input.timing.frame_index < MAX_NR_OF_FRAMES_FOR_TIMING)
-            {
-                new_input.timing.frame_index++;
-            }
-            else
+            new_input.timing.frame_index++;
+            if (new_input.timing.frame_index >= MAX_NR_OF_FRAMES_FOR_TIMING)
             {
                 new_input.timing.frame_index = 0;
             }
