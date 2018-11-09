@@ -85,6 +85,10 @@ void draw_frame_timing(Timing * timing, i32 x_start, i32 y_start)
                        line_color, fill_color, 
                        line_width);
         
+        if (frame_index % 5 == 0)
+        {
+            draw_line(x_left, y_start + normal_bar_height, x_left, y_start, light_color, 1);
+        }
     }
     
     
