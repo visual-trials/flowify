@@ -23,6 +23,7 @@ ID2D1HwndRenderTarget * render_target;
 ID2D1Factory * d2d_factory;
 IDWriteFactory * direct_write_factory;
 
+
 // TODO: make this inline
 void release_brush(ID2D1SolidColorBrush * brush)
 {
@@ -275,6 +276,7 @@ void render_d2d(HWND window)
 
         render_frame();
 
+        // TODO: check result
         render_target->EndDraw();
         
     }
