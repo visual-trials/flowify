@@ -73,10 +73,18 @@ struct TouchesInput
 
 #define MAX_NR_OF_FRAMES_FOR_TIMING 60 // Keep this the same in input.js!
 
+struct FrameTiming
+{
+    r32 input_time;
+    r32 updating_time;
+    r32 rendering_time;
+    r32 waiting_time;
+};
+
 struct Timing
 {
     r32 dt;
-    r32 frame_times[MAX_NR_OF_FRAMES_FOR_TIMING];
+    FrameTiming frame_times[MAX_NR_OF_FRAMES_FOR_TIMING];
     i32 frame_index;
 };
 
@@ -165,12 +173,15 @@ extern "C" {
         global_input.touch.touches[touch_index].y = y;
     }
     
-    void set_frame_time(i32 frame_index, r32 dt)
+    void set_frame_time(i32 frame_index, r32 input_time, r32 updating_time, r32 rendering_time, r32 waiting_time)
     {
         // TODO: make sure frame_index <= MAX_NR_OF_FRAMES_FOR_TIMING
-        global_input.timing.dt = dt;
+        global_input.timing.dt = input_time + updating_time + rendering_time + waiting_time;
         global_input.timing.frame_index = frame_index;
-        global_input.timing.frame_times[frame_index] = dt;
+        global_input.timing.frame_times[frame_index].input_time = input_time;
+        global_input.timing.frame_times[frame_index].updating_time = updating_time;
+        global_input.timing.frame_times[frame_index].rendering_time = rendering_time;
+        global_input.timing.frame_times[frame_index].waiting_time = waiting_time;
     }
     
 }

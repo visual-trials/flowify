@@ -25,11 +25,22 @@ Flowify.main = function () {
     
     my.frameIndex = 0
     my.maxNrOfFramesForTiming = 60 // always keep this is sync with input.cpp!
-    my.clockBeforeUpdateAndRender = 0
-    my.clockBeforeWait = 0
+    
+    my.clockBeforeUpdateAndRender = performance.now()
+    my.clockAfterUpdate = performance.now()
+    my.clockAfterRender = performance.now()
+    my.clockAfterWait = performance.now()
     
     my.mainLoop = function () {
 
+        let previousClockAfterWait = my.clockAfterWait
+        my.clockAfterWait = performance.now()
+        
+        let inputTime = (my.clockBeforeUpdateAndRender - previousClockAfterWait) / 1000
+        let updatingTime = (my.clockAfterUpdate - my.clockBeforeUpdateAndRender) / 1000
+        let renderingTime = (my.clockAfterRender - my.clockAfterUpdate) / 1000
+        let waitingTime = (my.clockAfterWait - my.clockAfterRender) / 1000
+        
         Flowify.canvas.resizeCanvas()
         Flowify.canvas.clearCanvas()
 
@@ -39,7 +50,13 @@ Flowify.main = function () {
         input.sendTouchData()
         input.sendKeyboardData()
         
-        my.wasmInstance.exports._set_frame_time(my.frameIndex, (my.clockBeforeWait - my.clockBeforeUpdateAndRender) / 1000)
+        my.wasmInstance.exports._set_frame_time(
+            my.frameIndex, 
+            inputTime,
+            updatingTime,
+            renderingTime,
+            waitingTime
+        )
         
         my.clockBeforeUpdateAndRender = performance.now()
         
@@ -50,10 +67,15 @@ Flowify.main = function () {
         // Update world
         my.wasmInstance.exports._update_frame()
         
+        my.clockAfterUpdate = performance.now()
+        
         // Render world
         my.wasmInstance.exports._render_frame()
 
-        my.clockBeforeWait = performance.now()
+        // In the browser, the actual rendering takes place outside this loop,
+        // so clockAfterRender will not include actual rendering. It will only include
+        // *sending* the render-commands, but not the actual rendering of them.
+        my.clockAfterRender = performance.now()
         
         my.frameIndex++
         if (my.frameIndex >= my.maxNrOfFramesForTiming) {

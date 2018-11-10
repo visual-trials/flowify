@@ -49,17 +49,29 @@ void draw_frame_timing(Timing * timing, i32 x_start, i32 y_start)
     i32 normal_bar_height = 100;
     r32 normal_value = (r32)1 / (r32)60; // TODO: should we put 60(fps) in a global?
     
-    Color4  line_color;
-    line_color.r = 0;
-    line_color.g = 50;
-    line_color.b = 0;
-    line_color.a = 255;
+    Color4  input_color;
+    input_color.r = 0;
+    input_color.g = 150;
+    input_color.b = 0;
+    input_color.a = 255;
     
-    Color4 fill_color;
-    fill_color.r = 0;
-    fill_color.g = 100;
-    fill_color.b = 0;
-    fill_color.a = 255;
+    Color4  updating_color;
+    updating_color.r = 150;
+    updating_color.g = 0;
+    updating_color.b = 0;
+    updating_color.a = 255;
+    
+    Color4  rendering_color;
+    rendering_color.r = 0;
+    rendering_color.g = 0;
+    rendering_color.b = 150;
+    rendering_color.a = 255;
+    
+    Color4 waiting_color;
+    waiting_color.r = 220;
+    waiting_color.g = 220;
+    waiting_color.b = 220;
+    waiting_color.a = 255;
     
     i32 line_width = 1;
     
@@ -72,23 +84,62 @@ void draw_frame_timing(Timing * timing, i32 x_start, i32 y_start)
     light_color.a = 255;
     draw_line(x_start, y_start, x_start + graph_width, y_start, light_color, 1);
     
+    i32 bar_start = y_start + normal_bar_height;
+    i32 bar_height = 0;
+    
     for (i32 frame_index_offset = 0; frame_index_offset < MAX_NR_OF_FRAMES_FOR_TIMING; frame_index_offset++)
     {
         i32 frame_index = (timing->frame_index + 1 + frame_index_offset) % MAX_NR_OF_FRAMES_FOR_TIMING;
-        r32 dt = timing->frame_times[frame_index];
-        
         i32 x_left = x_start + frame_index_offset * (bar_width + margin_between_bars);
-        i32 bar_height = (dt / normal_value) * normal_bar_height;
         
-        draw_rectangle(x_left, y_start + normal_bar_height - bar_height, 
+        r32 input_time = timing->frame_times[frame_index].input_time;
+        r32 updating_time = timing->frame_times[frame_index].updating_time;
+        r32 rendering_time = timing->frame_times[frame_index].rendering_time;
+        r32 waiting_time = timing->frame_times[frame_index].waiting_time;
+
+        // Input time
+        
+        bar_start = y_start + normal_bar_height;
+        
+        bar_height = (input_time / normal_value) * normal_bar_height;
+        
+        draw_rectangle(x_left, bar_start - bar_height, 
                        bar_width, bar_height,
-                       line_color, fill_color, 
+                       input_color, input_color, 
                        line_width);
+                       
+        // Updating time
         
-        if (frame_index % 5 == 0)
-        {
-            draw_line(x_left, y_start + normal_bar_height, x_left, y_start, light_color, 1);
-        }
+        bar_start = bar_start - bar_height;
+        
+        bar_height = (updating_time / normal_value) * normal_bar_height;
+        
+        draw_rectangle(x_left, bar_start - bar_height, 
+                       bar_width, bar_height,
+                       updating_color, updating_color, 
+                       line_width);
+                       
+        // Rendering time
+        
+        bar_start = bar_start - bar_height;
+        
+        bar_height = (rendering_time / normal_value) * normal_bar_height;
+        
+        draw_rectangle(x_left, bar_start - bar_height, 
+                       bar_width, bar_height,
+                       rendering_color, rendering_color,
+                       line_width);
+                       
+        // Waiting time
+        
+        bar_start = bar_start - bar_height;
+        
+        bar_height = (waiting_time / normal_value) * normal_bar_height;
+        
+        draw_rectangle(x_left, bar_start - bar_height, 
+                       bar_width, bar_height,
+                       waiting_color, waiting_color, 
+                       line_width);
     }
     
     

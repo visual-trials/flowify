@@ -281,11 +281,10 @@ void render_d2d(HWND window)
         // the waiting time (until vsync). The EndDraw waits for the vsync so 
         // we can't measure time AFTER that. That's why we do a Flush first.
         render_target->Flush();
-        clock_counter_before_wait = get_clock_counter();
+        clock_counter_after_render = get_clock_counter();
         
         // TODO: check result
         render_target->EndDraw();
-        
     }
 }
 

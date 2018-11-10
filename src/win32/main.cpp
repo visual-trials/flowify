@@ -19,7 +19,10 @@
 #include <windows.h>
 #include <stdio.h>
 
-LARGE_INTEGER clock_counter_before_wait;
+LARGE_INTEGER clock_counter_before_update_and_render;
+LARGE_INTEGER clock_counter_after_update;
+LARGE_INTEGER clock_counter_after_render;
+LARGE_INTEGER clock_counter_after_wait;
 
 #include INCLUDE_PROJECT_FILE
 
@@ -276,12 +279,22 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
     QueryPerformanceFrequency(&performance_count_frequency_result);
     performance_count_frequency = performance_count_frequency_result.QuadPart;
     
-    LARGE_INTEGER clock_counter_before_update_and_render = get_clock_counter();
-    clock_counter_before_wait = clock_counter_before_update_and_render;
+    clock_counter_before_update_and_render = get_clock_counter();
+    clock_counter_after_update = get_clock_counter();
+    clock_counter_after_render = get_clock_counter();
+    clock_counter_after_wait = get_clock_counter();
     
     keep_running = true;
     while(keep_running)
     {
+        LARGE_INTEGER previous_clock_counter_after_wait = clock_counter_after_wait;
+        clock_counter_after_wait = get_clock_counter();
+        
+        r32 input_time = get_seconds_elapsed(previous_clock_counter_after_wait, clock_counter_before_update_and_render);
+        r32 updating_time = get_seconds_elapsed(clock_counter_before_update_and_render, clock_counter_after_update);
+        r32 rendering_time = get_seconds_elapsed(clock_counter_after_update, clock_counter_after_render);
+        r32 waiting_time = get_seconds_elapsed(clock_counter_after_render, clock_counter_after_wait);
+        
         // Get all keyboard events and set them in the new_input
         MSG msg;
         while(PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
@@ -323,9 +336,12 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
         }
 
         // Set timings in new_input
-        new_input.timing.dt = get_seconds_elapsed(clock_counter_before_update_and_render, clock_counter_before_wait);
-        new_input.timing.frame_times[new_input.timing.frame_index] = new_input.timing.dt;
-
+        new_input.timing.dt = get_seconds_elapsed(previous_clock_counter_after_wait, clock_counter_after_wait);
+        new_input.timing.frame_times[new_input.timing.frame_index].input_time = input_time;
+        new_input.timing.frame_times[new_input.timing.frame_index].updating_time = updating_time;
+        new_input.timing.frame_times[new_input.timing.frame_index].rendering_time = rendering_time;
+        new_input.timing.frame_times[new_input.timing.frame_index].waiting_time = waiting_time;
+        
         // Copy the new input (recieved via WindowProcedure and above) into the global input (TODO: shouldn't this be atomic by swapping pointers instead?)
         global_input = new_input;
         
@@ -377,14 +393,17 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
             new_input.touch.touch_count--;
         }
         
-        // Set new clock_counter_before_update_and_render
         clock_counter_before_update_and_render = get_clock_counter();
         
         // Update world
         update_frame();
         
+        clock_counter_after_update = get_clock_counter();
+        
         // Render world
         render_d2d(window);
+        
+        // Note: clock_counter_after_render is set inside render_d2d
         
         new_input.timing.frame_index++;
         if (new_input.timing.frame_index >= MAX_NR_OF_FRAMES_FOR_TIMING)
