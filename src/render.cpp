@@ -42,7 +42,7 @@ void draw_cross(i32 x, i32 y, i32 distance_from_center, i32 line_length, Color4 
               line_color, line_width);
 }
 
-b32 do_button(i32 x, i32 y, i32 width, i32 height, i32 number, b32 is_active, MouseInput * mouse_input)
+b32 do_button(i32 x, i32 y, i32 width, i32 height, i32 number, b32 is_active, MouseInput * mouse_input, TouchesInput * touches_input)
 {
     b32 is_hovered = false;
     b32 is_pressed = false;
@@ -54,6 +54,20 @@ b32 do_button(i32 x, i32 y, i32 width, i32 height, i32 number, b32 is_active, Mo
         if (mouse_input->left_button_has_gone_down)
         {
             is_pressed = true;
+        }
+    }
+    
+    if (touches_input->touch_count == 1)
+    {
+        TouchInput * touch_input = &touches_input->touches[0];
+        
+        if (touch_input->has_started)
+        {
+            if (touch_input->x >= x && touch_input->x <= x + width &&
+                touch_input->y >= y && touch_input->y <= y + height)
+            {
+                is_pressed = true;
+            }
         }
     }
     

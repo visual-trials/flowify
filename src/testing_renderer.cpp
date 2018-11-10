@@ -150,7 +150,7 @@ extern "C" {
             {
                 button_is_active = true;
             }
-            b32 button_is_pressed = do_button(20, 20 + page_index * (margin_between_buttons + height_button), width_button, height_button, page_index + 1, button_is_active, &global_input.mouse);
+            b32 button_is_pressed = do_button(20, 20 + page_index * (margin_between_buttons + height_button), width_button, height_button, page_index + 1, button_is_active, &global_input.mouse, &global_input.touch);
             
             if (button_is_pressed)
             {
@@ -175,6 +175,8 @@ extern "C" {
 
         draw_and_update_button_menu(world);
         
+        // Draw frame timing
+        draw_frame_timing(&global_input.timing, &global_input.screen);
     }
     
 }
