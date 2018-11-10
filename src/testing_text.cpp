@@ -159,7 +159,8 @@ extern "C" {
         }
 
         // Draw frame timing
-        draw_frame_timing(&global_input.timing, 100, 380);
+        b32 draw_tiny = false;
+        draw_frame_timing(&global_input.timing, 100, 380, draw_tiny);
     }
     
 }
