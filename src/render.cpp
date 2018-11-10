@@ -42,7 +42,7 @@ void draw_cross(i32 x, i32 y, i32 distance_from_center, i32 line_length, Color4 
               line_color, line_width);
 }
 
-void draw_frame_timing(Timing * timing, i32 x_start, i32 y_start, b32 draw_tiny = false)
+void draw_frame_timing(Timing * timing, Screen * screen, b32 draw_verbose = false)
 {
     
     i32 nr_of_bars_to_show = MAX_NR_OF_FRAMES_FOR_TIMING;
@@ -51,13 +51,16 @@ void draw_frame_timing(Timing * timing, i32 x_start, i32 y_start, b32 draw_tiny 
     i32 normal_bar_height = 100;
     r32 normal_value = (r32)1 / (r32)60; // TODO: should we put 60(fps) in a global?
     
-    if (draw_tiny)
+    if (!draw_verbose)
     {
         bar_width = 3;
         margin_between_bars = 0;
         normal_bar_height = 33;
         nr_of_bars_to_show = MAX_NR_OF_FRAMES_FOR_TIMING / 2;
     }
+    
+    i32 x_start = screen->width - nr_of_bars_to_show * (bar_width + margin_between_bars) - 50;
+    i32 y_start = screen->height - normal_bar_height - 50;
     
     Color4  input_color;
     input_color.r = 0;
@@ -113,7 +116,7 @@ void draw_frame_timing(Timing * timing, i32 x_start, i32 y_start, b32 draw_tiny 
         r32 rendering_time = timing->frame_times[frame_index].rendering_time;
         r32 waiting_time = timing->frame_times[frame_index].waiting_time;
 
-        if (draw_tiny)
+        if (!draw_verbose)
         {
             bar_start = y_start + normal_bar_height;
             bar_height = ((input_time + updating_time + rendering_time) / normal_value) * normal_bar_height;

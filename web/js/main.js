@@ -58,6 +58,11 @@ Flowify.main = function () {
             waitingTime
         )
         
+        my.wasmInstance.exports._set_screen_size(
+            Flowify.canvas.canvasElement.width,
+            Flowify.canvas.canvasElement.height
+        )
+        
         my.clockBeforeUpdateAndRender = performance.now()
         
         input.resetMouseData()

@@ -160,7 +160,7 @@ extern "C" {
         }
         
         // Draw frame timing
-        draw_frame_timing(&global_input.timing, 100, 350);
+        draw_frame_timing(&global_input.timing, &global_input.screen);
     }
     
 }

@@ -88,12 +88,19 @@ struct Timing
     i32 frame_index;
 };
 
+struct Screen
+{
+    i32 width;
+    i32 height;
+};
+
 struct Input
 {
     MouseInput     mouse;
     KeyboardInput  keyboard;
     TouchesInput   touch;
     Timing         timing;
+    Screen         screen;
 };
 
 Input global_input = {};
@@ -182,6 +189,12 @@ extern "C" {
         global_input.timing.frame_times[frame_index].updating_time = updating_time;
         global_input.timing.frame_times[frame_index].rendering_time = rendering_time;
         global_input.timing.frame_times[frame_index].waiting_time = waiting_time;
+    }
+    
+    void set_screen_size(i32 width, r32 height)
+    {
+        global_input.screen.width = width;
+        global_input.screen.height = height;
     }
     
 }
