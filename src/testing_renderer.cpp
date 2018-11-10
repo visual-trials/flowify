@@ -162,6 +162,7 @@ extern "C" {
             draw_arced_corner(300, 100, 20, 90, true, line_color, fill_color, line_width);
             draw_arced_corner(320, 120, 20, 180, true, line_color, fill_color, line_width);
             draw_arced_corner(320, 120, 20, 0, false, line_color, fill_color, line_width);
+            draw_arced_corner(260, 140, 20, 270, false, line_color, fill_color, line_width);
         }
         
     }
