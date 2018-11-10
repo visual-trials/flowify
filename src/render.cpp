@@ -42,6 +42,58 @@ void draw_cross(i32 x, i32 y, i32 distance_from_center, i32 line_length, Color4 
               line_color, line_width);
 }
 
+b32 do_button(i32 x, i32 y, i32 width, i32 height, i32 number, b32 is_active, MouseInput * mouse_input)
+{
+    b32 is_hovered = false;
+    b32 is_pressed = false;
+    
+    if (mouse_input->x >= x && mouse_input->x <= x + width &&
+        mouse_input->y >= y && mouse_input->y <= y + height)
+    {
+        is_hovered = true;
+        if (mouse_input->left_button_has_gone_down)
+        {
+            is_pressed = true;
+        }
+    }
+    
+    Color4 line_color;
+    line_color.r = 0;
+    line_color.g = 0;
+    line_color.b = 0;
+    line_color.a = 255;
+    
+    Color4 fill_color;
+    fill_color.r = 255;
+    fill_color.g = 255;
+    fill_color.b = 255;
+    fill_color.a = 255;
+    
+    if (is_active)
+    {
+        fill_color.r = 80;
+        fill_color.g = 80;
+        fill_color.b = 255;
+    }
+    else if (is_hovered)
+    {
+        fill_color.r = 200;
+        fill_color.g = 200;
+        fill_color.b = 200;
+    }
+    
+    i32 line_width = 1;
+    
+    draw_rounded_rectangle(x, y, width, height, 5, line_color, fill_color, line_width);
+    
+    ShortString decimal_string;
+    int_to_string(number, &decimal_string);
+    i32 font_height = 10;
+    draw_text(x + (width - font_height) / 2 , y + (height - font_height) / 2 , &decimal_string, font_height, line_color);
+    
+    return is_pressed;
+}
+
 void draw_frame_timing(Timing * timing, Screen * screen, b32 draw_verbose = false)
 {
     

@@ -20,10 +20,22 @@
 #include "input.cpp"
 #include "render.cpp"
 
+struct WorldData
+{
+    i32 active_page_index;
+    i32 nr_of_pages;
+};
+
+WorldData global_world = {};  // FIXME: allocate this properly!
+
 extern "C" {
     
     void init_world()
     {
+        WorldData * world = &global_world;
+        
+        world->active_page_index = 0;
+        world->nr_of_pages = 2;
     }
     
     void update_frame()
@@ -70,6 +82,30 @@ extern "C" {
         fill_color.a = 150;
         
         draw_rounded_rectangle(500, 200, 200, 350, 20, line_color, fill_color, 4);
+
+        // Menu
+        
+        WorldData * world = &global_world;
+        
+        i32 width_button = 50;
+        i32 height_button = 50;
+        i32 margin_between_buttons = 20;
+        
+        for (i32 page_index = 0; page_index < world->nr_of_pages; page_index++)
+        {
+            b32 button_is_active = false;
+            if (page_index == world->active_page_index)
+            {
+                button_is_active = true;
+            }
+            b32 button_is_pressed = do_button(20, 20 + page_index * (margin_between_buttons + height_button), width_button, height_button, page_index + 1, button_is_active, &global_input.mouse);
+            
+            if (button_is_pressed)
+            {
+                world->active_page_index = page_index;
+            }
+        }
+        
         
     }
     
