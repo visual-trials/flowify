@@ -200,8 +200,10 @@ Flowify.canvas = function () {
                 }
             },
             _jsDrawRect: function (x, y, width, height, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
-                x += 0.5
-                y += 0.5
+                // FIXME: the += 0.5 causes a seam when drawing one ArcedCorner adjacent to a rectangle!!
+                
+                // x += 0.5
+                // y += 0.5
                 ctx.beginPath()
                 ctx.rect(x, y, width, height)
 

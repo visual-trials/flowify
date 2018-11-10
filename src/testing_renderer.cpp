@@ -140,6 +140,7 @@ extern "C" {
         Color4 thin_line_color;
         Color4 line_color;
         Color4 fill_color;
+        Color4 no_color = {};
         
         thin_line_color.r = 200;
         thin_line_color.g = 200;
@@ -159,6 +160,7 @@ extern "C" {
         i32 line_width = 4;
 
         {
+            draw_rectangle(320, 100, 20, 20, no_color, fill_color, line_width);
             draw_arced_corner(300, 100, 20, 90, true, line_color, fill_color, line_width);
             draw_arced_corner(320, 120, 20, 180, true, line_color, fill_color, line_width);
             draw_arced_corner(320, 120, 20, 0, false, line_color, fill_color, line_width);
