@@ -113,6 +113,117 @@ void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r, Color4 l
     
 }
 
+void draw_arced_corner(i32 x, i32 y, i32 r, i32 rotation, i32 convex, 
+                       Color4 line_color, Color4 fill_color, i32 line_width)
+{
+    ID2D1SolidColorBrush * line_brush = 0;
+    ID2D1SolidColorBrush * fill_brush = 0;
+    
+    ID2D1PathGeometry * path_geometry = 0;
+    ID2D1GeometrySink * sink = 0;
+
+    D2D1_POINT_2F begin_point = D2D1::Point2F(x, y);
+    D2D1_POINT_2F middle_point;
+    D2D1_POINT_2F end_point;
+    
+    if (rotation == 0)
+    {
+        end_point = D2D1::Point2F(x + r, y + r);
+        if (convex)
+        {
+            middle_point = D2D1::Point2F(x, y + r);
+        }
+        else
+        {
+            middle_point = D2D1::Point2F(x + r, y);
+        }
+    }
+    else if (rotation == 90)
+    {
+        end_point = D2D1::Point2F(x - r, y + r);
+        if (convex)
+        {
+            middle_point = D2D1::Point2F(x - r, y);
+        }
+        else
+        {
+            middle_point = D2D1::Point2F(x, y + r);
+        }
+    }
+    else if (rotation == 180)
+    {
+        end_point = D2D1::Point2F(x - r, y - r);
+        if (convex)
+        {
+            middle_point = D2D1::Point2F(x, y - r);
+        }
+        else
+        {
+            middle_point = D2D1::Point2F(x - r, y);
+        }
+    }
+    else if (rotation == 270)
+    {
+        end_point = D2D1::Point2F(x + r, y - r);
+        if (convex)
+        {
+            middle_point = D2D1::Point2F(x + r, y);
+        }
+        else
+        {
+            middle_point = D2D1::Point2F(x, y - r);
+        }
+    }
+    
+    D2D1_ARC_SEGMENT arc_segment = D2D1::ArcSegment(
+        end_point,
+        D2D1::SizeF(r, r),
+        rotation,
+        D2D1_SWEEP_DIRECTION_CLOCKWISE,
+        D2D1_ARC_SIZE_SMALL  // means: smaller than 180 degrees
+    );  
+
+
+    if (fill_color.a)
+    {
+        d2d_factory->CreatePathGeometry(&path_geometry);
+        path_geometry->Open(&sink);
+        sink->SetFillMode(D2D1_FILL_MODE_WINDING);
+        sink->BeginFigure(begin_point, D2D1_FIGURE_BEGIN_FILLED);
+        sink->AddArc(arc_segment);
+        sink->AddLine(middle_point);
+        sink->EndFigure(D2D1_FIGURE_END_CLOSED);
+        sink->Close();
+        sink->Release();
+        
+        get_brush(fill_color, &fill_brush);
+        render_target->FillGeometry(path_geometry, fill_brush);
+        release_brush(fill_brush);
+        
+        path_geometry->Release();
+    }
+    
+    if (line_color.a)
+    {
+        d2d_factory->CreatePathGeometry(&path_geometry);
+        path_geometry->Open(&sink);
+        sink->SetFillMode(D2D1_FILL_MODE_WINDING);
+        sink->BeginFigure(begin_point, D2D1_FIGURE_BEGIN_FILLED);
+        sink->AddArc(arc_segment);
+        sink->EndFigure(D2D1_FIGURE_END_OPEN);
+        sink->Close();
+        sink->Release();
+        
+        get_brush(line_color, &line_brush);
+        render_target->DrawGeometry(path_geometry, line_brush, line_width);    
+        release_brush(line_brush);
+        
+        path_geometry->Release();
+    }
+    
+}
+
+
 // TODO: shouldn't we use radius x and radius y instead of using width and height?
 void draw_ellipse(i32 x, i32 y, i32 width, i32 height, 
                   Color4 line_color, Color4 fill_color, i32 line_width)
