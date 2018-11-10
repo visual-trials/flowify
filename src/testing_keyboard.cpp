@@ -306,6 +306,9 @@ extern "C" {
         draw_sequence(world);
         
         draw_keyboard(&input->keyboard, &world->keyboard_layout);
-    }
+        
+           // Draw frame timing
+        draw_frame_timing(&global_input.timing, &global_input.screen);
+ }
     
 }
