@@ -34,8 +34,8 @@ extern "C" {
     {
         WorldData * world = &global_world;
         
-        world->active_page_index = 0;
-        world->nr_of_pages = 2;
+        world->active_page_index = 2;
+        world->nr_of_pages = 3;
     }
     
     void update_frame()
@@ -135,6 +135,37 @@ extern "C" {
         
     }
     
+    void draw_lanes()
+    {
+        Color4 thin_line_color;
+        Color4 line_color;
+        Color4 fill_color;
+        
+        thin_line_color.r = 200;
+        thin_line_color.g = 200;
+        thin_line_color.b = 200;
+        thin_line_color.a = 255;
+        
+        line_color.r = 0;
+        line_color.g = 0;
+        line_color.b = 0;
+        line_color.a = 255;
+        
+        fill_color.r = 200;
+        fill_color.g = 200;
+        fill_color.b = 200;
+        fill_color.a = 255;
+        
+        i32 line_width = 4;
+
+        {
+            draw_arced_corner(300, 100, 20, 90, true, line_color, fill_color, line_width);
+            draw_arced_corner(320, 120, 20, 180, true, line_color, fill_color, line_width);
+            draw_arced_corner(320, 120, 20, 0, false, line_color, fill_color, line_width);
+        }
+        
+    }
+    
     void draw_and_update_button_menu(WorldData * world)
     {
         // Draw (and update) button menu
@@ -172,6 +203,11 @@ extern "C" {
         {
             draw_arced_corners();
         }
+        else if (world->active_page_index == 2)
+        {
+            draw_lanes();
+        }
+        
 
         draw_and_update_button_menu(world);
         
