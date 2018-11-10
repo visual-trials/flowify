@@ -53,16 +53,22 @@ void draw_rectangle(i32 x, i32 y, i32 width, i32 height, Color4 line_color, Colo
     ID2D1SolidColorBrush * line_brush = 0;
     ID2D1SolidColorBrush * fill_brush = 0;
     
-    get_brush(line_color, &line_brush);
-    get_brush(fill_color, &fill_brush);
-    
     D2D1_RECT_F rectangle = D2D1::RectF(x + 0.5, y + 0.5, x + width + 0.5,y + height + 0.5);
     
-    render_target->FillRectangle(&rectangle, fill_brush);
-    render_target->DrawRectangle(&rectangle, line_brush, line_width);
+    if (fill_color.a)
+    {
+        get_brush(fill_color, &fill_brush);
+        render_target->FillRectangle(&rectangle, fill_brush);
+        release_brush(fill_brush);
+    }
+    
+    if (line_color.a)
+    {
+        get_brush(line_color, &line_brush);
+        render_target->DrawRectangle(&rectangle, line_brush, line_width);
+        release_brush(line_brush);
+    }
 
-    release_brush(line_brush);
-    release_brush(fill_brush);
 }
 
 void draw_line(i32 x_start, i32 y_start, i32 x_end, i32 y_end, Color4 line_color, i32 line_width)
@@ -88,17 +94,23 @@ void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r, Color4 l
     ID2D1SolidColorBrush * line_brush = 0;
     ID2D1SolidColorBrush * fill_brush = 0;
     
-    get_brush(line_color, &line_brush);
-    get_brush(fill_color, &fill_brush);
-    
     D2D1_RECT_F rectangle = D2D1::RectF(x + 0.5, y + 0.5, x + width + 0.5,y + height + 0.5);
     D2D1_ROUNDED_RECT rounded_rectangle = D2D1::RoundedRect(rectangle, r, r);
     
-    render_target->FillRoundedRectangle(&rounded_rectangle, fill_brush);
-    render_target->DrawRoundedRectangle(&rounded_rectangle, line_brush, line_width);
-
-    release_brush(line_brush);
-    release_brush(fill_brush);
+    if (fill_color.a)
+    {
+        get_brush(fill_color, &fill_brush);
+        render_target->FillRoundedRectangle(&rounded_rectangle, fill_brush);
+        release_brush(fill_brush);
+    }
+    
+    if (line_color.a)
+    {
+        get_brush(line_color, &line_brush);
+        render_target->DrawRoundedRectangle(&rounded_rectangle, line_brush, line_width);
+        release_brush(line_brush);
+    }
+    
 }
 
 // TODO: shouldn't we use radius x and radius y instead of using width and height?
@@ -108,16 +120,21 @@ void draw_ellipse(i32 x, i32 y, i32 width, i32 height,
     ID2D1SolidColorBrush * line_brush = 0;
     ID2D1SolidColorBrush * fill_brush = 0;
     
-    get_brush(line_color, &line_brush);
-    get_brush(fill_color, &fill_brush);
-    
     D2D1_ELLIPSE ellipse = D2D1::Ellipse(D2D1::Point2F(x + 0.5 + (r32)width/(r32)2, y + 0.5 + (r32)height/(r32)2), (r32)width/(r32)2, (r32)height/(r32)2);
     
-    render_target->FillEllipse(&ellipse, fill_brush);
-    render_target->DrawEllipse(&ellipse, line_brush, line_width);
+    if (fill_color.a)
+    {
+        get_brush(fill_color, &fill_brush);
+        render_target->FillEllipse(&ellipse, fill_brush);
+        release_brush(fill_brush);
+    }
+    if (line_color.a)
+    {
+        get_brush(line_color, &line_brush);
+        render_target->DrawEllipse(&ellipse, line_brush, line_width);
+        release_brush(line_brush);
+    }
     
-    release_brush(line_brush);
-    release_brush(fill_brush);
 }
 
 void draw_text(i32 x, i32 y, ShortString * text, i32 font_height, Color4 font_color)

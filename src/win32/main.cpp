@@ -341,7 +341,13 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
         new_input.timing.frame_times[new_input.timing.frame_index].updating_time = updating_time;
         new_input.timing.frame_times[new_input.timing.frame_index].rendering_time = rendering_time;
         new_input.timing.frame_times[new_input.timing.frame_index].waiting_time = waiting_time;
-        
+
+        // Set screen size
+        RECT window_rect;
+        GetClientRect(window, &window_rect);
+        new_input.screen.width = window_rect.right - window_rect.left;
+        new_input.screen.height = window_rect.bottom - window_rect.top;
+
         // Copy the new input (recieved via WindowProcedure and above) into the global input (TODO: shouldn't this be atomic by swapping pointers instead?)
         global_input = new_input;
         
