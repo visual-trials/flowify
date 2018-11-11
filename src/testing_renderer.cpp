@@ -196,6 +196,12 @@ extern "C" {
     
     void draw_pixel_borders()
     {
+        
+        // See articles about DPI awareness / High DPI screens :
+        
+        // In browser: https://www.html5rocks.com/en/tutorials/canvas/hidpi/
+        // Native: https://docs.microsoft.com/en-us/windows/desktop/learnwin32/dpi-and-device-independent-pixels
+        
         Color4 black = {};
         Color4 red = {};
         Color4 blue = {};
@@ -237,6 +243,11 @@ extern "C" {
         int_to_string(global_input.screen.height, &height_text);
 
         draw_text(500, 300, &height_text, 10, black);
+        
+        black.a = 100;
+        draw_rectangle(100, 0, 50, 50, no_color, black, 1);
+        draw_rectangle(150, 40, 50, 50, no_color, black, 1);
+
 
     }
     
