@@ -197,10 +197,11 @@ extern "C" {
     void draw_pixel_borders()
     {
         
-        // See articles about DPI awareness / High DPI screens :
-        
+        // Also see articles about DPI awareness / High DPI screens :
         // In browser: https://www.html5rocks.com/en/tutorials/canvas/hidpi/
         // Native: https://docs.microsoft.com/en-us/windows/desktop/learnwin32/dpi-and-device-independent-pixels
+
+        // Below we are trying to figure out if and how adjacent lines/rects behave
         
         Color4 black = {};
         Color4 red = {};
