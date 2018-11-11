@@ -232,6 +232,12 @@ extern "C" {
         draw_line(30, 503, 80, 503, white, 1);
         draw_line(40, 504, 90, 504, red, 1);
         draw_line(50, 505, 250, 505, black, 1);
+
+        ShortString height_text;
+        int_to_string(global_input.screen.height, &height_text);
+
+        draw_text(500, 300, &height_text, 10, black);
+
     }
     
     void render_frame()
