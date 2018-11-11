@@ -200,6 +200,8 @@ extern "C" {
         // Also see articles about DPI awareness / High DPI screens :
         // In browser: https://www.html5rocks.com/en/tutorials/canvas/hidpi/
         // Native: https://docs.microsoft.com/en-us/windows/desktop/learnwin32/dpi-and-device-independent-pixels
+        //         https://docs.microsoft.com/en-us/windows/desktop/hidpi/high-dpi-desktop-application-development-on-windows
+        //         https://technet.microsoft.com/en-us/evalcenter/dn469266(v=vs.90)
 
         // Below we are trying to figure out if and how adjacent lines/rects behave
         
