@@ -34,8 +34,8 @@ extern "C" {
     {
         WorldData * world = &global_world;
         
-        world->active_page_index = 2;
-        world->nr_of_pages = 3;
+        world->active_page_index = 3;
+        world->nr_of_pages = 4;
     }
     
     void update_frame()
@@ -194,6 +194,46 @@ extern "C" {
         
     }
     
+    void draw_pixel_borders()
+    {
+        Color4 black = {};
+        Color4 red = {};
+        Color4 blue = {};
+        Color4 green = {};
+        Color4 white = {};
+        Color4 no_color = {};
+        
+        black.a = 255;
+        
+        red.r = 255;
+        red.a = 255;
+        
+        blue.b = 255;
+        blue.a = 255;
+        
+        green.g = 255;
+        green.a = 255;
+        
+        white.r = 255;
+        white.g = 255;
+        white.b = 255;
+        white.a = 255;
+        
+        draw_line(0, 0, 50, 0, red, 1);
+        draw_line(10, 1, 60, 1, blue, 1);
+        draw_line(20, 2, 70, 2, green, 1);
+        draw_line(30, 3, 80, 3, white, 1);
+        draw_line(40, 4, 90, 4, red, 1);
+        draw_line(50, 5, 250, 5, black, 1);
+        
+        draw_line(0, 500, 50, 500, red, 1);
+        draw_line(10, 501, 60, 501, blue, 1);
+        draw_line(20, 502, 70, 502, green, 1);
+        draw_line(30, 503, 80, 503, white, 1);
+        draw_line(40, 504, 90, 504, red, 1);
+        draw_line(50, 505, 250, 505, black, 1);
+    }
+    
     void render_frame()
     {
         WorldData * world = &global_world;
@@ -209,6 +249,10 @@ extern "C" {
         else if (world->active_page_index == 2)
         {
             draw_lanes();
+        }
+        else if (world->active_page_index == 3)
+        {
+            draw_pixel_borders();
         }
         
 
