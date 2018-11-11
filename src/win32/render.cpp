@@ -53,7 +53,7 @@ void draw_rectangle(i32 x, i32 y, i32 width, i32 height, Color4 line_color, Colo
     ID2D1SolidColorBrush * line_brush = 0;
     ID2D1SolidColorBrush * fill_brush = 0;
     
-    D2D1_RECT_F rectangle = D2D1::RectF(x + 0.5, y + 0.5, x + width + 0.5,y + height + 0.5);
+    D2D1_RECT_F rectangle = D2D1::RectF(x, y, x + width,y + height);
     
     if (fill_color.a)
     {
@@ -94,7 +94,7 @@ void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r, Color4 l
     ID2D1SolidColorBrush * line_brush = 0;
     ID2D1SolidColorBrush * fill_brush = 0;
     
-    D2D1_RECT_F rectangle = D2D1::RectF(x + 0.5, y + 0.5, x + width + 0.5,y + height + 0.5);
+    D2D1_RECT_F rectangle = D2D1::RectF(x, y, x + width,y + height);
     D2D1_ROUNDED_RECT rounded_rectangle = D2D1::RoundedRect(rectangle, r, r);
     
     if (fill_color.a)
@@ -231,7 +231,7 @@ void draw_ellipse(i32 x, i32 y, i32 width, i32 height,
     ID2D1SolidColorBrush * line_brush = 0;
     ID2D1SolidColorBrush * fill_brush = 0;
     
-    D2D1_ELLIPSE ellipse = D2D1::Ellipse(D2D1::Point2F(x + 0.5 + (r32)width/(r32)2, y + 0.5 + (r32)height/(r32)2), (r32)width/(r32)2, (r32)height/(r32)2);
+    D2D1_ELLIPSE ellipse = D2D1::Ellipse(D2D1::Point2F(x + (r32)width/(r32)2, y + (r32)height/(r32)2), (r32)width/(r32)2, (r32)height/(r32)2);
     
     if (fill_color.a)
     {
@@ -275,7 +275,7 @@ void draw_text(i32 x, i32 y, ShortString * text, i32 font_height, Color4 font_co
             (LPWSTR)wide_text,
             text->length,
             text_format,
-            D2D1::RectF(x + 0.5, y + 0.5, x + 0.5 + 200, y + 0.5 + 100), // FIXME: how to determine size of text?
+            D2D1::RectF(x, y, x + 200, y + 100), // FIXME: how to determine size of text?
             font_brush
     );
             
