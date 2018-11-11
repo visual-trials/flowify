@@ -100,12 +100,7 @@ Flowify.canvas = function () {
         
         let exportedFunctions = {
             
-            // Note: we are adjusting all x's and y's with 0.5 pixels. This is because canvas/html5 draws lines
-            //       *in between* pixels (which we don't want). By adding 0.5 we draw *on* the pixel.
-        
             _jsDrawRoundedRect: function (x, y, width, height, r, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
-                //x += 0.5
-                //y += 0.5
                 ctx.beginPath()     
                 ctx.moveTo(x + r, y)
                 ctx.arcTo(x + width, y, x + width, y + height, r)
@@ -127,11 +122,6 @@ Flowify.canvas = function () {
             },
             
             _jsDrawArcedCorner: function (x, y, r, rotation, convex, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
-                
-                // FIXME: the += 0.5 causes a seam when drawing two ArcedCorners adjacent to each other!!
-                
-                // x += 0.5
-                // y += 0.5
                 
                 if (fillColorAlpha) {
                     ctx.beginPath()     
@@ -200,10 +190,7 @@ Flowify.canvas = function () {
                 }
             },
             _jsDrawRect: function (x, y, width, height, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
-                // FIXME: the += 0.5 causes a seam when drawing one ArcedCorner adjacent to a rectangle!!
-                
-                // x += 0.5
-                // y += 0.5
+
                 ctx.beginPath()
                 ctx.rect(x, y, width, height)
 
@@ -221,11 +208,6 @@ Flowify.canvas = function () {
             
             _jsDrawLine: function (xStart, yStart, xEnd, yEnd, lineColorRGB, lineColorAlpha, lineWidth) {
                 
-                // xStart += 0.5
-                // yStart += 0.5
-                // xEnd += 0.5
-                // yEnd += 0.5
-                
                 ctx.beginPath()
                 ctx.moveTo(xStart, yStart)
                 ctx.lineTo(xEnd, yEnd)
@@ -238,8 +220,6 @@ Flowify.canvas = function () {
             },
             
             _jsDrawEllipse: function (x, y, width, height, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
-                //x += 0.5
-                //y += 0.5
                 
                 function drawEllipseIE(x, y, w, h) {
                     
@@ -281,8 +261,7 @@ Flowify.canvas = function () {
             },
             
             _jsDrawText: function (x, y, stringIndex, stringLength, fontHeight, fontColorRGB, fontColorAlpha) { // , baseFontIndex, baseFontLength) {
-                //x += 0.5
-                //y += 0.5
+
                 let string = ""
                 for (let i = stringIndex; i < stringIndex + stringLength; i++) {
                     string += String.fromCharCode(Flowify.main.bufferU8[i])
