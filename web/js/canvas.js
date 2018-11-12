@@ -207,6 +207,12 @@ Flowify.canvas = function () {
             },
             
             _jsDrawLine: function (xStart, yStart, xEnd, yEnd, lineColorRGB, lineColorAlpha, lineWidth) {
+
+                // TODO: figure out when exactly to add 0.5!
+                //xStart += 0.5
+                yStart += 0.5
+                //xEnd += 0.5
+                yEnd += 0.5
                 
                 ctx.beginPath()
                 ctx.moveTo(xStart, yStart)
