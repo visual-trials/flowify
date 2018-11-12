@@ -243,6 +243,10 @@ extern "C" {
         draw_line(40, 504, 90, 504, red, 1);
         draw_line(50, 505, 250, 505, black, 1);
 
+        draw_line(5, 5, 25, 25, black, 1);
+
+        draw_line(5, 10, 5, 25, black, 1);
+
         ShortString height_text;
         int_to_string(global_input.screen.height, &height_text);
 
