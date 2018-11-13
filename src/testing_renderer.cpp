@@ -159,6 +159,7 @@ extern "C" {
         
         i32 line_width = 4;
 
+        /*
         {
             draw_rectangle(320, 100, 20, 20, no_color, fill_color, line_width);
             draw_arced_corner(300, 100, 20, 90, true, line_color, fill_color, line_width);
@@ -166,18 +167,55 @@ extern "C" {
             draw_arced_corner(320, 120, 20, 0, false, line_color, fill_color, line_width);
             draw_arced_corner(260, 140, 20, 270, false, line_color, fill_color, line_width);
         }
+        */
         
         {
-            draw_lane_segment(250, 500, 300, 
-                              100, 550, 400, 
+            // IDEA: remember the *ENDING* x1, x2 and y of the previous segment and use it
+            //       as *STARTING* x1, x2 and y of the next segment.
+            
+            // Start narrow and do widening
+            draw_lane_segment(250, 500, 50, 
+                              150, 550, 200, 
                               20, line_color, fill_color, line_width);
             
-            draw_lane_segment(100, 400, 400, 
-                              100, 350, 440, 
+            // Going left
+            draw_lane_segment(150, 400, 200, 
+                              150, 350, 240, 
                               20, line_color, fill_color, line_width);
             
-            draw_lane_segment(400, 550, 400, 
-                              450, 550, 440, 
+            // Extending left
+            draw_lane_segment(150, 350, 240, 
+                              150, 350, 500, 
+                              20, line_color, fill_color, line_width);
+                             
+            // Going right
+            draw_lane_segment(400, 550, 200, 
+                              450, 550, 240, 
+                              20, line_color, fill_color, line_width);
+                              
+            // Extending right
+            draw_lane_segment(450, 550, 240, 
+                              450, 600, 280, 
+                              20, line_color, fill_color, line_width);
+                              
+            // Extending right
+            draw_lane_segment(450, 600, 280, 
+                              450, 600, 500, 
+                              20, line_color, fill_color, line_width);
+                              
+            // Left back to middle
+            draw_lane_segment(150, 350, 500, 
+                              150, 400, 540, 
+                              20, line_color, fill_color, line_width);
+            
+            // Right back to middle
+            draw_lane_segment(450, 600, 500, 
+                              400, 600, 540, 
+                              20, line_color, fill_color, line_width);
+                              
+            // Combining left and right
+            draw_lane_segment(150, 600, 540, 
+                              300, 500, 650, 
                               20, line_color, fill_color, line_width);
         }
         
