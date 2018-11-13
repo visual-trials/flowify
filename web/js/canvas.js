@@ -129,6 +129,12 @@ Flowify.canvas = function () {
                 }
             },
             
+            _jsDrawLaneSegment: function (leftTopX, rightTopX, topY, leftBottomX, rightBottomX, bottomY, radius, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
+                // Draw background
+                // Draw left side
+                // Draw right side
+            },
+            
             _jsDrawArcedCorner: function (x, y, r, rotation, convex, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
                 
                 if (fillColorAlpha) {

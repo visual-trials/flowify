@@ -34,7 +34,7 @@ extern "C" {
     {
         WorldData * world = &global_world;
         
-        world->active_page_index = 3;
+        world->active_page_index = 2;
         world->nr_of_pages = 4;
     }
     
@@ -154,7 +154,7 @@ extern "C" {
         
         fill_color.r = 200;
         fill_color.g = 200;
-        fill_color.b = 200;
+        fill_color.b = 250;
         fill_color.a = 255;
         
         i32 line_width = 4;
@@ -165,6 +165,14 @@ extern "C" {
             draw_arced_corner(320, 120, 20, 180, true, line_color, fill_color, line_width);
             draw_arced_corner(320, 120, 20, 0, false, line_color, fill_color, line_width);
             draw_arced_corner(260, 140, 20, 270, false, line_color, fill_color, line_width);
+        }
+        
+        {
+            draw_lane_segment(250, 500, 300, 
+                              100, 550, 350, 
+                              20, line_color, fill_color, line_width);
+            
+            
         }
         
     }
