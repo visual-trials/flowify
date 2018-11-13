@@ -227,7 +227,7 @@ inline r32 get_seconds_elapsed(LARGE_INTEGER start_counter, LARGE_INTEGER end_co
 
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, int cmd_show)
 {
-    // TODO: this only works in Windows 10!
+    // FIXME: this only works in Windows 10! And it doesn't work for direct2d!
     // SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE);
     
     OutputDebugStringA("Starting!\n");
