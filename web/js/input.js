@@ -127,8 +127,8 @@ Flowify.input = function () {
     my.mouseMoved = function (e) {
         my.mouseHasMoved = true
 
-        my.mousePositionLeft = e.offsetX
-        my.mousePositionTop = e.offsetY
+        my.mousePositionLeft = e.offsetX * Flowify.canvas.scale
+        my.mousePositionTop = e.offsetY * Flowify.canvas.scale
 
         e.preventDefault()
     }
@@ -136,8 +136,8 @@ Flowify.input = function () {
     my.mouseEntered = function (e) {
         // TODO: my.mouseHasEntered = true
         
-        my.mousePositionLeft = e.offsetX
-        my.mousePositionTop = e.offsetY
+        my.mousePositionLeft = e.offsetX * Flowify.canvas.scale
+        my.mousePositionTop = e.offsetY * Flowify.canvas.scale
 
         e.preventDefault()
     }
@@ -145,8 +145,8 @@ Flowify.input = function () {
     my.mouseExited = function (e) {
         // TODO: my.mouseHasExited = true
 
-        my.mousePositionLeft = e.offsetX
-        my.mousePositionTop = e.offsetY
+        my.mousePositionLeft = e.offsetX * Flowify.canvas.scale
+        my.mousePositionTop = e.offsetY * Flowify.canvas.scale
 
         e.preventDefault()
     }
@@ -373,8 +373,8 @@ Flowify.input = function () {
             newTouch.hasStarted = true
             newTouch.hasEnded = false
             newTouch.wasCanceled = false
-            newTouch.positionLeft = changedTouch.pageX
-            newTouch.positionTop = changedTouch.pageY
+            newTouch.positionLeft = changedTouch.pageX * Flowify.canvas.scale
+            newTouch.positionTop = changedTouch.pageY * Flowify.canvas.scale
             
             my.touches[changedTouch.identifier] = newTouch
             
@@ -396,12 +396,12 @@ Flowify.input = function () {
                 endedTouch.hasEnded = true
                 // TODO: should we do this?: endedTouch.touchHasStarted = false
                 
-                if (endedTouch.positionLeft !== changedTouch.pageX || 
-                    endedTouch.positionTop !== changedTouch.pageY) {
+                if (endedTouch.positionLeft !== changedTouch.pageX * Flowify.canvas.scale || 
+                    endedTouch.positionTop !== changedTouch.pageY * Flowify.canvas.scale) {
                         
                     endedTouch.hasMoved = true
-                    endedTouch.positionLeft = changedTouch.pageX
-                    endedTouch.positionTop = changedTouch.pageY
+                    endedTouch.positionLeft = changedTouch.pageX * Flowify.canvas.scale
+                    endedTouch.positionTop = changedTouch.pageY * Flowify.canvas.scale
                 }
             }
             else {
@@ -443,8 +443,8 @@ Flowify.input = function () {
             if (my.touches.hasOwnProperty(changedTouch.identifier)) {
                 let movedTouch = my.touches[changedTouch.identifier]
                 movedTouch.hasMoved = true
-                movedTouch.positionLeft = changedTouch.pageX
-                movedTouch.positionTop = changedTouch.pageY
+                movedTouch.positionLeft = changedTouch.pageX * Flowify.canvas.scale
+                movedTouch.positionTop = changedTouch.pageY * Flowify.canvas.scale
             }
             else {
                 console.log("ERROR: touch moved that did not start!")
