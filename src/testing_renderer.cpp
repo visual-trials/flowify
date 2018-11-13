@@ -229,6 +229,13 @@ extern "C" {
         white.b = 255;
         white.a = 255;
         
+        //draw_line(0, 0, 50, 0, red, 1);
+        // draw_line(0, 0, 50, 0, red, 1);
+        draw_rectangle(0, 0, 2, 2, no_color, black, 1);
+        draw_rectangle(2, 2, 3, 3, no_color, black, 1);
+        draw_rectangle(10, 0, 2, 2, black, no_color, 1);
+        draw_rectangle(12, 2, 3, 3, black, no_color, 1);
+        /*
         draw_line(0, 0, 50, 0, red, 1);
         draw_line(10, 1, 60, 1, blue, 1);
         draw_line(20, 2, 70, 2, green, 1);
@@ -242,6 +249,7 @@ extern "C" {
         draw_line(30, 503, 80, 503, white, 1);
         draw_line(40, 504, 90, 504, red, 1);
         draw_line(50, 505, 250, 505, black, 1);
+        */
 
         draw_line(0, 900, 50, 900, red, 1);
         
