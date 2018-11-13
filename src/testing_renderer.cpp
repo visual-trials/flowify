@@ -152,9 +152,9 @@ extern "C" {
         line_color.b = 0;
         line_color.a = 255;
         
-        fill_color.r = 200;
-        fill_color.g = 200;
-        fill_color.b = 250;
+        fill_color.r = 180;
+        fill_color.g = 180;
+        fill_color.b = 255;
         fill_color.a = 255;
         
         i32 line_width = 4;
