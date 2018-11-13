@@ -172,7 +172,13 @@ extern "C" {
                               100, 550, 400, 
                               20, line_color, fill_color, line_width);
             
+            draw_lane_segment(100, 400, 400, 
+                              100, 350, 500, 
+                              20, line_color, fill_color, line_width);
             
+            draw_lane_segment(400, 550, 400, 
+                              450, 550, 500, 
+                              20, line_color, fill_color, line_width);
         }
         
     }
