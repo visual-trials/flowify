@@ -65,9 +65,17 @@ Flowify.canvas = function () {
 
     my.resizeCanvasToWindowSize = function () {
         if ( my.canvasElement.width != window.innerWidth || my.canvasElement.height != window.innerHeight) {
-            my.canvasElement.width = window.innerWidth
-            my.canvasElement.height = window.innerHeight
+            let scale = 1
+            if (window.devicePixelRatio) {
+                scale = window.devicePixelRatio
+            }        
+            my.canvasElement.style.width = window.innerWidth
+            my.canvasElement.style.height = window.innerHeight
+            my.canvasElement.width = window.innerWidth * scale
+            my.canvasElement.height = window.innerHeight * scale
+            // my.context2d.scale(scale, scale);  // apparently, this is not need. Maybe because it "scales to fit" somehow?
         }
+        
     }
 
     my.resizeCanvasToCustomSize = function (customSize) {
@@ -210,9 +218,9 @@ Flowify.canvas = function () {
 
                 // TODO: figure out when exactly to add 0.5!
                 //xStart += 0.5
-                yStart += 0.5
+                //yStart += 0.5
                 //xEnd += 0.5
-                yEnd += 0.5
+                //yEnd += 0.5
                 
                 ctx.beginPath()
                 ctx.moveTo(xStart, yStart)
