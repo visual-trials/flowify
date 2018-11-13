@@ -169,7 +169,7 @@ extern "C" {
         
         {
             draw_lane_segment(250, 500, 300, 
-                              100, 550, 350, 
+                              100, 550, 400, 
                               20, line_color, fill_color, line_width);
             
             

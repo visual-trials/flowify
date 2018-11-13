@@ -130,9 +130,107 @@ Flowify.canvas = function () {
             },
             
             _jsDrawLaneSegment: function (leftTopX, rightTopX, topY, leftBottomX, rightBottomX, bottomY, radius, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
-                // Draw background
-                // Draw left side
-                // Draw right side
+                
+                // FIXME: shouldn't we have middleY as argument?
+                let middleY = topY + (bottomY - topY) / 2
+                
+                if (fillColorAlpha) {
+                    // Draw background
+                    
+                    ctx.beginPath()
+                    
+                    // Left side (top to bottom)
+                    ctx.moveTo(leftTopX, topY)
+                    if (leftBottomX < leftTopX) {
+                        // bottom is to the left of the top
+                        ctx.arcTo(leftTopX, middleY, leftTopX - radius, middleY, radius)
+                        ctx.arcTo(leftBottomX, middleY, leftBottomX, middleY + radius, radius)
+                        ctx.lineTo(leftBottomX, bottomY)
+                    }
+                    if (leftBottomX > leftTopX) {
+                        // bottom is to the right of the top
+                        ctx.arcTo(leftTopX, middleY, leftTopX + radius, middleY, radius)
+                        ctx.arcTo(leftBottomX, middleY, leftBottomX, middleY + radius, radius)
+                        ctx.lineTo(leftBottomX, bottomY)
+                    }
+                    else {
+                        // straight vertical line
+                        ctx.lineTo(leftBottomX, bottomY)
+                    }
+                    
+                    // Right side (bottom to top)
+                    ctx.lineTo(rightBottomX, bottomY)
+                    if (rightBottomX < rightTopX) {
+                        // bottom is to the left of the top
+                        ctx.arcTo(rightBottomX, middleY, rightBottomX + radius, middleY, radius)
+                        ctx.arcTo(rightTopX, middleY, rightTopX, middleY - radius, radius)
+                        ctx.lineTo(rightTopX, topY)
+                    }
+                    if (rightBottomX > rightTopX) {
+                        // bottom is to the right of the top
+                        ctx.arcTo(rightBottomX, middleY, rightBottomX - radius, middleY, radius)
+                        ctx.arcTo(rightTopX, middleY, rightTopX, middleY - radius, radius)
+                        ctx.lineTo(rightTopX, topY)
+                    }
+                    else {
+                        // straight vertical line
+                        ctx.lineTo(rightTopX, topY)
+                    }
+                    
+                    ctx.closePath()
+                
+                    ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
+                    ctx.fill()
+                }
+                
+                if (lineColorAlpha) {
+                    // Draw left side
+                    ctx.beginPath()     
+                    ctx.moveTo(leftTopX, topY)
+                    if (leftBottomX < leftTopX) {
+                        // bottom is to the left of the top
+                        ctx.arcTo(leftTopX, middleY, leftTopX - radius, middleY, radius)
+                        ctx.arcTo(leftBottomX, middleY, leftBottomX, middleY + radius, radius)
+                        ctx.lineTo(leftBottomX, bottomY)
+                    }
+                    if (leftBottomX > leftTopX) {
+                        // bottom is to the right of the top
+                        ctx.arcTo(leftTopX, middleY, leftTopX + radius, middleY, radius)
+                        ctx.arcTo(leftBottomX, middleY, leftBottomX, middleY + radius, radius)
+                        ctx.lineTo(leftBottomX, bottomY)
+                    }
+                    else {
+                        // straight vertical line
+                        ctx.lineTo(leftBottomX, bottomY)
+                    }
+                    ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
+                    ctx.lineWidth = lineWidth
+                    ctx.stroke()
+                    
+                    // Draw right side
+                    
+                    ctx.beginPath()     
+                    ctx.moveTo(rightTopX, topY)
+                    if (rightBottomX < rightTopX) {
+                        // bottom is to the left of the top
+                        ctx.arcTo(rightTopX, middleY, rightTopX - radius, middleY, radius)
+                        ctx.arcTo(rightBottomX, middleY, rightBottomX, middleY + radius, radius)
+                        ctx.lineTo(rightBottomX, bottomY)
+                    }
+                    if (rightBottomX > rightTopX) {
+                        // bottom is to the right of the top
+                        ctx.arcTo(rightTopX, middleY, rightTopX + radius, middleY, radius)
+                        ctx.arcTo(rightBottomX, middleY, rightBottomX, middleY + radius, radius)
+                        ctx.lineTo(rightBottomX, bottomY)
+                    }
+                    else {
+                        // straight vertical line
+                        ctx.lineTo(rightBottomX, bottomY)
+                    }
+                    ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
+                    ctx.lineWidth = lineWidth
+                    ctx.stroke()
+                }
             },
             
             _jsDrawArcedCorner: function (x, y, r, rotation, convex, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
