@@ -54,6 +54,8 @@ struct WorldData
     u32 first_entity_index;
     u32 second_entity_index;
     u32 third_entity_index;
+    
+    b32 verbose_frame_times;
 };
 
 WorldData global_world = {};  // FIXME: allocate this properly!
@@ -160,7 +162,7 @@ extern "C" {
         }
         
         // Draw frame timing
-        draw_frame_timing(&global_input.timing, &global_input.screen);
+        do_frame_timing(&global_input, &world->verbose_frame_times);
     }
     
 }

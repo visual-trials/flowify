@@ -24,6 +24,7 @@ struct WorldData
 {
     i32 active_page_index;
     i32 nr_of_pages;
+    b32 verbose_frame_times;
 };
 
 WorldData global_world = {};  // FIXME: allocate this properly!
@@ -346,7 +347,7 @@ extern "C" {
         draw_and_update_button_menu(world);
         
         // Draw frame timing
-        draw_frame_timing(&global_input.timing, &global_input.screen);
+        do_frame_timing(&global_input, &world->verbose_frame_times);
     }
     
 }

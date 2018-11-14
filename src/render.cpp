@@ -42,18 +42,23 @@ void draw_cross(i32 x, i32 y, i32 distance_from_center, i32 line_length, Color4 
               line_color, line_width);
 }
 
-b32 do_button(i32 x, i32 y, i32 width, i32 height, i32 number, b32 is_active, MouseInput * mouse_input, TouchesInput * touches_input)
+struct HoveredOrPressed
 {
-    b32 is_hovered = false;
-    b32 is_pressed = false;
+    b32 is_hovered;
+    b32 is_pressed;
+};
+
+HoveredOrPressed check_hovered_or_pressed(i32 x, i32 y, i32 width, i32 height, MouseInput * mouse_input, TouchesInput * touches_input)
+{
+    HoveredOrPressed result = {};
     
     if (mouse_input->x >= x && mouse_input->x <= x + width &&
         mouse_input->y >= y && mouse_input->y <= y + height)
     {
-        is_hovered = true;
+        result.is_hovered = true;
         if (mouse_input->left_button_has_gone_down)
         {
-            is_pressed = true;
+            result.is_pressed = true;
         }
     }
     
@@ -66,10 +71,18 @@ b32 do_button(i32 x, i32 y, i32 width, i32 height, i32 number, b32 is_active, Mo
             if (touch_input->x >= x && touch_input->x <= x + width &&
                 touch_input->y >= y && touch_input->y <= y + height)
             {
-                is_pressed = true;
+                result.is_pressed = true;
             }
         }
     }
+    
+    return result;
+}
+
+b32 do_button(i32 x, i32 y, i32 width, i32 height, i32 number, b32 is_active, MouseInput * mouse_input, TouchesInput * touches_input)
+{
+    
+    HoveredOrPressed hovered_or_pressed = check_hovered_or_pressed(x, y, width, height, mouse_input, touches_input);
     
     Color4 line_color;
     line_color.r = 0;
@@ -89,7 +102,7 @@ b32 do_button(i32 x, i32 y, i32 width, i32 height, i32 number, b32 is_active, Mo
         fill_color.g = 80;
         fill_color.b = 255;
     }
-    else if (is_hovered)
+    else if (hovered_or_pressed.is_hovered)
     {
         fill_color.r = 200;
         fill_color.g = 200;
@@ -105,11 +118,15 @@ b32 do_button(i32 x, i32 y, i32 width, i32 height, i32 number, b32 is_active, Mo
     i32 font_height = 10;
     draw_text(x + (width - font_height) / 2 , y + (height - font_height) / 2 , &decimal_string, font_height, line_color);
     
-    return is_pressed;
+    return hovered_or_pressed.is_pressed;
 }
 
-void draw_frame_timing(Timing * timing, Screen * screen, b32 draw_verbose = false)
+void do_frame_timing(Input * input, b32 * is_verbose)
 {
+    Timing * timing = &input->timing;
+    Screen * screen = &input->screen;
+    MouseInput * mouse_input = &input->mouse;
+    TouchesInput * touches_input = &input->touch;
     
     i32 nr_of_bars_to_show = MAX_NR_OF_FRAMES_FOR_TIMING;
     i32 bar_width = 6;
@@ -117,7 +134,7 @@ void draw_frame_timing(Timing * timing, Screen * screen, b32 draw_verbose = fals
     i32 normal_bar_height = 100;
     r32 normal_value = (r32)1 / (r32)60; // TODO: should we put 60(fps) in a global?
     
-    if (!draw_verbose)
+    if (!*is_verbose)
     {
         bar_width = 3;
         margin_between_bars = 0;
@@ -182,7 +199,7 @@ void draw_frame_timing(Timing * timing, Screen * screen, b32 draw_verbose = fals
         r32 rendering_time = timing->frame_times[frame_index].rendering_time;
         r32 waiting_time = timing->frame_times[frame_index].waiting_time;
 
-        if (!draw_verbose)
+        if (!*is_verbose)
         {
             bar_start = y_start + normal_bar_height;
             bar_height = ((input_time + updating_time + rendering_time) / normal_value) * normal_bar_height;
@@ -242,5 +259,10 @@ void draw_frame_timing(Timing * timing, Screen * screen, b32 draw_verbose = fals
         }
     }
     
+    HoveredOrPressed hovered_or_pressed = check_hovered_or_pressed(x_start, y_start, graph_width, normal_bar_height, mouse_input, touches_input);
     
+    if (hovered_or_pressed.is_pressed)
+    {
+        *is_verbose = !*is_verbose;
+    }
 }

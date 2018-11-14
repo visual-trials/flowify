@@ -49,6 +49,8 @@ struct WorldData
     u8 key_sequence[MAX_KEY_SEQUENCE];
     
     KeyboardLayout keyboard_layout;
+    
+    b32 verbose_frame_times;
 };
 
 WorldData global_world = {};  // FIXME: allocate this properly!
@@ -307,8 +309,8 @@ extern "C" {
         
         draw_keyboard(&input->keyboard, &world->keyboard_layout);
         
-           // Draw frame timing
-        draw_frame_timing(&global_input.timing, &global_input.screen);
- }
+        // Draw frame timing
+        do_frame_timing(&global_input, &world->verbose_frame_times);
+    }
     
 }
