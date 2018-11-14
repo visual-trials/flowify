@@ -35,8 +35,8 @@ extern "C" {
     {
         WorldData * world = &global_world;
         
-        world->active_page_index = 2;
-        world->nr_of_pages = 4;
+        world->active_page_index = 1;
+        world->nr_of_pages = 3;
     }
     
     void update_frame()
@@ -85,57 +85,6 @@ extern "C" {
         draw_rounded_rectangle(500, 200, 200, 350, 20, line_color, fill_color, 4);
     }
     
-    void draw_arced_corners()
-    {
-        Color4 thin_line_color;
-        Color4 line_color;
-        Color4 fill_color;
-        
-        thin_line_color.r = 200;
-        thin_line_color.g = 200;
-        thin_line_color.b = 200;
-        thin_line_color.a = 255;
-        
-        line_color.r = 10;
-        line_color.g = 40;
-        line_color.b = 155;
-        line_color.a = 100;
-        
-        fill_color.r = 40;
-        fill_color.g = 173;
-        fill_color.b = 255;
-        fill_color.a = 100;
-
-        {
-            draw_line(150, 100, 250, 100, thin_line_color, 1);
-            draw_line(150, 300, 250, 300, thin_line_color, 1);
-            draw_line(150, 500, 250, 500, thin_line_color, 1);
-            
-            draw_line(200, 100, 200, 300, line_color, 8);
-            draw_line(200, 300, 200, 500, line_color, 8);
-        }
-
-        {        
-            draw_line(450, 100, 550, 100, thin_line_color, 1);
-            draw_line(350, 300, 450, 300, thin_line_color, 1);
-            draw_line(450, 500, 550, 500, thin_line_color, 1);
-            
-            draw_line(500, 100, 400, 300, line_color, 8);
-            draw_line(400, 300, 500, 500, line_color, 8);
-        }
-        
-        {
-            draw_line(650, 100, 750, 100, thin_line_color, 1);
-            draw_line(850, 300, 950, 300, thin_line_color, 1);
-            draw_line(1050, 500, 1150, 500, thin_line_color, 1);
-            
-            draw_arced_corner(700, 100, 200, 0, false, line_color, fill_color, 8);
-            draw_arced_corner(1100, 500, 200, 180, true, line_color, fill_color, 8);
-            draw_arced_corner(1300, 300, 200, 90, true, line_color, fill_color, 8);
-        }
-        
-    }
-    
     void draw_lanes()
     {
         Color4 thin_line_color;
@@ -160,16 +109,6 @@ extern "C" {
         
         i32 line_width = 4;
 
-        /*
-        {
-            draw_rectangle(320, 100, 20, 20, no_color, fill_color, line_width);
-            draw_arced_corner(300, 100, 20, 90, true, line_color, fill_color, line_width);
-            draw_arced_corner(320, 120, 20, 180, true, line_color, fill_color, line_width);
-            draw_arced_corner(320, 120, 20, 0, false, line_color, fill_color, line_width);
-            draw_arced_corner(260, 140, 20, 270, false, line_color, fill_color, line_width);
-        }
-        */
-        
         {
             // IDEA: remember the *ENDING* x1, x2 and y of the previous segment and use it
             //       as *STARTING* x1, x2 and y of the next segment.
@@ -218,31 +157,7 @@ extern "C" {
             draw_lane_segment(150, 600, 540, 
                               300, 500, 650, 
                               20, line_color, fill_color, line_width);
-        }
-        
-    }
-    
-    void draw_and_update_button_menu(WorldData * world)
-    {
-        // Draw (and update) button menu
-        
-        i32 width_button = 50;
-        i32 height_button = 50;
-        i32 margin_between_buttons = 20;
-        
-        for (i32 page_index = 0; page_index < world->nr_of_pages; page_index++)
-        {
-            b32 button_is_active = false;
-            if (page_index == world->active_page_index)
-            {
-                button_is_active = true;
-            }
-            b32 button_is_pressed = do_button(20, 20 + page_index * (margin_between_buttons + height_button), width_button, height_button, page_index + 1, button_is_active, &global_input.mouse, &global_input.touch);
             
-            if (button_is_pressed)
-            {
-                world->active_page_index = page_index;
-            }
         }
         
     }
@@ -322,6 +237,31 @@ extern "C" {
 
     }
     
+    void draw_and_update_button_menu(WorldData * world)
+    {
+        // Draw (and update) button menu
+        
+        i32 width_button = 50;
+        i32 height_button = 50;
+        i32 margin_between_buttons = 20;
+        
+        for (i32 page_index = 0; page_index < world->nr_of_pages; page_index++)
+        {
+            b32 button_is_active = false;
+            if (page_index == world->active_page_index)
+            {
+                button_is_active = true;
+            }
+            b32 button_is_pressed = do_button(20, 20 + page_index * (margin_between_buttons + height_button), width_button, height_button, page_index + 1, button_is_active, &global_input.mouse, &global_input.touch);
+            
+            if (button_is_pressed)
+            {
+                world->active_page_index = page_index;
+            }
+        }
+        
+    }
+    
     void render_frame()
     {
         WorldData * world = &global_world;
@@ -332,13 +272,9 @@ extern "C" {
         }
         else if (world->active_page_index == 1)
         {
-            draw_arced_corners();
-        }
-        else if (world->active_page_index == 2)
-        {
             draw_lanes();
         }
-        else if (world->active_page_index == 3)
+        else if (world->active_page_index == 2)
         {
             draw_pixel_borders();
         }

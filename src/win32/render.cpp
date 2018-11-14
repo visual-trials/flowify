@@ -113,7 +113,8 @@ void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r, Color4 l
     
 }
 
-void draw_arced_corner(i32 x, i32 y, i32 r, i32 rotation, i32 convex, 
+void draw_lane_segment(i32 left_top_x, i32 right_top_x, i32 top_y, 
+                       i32 left_bottom_x, i32 right_bottom_x, i32 bottom_y, i32 radius,
                        Color4 line_color, Color4 fill_color, i32 line_width)
 {
     ID2D1SolidColorBrush * line_brush = 0;
@@ -121,77 +122,144 @@ void draw_arced_corner(i32 x, i32 y, i32 r, i32 rotation, i32 convex,
     
     ID2D1PathGeometry * path_geometry = 0;
     ID2D1GeometrySink * sink = 0;
-
-    D2D1_POINT_2F begin_point = D2D1::Point2F(x, y);
-    D2D1_POINT_2F middle_point;
-    D2D1_POINT_2F end_point;
     
-    if (rotation == 0)
+    // FIXME: shouldn't we have middle_y as argument?
+    i32 middle_y = top_y + (bottom_y - top_y) / 2;
+    
+    D2D1_POINT_2F left_top = D2D1::Point2F(left_top_x, top_y);
+    D2D1_POINT_2F left_top_down = D2D1::Point2F(left_top_x, middle_y - radius);
+    D2D1_POINT_2F left_top_arc_end;
+    D2D1_POINT_2F left_middle_line_end;
+    D2D1_POINT_2F left_bottom_arc_end = D2D1::Point2F(left_bottom_x, middle_y + radius);
+    D2D1_POINT_2F left_bottom = D2D1::Point2F(left_bottom_x, bottom_y);
+    
+    D2D1_ARC_SEGMENT left_top_arc_segment;
+    D2D1_ARC_SEGMENT left_bottom_arc_segment;
+    
+    D2D1_POINT_2F right_bottom = D2D1::Point2F(right_bottom_x, bottom_y);
+    D2D1_POINT_2F right_bottom_up = D2D1::Point2F(right_bottom_x, middle_y + radius);
+    D2D1_POINT_2F right_bottom_arc_end;
+    D2D1_POINT_2F right_middle_line_end;
+    D2D1_POINT_2F right_top_arc_end = D2D1::Point2F(right_top_x, middle_y - radius);
+    D2D1_POINT_2F right_top = D2D1::Point2F(right_top_x, top_y);
+    
+    D2D1_ARC_SEGMENT right_top_arc_segment;
+    D2D1_ARC_SEGMENT right_bottom_arc_segment;
+    
+    b32 left_side_is_straight = false;
+    b32 right_side_is_straight = false;
+    if (left_bottom_x < left_top_x)
     {
-        end_point = D2D1::Point2F(x + r, y + r);
-        if (convex)
-        {
-            middle_point = D2D1::Point2F(x, y + r);
-        }
-        else
-        {
-            middle_point = D2D1::Point2F(x + r, y);
-        }
+        left_top_arc_end = D2D1::Point2F(left_top_x - radius, middle_y);
+        left_middle_line_end = D2D1::Point2F(left_bottom_x + radius, middle_y);
+        left_top_arc_segment = D2D1::ArcSegment(
+            left_top_arc_end,
+            D2D1::SizeF(radius, radius),
+            90,
+            D2D1_SWEEP_DIRECTION_CLOCKWISE,
+            D2D1_ARC_SIZE_SMALL  // means: smaller than 180 degrees
+        );  
+        left_bottom_arc_segment = D2D1::ArcSegment(
+            left_bottom_arc_end,
+            D2D1::SizeF(radius, radius),
+            180,
+            D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE,
+            D2D1_ARC_SIZE_SMALL  // means: smaller than 180 degrees
+        );  
     }
-    else if (rotation == 90)
+    else if (left_bottom_x > left_top_x)
     {
-        end_point = D2D1::Point2F(x - r, y + r);
-        if (convex)
-        {
-            middle_point = D2D1::Point2F(x - r, y);
-        }
-        else
-        {
-            middle_point = D2D1::Point2F(x, y + r);
-        }
+        left_top_arc_end = D2D1::Point2F(left_top_x + radius, middle_y);
+        left_middle_line_end = D2D1::Point2F(left_bottom_x - radius, middle_y);
+        left_top_arc_segment = D2D1::ArcSegment(
+            left_top_arc_end,
+            D2D1::SizeF(radius, radius),
+            90,
+            D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE,
+            D2D1_ARC_SIZE_SMALL  // means: smaller than 180 degrees
+        );  
+        left_bottom_arc_segment = D2D1::ArcSegment(
+            left_bottom_arc_end,
+            D2D1::SizeF(radius, radius),
+            180,
+            D2D1_SWEEP_DIRECTION_CLOCKWISE,
+            D2D1_ARC_SIZE_SMALL  // means: smaller than 180 degrees
+        );  
     }
-    else if (rotation == 180)
-    {
-        end_point = D2D1::Point2F(x - r, y - r);
-        if (convex)
-        {
-            middle_point = D2D1::Point2F(x, y - r);
-        }
-        else
-        {
-            middle_point = D2D1::Point2F(x - r, y);
-        }
-    }
-    else if (rotation == 270)
-    {
-        end_point = D2D1::Point2F(x + r, y - r);
-        if (convex)
-        {
-            middle_point = D2D1::Point2F(x + r, y);
-        }
-        else
-        {
-            middle_point = D2D1::Point2F(x, y - r);
-        }
+    else {
+        left_side_is_straight = true;
     }
     
-    D2D1_ARC_SEGMENT arc_segment = D2D1::ArcSegment(
-        end_point,
-        D2D1::SizeF(r, r),
-        rotation,
-        D2D1_SWEEP_DIRECTION_CLOCKWISE,
-        D2D1_ARC_SIZE_SMALL  // means: smaller than 180 degrees
-    );  
-
-
+    if (right_bottom_x < right_top_x)
+    {
+        right_bottom_arc_end = D2D1::Point2F(right_bottom_x + radius, middle_y);
+        right_middle_line_end = D2D1::Point2F(right_top_x - radius, middle_y);
+        right_bottom_arc_segment = D2D1::ArcSegment(
+            right_bottom_arc_end,
+            D2D1::SizeF(radius, radius),
+            270,
+            D2D1_SWEEP_DIRECTION_CLOCKWISE,
+            D2D1_ARC_SIZE_SMALL  // means: smaller than 180 degrees
+        );  
+        right_top_arc_segment = D2D1::ArcSegment(
+            right_top_arc_end,
+            D2D1::SizeF(radius, radius),
+            0,
+            D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE,
+            D2D1_ARC_SIZE_SMALL  // means: smaller than 180 degrees
+        );  
+    }
+    else if (right_bottom_x > right_top_x)
+    {
+        right_bottom_arc_end = D2D1::Point2F(right_bottom_x - radius, middle_y);
+        right_middle_line_end = D2D1::Point2F(right_top_x + radius, middle_y);
+        right_bottom_arc_segment = D2D1::ArcSegment(
+            right_bottom_arc_end,
+            D2D1::SizeF(radius, radius),
+            270,
+            D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE,
+            D2D1_ARC_SIZE_SMALL  // means: smaller than 180 degrees
+        );  
+        right_top_arc_segment = D2D1::ArcSegment(
+            right_top_arc_end,
+            D2D1::SizeF(radius, radius),
+            0,
+            D2D1_SWEEP_DIRECTION_CLOCKWISE,
+            D2D1_ARC_SIZE_SMALL  // means: smaller than 180 degrees
+        );  
+    }
+    else {
+        right_side_is_straight = true;
+    }
+    
     if (fill_color.a)
     {
         d2d_factory->CreatePathGeometry(&path_geometry);
         path_geometry->Open(&sink);
         sink->SetFillMode(D2D1_FILL_MODE_WINDING);
-        sink->BeginFigure(begin_point, D2D1_FIGURE_BEGIN_FILLED);
-        sink->AddArc(arc_segment);
-        sink->AddLine(middle_point);
+        
+        // Left side
+        sink->BeginFigure(left_top, D2D1_FIGURE_BEGIN_FILLED);
+        if (!left_side_is_straight)
+        {
+            sink->AddLine(left_top_down);
+            sink->AddArc(left_top_arc_segment);
+            sink->AddLine(left_middle_line_end);
+            sink->AddArc(left_bottom_arc_segment);
+        }
+        sink->AddLine(left_bottom);
+
+        // Right side
+        sink->AddLine(right_bottom);
+        if (!right_side_is_straight)
+        {
+            sink->AddLine(right_bottom_up);
+            sink->AddArc(right_bottom_arc_segment);
+            sink->AddLine(right_middle_line_end);
+            sink->AddArc(right_top_arc_segment);
+        }
+        sink->AddLine(right_top);
+        
         sink->EndFigure(D2D1_FIGURE_END_CLOSED);
         sink->Close();
         sink->Release();
@@ -205,11 +273,21 @@ void draw_arced_corner(i32 x, i32 y, i32 r, i32 rotation, i32 convex,
     
     if (line_color.a)
     {
+        // Left side
         d2d_factory->CreatePathGeometry(&path_geometry);
         path_geometry->Open(&sink);
         sink->SetFillMode(D2D1_FILL_MODE_WINDING);
-        sink->BeginFigure(begin_point, D2D1_FIGURE_BEGIN_FILLED);
-        sink->AddArc(arc_segment);
+        
+        sink->BeginFigure(left_top, D2D1_FIGURE_BEGIN_FILLED);
+        if (!left_side_is_straight)
+        {
+            sink->AddLine(left_top_down);
+            sink->AddArc(left_top_arc_segment);
+            sink->AddLine(left_middle_line_end);
+            sink->AddArc(left_bottom_arc_segment);
+        }
+        sink->AddLine(left_bottom);
+        
         sink->EndFigure(D2D1_FIGURE_END_OPEN);
         sink->Close();
         sink->Release();
@@ -219,10 +297,36 @@ void draw_arced_corner(i32 x, i32 y, i32 r, i32 rotation, i32 convex,
         release_brush(line_brush);
         
         path_geometry->Release();
+        
+        // Right side
+        
+        d2d_factory->CreatePathGeometry(&path_geometry);
+        path_geometry->Open(&sink);
+        sink->SetFillMode(D2D1_FILL_MODE_WINDING);
+        
+        sink->BeginFigure(right_bottom, D2D1_FIGURE_BEGIN_FILLED);
+        if (!right_side_is_straight)
+        {
+            sink->AddLine(right_bottom_up);
+            sink->AddArc(right_bottom_arc_segment);
+            sink->AddLine(right_middle_line_end);
+            sink->AddArc(right_top_arc_segment);
+        }
+        sink->AddLine(right_top);
+        
+        sink->EndFigure(D2D1_FIGURE_END_OPEN);
+        sink->Close();
+        sink->Release();
+        
+        get_brush(line_color, &line_brush);
+        render_target->DrawGeometry(path_geometry, line_brush, line_width);    
+        release_brush(line_brush);
+        
+        path_geometry->Release();
+        
     }
     
 }
-
 
 // TODO: shouldn't we use radius x and radius y instead of using width and height?
 void draw_ellipse(i32 x, i32 y, i32 width, i32 height, 
