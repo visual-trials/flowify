@@ -43,8 +43,12 @@ extern "C" {
         
         Color4 transparant = {};
         
+        Font font = {};
+        font.height = 10;
+        font.family = Font_Arial;
+        
         int_to_string(touch_info->touch_count, &nr_of_touches_string);
-        draw_text(500 , 50, &nr_of_touches_string, 10, green);
+        draw_text(500 , 50, &nr_of_touches_string, font, green);
         
         // draw_ellipse(50, 50, 50, 50, green, transparant, 6);
         
