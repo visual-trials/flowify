@@ -133,6 +133,14 @@ ShortString * int_to_string(i32 number, ShortString * decimal_string)
         return decimal_string;
     }
     
+    i32 negative_digit_offset = 0;
+    if (number < 0)
+    {
+        negative_digit_offset = 1;  // the '-' takes one character, so everything moves one character to the right
+        number = -number;
+        decimal_string->data[0] = '-';
+    }
+    
     i32 left_over = number;
     i32 nr_of_digits = 0;
     while (left_over > 0)
@@ -148,11 +156,11 @@ ShortString * int_to_string(i32 number, ShortString * decimal_string)
     {
         i32 decimal_digit = left_over % 10;
         
-        decimal_string->data[digit_index] = '0' + decimal_digit;
+        decimal_string->data[negative_digit_offset + digit_index] = '0' + decimal_digit;
         
         left_over = (left_over - decimal_digit) / 10;
         digit_index--;
     }
-    decimal_string->length = nr_of_digits;
+    decimal_string->length = negative_digit_offset + nr_of_digits;
     return decimal_string;
 }
