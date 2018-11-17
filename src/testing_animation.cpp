@@ -22,26 +22,14 @@
 
 #define MAX_ENTITIES 10
 
-struct Pos2d
-{
-    i32 x;
-    i32 y;
-};
-
-struct Size2d
-{
-    i32 width;
-    i32 height;
-};
-
 struct Entity
 {
     // TODO: shape
-    Pos2d  pos;
+    Pos2d pos;
     Size2d size;
-    Color4  line_color;
-    Color4  fill_color;
-    i32     line_width;
+    Color4 line_color;
+    Color4 fill_color;
+    i32 line_width;
 };
 
 struct WorldData

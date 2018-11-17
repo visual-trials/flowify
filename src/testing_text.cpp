@@ -22,28 +22,16 @@
 
 #define MAX_ENTITIES 10
 
-struct Pos2d
-{
-    i32 x;
-    i32 y;
-};
-
-struct Size2d
-{
-    i32 width;
-    i32 height;
-};
-
 struct Entity
 {
     // TODO: shape
-    Pos2d  pos;
+    Pos2d pos;
     Size2d size;
-    Color4  line_color;
-    Color4  fill_color;
-    i32     line_width;
+    Color4 line_color;
+    Color4 fill_color;
+    i32 line_width;
     
-    b32          has_text;
+    b32 has_text;
     ShortString text;
 };
 
@@ -140,6 +128,11 @@ extern "C" {
     {
         WorldData * world = &global_world;
 
+        Color4 no_color = {};
+        Color4 red = {};
+        red.r = 255;
+        red.a = 255;
+        
         for (i32 entity_index = 0; entity_index < world->nr_of_entities; entity_index++)
         {
             Entity * current_entity = world->entities + entity_index;
@@ -156,7 +149,12 @@ extern "C" {
                 font_color.g = 0;
                 font_color.b = 0;
                 font_color.a = 255;
+                Size2d text_size = get_text_size(&current_entity->text, 10);
                 draw_text(current_entity->pos.x, current_entity->pos.y, &current_entity->text, 10, font_color);
+                
+                draw_rectangle(current_entity->pos.x, current_entity->pos.y, 
+                               text_size.width, text_size.height,
+                               red, no_color, 1);
             }
         }
 

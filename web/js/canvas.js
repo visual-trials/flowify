@@ -337,6 +337,31 @@ Flowify.canvas = function () {
                 ctx.fillText(string, x, y + fontHeightPx)
             },
 
+            _jsGetTextWidth: function (stringIndex, stringLength, fontHeight) { // , baseFontIndex, baseFontLength) {
+
+                let string = ""
+                for (let i = stringIndex; i < stringIndex + stringLength; i++) {
+                    string += String.fromCharCode(Flowify.main.bufferU8[i])
+                }
+                let baseFont = "Arial"
+                /*
+                let baseFont = ""
+                for (let i = baseFontIndex; i < baseFontIndex + baseFontLength; i++) {
+                    baseFont += String.fromCharCode(Flowify.main.bufferU8[i])
+                }
+                */
+
+                // Note: fontHeight is the distance between the top of a capital and the bottom of a capital (note that a non-capital can stick out below!)
+                let fontHeight2FontPx = 1.3  // TODO: is this multiplier correct?
+                let fontPx = fontHeight * fontHeight2FontPx
+
+                ctx.font = fontPx + "px " + baseFont
+                let fontHeightPx = fontHeight
+                let textMetrics = ctx.measureText(string)
+                
+                return textMetrics.width
+            },
+
             _jsLog: function(stringIndex, stringLength) {
                 let string = ""
                 for (let i = stringIndex; i < stringIndex + stringLength; i++) {

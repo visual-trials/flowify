@@ -6,3 +6,5 @@ mergeInto(LibraryManager.library, { jsDrawRect: function(){} })
 mergeInto(LibraryManager.library, { jsDrawLine: function(){} })
 mergeInto(LibraryManager.library, { jsDrawEllipse: function(){} })
 mergeInto(LibraryManager.library, { jsDrawText: function(){} })
+mergeInto(LibraryManager.library, { jsGetTextWidth: function(){} })
+

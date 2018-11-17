@@ -49,6 +49,11 @@ extern "C" {
                            // TODO: base font choice
                            //u8 * base_font_data, i32 base_font_length );
                            
+    extern i32 jsGetTextWidth(u8 * string_data, i32 string_length,
+                              i32 font_height);
+                              // TODO: base font choice
+                              //u8 * base_font_data, i32 base_font_length );
+                           
     extern void jsLog(u8 * text_data, i32 text_length);
     
     extern void jsLogInt(i32 log_integer);
@@ -113,6 +118,21 @@ void draw_ellipse(i32 x, i32 y, i32 width, i32 height,
     jsDrawEllipse(x, y, width, height, line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
 }
 
+// TODO: add font in arguments
+Size2d get_text_size(ShortString * text, i32 font_height)
+{
+    // u8 base_font[] = "Arial"; // FIXME: hardcoded (btw: do we really want to pass this each time?)
+    
+    i32 text_width = jsGetTextWidth(text->data, text->length, font_height); //, base_font, string_length(base_font));
+    
+    Size2d text_size = {};
+    text_size.width = text_width;
+    text_size.height = font_height; // TODO: is this correct?
+    
+    return text_size;
+}
+
+// TODO: add font in arguments
 void draw_text(i32 x, i32 y, ShortString * text, i32 font_height, Color4 font_color)
 {
     // u8 base_font[] = "Arial"; // FIXME: hardcoded (btw: do we really want to pass this each time?)

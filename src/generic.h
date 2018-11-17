@@ -40,6 +40,18 @@ struct Color4
     u8 a;
 };
 
+struct Pos2d
+{
+    i32 x;
+    i32 y;
+};
+
+struct Size2d
+{
+    i32 width;
+    i32 height;
+};
+
 #define MAX_LENGTH_SHORT_STRING 100
 
 struct ShortString

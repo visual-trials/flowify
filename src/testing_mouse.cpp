@@ -22,18 +22,6 @@
 
 // FIXME: mouse position should also be a Pos2d, right?
 
-struct Pos2d
-{
-    i32 x;
-    i32 y;
-};
-
-struct Size2d
-{
-    i32 width;
-    i32 height;
-};
-
 struct entity
 {
     // TODO: shape
