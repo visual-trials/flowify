@@ -203,7 +203,7 @@ extern "C" {
         {
             b32 is_down = (b32)keyboard->sequence_keys_up_down[frame_sequence_index * 2];
             u8 key_code = keyboard->sequence_keys_up_down[frame_sequence_index * 2 + 1];
-            if ((key_code >= '0' && key_code <= '9') || (key_code >= 'A' && key_code <= 'Z'))
+            if ((key_code >= '0' && key_code <= '9') || (key_code >= 'A' && key_code <= 'Z') || key_code == ' ')
             {
                 if (is_down)
                 {
@@ -240,6 +240,10 @@ extern "C" {
         white.b = 255;
         white.a = 255;
 
+        Font font = {};
+        font.height = 10;
+        font.family = Font_Arial;
+        
         i32 y_row = 150;
         for (i32 row_index = 0; row_index < keyboard_layout->nr_of_rows; row_index++)
         {
@@ -264,11 +268,11 @@ extern "C" {
                     if (keyboard->keys_that_are_down[key_code])
                     {
                         draw_rounded_rectangle(x, y, key_width - 10, row_height - 10, 3, black, black, 1);
-                        draw_text(x + text_margin, y + text_margin, &key_name, 10, white);
+                        draw_text(x + text_margin, y + text_margin, &key_name, font, white);
                     }
                     else {
                         draw_rounded_rectangle(x, y, key_width - 10, row_height - 10, 3, black, white, 1);
-                        draw_text(x + text_margin, y + text_margin, &key_name, 10, black);
+                        draw_text(x + text_margin, y + text_margin, &key_name, font, black);
                     }
                 }
                 
@@ -291,11 +295,18 @@ extern "C" {
         font_color.b = 0;
         font_color.a = 255;
         
+        Font font = {};
+        font.height = 10;
+        font.family = Font_Arial;
+        
         copy_char_to_string(' ', &character);
-        for (i32 sequence_index = 0; sequence_index < MAX_KEY_SEQUENCE; sequence_index++)
+        i32 x = MAX_KEY_SEQUENCE * 10;  // For now we estimate that the average size of a character will be 10
+        for (i32 sequence_index = MAX_KEY_SEQUENCE - 1; sequence_index >= 0; sequence_index--)
         {
             copy_char_to_string(world->key_sequence[sequence_index], &character);
-            draw_text(450 + sequence_index * 10, 100, &character, 10, font_color);
+            Size2d text_size = get_text_size(&character, font);
+            x = x - text_size.width;
+            draw_text(450 + x, 100, &character, font, font_color);
         }
         
     }

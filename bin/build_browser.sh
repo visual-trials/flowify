@@ -5,8 +5,8 @@ source /home/emscripten/emsdk/emsdk_env.sh
 #PROJECT_NAME=flowify
 #PROJECT_NAME=testing_text
 #PROJECT_NAME=testing_animation
-#PROJECT_NAME=testing_keyboard
-PROJECT_NAME=testing_touch
+PROJECT_NAME=testing_keyboard
+#PROJECT_NAME=testing_touch
 #PROJECT_NAME=testing_mouse
 #PROJECT_NAME=testing_renderer
 
