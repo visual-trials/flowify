@@ -33,6 +33,7 @@ struct Entity
     
     b32 has_text;
     ShortString text;
+    Font text_font;
 };
 
 struct WorldData
@@ -83,7 +84,8 @@ extern "C" {
         
         copy_cstring_to_short_string("Small text", &third_entity->text);
         third_entity->has_text = true;
-        
+        third_entity->text_font.height = 10;
+        third_entity->text_font.family = Font_Arial;
         
         world->first_entity_index = world->nr_of_entities++;
         Entity * first_entity = world->entities + world->first_entity_index;
@@ -100,14 +102,16 @@ extern "C" {
         
         first_entity->line_width = 1;
         
-        first_entity->size.width = 180;
-        first_entity->size.height = 200;
+        first_entity->size.width = 300;
+        first_entity->size.height = 300;
         
         first_entity->pos.x = 100;
         first_entity->pos.y = 150;
             
         copy_cstring_to_short_string("This is a much larger text. And won't fit on a single line!", &first_entity->text);
         first_entity->has_text = true;
+        first_entity->text_font.height = 20;
+        first_entity->text_font.family = Font_CourierNew;
         
         /*
         world->second_entity_index = world->nr_of_entities++;
@@ -133,10 +137,6 @@ extern "C" {
         red.r = 255;
         red.a = 255;
         
-        Font font = {};
-        font.height = 10;
-        font.family = Font_Arial;
-        
         for (i32 entity_index = 0; entity_index < world->nr_of_entities; entity_index++)
         {
             Entity * current_entity = world->entities + entity_index;
@@ -153,8 +153,9 @@ extern "C" {
                 font_color.g = 0;
                 font_color.b = 0;
                 font_color.a = 255;
-                Size2d text_size = get_text_size(&current_entity->text, font);
-                draw_text(current_entity->pos.x, current_entity->pos.y, &current_entity->text, font, font_color);
+                
+                Size2d text_size = get_text_size(&current_entity->text, current_entity->text_font);
+                draw_text(current_entity->pos.x, current_entity->pos.y, &current_entity->text, current_entity->text_font, font_color);
                 
                 draw_rectangle(current_entity->pos.x, current_entity->pos.y, 
                                text_size.width, text_size.height,
