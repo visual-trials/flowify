@@ -44,7 +44,7 @@ extern "C" {
         Color4 transparant = {};
         
         Font font = {};
-        font.height = 10;
+        font.height = 30;
         font.family = Font_Arial;
         
         int_to_string(touch_info->touch_count, &nr_of_touches_string);
