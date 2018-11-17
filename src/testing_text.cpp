@@ -133,6 +133,10 @@ extern "C" {
         red.r = 255;
         red.a = 255;
         
+        Font font = {};
+        font.height = 10;
+        font.family = Font_Arial;
+        
         for (i32 entity_index = 0; entity_index < world->nr_of_entities; entity_index++)
         {
             Entity * current_entity = world->entities + entity_index;
@@ -149,8 +153,8 @@ extern "C" {
                 font_color.g = 0;
                 font_color.b = 0;
                 font_color.a = 255;
-                Size2d text_size = get_text_size(&current_entity->text, 10);
-                draw_text(current_entity->pos.x, current_entity->pos.y, &current_entity->text, 10, font_color);
+                Size2d text_size = get_text_size(&current_entity->text, font);
+                draw_text(current_entity->pos.x, current_entity->pos.y, &current_entity->text, font, font_color);
                 
                 draw_rectangle(current_entity->pos.x, current_entity->pos.y, 
                                text_size.width, text_size.height,

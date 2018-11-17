@@ -44,15 +44,11 @@ extern "C" {
                            
     extern void jsDrawText(i32 x, i32 y, 
                            u8 * string_data, i32 string_length,
-                           i32 font_height, 
+                           i32 font_height, i32 font_family_index,
                            i32 font_color_rgb, i32 font_color_alpha);
-                           // TODO: base font choice
-                           //u8 * base_font_data, i32 base_font_length );
                            
     extern i32 jsGetTextWidth(u8 * string_data, i32 string_length,
-                              i32 font_height);
-                              // TODO: base font choice
-                              //u8 * base_font_data, i32 base_font_length );
+                              i32 font_height, i32 font_family_index);
                            
     extern void jsLog(u8 * text_data, i32 text_length);
     
@@ -118,36 +114,30 @@ void draw_ellipse(i32 x, i32 y, i32 width, i32 height,
     jsDrawEllipse(x, y, width, height, line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
 }
 
-// TODO: add font in arguments
-Size2d get_text_size(ShortString * text, i32 font_height)
+Size2d get_text_size(ShortString * text, Font font)
 {
-    // u8 base_font[] = "Arial"; // FIXME: hardcoded (btw: do we really want to pass this each time?)
-    
-    i32 text_width = jsGetTextWidth(text->data, text->length, font_height); //, base_font, string_length(base_font));
+    i32 text_width = jsGetTextWidth(text->data, text->length, font.height, font.family);
     
     Size2d text_size = {};
     text_size.width = text_width;
-    text_size.height = font_height; // TODO: is this correct?
+    text_size.height = font.height; // TODO: is this correct? (what if its multiline? or do we not allow that?)
     
     return text_size;
 }
 
-// TODO: add font in arguments
-void draw_text(i32 x, i32 y, ShortString * text, i32 font_height, Color4 font_color)
+void draw_text(i32 x, i32 y, ShortString * text, Font font, Color4 font_color)
 {
-    // u8 base_font[] = "Arial"; // FIXME: hardcoded (btw: do we really want to pass this each time?)
-    
     i32 font_color_rgb = font_color.r + font_color.g * 256 + font_color.b * 256 * 256; 
     i32 font_color_alpha = (i32)font_color.a;
     
-    jsDrawText(x, y, text->data, text->length, font_height, font_color_rgb, font_color_alpha); //, base_font, string_length(base_font));
+    jsDrawText(x, y, text->data, text->length, font.height, font.family, font_color_rgb, font_color_alpha);
 }
 
-void draw_text_c(i32 x, i32 y, const char * cstring, i32 font_height, Color4 font_color)
+void draw_text_c(i32 x, i32 y, const char * cstring, Font font, Color4 font_color)
 {
     ShortString text;
     copy_cstring_to_short_string(cstring, &text);
-    draw_text(x, y, &text, font_height, font_color);
+    draw_text(x, y, &text, font, font_color);
 }
 
 void log(ShortString * text)

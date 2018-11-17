@@ -30,6 +30,12 @@ Flowify.canvas = function () {
 
     my.isIE = false
 
+    // NOTE: always keep this in sync with FontFamily in render.cpp!
+    my.fontFamilies = [
+        "Arial",        // 0x00
+        "Courier New",  // 0x01
+    ]
+
     // Check if IE
     let ua = window.navigator.userAgent;
     if (ua.indexOf('MSIE ') > 0 || ua.indexOf('Trident/') > 0 || ua.indexOf('Edge/') > 0) {
@@ -313,19 +319,15 @@ Flowify.canvas = function () {
                 }
             },
             
-            _jsDrawText: function (x, y, stringIndex, stringLength, fontHeight, fontColorRGB, fontColorAlpha) { // , baseFontIndex, baseFontLength) {
+            _jsDrawText: function (x, y, stringIndex, stringLength, fontHeight, fontFamilyIndex, fontColorRGB, fontColorAlpha) { // , baseFontIndex, baseFontLength) {
 
                 let string = ""
                 for (let i = stringIndex; i < stringIndex + stringLength; i++) {
                     string += String.fromCharCode(Flowify.main.bufferU8[i])
                 }
-                let baseFont = "Arial"
-                /*
-                let baseFont = ""
-                for (let i = baseFontIndex; i < baseFontIndex + baseFontLength; i++) {
-                    baseFont += String.fromCharCode(Flowify.main.bufferU8[i])
-                }
-                */
+                
+                // TODO: check if out-of-bounds
+                let baseFont = my.fontFamilies[fontFamilyIndex]
 
                 // Note: fontHeight is the distance between the top of a capital and the bottom of a capital (note that a non-capital can stick out below!)
                 let fontHeight2FontPx = 1.3  // TODO: is this multiplier correct?
@@ -337,19 +339,14 @@ Flowify.canvas = function () {
                 ctx.fillText(string, x, y + fontHeightPx)
             },
 
-            _jsGetTextWidth: function (stringIndex, stringLength, fontHeight) { // , baseFontIndex, baseFontLength) {
+            _jsGetTextWidth: function (stringIndex, stringLength, fontHeight, fontFamilyIndex) {
 
                 let string = ""
                 for (let i = stringIndex; i < stringIndex + stringLength; i++) {
                     string += String.fromCharCode(Flowify.main.bufferU8[i])
                 }
-                let baseFont = "Arial"
-                /*
-                let baseFont = ""
-                for (let i = baseFontIndex; i < baseFontIndex + baseFontLength; i++) {
-                    baseFont += String.fromCharCode(Flowify.main.bufferU8[i])
-                }
-                */
+                // TODO: check if out-of-bounds
+                let baseFont = my.fontFamilies[fontFamilyIndex]
 
                 // Note: fontHeight is the distance between the top of a capital and the bottom of a capital (note that a non-capital can stick out below!)
                 let fontHeight2FontPx = 1.3  // TODO: is this multiplier correct?

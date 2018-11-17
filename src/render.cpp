@@ -16,12 +16,24 @@
 
  */
  
+// NOTE: always keep this in sync with my.fontFamilies in canvas.js!
+enum FontFamily
+{
+    Font_Arial = 0x00,
+    Font_CourierNew = 0x01
+};
+
+struct Font
+{
+    FontFamily family;
+    i32 height;  // font.height is the distance between the top of a capital and the bottom of a capital (note that a non-capital can stick out below!)
+};
+
 #if BUILD_FOR_NATIVE_PLATFORM
     #include "win32/render.cpp"
 #else
     #include "browser/render.cpp"
 #endif
-
 
 void draw_cross(i32 x, i32 y, i32 distance_from_center, i32 line_length, Color4 line_color, i32 line_width)
 {
@@ -115,8 +127,10 @@ b32 do_button(i32 x, i32 y, i32 width, i32 height, i32 number, b32 is_active, Mo
     
     ShortString decimal_string;
     int_to_string(number, &decimal_string);
-    i32 font_height = 10;
-    draw_text(x + (width - font_height) / 2 , y + (height - font_height) / 2 , &decimal_string, font_height, line_color);
+    Font font = {};
+    font.height = 10;
+    font.family = Font_Arial;
+    draw_text(x + (width - font.height) / 2 , y + (height - font.height) / 2 , &decimal_string, font, line_color);
     
     return hovered_or_pressed.is_pressed;
 }

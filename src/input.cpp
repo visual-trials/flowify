@@ -202,7 +202,7 @@ extern "C" {
 
 // Used this as basis: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
 
-enum keyboard_key_code
+enum KeyboardKeyCode
 {
     Key_Unidentified = 0x00,
     
