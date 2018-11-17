@@ -228,7 +228,11 @@ extern "C" {
         ShortString height_text;
         int_to_string(global_input.screen.height, &height_text);
 
-        draw_text(500, 300, &height_text, 10, black);
+        Font font = {};
+        font.height = 10;
+        font.family = Font_Arial;
+
+        draw_text(500, 300, &height_text, font, black);
         
         black.a = 100;
         draw_rectangle(100, 0, 50, 50, no_color, black, 1);
