@@ -359,7 +359,41 @@ void draw_ellipse(i32 x, i32 y, i32 width, i32 height,
 
 Size2d get_text_size(ShortString * text, Font font)
 {
-    i32 text_width = 10; // FIXME: implement this!
+    u16 wide_text[MAX_LENGTH_SHORT_STRING];
+    MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, (LPCCH)text->data, text->length, (LPWSTR)wide_text, MAX_LENGTH_SHORT_STRING);
+
+    IDWriteTextFormat * text_format;
+    
+    // TODO check result
+    // TODO: shouldn't we release the text format? Do we want to (re)create it here every time?
+    HRESULT text_format_result = direct_write_factory->CreateTextFormat(
+        font_families[font.family],
+        NULL,
+        DWRITE_FONT_WEIGHT_NORMAL,
+        DWRITE_FONT_STYLE_NORMAL,
+        DWRITE_FONT_STRETCH_NORMAL,
+        font.height * 1.3, // TODO: see canvas.js: we use this constant now
+        L"", //locale
+        &text_format
+    );
+            
+    IDWriteTextLayout * text_layout;
+            
+    // TODO check result
+    // TODO: shouldn't we release the text layout? Do we want to (re)create it here every time?
+    HRESULT text_layout_result = direct_write_factory->CreateTextLayout(
+        (LPWSTR)wide_text,
+        text->length,
+        text_format,
+        4000, // FIXME: is there a way to say 'unlimited width' for the layout box?
+        1000, // FIXME: is there a way to say 'unlimited height' for the layout box?
+        &text_layout
+    );
+    
+    DWRITE_TEXT_METRICS text_metrics;
+    // TODO check result
+    HRESULT metrics_result = text_layout->GetMetrics(&text_metrics);
+    i32 text_width = text_metrics.widthIncludingTrailingWhitespace;
     
     Size2d text_size = {};
     text_size.width = text_width;
