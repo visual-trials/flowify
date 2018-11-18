@@ -200,7 +200,7 @@ ShortString * float_to_string(f32 number, ShortString * decimal_string)
     
     i32 number_left_part = (i32)number;
     f32 number_float_right_part = number - (f32)number_left_part;
-    i32 number_right_part = number_float_right_part * 100000; // TODO: only the 5 digits are processed after the period
+    i32 number_right_part = number_float_right_part * 10000000; // TODO: only the 7 digits are processed after the period
     
     ShortString string_left_part = {};
     int_to_string(number_left_part, &string_left_part);

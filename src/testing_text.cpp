@@ -84,7 +84,7 @@ extern "C" {
         
         copy_cstring_to_short_string("Small text", &third_entity->text);
         third_entity->has_text = true;
-        third_entity->text_font.height = 10;
+        third_entity->text_font.height = 12;
         third_entity->text_font.family = Font_Arial;
         
         world->first_entity_index = world->nr_of_entities++;
@@ -110,7 +110,7 @@ extern "C" {
             
         copy_cstring_to_short_string("This is a much larger text. And won't fit on a single line!", &first_entity->text);
         first_entity->has_text = true;
-        first_entity->text_font.height = 20;
+        first_entity->text_font.height = 25;
         first_entity->text_font.family = Font_CourierNew;
         
         /*
@@ -167,6 +167,10 @@ extern "C" {
                 float_to_string(text_size.height, &height_string);
                 draw_text(current_entity->pos.x, current_entity->pos.y + 50, &width_string, current_entity->text_font, font_color);
                 draw_text(current_entity->pos.x, current_entity->pos.y + 50 + text_size.height, &height_string, current_entity->text_font, font_color);
+                ShortString height_aspect_string = {};
+                float_to_string(text_size.height / current_entity->text_font.height, &height_aspect_string);
+                draw_text(current_entity->pos.x, current_entity->pos.y + 50 + text_size.height * 2, &height_aspect_string, current_entity->text_font, font_color);
+                
                 
             }
         }
