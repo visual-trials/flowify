@@ -146,7 +146,7 @@ void do_frame_timing(Input * input, b32 * is_verbose)
     i32 bar_width = 6;
     i32 margin_between_bars = 2;
     i32 normal_bar_height = 100;
-    r32 normal_value = (r32)1 / (r32)60; // TODO: should we put 60(fps) in a global?
+    f32 normal_value = (f32)1 / (f32)60; // TODO: should we put 60(fps) in a global?
     
     if (!*is_verbose)
     {
@@ -208,10 +208,10 @@ void do_frame_timing(Input * input, b32 * is_verbose)
         i32 frame_index = (timing->frame_index + frame_index_offset + MAX_NR_OF_FRAMES_FOR_TIMING) % MAX_NR_OF_FRAMES_FOR_TIMING;
         i32 x_left = x_start + (nr_of_bars_to_show - 1 + frame_index_offset) * (bar_width + margin_between_bars);
         
-        r32 input_time = timing->frame_times[frame_index].input_time;
-        r32 updating_time = timing->frame_times[frame_index].updating_time;
-        r32 rendering_time = timing->frame_times[frame_index].rendering_time;
-        r32 waiting_time = timing->frame_times[frame_index].waiting_time;
+        f32 input_time = timing->frame_times[frame_index].input_time;
+        f32 updating_time = timing->frame_times[frame_index].updating_time;
+        f32 rendering_time = timing->frame_times[frame_index].rendering_time;
+        f32 waiting_time = timing->frame_times[frame_index].waiting_time;
 
         if (!*is_verbose)
         {

@@ -43,15 +43,15 @@ void release_brush(ID2D1SolidColorBrush * brush)
 void get_brush(Color4 color, ID2D1SolidColorBrush ** brush)
 {
     render_target->CreateSolidColorBrush(D2D1::ColorF(
-        (r32)color.r/(r32)255, 
-        (r32)color.g/(r32)255, 
-        (r32)color.b/(r32)255, 
-        (r32)color.a/(r32)255
+        (f32)color.r/(f32)255, 
+        (f32)color.g/(f32)255, 
+        (f32)color.b/(f32)255, 
+        (f32)color.a/(f32)255
     ), brush);
 };
  
 // TODO: don't we want to pass two positions to most of these functions? Instead of pos + size?
-// TODO: don't we want r32 for colors?
+// TODO: don't we want f32 for colors?
  
 void draw_rectangle(i32 x, i32 y, i32 width, i32 height, Color4 line_color, Color4 fill_color, i32 line_width)
 {
@@ -340,7 +340,7 @@ void draw_ellipse(i32 x, i32 y, i32 width, i32 height,
     ID2D1SolidColorBrush * line_brush = 0;
     ID2D1SolidColorBrush * fill_brush = 0;
     
-    D2D1_ELLIPSE ellipse = D2D1::Ellipse(D2D1::Point2F(x + (r32)width/(r32)2, y + (r32)height/(r32)2), (r32)width/(r32)2, (r32)height/(r32)2);
+    D2D1_ELLIPSE ellipse = D2D1::Ellipse(D2D1::Point2F(x + (f32)width/(f32)2, y + (f32)height/(f32)2), (f32)width/(f32)2, (f32)height/(f32)2);
     
     if (fill_color.a)
     {

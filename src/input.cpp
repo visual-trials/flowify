@@ -31,7 +31,7 @@ struct MouseInput
     b32 right_button_has_gone_down_twice;
     
     b32 wheel_has_moved;
-    r32 wheel_delta;
+    f32 wheel_delta;
 
     b32 has_moved;
     i32 x;
@@ -75,15 +75,15 @@ struct TouchesInput
 
 struct FrameTiming
 {
-    r32 input_time;
-    r32 updating_time;
-    r32 rendering_time;
-    r32 waiting_time;
+    f32 input_time;
+    f32 updating_time;
+    f32 rendering_time;
+    f32 waiting_time;
 };
 
 struct Timing
 {
-    r32 dt;
+    f32 dt;
     FrameTiming frame_times[MAX_NR_OF_FRAMES_FOR_TIMING];
     i32 frame_index;
 };
@@ -127,7 +127,7 @@ extern "C" {
        global_input.mouse.right_button_has_gone_down_twice = right_button_has_gone_down_twice;
     }
 
-    void set_mouse_wheel_data(b32 wheel_has_moved, r32 wheel_delta)
+    void set_mouse_wheel_data(b32 wheel_has_moved, f32 wheel_delta)
     {
        global_input.mouse.wheel_has_moved = wheel_has_moved;
        global_input.mouse.wheel_delta = wheel_delta;
@@ -180,7 +180,7 @@ extern "C" {
         global_input.touch.touches[touch_index].y = y;
     }
     
-    void set_frame_time(i32 frame_index, r32 input_time, r32 updating_time, r32 rendering_time, r32 waiting_time)
+    void set_frame_time(i32 frame_index, f32 input_time, f32 updating_time, f32 rendering_time, f32 waiting_time)
     {
         // TODO: make sure frame_index <= MAX_NR_OF_FRAMES_FOR_TIMING
         global_input.timing.dt = input_time + updating_time + rendering_time + waiting_time;
@@ -191,7 +191,7 @@ extern "C" {
         global_input.timing.frame_times[frame_index].waiting_time = waiting_time;
     }
     
-    void set_screen_size(i32 width, r32 height)
+    void set_screen_size(i32 width, f32 height)
     {
         global_input.screen.width = width;
         global_input.screen.height = height;

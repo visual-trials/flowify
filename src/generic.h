@@ -29,8 +29,8 @@ typedef uint16_t u16;
 typedef uint32_t u32;
 typedef uint64_t u64;
 
-typedef float  r32;
-typedef double r64;
+typedef float  f32;
+typedef double f64;
 
 struct Color4
 {
@@ -42,14 +42,14 @@ struct Color4
 
 struct Pos2d
 {
-    i32 x;
-    i32 y;
+    f32 x;
+    f32 y;
 };
 
 struct Size2d
 {
-    i32 width;
-    i32 height;
+    f32 width;
+    f32 height;
 };
 
 #define MAX_LENGTH_SHORT_STRING 100

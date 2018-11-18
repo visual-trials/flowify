@@ -219,9 +219,9 @@ inline LARGE_INTEGER get_clock_counter(void)
     return clock_counter;
 }
 
-inline r32 get_seconds_elapsed(LARGE_INTEGER start_counter, LARGE_INTEGER end_counter)
+inline f32 get_seconds_elapsed(LARGE_INTEGER start_counter, LARGE_INTEGER end_counter)
 {
-    r32 seconds_elapsed = ((r32)(end_counter.QuadPart - start_counter.QuadPart) / (r32)performance_count_frequency);
+    f32 seconds_elapsed = ((f32)(end_counter.QuadPart - start_counter.QuadPart) / (f32)performance_count_frequency);
     return seconds_elapsed;
 }
 
@@ -293,10 +293,10 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
         LARGE_INTEGER previous_clock_counter_after_wait = clock_counter_after_wait;
         clock_counter_after_wait = get_clock_counter();
         
-        r32 input_time = get_seconds_elapsed(previous_clock_counter_after_wait, clock_counter_before_update_and_render);
-        r32 updating_time = get_seconds_elapsed(clock_counter_before_update_and_render, clock_counter_after_update);
-        r32 rendering_time = get_seconds_elapsed(clock_counter_after_update, clock_counter_after_render);
-        r32 waiting_time = get_seconds_elapsed(clock_counter_after_render, clock_counter_after_wait);
+        f32 input_time = get_seconds_elapsed(previous_clock_counter_after_wait, clock_counter_before_update_and_render);
+        f32 updating_time = get_seconds_elapsed(clock_counter_before_update_and_render, clock_counter_after_update);
+        f32 rendering_time = get_seconds_elapsed(clock_counter_after_update, clock_counter_after_render);
+        f32 waiting_time = get_seconds_elapsed(clock_counter_after_render, clock_counter_after_wait);
         
         // Get all keyboard events and set them in the new_input
         MSG msg;
