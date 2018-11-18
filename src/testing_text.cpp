@@ -84,7 +84,7 @@ extern "C" {
         
         copy_cstring_to_short_string("Small text", &third_entity->text);
         third_entity->has_text = true;
-        third_entity->text_font.height = 12;
+        third_entity->text_font.height = 13;
         third_entity->text_font.family = Font_Arial;
         
         world->first_entity_index = world->nr_of_entities++;
@@ -110,7 +110,7 @@ extern "C" {
             
         copy_cstring_to_short_string("This is a much larger text. And won't fit on a single line!", &first_entity->text);
         first_entity->has_text = true;
-        first_entity->text_font.height = 25;
+        first_entity->text_font.height = 26;
         first_entity->text_font.family = Font_CourierNew;
         
         /*
