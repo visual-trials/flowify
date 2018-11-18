@@ -42,11 +42,17 @@ struct Color4
 
 struct Pos2d
 {
-    f32 x;
-    f32 y;
+    i32 x;
+    i32 y;
 };
 
 struct Size2d
+{
+    i32 width;
+    i32 height;
+};
+
+struct Size2dFloat
 {
     f32 width;
     f32 height;

@@ -47,7 +47,7 @@ extern "C" {
                            i32 font_height, i32 font_family_index,
                            i32 font_color_rgb, i32 font_color_alpha);
                            
-    extern i32 jsGetTextWidth(u8 * string_data, i32 string_length,
+    extern f32 jsGetTextWidth(u8 * string_data, i32 string_length,
                               i32 font_height, i32 font_family_index);
                            
     extern void jsLog(u8 * text_data, i32 text_length);
@@ -116,11 +116,22 @@ void draw_ellipse(i32 x, i32 y, i32 width, i32 height,
 
 Size2d get_text_size(ShortString * text, Font font)
 {
-    i32 text_width = jsGetTextWidth(text->data, text->length, font.height, font.family);
+    f32 text_width = jsGetTextWidth(text->data, text->length, font.height, font.family);
     
     Size2d text_size = {};
+    text_size.width = (i32)text_width;
+    text_size.height = (i32)((f32)font.height * 1.1); // TODO: is this correct?
+    
+    return text_size;
+}
+
+Size2dFloat get_text_size_float(ShortString * text, Font font)
+{
+    f32 text_width = jsGetTextWidth(text->data, text->length, font.height, font.family);
+    
+    Size2dFloat text_size = {};
     text_size.width = text_width;
-    text_size.height = font.height * 1.1; // TODO: is this correct?
+    text_size.height = (f32)font.height * 1.1; // TODO: is this correct?
     
     return text_size;
 }

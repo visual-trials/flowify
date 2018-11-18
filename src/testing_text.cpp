@@ -154,7 +154,7 @@ extern "C" {
                 font_color.b = 0;
                 font_color.a = 255;
                 
-                Size2d text_size = get_text_size(&current_entity->text, current_entity->text_font);
+                Size2dFloat text_size = get_text_size_float(&current_entity->text, current_entity->text_font);
                 draw_text(current_entity->pos.x, current_entity->pos.y, &current_entity->text, current_entity->text_font, font_color);
                 
                 draw_rectangle(current_entity->pos.x, current_entity->pos.y, 
