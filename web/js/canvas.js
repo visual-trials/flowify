@@ -330,10 +330,7 @@ Flowify.canvas = function () {
                 let baseFont = my.fontFamilies[fontFamilyIndex]
 
                 // Note: fontHeight is the distance between the top of a capital and the bottom of a capital (note that a non-capital can stick out below!)
-                let fontHeight2FontPx = 1.3  // TODO: is this multiplier correct?
-                let fontPx = fontHeight * fontHeight2FontPx
-
-                ctx.font = fontPx + "px " + baseFont
+                ctx.font = fontHeight + "px " + baseFont
                 let fontHeightPx = fontHeight
                 ctx.fillStyle = my.getCanvasRGBAColor(fontColorRGB, fontColorAlpha)
                 ctx.fillText(string, x, y + fontHeightPx)
@@ -349,10 +346,7 @@ Flowify.canvas = function () {
                 let baseFont = my.fontFamilies[fontFamilyIndex]
 
                 // Note: fontHeight is the distance between the top of a capital and the bottom of a capital (note that a non-capital can stick out below!)
-                let fontHeight2FontPx = 1.3  // TODO: is this multiplier correct?
-                let fontPx = fontHeight * fontHeight2FontPx
-
-                ctx.font = fontPx + "px " + baseFont
+                ctx.font = fontHeight + "px " + baseFont
                 let fontHeightPx = fontHeight
                 let textMetrics = ctx.measureText(string)
                 
