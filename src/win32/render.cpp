@@ -378,27 +378,38 @@ void draw_text(i32 x, i32 y, ShortString * text, Font font, Color4 font_color)
 
     IDWriteTextFormat * text_format;
     
-    // FIXME check result
+    // TODO check result
     // TODO: shouldn't we release the text format? Do we want to (re)create it here every time?
     HRESULT text_format_result = direct_write_factory->CreateTextFormat(
-            font_families[font.family],
-            NULL,
-            DWRITE_FONT_WEIGHT_NORMAL,
-            DWRITE_FONT_STYLE_NORMAL,
-            DWRITE_FONT_STRETCH_NORMAL,
-            font.height * 1.3, // TODO: see canvas.js: we use this constant now
-            L"", //locale
-            &text_format
+        font_families[font.family],
+        NULL,
+        DWRITE_FONT_WEIGHT_NORMAL,
+        DWRITE_FONT_STYLE_NORMAL,
+        DWRITE_FONT_STRETCH_NORMAL,
+        font.height * 1.3, // TODO: see canvas.js: we use this constant now
+        L"", //locale
+        &text_format
     );
             
-    render_target->DrawText(
-            (LPWSTR)wide_text,
-            text->length,
-            text_format,
-            D2D1::RectF(x, y, x + 200, y + 100), // FIXME: how to determine size of text?
-            font_brush
-    );
+    IDWriteTextLayout * text_layout;
             
+    // TODO check result
+    // TODO: shouldn't we release the text layout? Do we want to (re)create it here every time?
+    HRESULT text_layout_result = direct_write_factory->CreateTextLayout(
+        (LPWSTR)wide_text,
+        text->length,
+        text_format,
+        4000, // FIXME: is there a way to say 'unlimited width' for the layout box?
+        1000, // FIXME: is there a way to say 'unlimited height' for the layout box?
+        &text_layout
+    );
+    
+    render_target->DrawTextLayout(
+        D2D1::Point2F(x, y),
+        text_layout,
+        font_brush
+    );
+    
     release_brush(font_brush);
 }
 
