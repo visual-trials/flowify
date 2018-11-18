@@ -434,10 +434,11 @@ void draw_text(i32 x, i32 y, ShortString * text, Font font, Color4 font_color)
         (LPWSTR)wide_text,
         text->length,
         text_format,
-        4000, // FIXME: is there a way to say 'unlimited width' for the layout box?
-        1000, // FIXME: is there a way to say 'unlimited height' for the layout box?
+        0, // We do not set a max width, and we do not use word wrapping
+        0, // We do not set a max height, and we do not use word wrapping
         &text_layout
     );
+    text_layout->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
     
     render_target->DrawTextLayout(
         D2D1::Point2F(x, y),
