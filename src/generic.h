@@ -89,6 +89,15 @@ i32 cstring_length(u8 * string)
     return count;
 }
 
+void append_string(ShortString * dest, ShortString * src)
+{
+    for (i32 i = 0; i < src->length; i++)
+    {
+        dest->data[dest->length + i] = src->data[i];
+    }
+    dest->length = dest->length + src->length;
+}
+
 void copy_string(ShortString * src, ShortString * dest)
 {
     for (i32 i = 0; i < src->length; i++)
@@ -168,5 +177,43 @@ ShortString * int_to_string(i32 number, ShortString * decimal_string)
         digit_index--;
     }
     decimal_string->length = negative_digit_offset + nr_of_digits;
+    return decimal_string;
+}
+
+ShortString * float_to_string(f32 number, ShortString * decimal_string)
+{
+    if (number == 0)
+    {
+        decimal_string->data[0] = '0';
+        decimal_string->length = 1;
+        return decimal_string;
+    }
+    
+    i32 negative_digit_offset = 0;
+    if (number < 0)
+    {
+        negative_digit_offset = 1;  // the '-' takes one character, so everything moves one character to the right
+        number = -number;
+        decimal_string->data[0] = '-';
+        decimal_string->length = 1;
+    }
+    
+    i32 number_left_part = (i32)number;
+    f32 number_float_right_part = number - (f32)number_left_part;
+    i32 number_right_part = number_float_right_part * 100000; // TODO: only the 5 digits are processed after the period
+    
+    ShortString string_left_part = {};
+    int_to_string(number_left_part, &string_left_part);
+
+    ShortString period = {};
+    copy_char_to_string('.', &period);
+    
+    ShortString string_right_part = {};
+    int_to_string(number_right_part, &string_right_part);
+    
+    append_string(decimal_string, &string_left_part);
+    append_string(decimal_string, &period);
+    append_string(decimal_string, &string_right_part);
+    
     return decimal_string;
 }
