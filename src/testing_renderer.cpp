@@ -29,6 +29,20 @@ struct WorldData
 
 WorldData global_world = {};  // FIXME: allocate this properly!
 
+const char * program_lines[] = { 
+    "number = arg[0]",
+    "increased = 0",
+    "if (number < 39) {",
+    "    number = number + 3",
+    "    increased++",
+    "}",
+    "else {",
+    "    number = number - 5",
+    "}",
+    "print(increased, number)",
+};
+
+
 extern "C" {
     
     void init_world()

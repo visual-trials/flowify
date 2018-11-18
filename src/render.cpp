@@ -128,9 +128,10 @@ b32 do_button(i32 x, i32 y, i32 width, i32 height, i32 number, b32 is_active, Mo
     ShortString decimal_string;
     int_to_string(number, &decimal_string);
     Font font = {};
-    font.height = 10;
+    font.height = 13;
     font.family = Font_Arial;
-    draw_text(x + (width - font.height) / 2 , y + (height - font.height) / 2 , &decimal_string, font, line_color);
+    Size2d text_size = get_text_size(&decimal_string, font);
+    draw_text(x + (width - text_size.width) / 2 , y + (height - text_size.height) / 2 , &decimal_string, font, line_color);
     
     return hovered_or_pressed.is_pressed;
 }
