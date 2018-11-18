@@ -402,6 +402,51 @@ Size2d get_text_size(ShortString * text, Font font)
     return text_size;
 }
 
+Size2dFloat get_text_size_float(ShortString * text, Font font)
+{
+    u16 wide_text[MAX_LENGTH_SHORT_STRING];
+    MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, (LPCCH)text->data, text->length, (LPWSTR)wide_text, MAX_LENGTH_SHORT_STRING);
+
+    IDWriteTextFormat * text_format;
+    
+    // TODO check result
+    // TODO: shouldn't we release the text format? Do we want to (re)create it here every time?
+    HRESULT text_format_result = direct_write_factory->CreateTextFormat(
+        font_families[font.family],
+        NULL,
+        DWRITE_FONT_WEIGHT_NORMAL,
+        DWRITE_FONT_STYLE_NORMAL,
+        DWRITE_FONT_STRETCH_NORMAL,
+        font.height,
+        L"", //locale
+        &text_format
+    );
+            
+    IDWriteTextLayout * text_layout;
+            
+    // TODO check result
+    // TODO: shouldn't we release the text layout? Do we want to (re)create it here every time?
+    HRESULT text_layout_result = direct_write_factory->CreateTextLayout(
+        (LPWSTR)wide_text,
+        text->length,
+        text_format,
+        0, // We do not set a max width, and we do not use word wrapping
+        0, // We do not set a max height, and we do not use word wrapping
+        &text_layout
+    );
+    text_layout->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
+    
+    DWRITE_TEXT_METRICS text_metrics;
+    // TODO check result
+    HRESULT metrics_result = text_layout->GetMetrics(&text_metrics);
+    
+    Size2dFloat text_size = {};
+    text_size.width = text_metrics.widthIncludingTrailingWhitespace;
+    text_size.height = text_metrics.height;
+    
+    return text_size;
+}
+
 void draw_text(i32 x, i32 y, ShortString * text, Font font, Color4 font_color)
 {
     ID2D1SolidColorBrush * font_brush = 0;

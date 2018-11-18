@@ -161,9 +161,12 @@ extern "C" {
                                text_size.width, text_size.height,
                                red, no_color, 1);
                                
+                ShortString width_string = {};
                 ShortString height_string = {};
+                float_to_string(text_size.width, &width_string);
                 float_to_string(text_size.height, &height_string);
-                draw_text(current_entity->pos.x, current_entity->pos.y + 50, &height_string, current_entity->text_font, font_color);
+                draw_text(current_entity->pos.x, current_entity->pos.y + 50, &width_string, current_entity->text_font, font_color);
+                draw_text(current_entity->pos.x, current_entity->pos.y + 50 + text_size.height, &height_string, current_entity->text_font, font_color);
                 
             }
         }
