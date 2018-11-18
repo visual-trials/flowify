@@ -15,6 +15,12 @@
    limitations under the License.
 
  */
+ 
+// Note: Keep this list in sync with the other font-lists!
+const f32 textHeightToFontSizeRatio[] = {
+    1.1499023, // Arial
+    1.1328125  // Courier New
+};
 
 extern "C" { 
     extern void jsDrawRoundedRect(i32 x, i32 y, i32 width, i32 height, i32 r,
@@ -120,7 +126,7 @@ Size2d get_text_size(ShortString * text, Font font)
     
     Size2d text_size = {};
     text_size.width = (i32)text_width;
-    text_size.height = (i32)((f32)font.height * 1.1); // TODO: is this correct?
+    text_size.height = (i32)((f32)font.height * textHeightToFontSizeRatio[font.family]); // Note: this is a workaround. The browser doens't give us this info!
     
     return text_size;
 }
@@ -131,7 +137,7 @@ Size2dFloat get_text_size_float(ShortString * text, Font font)
     
     Size2dFloat text_size = {};
     text_size.width = text_width;
-    text_size.height = (f32)font.height * 1.1; // TODO: is this correct?
+    text_size.height = (f32)font.height * textHeightToFontSizeRatio[font.family]; // Note: this is a workaround. The browser doens't give us this info!
     
     return text_size;
 }
