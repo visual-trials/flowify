@@ -76,7 +76,7 @@ Flowify.canvas = function () {
                 // TODO: if we enable this, we should also respond to it by
                 //       using bigger fonts and bigger shapes. For now this
                 //       is turned off.
-                // my.scale = window.devicePixelRatio
+                my.scale = window.devicePixelRatio
             }        
             my.canvasElement.style.width = window.innerWidth
             my.canvasElement.style.height = window.innerHeight
