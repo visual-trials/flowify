@@ -333,7 +333,8 @@ Flowify.canvas = function () {
                 ctx.font = fontHeight + "px " + baseFont
                 let fontHeightPx = fontHeight
                 ctx.fillStyle = my.getCanvasRGBAColor(fontColorRGB, fontColorAlpha)
-                ctx.fillText(string, x, y + fontHeightPx)
+                ctx.textBaseline = "top"
+                ctx.fillText(string, x, y)
             },
 
             _jsGetTextWidth: function (stringIndex, stringLength, fontHeight, fontFamilyIndex) {

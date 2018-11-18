@@ -120,7 +120,7 @@ Size2d get_text_size(ShortString * text, Font font)
     
     Size2d text_size = {};
     text_size.width = text_width;
-    text_size.height = font.height * 1.3; // TODO: is this correct?
+    text_size.height = font.height * 1.1; // TODO: is this correct?
     
     return text_size;
 }
