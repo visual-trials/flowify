@@ -23,6 +23,11 @@ ID2D1HwndRenderTarget * render_target;
 ID2D1Factory * d2d_factory;
 IDWriteFactory * direct_write_factory;
 
+// Note: keep this in sync with the enum FontFamily in render.cpp
+const wchar_t* font_families[] = { 
+    L"Arial",
+    L"Courier New"
+};
 
 // TODO: make this inline
 void release_brush(ID2D1SolidColorBrush * brush)
@@ -352,7 +357,7 @@ void draw_ellipse(i32 x, i32 y, i32 width, i32 height,
     
 }
 
-void draw_text(i32 x, i32 y, ShortString * text, i32 font_height, Color4 font_color)
+void draw_text(i32 x, i32 y, ShortString * text, Font font, Color4 font_color)
 {
     ID2D1SolidColorBrush * font_brush = 0;
     get_brush(font_color, &font_brush);
@@ -365,12 +370,12 @@ void draw_text(i32 x, i32 y, ShortString * text, i32 font_height, Color4 font_co
     // FIXME check result
     // TODO: shouldn't we release the text format? Do we want to (re)create it here every time?
     HRESULT text_format_result = direct_write_factory->CreateTextFormat(
-            L"Arial",
+            font_families[font.family],
             NULL,
             DWRITE_FONT_WEIGHT_NORMAL,
             DWRITE_FONT_STYLE_NORMAL,
             DWRITE_FONT_STRETCH_NORMAL,
-            font_height * 1.3, // TODO: see canvas.js: we use this constant now
+            font.height * 1.3, // TODO: see canvas.js: we use this constant now
             L"", //locale
             &text_format
     );
@@ -386,11 +391,11 @@ void draw_text(i32 x, i32 y, ShortString * text, i32 font_height, Color4 font_co
     release_brush(font_brush);
 }
 
-void draw_text_c(i32 x, i32 y, const char * cstring, i32 font_height, Color4 font_color)
+void draw_text_c(i32 x, i32 y, const char * cstring, Font font, Color4 font_color)
 {
     ShortString text;
     copy_cstring_to_short_string(cstring, &text);
-    draw_text(x, y, &text, font_height, font_color);
+    draw_text(x, y, &text, font, font_color);
 }
 
 void log(u8 * text)

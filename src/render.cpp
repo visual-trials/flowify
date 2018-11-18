@@ -16,7 +16,7 @@
 
  */
  
-// NOTE: always keep this in sync with my.fontFamilies in canvas.js!
+// NOTE: always keep this in sync with my.fontFamilies in canvas.js and font_families in win32/render.cpp!
 enum FontFamily
 {
     Font_Arial = 0x00,
