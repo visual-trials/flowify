@@ -385,10 +385,11 @@ Size2d get_text_size(ShortString * text, Font font)
         (LPWSTR)wide_text,
         text->length,
         text_format,
-        4000, // FIXME: is there a way to say 'unlimited width' for the layout box?
-        1000, // FIXME: is there a way to say 'unlimited height' for the layout box?
+        0, // We do not set a max width, and we do not use word wrapping
+        0, // We do not set a max height, and we do not use word wrapping
         &text_layout
     );
+    text_layout->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
     
     DWRITE_TEXT_METRICS text_metrics;
     // TODO check result
@@ -397,7 +398,7 @@ Size2d get_text_size(ShortString * text, Font font)
     
     Size2d text_size = {};
     text_size.width = text_width;
-    text_size.height = font.height; // TODO: is this correct? (what if its multiline? or do we not allow that?)
+    text_size.height = text_metrics.height; // font.height; // TODO: is this correct? (what if its multiline? or do we not allow that?)
     
     return text_size;
 }
