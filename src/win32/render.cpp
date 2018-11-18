@@ -372,7 +372,7 @@ Size2d get_text_size(ShortString * text, Font font)
         DWRITE_FONT_WEIGHT_NORMAL,
         DWRITE_FONT_STYLE_NORMAL,
         DWRITE_FONT_STRETCH_NORMAL,
-        font.height * 1.3, // TODO: see canvas.js: we use this constant now
+        font.height,
         L"", //locale
         &text_format
     );
@@ -394,11 +394,10 @@ Size2d get_text_size(ShortString * text, Font font)
     DWRITE_TEXT_METRICS text_metrics;
     // TODO check result
     HRESULT metrics_result = text_layout->GetMetrics(&text_metrics);
-    i32 text_width = text_metrics.widthIncludingTrailingWhitespace;
     
     Size2d text_size = {};
-    text_size.width = text_width;
-    text_size.height = text_metrics.height; // font.height; // TODO: is this correct? (what if its multiline? or do we not allow that?)
+    text_size.width = text_metrics.widthIncludingTrailingWhitespace;
+    text_size.height = text_metrics.height;
     
     return text_size;
 }
@@ -421,7 +420,7 @@ void draw_text(i32 x, i32 y, ShortString * text, Font font, Color4 font_color)
         DWRITE_FONT_WEIGHT_NORMAL,
         DWRITE_FONT_STYLE_NORMAL,
         DWRITE_FONT_STRETCH_NORMAL,
-        font.height * 1.3, // TODO: see canvas.js: we use this constant now
+        font.height,
         L"", //locale
         &text_format
     );
