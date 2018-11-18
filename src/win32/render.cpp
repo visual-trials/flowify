@@ -357,6 +357,17 @@ void draw_ellipse(i32 x, i32 y, i32 width, i32 height,
     
 }
 
+Size2d get_text_size(ShortString * text, Font font)
+{
+    i32 text_width = 10; // FIXME: implement this!
+    
+    Size2d text_size = {};
+    text_size.width = text_width;
+    text_size.height = font.height; // TODO: is this correct? (what if its multiline? or do we not allow that?)
+    
+    return text_size;
+}
+
 void draw_text(i32 x, i32 y, ShortString * text, Font font, Color4 font_color)
 {
     ID2D1SolidColorBrush * font_brush = 0;
