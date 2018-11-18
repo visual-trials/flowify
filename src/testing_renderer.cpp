@@ -174,6 +174,39 @@ extern "C" {
             
         }
         
+        
+        {
+            i32 nr_of_program_lines = sizeof(program_lines) / sizeof(char *);
+            
+            Color4 black = {};
+            black.a = 255;
+            
+            Color4 grey = {};
+            grey.a = 100;
+            
+            Font font = {};
+            font.height = 20;
+            font.family = Font_CourierNew;
+
+            ShortString line_nr_text;
+            ShortString program_line_text;
+            
+            copy_char_to_string(' ', &program_line_text);
+            Size2d line_size = get_text_size(&program_line_text, font);
+            
+            for (i32 line_index = 0; line_index < nr_of_program_lines; line_index++)
+            {
+                
+                int_to_string(line_index + 1, &line_nr_text);
+                Size2d line_nr_size = get_text_size(&line_nr_text, font);
+                
+                copy_cstring_to_short_string(program_lines[line_index], &program_line_text);
+                
+                draw_text(710 - line_nr_size.width, 200 + line_index * line_size.height * 1.5, &line_nr_text, font, grey);
+                draw_text(750, 200 + line_index * line_size.height * 1.5, &program_line_text, font, black);
+            }
+        }
+        
     }
     
     void draw_pixel_borders()
