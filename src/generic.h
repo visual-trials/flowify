@@ -91,11 +91,17 @@ i32 cstring_length(u8 * string)
 
 void append_string(ShortString * dest, ShortString * src)
 {
-    for (i32 i = 0; i < src->length; i++)
+    i32 nr_of_characters_to_append = src->length;
+    if (dest->length + nr_of_characters_to_append > MAX_LENGTH_SHORT_STRING)
+    {
+        nr_of_characters_to_append = MAX_LENGTH_SHORT_STRING - dest->length;
+    }
+    
+    for (i32 i = 0; i < nr_of_characters_to_append; i++)
     {
         dest->data[dest->length + i] = src->data[i];
     }
-    dest->length = dest->length + src->length;
+    dest->length = dest->length + nr_of_characters_to_append;
 }
 
 void copy_string(ShortString * src, ShortString * dest)
