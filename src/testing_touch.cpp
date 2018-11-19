@@ -35,12 +35,7 @@ extern "C" {
         TouchesInput * touch_info = &global_input.touch;
         ShortString nr_of_touches_string;
         
-        Color4 green;
-        green.r = 40;
-        green.g = 200;
-        green.b = 80;
-        green.a = 255;
-        
+        Color4 green = {40, 200, 80, 255};
         Color4 transparant = {};
         
         Font font = {};
