@@ -143,8 +143,7 @@ extern "C" {
         {
             Entity * current_entity = world->entities + entity_index;
             
-            draw_rectangle(current_entity->pos.x, current_entity->pos.y, 
-                           current_entity->size.width, current_entity->size.height,
+            draw_rectangle(current_entity->pos, current_entity->size,
                            current_entity->line_color, current_entity->fill_color, 
                            current_entity->line_width);
         }

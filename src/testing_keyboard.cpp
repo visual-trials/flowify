@@ -247,22 +247,33 @@ extern "C" {
                 ShortString key_name = keyboard_layout->rows[row_index].keys[column_index].key_name;
                 i32 key_width = keyboard_layout->rows[row_index].keys[column_index].width;
                 
-                i32 x = x_column;
-                i32 y = y_row;
+                Pos2d position_rectangle = {};
+                Size2d size_rectangle = {};
+                
+                position_rectangle.x = x_column;
+                position_rectangle.y = y_row;
+                
+                size_rectangle.width = key_width - 10;
+                size_rectangle.height = row_height - 10;
+                
                 if (key_code != Key_Invisible)
                 {
                     Size2d text_size = get_text_size(&key_name, font);
-                    i32 horizontal_margin = (key_width - 10 - text_size.width) / 2;
-                    i32 vertical_margin = (row_height - 10 - text_size.height) / 2;
+                    i32 horizontal_margin = (size_rectangle.width - text_size.width) / 2;
+                    i32 vertical_margin = (size_rectangle.height - text_size.height) / 2;
+                    
+                    Pos2d position_text = {};
+                    position_text.x = position_rectangle.x + horizontal_margin;
+                    position_text.y = position_rectangle.y + vertical_margin;
                     
                     if (keyboard->keys_that_are_down[key_code])
                     {
-                        draw_rounded_rectangle(x, y, key_width - 10, row_height - 10, 3, black, black, 1);
-                        draw_text(x + horizontal_margin, y + vertical_margin, &key_name, font, white);
+                        draw_rounded_rectangle(position_rectangle, size_rectangle, 3, black, black, 1);
+                        draw_text(position_text, &key_name, font, white);
                     }
                     else {
-                        draw_rounded_rectangle(x, y, key_width - 10, row_height - 10, 3, black, white, 1);
-                        draw_text(x + horizontal_margin, y + vertical_margin, &key_name, font, black);
+                        draw_rounded_rectangle(position_rectangle, size_rectangle, 3, black, white, 1);
+                        draw_text(position_text, &key_name, font, black);
                     }
                 }
                 
@@ -292,7 +303,7 @@ extern "C" {
             copy_char_to_string(world->key_sequence[sequence_index], &character);
             Size2d text_size = get_text_size(&character, font);
             x = x - text_size.width;
-            draw_text(450 + x, 100, &character, font, black);
+            draw_text((Pos2d){450 + x, 100}, &character, font, black);
         }
         
     }
