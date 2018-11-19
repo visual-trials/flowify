@@ -94,8 +94,8 @@ LRESULT CALLBACK WindowProcedure(HWND window,
         case WM_MOUSEMOVE: 
         {
             new_input.mouse.has_moved = true;
-            new_input.mouse.x = LOWORD(l_param);
-            new_input.mouse.y = HIWORD(l_param);
+            new_input.mouse.position.x = LOWORD(l_param);
+            new_input.mouse.position.y = HIWORD(l_param);
         }
         break;
         case WM_MOUSEWHEEL:
@@ -147,12 +147,12 @@ LRESULT CALLBACK WindowProcedure(HWND window,
                                     // The touch_input has ended, so we should mark it as such
                                     new_input.touch.touches[touch_index].has_ended = true;
                                     
-                                    if (new_input.touch.touches[touch_index].x != x ||
-                                        new_input.touch.touches[touch_index].y != y)
+                                    if (new_input.touch.touches[touch_index].position.x != x ||
+                                        new_input.touch.touches[touch_index].position.y != y)
                                     {
                                         new_input.touch.touches[touch_index].has_moved = true;
-                                        new_input.touch.touches[touch_index].x = x;
-                                        new_input.touch.touches[touch_index].y = y;
+                                        new_input.touch.touches[touch_index].position.x = x;
+                                        new_input.touch.touches[touch_index].position.y = y;
                                     }
                                 }
                                 
@@ -160,8 +160,8 @@ LRESULT CALLBACK WindowProcedure(HWND window,
                                 {
                                     // The touch_input has moved, so we should mark it as such
                                     new_input.touch.touches[touch_index].has_moved = true;
-                                    new_input.touch.touches[touch_index].x = x;
-                                    new_input.touch.touches[touch_index].y = y;
+                                    new_input.touch.touches[touch_index].position.x = x;
+                                    new_input.touch.touches[touch_index].position.y = y;
                                 }
                             }
                             else
@@ -175,8 +175,8 @@ LRESULT CALLBACK WindowProcedure(HWND window,
                                     new_input.touch.touches[touch_index].has_started = false;
                                     new_input.touch.touches[touch_index].has_ended = false;
                                     new_input.touch.touches[touch_index].was_canceled = false;
-                                    new_input.touch.touches[touch_index].x = x;
-                                    new_input.touch.touches[touch_index].y = y;
+                                    new_input.touch.touches[touch_index].position.x = x;
+                                    new_input.touch.touches[touch_index].position.y = y;
                                     
                                     new_input.touch.touch_count += 1;
                                 }
