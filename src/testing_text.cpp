@@ -24,7 +24,6 @@
 
 struct Entity
 {
-    // TODO: shape
     Pos2d pos;
     Size2d size;
     Color4 line_color;
@@ -41,12 +40,6 @@ struct WorldData
     Entity entities[MAX_ENTITIES];
     i32 nr_of_entities;
     
-    i32 increment;
-    
-    u32 first_entity_index;
-    u32 second_entity_index;
-    u32 third_entity_index;
-    
     b32 verbose_frame_times;
 };
 
@@ -58,33 +51,11 @@ extern "C" {
     {
         WorldData * world = &global_world;
         
-        world->increment = 0;
         world->nr_of_entities = 0;
+
+        // First entity
         
-        world->third_entity_index = world->nr_of_entities++;
-        Entity * third_entity = world->entities + world->third_entity_index;
-        
-        Color4 blue = {0, 0, 255, 255};
-        Color4 light_blue = {150, 150, 255, 255};
-        
-        third_entity->line_color = blue;
-        third_entity->fill_color = light_blue;
-        
-        third_entity->line_width = 2;
-        
-        third_entity->pos.x = 400;
-        third_entity->pos.y = 30;
-        
-        third_entity->size.width = 100;
-        third_entity->size.height = 50;
-        
-        copy_cstring_to_short_string("Small text", &third_entity->text);
-        third_entity->has_text = true;
-        third_entity->text_font.height = 13;
-        third_entity->text_font.family = Font_Arial;
-        
-        world->first_entity_index = world->nr_of_entities++;
-        Entity * first_entity = world->entities + world->first_entity_index;
+        Entity * first_entity = world->entities + world->nr_of_entities++;
         
         Color4 violet = {255, 50, 255, 255};
         Color4 light_violet = {255, 200, 255, 255};
@@ -105,15 +76,29 @@ extern "C" {
         first_entity->text_font.height = 26;
         first_entity->text_font.family = Font_CourierNew;
         
-        /*
-        world->second_entity_index = world->nr_of_entities++;
-        Entity * second_entity = world->entities + world->second_entity_index;
+        // Second entity
         
-        *second_entity = *first_entity;
+        Entity * second_entity = world->entities + world->nr_of_entities++;
         
-        second_entity->pos.x = 10;
-        second_entity->pos.y = 10;
-        */
+        Color4 blue = {0, 0, 255, 255};
+        Color4 light_blue = {150, 150, 255, 255};
+        
+        second_entity->line_color = blue;
+        second_entity->fill_color = light_blue;
+        
+        second_entity->line_width = 2;
+        
+        second_entity->pos.x = 400;
+        second_entity->pos.y = 30;
+        
+        second_entity->size.width = 100;
+        second_entity->size.height = 50;
+        
+        copy_cstring_to_short_string("Small text", &second_entity->text);
+        second_entity->has_text = true;
+        second_entity->text_font.height = 13;
+        second_entity->text_font.family = Font_Arial;
+        
     }
     
     void update_frame()
@@ -125,7 +110,7 @@ extern "C" {
         WorldData * world = &global_world;
 
         Color4 no_color = {};
-        Color4 black =  {0, 0, 0, 255};
+        Color4 black = {0, 0, 0, 255};
         Color4 red = {255, 0, 0, 255};
         
         for (i32 entity_index = 0; entity_index < world->nr_of_entities; entity_index++)
@@ -147,16 +132,17 @@ extern "C" {
                                red, no_color, 1);
                                
                 ShortString width_string = {};
-                ShortString height_string = {};
                 float_to_string(text_size.width, &width_string);
+                
+                ShortString height_string = {};
                 float_to_string(text_size.height, &height_string);
-                draw_text(current_entity->pos.x, current_entity->pos.y + 50, &width_string, current_entity->text_font, black);
-                draw_text(current_entity->pos.x, current_entity->pos.y + 50 + text_size.height, &height_string, current_entity->text_font, black);
+                
                 ShortString height_aspect_string = {};
                 float_to_string(text_size.height / current_entity->text_font.height, &height_aspect_string);
+                
+                draw_text(current_entity->pos.x, current_entity->pos.y + 50, &width_string, current_entity->text_font, black);
+                draw_text(current_entity->pos.x, current_entity->pos.y + 50 + text_size.height, &height_string, current_entity->text_font, black);
                 draw_text(current_entity->pos.x, current_entity->pos.y + 50 + text_size.height * 2, &height_aspect_string, current_entity->text_font, black);
-                
-                
             }
         }
 
