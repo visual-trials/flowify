@@ -59,73 +59,29 @@ extern "C" {
     
     void draw_basic_figures()
     {
-        Color4 line_color;
-        Color4 fill_color;
+        Color4 line_color_rect = { 20,  80, 205, 255};
+        Color4 fill_color_rect = { 40, 173, 255, 255};
         
-        line_color.r = 20;
-        line_color.g = 80;
-        line_color.b = 205;
-        line_color.a = 255;
+        draw_rectangle(200, 100, 400, 300, line_color_rect, fill_color_rect, 8);
         
-        fill_color.r = 40;
-        fill_color.g = 173;
-        fill_color.b = 255;
-        fill_color.a = 255;
-
-        draw_rectangle(200, 100, 400, 300, line_color, fill_color, 8);
+        Color4 line_color_ellipse = {120, 140,  55, 255};
+        Color4 fill_color_ellipse = {173, 240, 169, 200};
         
-        line_color.r = 120;
-        line_color.g = 140;
-        line_color.b = 55;
-        line_color.a = 255;
+        draw_ellipse(550, 20, 400, 300, line_color_ellipse, fill_color_ellipse, 1);
         
-        fill_color.r = 173;
-        fill_color.g = 240;
-        fill_color.b = 169;
-        fill_color.a = 200;
+        Color4 line_color_rounded = { 20,  40,  55, 255};
+        Color4 fill_color_rounded = { 40,  69, 173, 150};
         
-        draw_ellipse(550, 20, 400, 300, line_color, fill_color, 1);
-        
-        line_color.r = 20;
-        line_color.g = 40;
-        line_color.b = 55;
-        line_color.a = 255;
-        
-        fill_color.r = 40;
-        fill_color.g = 69;
-        fill_color.b = 173;
-        fill_color.a = 150;
-        
-        draw_rounded_rectangle(500, 200, 200, 350, 20, line_color, fill_color, 4);
+        draw_rounded_rectangle(500, 200, 200, 350, 20, line_color_rounded, fill_color_rounded, 4);
     }
     
     void draw_lanes()
     {
-        Color4 thin_line_color;
-        Color4 line_color;
-        Color4 fill_color;
-        Color4 fill_color2;
-        Color4 no_color = {};
         
-        thin_line_color.r = 200;
-        thin_line_color.g = 200;
-        thin_line_color.b = 200;
-        thin_line_color.a = 255;
-        
-        line_color.r = 0;
-        line_color.g = 0;
-        line_color.b = 0;
-        line_color.a = 255;
-        
-        fill_color.r = 180;
-        fill_color.g = 180;
-        fill_color.b = 255;
-        fill_color.a = 255;
-        
-        fill_color2.r = 180;
-        fill_color2.g = 255;
-        fill_color2.b = 180;
-        fill_color2.a = 255;
+        Color4 line_color     = {  0,   0,   0, 255};
+        Color4 fill_color     = {180, 180, 255, 255};
+        Color4 selected_color = {180, 255, 180, 255};
+        Color4 no_color       = {};
         
         i32 line_width = 4;
 
@@ -161,7 +117,7 @@ extern "C" {
             // Extending right
             draw_lane_segment(450, 600, 280, 
                               450, 600, 500, 
-                              20, line_color, fill_color2, line_width);
+                              20, line_color, selected_color, line_width);
                               
             // Left back to middle
             draw_lane_segment(150, 350, 500, 
@@ -171,7 +127,7 @@ extern "C" {
             // Right back to middle
             draw_lane_segment(450, 600, 500, 
                               400, 600, 540, 
-                              20, line_color, fill_color2, line_width);
+                              20, line_color, selected_color, line_width);
                               
             // Combining left and right
             draw_lane_segment(150, 600, 540, 
@@ -218,7 +174,7 @@ extern "C" {
                         program_line_size.width - white_space_size.width * 2, 
                         line_height, 
                         no_color, 
-                        fill_color2, 
+                        selected_color, 
                         1
                     );
                 }
