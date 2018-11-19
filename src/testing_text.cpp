@@ -117,32 +117,34 @@ extern "C" {
         {
             Entity * current_entity = world->entities + entity_index;
             
-            draw_rectangle(current_entity->pos.x, current_entity->pos.y, 
-                           current_entity->size.width, current_entity->size.height,
+            draw_rectangle(current_entity->pos, current_entity->size,
                            current_entity->line_color, current_entity->fill_color, 
                            current_entity->line_width);
                            
             if (current_entity->has_text)
             {
-                Size2dFloat text_size = get_text_size_float(&current_entity->text, current_entity->text_font);
-                draw_text(current_entity->pos.x, current_entity->pos.y, &current_entity->text, current_entity->text_font, black);
+                Size2dFloat text_size_float = get_text_size_float(&current_entity->text, current_entity->text_font);
                 
-                draw_rectangle(current_entity->pos.x, current_entity->pos.y, 
-                               text_size.width, text_size.height,
-                               red, no_color, 1);
+                Size2d text_size_int = {};
+                text_size_int.width = text_size_float.width;
+                text_size_int.height = text_size_float.height;
+                
+                draw_text(current_entity->pos, &current_entity->text, current_entity->text_font, black);
+                
+                draw_rectangle(current_entity->pos, text_size_int, red, no_color, 1);
                                
                 ShortString width_string = {};
-                float_to_string(text_size.width, &width_string);
+                float_to_string(text_size_float.width, &width_string);
                 
                 ShortString height_string = {};
-                float_to_string(text_size.height, &height_string);
+                float_to_string(text_size_float.height, &height_string);
                 
                 ShortString height_aspect_string = {};
-                float_to_string(text_size.height / current_entity->text_font.height, &height_aspect_string);
+                float_to_string(text_size_float.height / current_entity->text_font.height, &height_aspect_string);
                 
-                draw_text(current_entity->pos.x, current_entity->pos.y + 50, &width_string, current_entity->text_font, black);
-                draw_text(current_entity->pos.x, current_entity->pos.y + 50 + text_size.height, &height_string, current_entity->text_font, black);
-                draw_text(current_entity->pos.x, current_entity->pos.y + 50 + text_size.height * 2, &height_aspect_string, current_entity->text_font, black);
+                draw_text((Pos2d){current_entity->pos.x, current_entity->pos.y + 50}, &width_string, current_entity->text_font, black);
+                draw_text((Pos2d){current_entity->pos.x, current_entity->pos.y + 50 + text_size_int.height}, &height_string, current_entity->text_font, black);
+                draw_text((Pos2d){current_entity->pos.x, current_entity->pos.y + 50 + text_size_int.height * 2}, &height_aspect_string, current_entity->text_font, black);
             }
         }
 
