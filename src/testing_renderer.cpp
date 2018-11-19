@@ -253,8 +253,8 @@ extern "C" {
     {
         // Draw (and update) button menu
         
-        i32 width_button = 50;
-        i32 height_button = 50;
+        Size2d size_button = {50, 50};
+        Pos2d position_button = {20, 20};
         i32 margin_between_buttons = 20;
         
         for (i32 page_index = 0; page_index < world->nr_of_pages; page_index++)
@@ -264,7 +264,9 @@ extern "C" {
             {
                 button_is_active = true;
             }
-            b32 button_is_pressed = do_button(20, 20 + page_index * (margin_between_buttons + height_button), width_button, height_button, page_index + 1, button_is_active, &global_input.mouse, &global_input.touch);
+            
+            position_button.y = 20 + page_index * (margin_between_buttons + size_button.height);
+            b32 button_is_pressed = do_button(position_button, size_button, page_index + 1, button_is_active, &global_input.mouse, &global_input.touch);
             
             if (button_is_pressed)
             {

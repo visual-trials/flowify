@@ -60,12 +60,12 @@ struct HoveredOrPressed
     b32 is_pressed;
 };
 
-HoveredOrPressed check_hovered_or_pressed(i32 x, i32 y, i32 width, i32 height, MouseInput * mouse_input, TouchesInput * touches_input)
+HoveredOrPressed check_hovered_or_pressed(Pos2d position, Size2d size, MouseInput * mouse_input, TouchesInput * touches_input)
 {
     HoveredOrPressed result = {};
     
-    if (mouse_input->position.x >= x && mouse_input->position.x <= x + width &&
-        mouse_input->position.y >= y && mouse_input->position.y <= y + height)
+    if (mouse_input->position.x >= position.x && mouse_input->position.x <= position.x + size.width &&
+        mouse_input->position.y >= position.y && mouse_input->position.y <= position.y + size.height)
     {
         result.is_hovered = true;
         if (mouse_input->left_button_has_gone_down)
@@ -80,8 +80,8 @@ HoveredOrPressed check_hovered_or_pressed(i32 x, i32 y, i32 width, i32 height, M
         
         if (touch_input->has_started)
         {
-            if (touch_input->position.x >= x && touch_input->position.x <= x + width &&
-                touch_input->position.y >= y && touch_input->position.y <= y + height)
+            if (touch_input->position.x >= position.x && touch_input->position.x <= position.x + size.width &&
+                touch_input->position.y >= position.y && touch_input->position.y <= position.y + size.height)
             {
                 result.is_pressed = true;
             }
@@ -91,10 +91,10 @@ HoveredOrPressed check_hovered_or_pressed(i32 x, i32 y, i32 width, i32 height, M
     return result;
 }
 
-b32 do_button(i32 x, i32 y, i32 width, i32 height, i32 number, b32 is_active, MouseInput * mouse_input, TouchesInput * touches_input)
+b32 do_button(Pos2d position, Size2d size, i32 number, b32 is_active, MouseInput * mouse_input, TouchesInput * touches_input)
 {
     
-    HoveredOrPressed hovered_or_pressed = check_hovered_or_pressed(x, y, width, height, mouse_input, touches_input);
+    HoveredOrPressed hovered_or_pressed = check_hovered_or_pressed(position, size, mouse_input, touches_input);
     
     Color4 line_color = {  0,   0,   0, 255};
     Color4 fill_color = {255, 255, 255, 255};
@@ -114,7 +114,7 @@ b32 do_button(i32 x, i32 y, i32 width, i32 height, i32 number, b32 is_active, Mo
     
     i32 line_width = 1;
     
-    draw_rounded_rectangle(x, y, width, height, 5, line_color, fill_color, line_width);
+    draw_rounded_rectangle(position.x, position.y, size.width, size.height, 5, line_color, fill_color, line_width);
     
     ShortString decimal_string;
     int_to_string(number, &decimal_string);
@@ -122,7 +122,7 @@ b32 do_button(i32 x, i32 y, i32 width, i32 height, i32 number, b32 is_active, Mo
     font.height = 13;
     font.family = Font_Arial;
     Size2d text_size = get_text_size(&decimal_string, font);
-    draw_text(x + (width - text_size.width) / 2 , y + (height - text_size.height) / 2 , &decimal_string, font, line_color);
+    draw_text(position.x + (size.width - text_size.width) / 2 , position.y + (size.height - text_size.height) / 2 , &decimal_string, font, line_color);
     
     return hovered_or_pressed.is_pressed;
 }
@@ -148,8 +148,9 @@ void do_frame_timing(Input * input, b32 * is_verbose)
         nr_of_bars_to_show = MAX_NR_OF_FRAMES_FOR_TIMING / 2;
     }
     
-    i32 x_start = screen->width - nr_of_bars_to_show * (bar_width + margin_between_bars) - 50;
-    i32 y_start = screen->height - normal_bar_height - 50;
+    Pos2d start_position = {};
+    start_position.x = screen->width - nr_of_bars_to_show * (bar_width + margin_between_bars) - 50;
+    start_position.y = screen->height - normal_bar_height - 50;
     
     Color4 input_color =     {  0, 150,   0, 255};
     Color4 updating_color =  {150,   0,   0, 255};
@@ -160,17 +161,19 @@ void do_frame_timing(Input * input, b32 * is_verbose)
     
     i32 line_width = 1;
     
-    i32 graph_width = nr_of_bars_to_show * (bar_width + margin_between_bars);
+    Size2d graph_size = {};
+    graph_size.width = nr_of_bars_to_show * (bar_width + margin_between_bars);
+    graph_size.height = normal_bar_height;
     
-    draw_line(x_start, y_start, x_start + graph_width, y_start, light_color, 1);
+    draw_line(start_position.x, start_position.y, start_position.x + graph_size.width, start_position.y, light_color, 1);
     
-    i32 bar_start = y_start + normal_bar_height;
+    i32 bar_start = start_position.y + normal_bar_height;
     i32 bar_height = 0;
     
     for (i32 frame_index_offset = 0; frame_index_offset > -nr_of_bars_to_show; frame_index_offset--)
     {
         i32 frame_index = (timing->frame_index + frame_index_offset + MAX_NR_OF_FRAMES_FOR_TIMING) % MAX_NR_OF_FRAMES_FOR_TIMING;
-        i32 x_left = x_start + (nr_of_bars_to_show - 1 + frame_index_offset) * (bar_width + margin_between_bars);
+        i32 x_left = start_position.x + (nr_of_bars_to_show - 1 + frame_index_offset) * (bar_width + margin_between_bars);
         
         f32 input_time = timing->frame_times[frame_index].input_time;
         f32 updating_time = timing->frame_times[frame_index].updating_time;
@@ -179,7 +182,7 @@ void do_frame_timing(Input * input, b32 * is_verbose)
 
         if (!*is_verbose)
         {
-            bar_start = y_start + normal_bar_height;
+            bar_start = start_position.y + normal_bar_height;
             bar_height = ((input_time + updating_time + rendering_time) / normal_value) * normal_bar_height;
             
             draw_rectangle(x_left, bar_start - bar_height, 
@@ -193,7 +196,7 @@ void do_frame_timing(Input * input, b32 * is_verbose)
 
             // Input time
             
-            bar_start = y_start + normal_bar_height;
+            bar_start = start_position.y + normal_bar_height;
             
             bar_height = (input_time / normal_value) * normal_bar_height;
             
@@ -237,7 +240,7 @@ void do_frame_timing(Input * input, b32 * is_verbose)
         }
     }
     
-    HoveredOrPressed hovered_or_pressed = check_hovered_or_pressed(x_start, y_start, graph_width, normal_bar_height, mouse_input, touches_input);
+    HoveredOrPressed hovered_or_pressed = check_hovered_or_pressed(start_position, graph_size, mouse_input, touches_input);
     
     if (hovered_or_pressed.is_pressed)
     {
