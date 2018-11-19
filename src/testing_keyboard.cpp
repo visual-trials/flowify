@@ -279,11 +279,7 @@ extern "C" {
     {
         ShortString character;
         
-        Color4 font_color;
-        font_color.r = 0;
-        font_color.g = 0;
-        font_color.b = 0;
-        font_color.a = 255;
+        Color4 black =  {  0,   0,   0, 255};
         
         Font font = {};
         font.height = 10;
@@ -296,7 +292,7 @@ extern "C" {
             copy_char_to_string(world->key_sequence[sequence_index], &character);
             Size2d text_size = get_text_size(&character, font);
             x = x - text_size.width;
-            draw_text(450 + x, 100, &character, font, font_color);
+            draw_text(450 + x, 100, &character, font, black);
         }
         
     }
