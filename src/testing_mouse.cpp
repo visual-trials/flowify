@@ -91,15 +91,11 @@ extern "C" {
                 
                 entity * current_entity = world->entities + world->selected_entity_index;
                 
-                current_entity->line_color.r = 50;
-                current_entity->line_color.g = 50;
-                current_entity->line_color.b = 50;
-                current_entity->line_color.a = 255;
+                Color4 dark_grey = {50, 50, 50, 255};
+                Color4 violet = {240, 200, 255, 255};
                 
-                current_entity->fill_color.r = 240;
-                current_entity->fill_color.g = 200;
-                current_entity->fill_color.b = 255;
-                current_entity->fill_color.a = 255;
+                current_entity->line_color = dark_grey;
+                current_entity->fill_color = violet;
                 
                 current_entity->line_width = 2;
                 
@@ -148,29 +144,21 @@ extern "C" {
                            current_entity->line_width);
             if (current_entity->has_text)
             {
-                Color4 font_color;
-                font_color.r = 0;
-                font_color.g = 0;
-                font_color.b = 0;
-                font_color.a = 255;
-                draw_text(current_entity->pos.x, current_entity->pos.y, &current_entity->text, 10, font_color);
+                Color4 black = { 0, 0, 0, 255};
+                draw_text(current_entity->pos.x, current_entity->pos.y, &current_entity->text, 10, black);
             }
         }
         
         // Drawing a cross around the mouse-pointer
         
-        Color4 line_color;
-        line_color.r = 0;
-        line_color.g = 0;
-        line_color.b = 100;
-        line_color.a = 255;
+        Color4 dark_blue = {0, 0, 100, 255};
         
         i32 line_width = 1;
         
         i32 distance_from_center = 30;
         i32 line_length = 30;
         
-        draw_cross(mouse->x, mouse->y, distance_from_center, line_length, line_color, line_width);
+        draw_cross(mouse->x, mouse->y, distance_from_center, line_length, dark_blue, line_width);
         
     }
 }
