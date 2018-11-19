@@ -198,28 +198,12 @@ extern "C" {
 
         // Below we are trying to figure out if and how adjacent lines/rects behave
         
-        Color4 black = {};
-        Color4 red = {};
-        Color4 blue = {};
-        Color4 green = {};
-        Color4 white = {};
+        Color4 black = {  0,   0,   0, 255};
+        Color4 red =   {255,   0,   0, 255};
+        Color4 blue =  {  0,   0, 255, 255};
+        Color4 green = {  0, 255,   0, 255};
+        Color4 white = {255, 255, 255, 255};
         Color4 no_color = {};
-        
-        black.a = 255;
-        
-        red.r = 255;
-        red.a = 255;
-        
-        blue.b = 255;
-        blue.a = 255;
-        
-        green.g = 255;
-        green.a = 255;
-        
-        white.r = 255;
-        white.g = 255;
-        white.b = 255;
-        white.a = 255;
         
         //draw_line(0, 0, 50, 0, red, 1);
         // draw_line(0, 0, 50, 0, red, 1);
