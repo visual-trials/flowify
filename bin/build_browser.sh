@@ -3,11 +3,11 @@ set -e  # stop script on first error
 source /home/emscripten/emsdk/emsdk_env.sh
 
 #PROJECT_NAME=flowify
-#PROJECT_NAME=testing_text
+PROJECT_NAME=testing_text
 #PROJECT_NAME=testing_animation
 #PROJECT_NAME=testing_keyboard
 #PROJECT_NAME=testing_touch
-PROJECT_NAME=testing_mouse
+#PROJECT_NAME=testing_mouse
 #PROJECT_NAME=testing_renderer
 
 # NOTE: this will not work standalone (due to stack issues!) emcc src/$PROJECT_NAME.cpp -Os -s WASM=1 -s SIDE_MODULE=1 -o web/wasm/$PROJECT_NAME.wasm

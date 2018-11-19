@@ -96,17 +96,8 @@ b32 do_button(i32 x, i32 y, i32 width, i32 height, i32 number, b32 is_active, Mo
     
     HoveredOrPressed hovered_or_pressed = check_hovered_or_pressed(x, y, width, height, mouse_input, touches_input);
     
-    Color4 line_color;
-    line_color.r = 0;
-    line_color.g = 0;
-    line_color.b = 0;
-    line_color.a = 255;
-    
-    Color4 fill_color;
-    fill_color.r = 255;
-    fill_color.g = 255;
-    fill_color.b = 255;
-    fill_color.a = 255;
+    Color4 line_color = {  0,   0,   0, 255};
+    Color4 fill_color = {255, 255, 255, 255};
     
     if (is_active)
     {
@@ -160,45 +151,17 @@ void do_frame_timing(Input * input, b32 * is_verbose)
     i32 x_start = screen->width - nr_of_bars_to_show * (bar_width + margin_between_bars) - 50;
     i32 y_start = screen->height - normal_bar_height - 50;
     
-    Color4  input_color;
-    input_color.r = 0;
-    input_color.g = 150;
-    input_color.b = 0;
-    input_color.a = 255;
-    
-    Color4  updating_color;
-    updating_color.r = 150;
-    updating_color.g = 0;
-    updating_color.b = 0;
-    updating_color.a = 255;
-    
-    Color4  rendering_color;
-    rendering_color.r = 0;
-    rendering_color.g = 0;
-    rendering_color.b = 150;
-    rendering_color.a = 255;
-    
-    Color4 waiting_color;
-    waiting_color.r = 220;
-    waiting_color.g = 220;
-    waiting_color.b = 220;
-    waiting_color.a = 255;
-    
-    Color4 no_color;
-    no_color.r = 0;
-    no_color.g = 0;
-    no_color.b = 0;
-    no_color.a = 0;
+    Color4 input_color =     {  0, 150,   0, 255};
+    Color4 updating_color =  {150,   0,   0, 255};
+    Color4 rendering_color = {  0,   0, 150, 255};
+    Color4 waiting_color =   {220, 220, 220, 255};
+    Color4 light_color =     {150, 255, 150, 150};
+    Color4 no_color = {};
     
     i32 line_width = 1;
     
     i32 graph_width = nr_of_bars_to_show * (bar_width + margin_between_bars);
     
-    Color4 light_color;
-    light_color.r = 150;
-    light_color.g = 255;
-    light_color.b = 150;
-    light_color.a = 150;
     draw_line(x_start, y_start, x_start + graph_width, y_start, light_color, 1);
     
     i32 bar_start = y_start + normal_bar_height;
