@@ -60,37 +60,21 @@ extern "C" {
         world->third_entity_index = world->nr_of_entities++;
         Entity * third_entity = world->entities + world->third_entity_index;
         
-        third_entity->line_color.r = 255;
-        third_entity->line_color.g = 0;
-        third_entity->line_color.b = 0;
-        third_entity->line_color.a = 255;
-        
-        third_entity->fill_color.r = 255;
-        third_entity->fill_color.g = 255;
-        third_entity->fill_color.b = 0;
-        third_entity->fill_color.a = 255;
-        
-        third_entity->line_width = 3;
-        
-        third_entity->pos.x = 200;
-        third_entity->pos.y = 50;
-        
-        third_entity->size.width = 40;
-        third_entity->size.height = 40;
-        
+        Color4 black =  {  0,   0,   0, 255};
+        Color4 red =    {255,   0,   0, 255};
+        Color4 blue =   {  0,   0, 255, 255};
+        Color4 green =  {  0, 255,   0, 255};
+        Color4 yellow = {255, 255,   0, 255};
+        Color4 white =  {255, 255, 255, 255};
+        Color4 no_color = {};
+
+        // First entity
         
         world->first_entity_index = world->nr_of_entities++;
         Entity * first_entity = world->entities + world->first_entity_index;
         
-        first_entity->line_color.r = 0;
-        first_entity->line_color.g = 255;
-        first_entity->line_color.b = 0;
-        first_entity->line_color.a = 255;
-        
-        first_entity->fill_color.r = 0;
-        first_entity->fill_color.g = 0;
-        first_entity->fill_color.b = 255;
-        first_entity->fill_color.a = 128;
+        first_entity->line_color = green;
+        first_entity->fill_color = blue;
         
         first_entity->line_width = 5;
         
@@ -100,6 +84,8 @@ extern "C" {
         first_entity->pos.x = 10;
         first_entity->pos.y = 10;
             
+        // Second entity
+            
         world->second_entity_index = world->nr_of_entities++;
         Entity * second_entity = world->entities + world->second_entity_index;
         
@@ -107,6 +93,20 @@ extern "C" {
         
         second_entity->pos.x = 10;
         second_entity->pos.y = 10;
+
+        // Third entity
+        
+        third_entity->line_color = red;
+        third_entity->fill_color = yellow;
+        
+        third_entity->line_width = 3;
+        
+        third_entity->pos.x = 200;
+        third_entity->pos.y = 50;
+        
+        third_entity->size.width = 40;
+        third_entity->size.height = 40;
+        
     }
     
     void update_frame()
