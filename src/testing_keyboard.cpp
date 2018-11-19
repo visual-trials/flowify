@@ -228,8 +228,8 @@ extern "C" {
         ShortString temp_string;
         ShortString character;
 
-        Color4 black =  {  0,   0,   0, 255};
-        Color4 white =  {255, 255, 255, 255};
+        Color4 black = {  0,   0,   0, 255};
+        Color4 white = {255, 255, 255, 255};
 
         Font font = {};
         font.height = 10;
@@ -279,7 +279,7 @@ extern "C" {
     {
         ShortString character;
         
-        Color4 black =  {  0,   0,   0, 255};
+        Color4 black = { 0, 0, 0, 255};
         
         Font font = {};
         font.height = 10;
