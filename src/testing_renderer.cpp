@@ -104,6 +104,7 @@ extern "C" {
         Color4 thin_line_color;
         Color4 line_color;
         Color4 fill_color;
+        Color4 fill_color2;
         Color4 no_color = {};
         
         thin_line_color.r = 200;
@@ -120,6 +121,11 @@ extern "C" {
         fill_color.g = 180;
         fill_color.b = 255;
         fill_color.a = 255;
+        
+        fill_color2.r = 180;
+        fill_color2.g = 255;
+        fill_color2.b = 180;
+        fill_color2.a = 255;
         
         i32 line_width = 4;
 
@@ -155,7 +161,7 @@ extern "C" {
             // Extending right
             draw_lane_segment(450, 600, 280, 
                               450, 600, 500, 
-                              20, line_color, fill_color, line_width);
+                              20, line_color, fill_color2, line_width);
                               
             // Left back to middle
             draw_lane_segment(150, 350, 500, 
@@ -165,7 +171,7 @@ extern "C" {
             // Right back to middle
             draw_lane_segment(450, 600, 500, 
                               400, 600, 540, 
-                              20, line_color, fill_color, line_width);
+                              20, line_color, fill_color2, line_width);
                               
             // Combining left and right
             draw_lane_segment(150, 600, 540, 
@@ -192,7 +198,8 @@ extern "C" {
             ShortString program_line_text;
             
             copy_char_to_string(' ', &program_line_text);
-            Size2d line_size = get_text_size(&program_line_text, font);
+            Size2d white_space_size = get_text_size(&program_line_text, font);
+            i32 line_height = white_space_size.height * 1.5;
             
             for (i32 line_index = 0; line_index < nr_of_program_lines; line_index++)
             {
@@ -202,8 +209,14 @@ extern "C" {
                 
                 copy_cstring_to_short_string(program_lines[line_index], &program_line_text);
                 
-                draw_text(710 - line_nr_size.width, 200 + line_index * line_size.height * 1.5, &line_nr_text, font, grey);
-                draw_text(750, 200 + line_index * line_size.height * 1.5, &program_line_text, font, black);
+                if (line_index == 3 || line_index == 4)
+                {
+                    Size2d program_line_size = get_text_size(&program_line_text, font);
+                    draw_rectangle(750, 200 + line_index * line_height - program_line_size.height / 4, program_line_size.width + white_space_size.width, line_height, no_color, fill_color2, 1);
+                }
+                
+                draw_text(710 - line_nr_size.width, 200 + line_index * line_height, &line_nr_text, font, grey);
+                draw_text(750, 200 + line_index * line_height, &program_line_text, font, black);
             }
         }
         
