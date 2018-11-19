@@ -251,19 +251,18 @@ extern "C" {
                 i32 y = y_row;
                 if (key_code != Key_Invisible)
                 {
-                    i32 text_margin = 10;
-                    if (row_height < 40)
-                    {
-                        text_margin = 5;
-                    }
+                    Size2d text_size = get_text_size(&key_name, font);
+                    i32 horizontal_margin = (key_width - 10 - text_size.width) / 2;
+                    i32 vertical_margin = (row_height - 10 - text_size.height) / 2;
+                    
                     if (keyboard->keys_that_are_down[key_code])
                     {
                         draw_rounded_rectangle(x, y, key_width - 10, row_height - 10, 3, black, black, 1);
-                        draw_text(x + text_margin, y + text_margin, &key_name, font, white);
+                        draw_text(x + horizontal_margin, y + vertical_margin, &key_name, font, white);
                     }
                     else {
                         draw_rounded_rectangle(x, y, key_width - 10, row_height - 10, 3, black, white, 1);
-                        draw_text(x + text_margin, y + text_margin, &key_name, font, black);
+                        draw_text(x + horizontal_margin, y + vertical_margin, &key_name, font, black);
                     }
                 }
                 
