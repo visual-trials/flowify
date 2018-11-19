@@ -34,8 +34,7 @@ struct MouseInput
     f32 wheel_delta;
 
     b32 has_moved;
-    i32 x;
-    i32 y;
+    Pos2d position;
 };
 
 #define MAX_KEY_SEQUENCE_PER_FRAME 25 // Keep this the same in input.js!
@@ -61,8 +60,7 @@ struct TouchInput
     b32 has_started;
     b32 has_ended;
     b32 was_canceled;
-    i32 x;
-    i32 y;
+    Pos2d position;
 };
 
 struct TouchesInput
@@ -136,8 +134,8 @@ extern "C" {
     void set_mouse_position_data(b32 has_moved, i32 x, i32 y)
     {
        global_input.mouse.has_moved = has_moved;
-       global_input.mouse.x = x;
-       global_input.mouse.y = y;
+       global_input.mouse.position.x = x;
+       global_input.mouse.position.y = y;
     }
     
     // Keyboard
@@ -176,8 +174,8 @@ extern "C" {
         global_input.touch.touches[touch_index].has_started = has_started;
         global_input.touch.touches[touch_index].has_ended = has_ended;
         global_input.touch.touches[touch_index].was_canceled = was_canceled;
-        global_input.touch.touches[touch_index].x = x;
-        global_input.touch.touches[touch_index].y = y;
+        global_input.touch.touches[touch_index].position.x = x;
+        global_input.touch.touches[touch_index].position.y = y;
     }
     
     void set_frame_time(i32 frame_index, f32 input_time, f32 updating_time, f32 rendering_time, f32 waiting_time)

@@ -35,22 +35,22 @@ struct Font
     #include "browser/render.cpp"
 #endif
 
-void draw_cross(i32 x, i32 y, i32 distance_from_center, i32 line_length, Color4 line_color, i32 line_width)
+void draw_cross(Pos2d position, i32 distance_from_center, i32 line_length, Color4 line_color, i32 line_width)
 {
-    draw_line(x - distance_from_center, y, 
-              x - distance_from_center - line_length, y, 
+    draw_line(position.x - distance_from_center, position.y, 
+              position.x - distance_from_center - line_length, position.y, 
               line_color, line_width);
     
-    draw_line(x + distance_from_center, y, 
-              x + distance_from_center + line_length, y, 
+    draw_line(position.x + distance_from_center, position.y, 
+              position.x + distance_from_center + line_length, position.y, 
               line_color, line_width);
     
-    draw_line(x, y - distance_from_center, 
-              x, y - distance_from_center - line_length, 
+    draw_line(position.x, position.y - distance_from_center, 
+              position.x, position.y - distance_from_center - line_length, 
               line_color, line_width);
               
-    draw_line(x, y + distance_from_center, 
-              x, y + distance_from_center + line_length, 
+    draw_line(position.x, position.y + distance_from_center, 
+              position.x, position.y + distance_from_center + line_length, 
               line_color, line_width);
 }
 
@@ -64,8 +64,8 @@ HoveredOrPressed check_hovered_or_pressed(i32 x, i32 y, i32 width, i32 height, M
 {
     HoveredOrPressed result = {};
     
-    if (mouse_input->x >= x && mouse_input->x <= x + width &&
-        mouse_input->y >= y && mouse_input->y <= y + height)
+    if (mouse_input->position.x >= x && mouse_input->position.x <= x + width &&
+        mouse_input->position.y >= y && mouse_input->position.y <= y + height)
     {
         result.is_hovered = true;
         if (mouse_input->left_button_has_gone_down)
@@ -80,8 +80,8 @@ HoveredOrPressed check_hovered_or_pressed(i32 x, i32 y, i32 width, i32 height, M
         
         if (touch_input->has_started)
         {
-            if (touch_input->x >= x && touch_input->x <= x + width &&
-                touch_input->y >= y && touch_input->y <= y + height)
+            if (touch_input->position.x >= x && touch_input->position.x <= x + width &&
+                touch_input->position.y >= y && touch_input->position.y <= y + height)
             {
                 result.is_pressed = true;
             }

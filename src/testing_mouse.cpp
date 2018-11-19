@@ -102,8 +102,8 @@ extern "C" {
                 current_entity->size.width = 150;
                 current_entity->size.height = 150;
                 
-                current_entity->pos.x = mouse->x;
-                current_entity->pos.y = mouse->y;
+                current_entity->pos.x = mouse->position.x;
+                current_entity->pos.y = mouse->position.y;
             }
             
         }
@@ -119,8 +119,8 @@ extern "C" {
             {
                 entity * current_entity = world->entities + world->selected_entity_index;
                 
-                current_entity->pos.x = mouse->x - current_entity->size.width / 2;
-                current_entity->pos.y = mouse->y - current_entity->size.height / 2;
+                current_entity->pos.x = mouse->position.x - current_entity->size.width / 2;
+                current_entity->pos.y = mouse->position.y - current_entity->size.height / 2;
             }
         }
         
@@ -132,6 +132,12 @@ extern "C" {
         MouseInput * mouse = &global_input.mouse;
         WorldData * world = &global_world;
 
+        Color4 black = {0, 0, 0, 255};
+        
+        Font font = {};
+        font.height = 10;
+        font.family = Font_Arial;
+        
         // Drawing all entities
         
         for (i32 entity_index = 0; entity_index < world->nr_of_entities; entity_index++)
@@ -144,8 +150,7 @@ extern "C" {
                            current_entity->line_width);
             if (current_entity->has_text)
             {
-                Color4 black = { 0, 0, 0, 255};
-                draw_text(current_entity->pos.x, current_entity->pos.y, &current_entity->text, 10, black);
+                draw_text(current_entity->pos.x, current_entity->pos.y, &current_entity->text, font, black);
             }
         }
         
@@ -158,7 +163,7 @@ extern "C" {
         i32 distance_from_center = 30;
         i32 line_length = 30;
         
-        draw_cross(mouse->x, mouse->y, distance_from_center, line_length, dark_blue, line_width);
+        draw_cross(mouse->position, distance_from_center, line_length, dark_blue, line_width);
         
     }
 }

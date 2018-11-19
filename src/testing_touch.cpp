@@ -43,14 +43,14 @@ extern "C" {
         font.family = Font_Arial;
         
         int_to_string(touch_info->touch_count, &nr_of_touches_string);
-        draw_text(500 , 50, &nr_of_touches_string, font, green);
+        draw_text(500, 50, &nr_of_touches_string, font, green);
         
         // draw_ellipse(50, 50, 50, 50, green, transparant, 6);
         
         for (i32 touch_index = 0; touch_index < touch_info->touch_count; touch_index++)
         {
             TouchInput touch = touch_info->touches[touch_index];
-            draw_ellipse(touch.x - 20, touch.y - 20, 
+            draw_ellipse(touch.position.x - 20, touch.position.y - 20, 
                            40, 40,
                            green, transparant, 
                            4);
@@ -60,7 +60,7 @@ extern "C" {
             i32 line_width = 1;
             i32 distance_from_center = 30;
             i32 line_length = 30;
-            draw_cross(touch.x, touch.y, distance_from_center, line_length, green, line_width);
+            draw_cross(touch.position, distance_from_center, line_length, green, line_width);
         }
     }
     
