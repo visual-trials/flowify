@@ -144,13 +144,12 @@ extern "C" {
         {
             entity * current_entity = world->entities + entity_index;
             
-            draw_rectangle(current_entity->pos.x, current_entity->pos.y, 
-                           current_entity->size.width, current_entity->size.height,
+            draw_rectangle(current_entity->pos, current_entity->size,
                            current_entity->line_color, current_entity->fill_color, 
                            current_entity->line_width);
             if (current_entity->has_text)
             {
-                draw_text(current_entity->pos.x, current_entity->pos.y, &current_entity->text, font, black);
+                draw_text(current_entity->pos, &current_entity->text, font, black);
             }
         }
         
