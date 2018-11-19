@@ -61,7 +61,7 @@ extern "C" {
     extern void jsLogInt(i32 log_integer);
 }
 
-void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r,
+void draw_rounded_rectangle(Pos2d position, Size2d size, i32 r,
                             Color4 line_color, Color4 fill_color, i32 line_width)
 {
     i32 line_color_rgb = line_color.r + line_color.g * 256 + line_color.b * 256 * 256; 
@@ -70,11 +70,11 @@ void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r,
     i32 fill_color_rgb = fill_color.r + fill_color.g * 256 + fill_color.b * 256 * 256;
     i32 fill_color_alpha = (i32)fill_color.a;
     
-    jsDrawRoundedRect(x, y, width, height, r, line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
+    jsDrawRoundedRect(position.x, position.y, size.width, size.height, r, line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
 }
 
-void draw_lane_segment(i32 left_top_x, i32 right_top_x, i32 top_y, 
-                       i32 left_bottom_x, i32 right_bottom_x, i32 bottom_y, i32 radius,
+void draw_lane_segment(Pos2d left_top_position, Pos2d right_top_position, 
+                       Pos2d left_bottom_position, Pos2d right_bottom_position, i32 radius,
                        Color4 line_color, Color4 fill_color, i32 line_width)
 {
     i32 line_color_rgb = line_color.r + line_color.g * 256 + line_color.b * 256 * 256; 
@@ -83,11 +83,12 @@ void draw_lane_segment(i32 left_top_x, i32 right_top_x, i32 top_y,
     i32 fill_color_rgb = fill_color.r + fill_color.g * 256 + fill_color.b * 256 * 256;
     i32 fill_color_alpha = (i32)fill_color.a;
     
-    jsDrawLaneSegment(left_top_x, right_top_x, top_y, left_bottom_x, right_bottom_x, bottom_y, radius,
+    jsDrawLaneSegment(left_top_position.x, right_top_position.x, left_top_position.y, 
+                      left_bottom_position.x, right_bottom_position.x, left_bottom_position.y, radius,
                       line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
 }
 
-void draw_rectangle(i32 x, i32 y, i32 width, i32 height, 
+void draw_rectangle(Pos2d position, Size2d size, 
                     Color4 line_color, Color4 fill_color, i32 line_width)
 {
     i32 line_color_rgb = line_color.r + line_color.g * 256 + line_color.b * 256 * 256; 
@@ -96,19 +97,19 @@ void draw_rectangle(i32 x, i32 y, i32 width, i32 height,
     i32 fill_color_rgb = fill_color.r + fill_color.g * 256 + fill_color.b * 256 * 256;
     i32 fill_color_alpha = (i32)fill_color.a;
     
-    jsDrawRect(x, y, width, height, line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
+    jsDrawRect(position.x, position.y, size.width, size.height, line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
 }
 
-void draw_line(i32 x_start, i32 y_start, i32 x_end, i32 y_end, 
+void draw_line(Pos2d start_position, Pos2d end_position, 
                     Color4 line_color, i32 line_width)
 {
     i32 line_color_rgb = line_color.r + line_color.g * 256 + line_color.b * 256 * 256; 
     i32 line_color_alpha = (i32)line_color.a;
     
-    jsDrawLine(x_start, y_start, x_end, y_end, line_color_rgb, line_color_alpha, line_width);
+    jsDrawLine(start_position.x, start_position.y, end_position.x, end_position.y, line_color_rgb, line_color_alpha, line_width);
 }
 
-void draw_ellipse(i32 x, i32 y, i32 width, i32 height, 
+void draw_ellipse(Pos2d position, Size2d size, 
                   Color4 line_color, Color4 fill_color, i32 line_width)
 {
     i32 line_color_rgb = line_color.r + line_color.g * 256 + line_color.b * 256 * 256; 
@@ -117,7 +118,7 @@ void draw_ellipse(i32 x, i32 y, i32 width, i32 height,
     i32 fill_color_rgb = fill_color.r + fill_color.g * 256 + fill_color.b * 256 * 256;
     i32 fill_color_alpha = (i32)fill_color.a;
     
-    jsDrawEllipse(x, y, width, height, line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
+    jsDrawEllipse(position.x, position.y, size.width, size.height, line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
 }
 
 Size2d get_text_size(ShortString * text, Font font)
@@ -142,19 +143,19 @@ Size2dFloat get_text_size_float(ShortString * text, Font font)
     return text_size;
 }
 
-void draw_text(i32 x, i32 y, ShortString * text, Font font, Color4 font_color)
+void draw_text(Pos2d position, ShortString * text, Font font, Color4 font_color)
 {
     i32 font_color_rgb = font_color.r + font_color.g * 256 + font_color.b * 256 * 256; 
     i32 font_color_alpha = (i32)font_color.a;
     
-    jsDrawText(x, y, text->data, text->length, font.height, font.family, font_color_rgb, font_color_alpha);
+    jsDrawText(position.x, position.y, text->data, text->length, font.height, font.family, font_color_rgb, font_color_alpha);
 }
 
-void draw_text_c(i32 x, i32 y, const char * cstring, Font font, Color4 font_color)
+void draw_text_c(Pos2d position, const char * cstring, Font font, Color4 font_color)
 {
     ShortString text;
     copy_cstring_to_short_string(cstring, &text);
-    draw_text(x, y, &text, font, font_color);
+    draw_text(position, &text, font, font_color);
 }
 
 void log(ShortString * text)

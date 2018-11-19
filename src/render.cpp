@@ -37,20 +37,20 @@ struct Font
 
 void draw_cross(Pos2d position, i32 distance_from_center, i32 line_length, Color4 line_color, i32 line_width)
 {
-    draw_line(position.x - distance_from_center, position.y, 
-              position.x - distance_from_center - line_length, position.y, 
+    draw_line((Pos2d){position.x - distance_from_center, position.y}, 
+              (Pos2d){position.x - distance_from_center - line_length, position.y}, 
               line_color, line_width);
     
-    draw_line(position.x + distance_from_center, position.y, 
-              position.x + distance_from_center + line_length, position.y, 
+    draw_line((Pos2d){position.x + distance_from_center, position.y}, 
+              (Pos2d){position.x + distance_from_center + line_length, position.y}, 
               line_color, line_width);
     
-    draw_line(position.x, position.y - distance_from_center, 
-              position.x, position.y - distance_from_center - line_length, 
+    draw_line((Pos2d){position.x, position.y - distance_from_center}, 
+              (Pos2d){position.x, position.y - distance_from_center - line_length}, 
               line_color, line_width);
               
-    draw_line(position.x, position.y + distance_from_center, 
-              position.x, position.y + distance_from_center + line_length, 
+    draw_line((Pos2d){position.x, position.y + distance_from_center}, 
+              (Pos2d){position.x, position.y + distance_from_center + line_length}, 
               line_color, line_width);
 }
 
@@ -114,15 +114,21 @@ b32 do_button(Pos2d position, Size2d size, i32 number, b32 is_active, MouseInput
     
     i32 line_width = 1;
     
-    draw_rounded_rectangle(position.x, position.y, size.width, size.height, 5, line_color, fill_color, line_width);
+    draw_rounded_rectangle(position, size, 5, line_color, fill_color, line_width);
     
     ShortString decimal_string;
     int_to_string(number, &decimal_string);
+    
     Font font = {};
     font.height = 13;
     font.family = Font_Arial;
+    
     Size2d text_size = get_text_size(&decimal_string, font);
-    draw_text(position.x + (size.width - text_size.width) / 2 , position.y + (size.height - text_size.height) / 2 , &decimal_string, font, line_color);
+    
+    Pos2d text_position = {};
+    text_position.x = position.x + (size.width - text_size.width) / 2;
+    text_position.y = position.y + (size.height - text_size.height) / 2;
+    draw_text(text_position, &decimal_string, font, line_color);
     
     return hovered_or_pressed.is_pressed;
 }
@@ -165,10 +171,15 @@ void do_frame_timing(Input * input, b32 * is_verbose)
     graph_size.width = nr_of_bars_to_show * (bar_width + margin_between_bars);
     graph_size.height = normal_bar_height;
     
-    draw_line(start_position.x, start_position.y, start_position.x + graph_size.width, start_position.y, light_color, 1);
+    draw_line(start_position, (Pos2d){start_position.x + graph_size.width, start_position.y}, light_color, 1);
+    
+    Pos2d bar_position = {};
+    Size2d bar_size = {};
     
     i32 bar_start = start_position.y + normal_bar_height;
-    i32 bar_height = 0;
+    
+    bar_size.width = bar_width;
+    bar_size.height = 0;
     
     for (i32 frame_index_offset = 0; frame_index_offset > -nr_of_bars_to_show; frame_index_offset--)
     {
@@ -180,16 +191,15 @@ void do_frame_timing(Input * input, b32 * is_verbose)
         f32 rendering_time = timing->frame_times[frame_index].rendering_time;
         f32 waiting_time = timing->frame_times[frame_index].waiting_time;
 
+        bar_position.x = x_left;
+        
         if (!*is_verbose)
         {
             bar_start = start_position.y + normal_bar_height;
-            bar_height = ((input_time + updating_time + rendering_time) / normal_value) * normal_bar_height;
+            bar_size.height = ((input_time + updating_time + rendering_time) / normal_value) * normal_bar_height;
+            bar_position.y = bar_start - bar_size.height;
             
-            draw_rectangle(x_left, bar_start - bar_height, 
-                           bar_width, bar_height,
-                           no_color, rendering_color,
-                           line_width);
-            
+            draw_rectangle(bar_position, bar_size, no_color, rendering_color, line_width);
         }
         else
         {
@@ -197,46 +207,34 @@ void do_frame_timing(Input * input, b32 * is_verbose)
             // Input time
             
             bar_start = start_position.y + normal_bar_height;
+            bar_size.height = (input_time / normal_value) * normal_bar_height;
+            bar_position.y = bar_start - bar_size.height;
             
-            bar_height = (input_time / normal_value) * normal_bar_height;
-            
-            draw_rectangle(x_left, bar_start - bar_height, 
-                           bar_width, bar_height,
-                           no_color, input_color, 
-                           line_width);
+            draw_rectangle(bar_position, bar_size, no_color, input_color, line_width);
                            
             // Updating time
             
-            bar_start = bar_start - bar_height;
+            bar_start = bar_start - bar_size.height;
+            bar_size.height = (updating_time / normal_value) * normal_bar_height;
+            bar_position.y = bar_start - bar_size.height;
             
-            bar_height = (updating_time / normal_value) * normal_bar_height;
-            
-            draw_rectangle(x_left, bar_start - bar_height, 
-                           bar_width, bar_height,
-                           no_color, updating_color, 
-                           line_width);
+            draw_rectangle(bar_position, bar_size, no_color, updating_color, line_width);
                        
             // Rendering time
             
-            bar_start = bar_start - bar_height;
+            bar_start = bar_start - bar_size.height;
+            bar_size.height = (rendering_time / normal_value) * normal_bar_height;
+            bar_position.y = bar_start - bar_size.height;
             
-            bar_height = (rendering_time / normal_value) * normal_bar_height;
-            
-            draw_rectangle(x_left, bar_start - bar_height, 
-                           bar_width, bar_height,
-                           no_color, rendering_color,
-                           line_width);
+            draw_rectangle(bar_position, bar_size, no_color, rendering_color, line_width);
                            
             // Waiting time
             
-            bar_start = bar_start - bar_height;
+            bar_start = bar_start - bar_size.height;
+            bar_size.height = (waiting_time / normal_value) * normal_bar_height;
+            bar_position.y = bar_start - bar_size.height;
             
-            bar_height = (waiting_time / normal_value) * normal_bar_height;
-            
-            draw_rectangle(x_left, bar_start - bar_height, 
-                           bar_width, bar_height,
-                           no_color, waiting_color, 
-                           line_width);
+            draw_rectangle(bar_position, bar_size, no_color, waiting_color, line_width);
         }
     }
     

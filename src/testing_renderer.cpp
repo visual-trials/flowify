@@ -62,17 +62,17 @@ extern "C" {
         Color4 line_color_rect = { 20,  80, 205, 255};
         Color4 fill_color_rect = { 40, 173, 255, 255};
         
-        draw_rectangle(200, 100, 400, 300, line_color_rect, fill_color_rect, 8);
+        draw_rectangle((Pos2d){200, 100}, (Size2d){400, 300}, line_color_rect, fill_color_rect, 8);
         
         Color4 line_color_ellipse = {120, 140,  55, 255};
         Color4 fill_color_ellipse = {173, 240, 169, 200};
         
-        draw_ellipse(550, 20, 400, 300, line_color_ellipse, fill_color_ellipse, 1);
+        draw_ellipse((Pos2d){550, 20}, (Size2d){400, 300}, line_color_ellipse, fill_color_ellipse, 1);
         
         Color4 line_color_rounded = { 20,  40,  55, 255};
         Color4 fill_color_rounded = { 40,  69, 173, 150};
         
-        draw_rounded_rectangle(500, 200, 200, 350, 20, line_color_rounded, fill_color_rounded, 4);
+        draw_rounded_rectangle((Pos2d){500, 200}, (Size2d){200, 350}, 20, line_color_rounded, fill_color_rounded, 4);
     }
     
     void draw_lanes()
@@ -90,48 +90,48 @@ extern "C" {
             //       as *STARTING* x1, x2 and y of the next segment.
             
             // Start narrow and do widening
-            draw_lane_segment(250, 500, 50, 
-                              150, 550, 200, 
+            draw_lane_segment((Pos2d){250, 50},  (Pos2d){500, 50}, 
+                              (Pos2d){150, 200}, (Pos2d){550, 200}, 
                               20, line_color, fill_color, line_width);
             
             // Going left
-            draw_lane_segment(150, 400, 200, 
-                              150, 350, 240, 
+            draw_lane_segment((Pos2d){150, 200}, (Pos2d){400, 200}, 
+                              (Pos2d){150, 240}, (Pos2d){350, 240}, 
                               20, line_color, fill_color, line_width);
             
             // Extending left
-            draw_lane_segment(150, 350, 240, 
-                              150, 350, 500, 
+            draw_lane_segment((Pos2d){150, 240}, (Pos2d){350, 240}, 
+                              (Pos2d){150, 500}, (Pos2d){350, 500}, 
                               20, line_color, fill_color, line_width);
                              
             // Going right
-            draw_lane_segment(400, 550, 200, 
-                              450, 550, 240, 
+            draw_lane_segment((Pos2d){400, 200}, (Pos2d){550, 200}, 
+                              (Pos2d){450, 240}, (Pos2d){550, 240}, 
                               20, line_color, fill_color, line_width);
                               
             // Extending right
-            draw_lane_segment(450, 550, 240, 
-                              450, 600, 280, 
+            draw_lane_segment((Pos2d){450, 240}, (Pos2d){550, 240}, 
+                              (Pos2d){450, 280}, (Pos2d){600, 280}, 
                               20, line_color, fill_color, line_width);
                               
             // Extending right
-            draw_lane_segment(450, 600, 280, 
-                              450, 600, 500, 
+            draw_lane_segment((Pos2d){450, 280}, (Pos2d){600, 280}, 
+                              (Pos2d){450, 500}, (Pos2d){600, 500}, 
                               20, line_color, selected_color, line_width);
                               
             // Left back to middle
-            draw_lane_segment(150, 350, 500, 
-                              150, 400, 540, 
+            draw_lane_segment((Pos2d){150, 500}, (Pos2d){350, 500}, 
+                              (Pos2d){150, 540}, (Pos2d){400, 540}, 
                               20, line_color, fill_color, line_width);
             
             // Right back to middle
-            draw_lane_segment(450, 600, 500, 
-                              400, 600, 540, 
+            draw_lane_segment((Pos2d){450, 500}, (Pos2d){600, 500}, 
+                              (Pos2d){400, 540}, (Pos2d){600, 540}, 
                               20, line_color, selected_color, line_width);
                               
             // Combining left and right
-            draw_lane_segment(150, 600, 540, 
-                              300, 500, 650, 
+            draw_lane_segment((Pos2d){150, 540}, (Pos2d){600, 540}, 
+                              (Pos2d){300, 650}, (Pos2d){500, 650}, 
                               20, line_color, fill_color, line_width);
             
         }
@@ -157,6 +157,9 @@ extern "C" {
             Size2d white_space_size = get_text_size(&program_line_text, font);
             i32 line_height = white_space_size.height * 1.5;
             
+            Pos2d position = {};
+            Size2d size = {};
+            
             for (i32 line_index = 0; line_index < nr_of_program_lines; line_index++)
             {
                 
@@ -168,19 +171,17 @@ extern "C" {
                 if (line_index == 3 || line_index == 4)
                 {
                     Size2d program_line_size = get_text_size(&program_line_text, font);
-                    draw_rectangle(
-                        750 + white_space_size.width * 3, // FIXME: workaround (there are 4 spaces in front of this line!) 
-                        200 + line_index * line_height - white_space_size.height / 4, 
-                        program_line_size.width - white_space_size.width * 2, 
-                        line_height, 
-                        no_color, 
-                        selected_color, 
-                        1
-                    );
+                    
+                    position.x = 750 + white_space_size.width * 3; // FIXME: workaround (there are 4 spaces in front of this line!) 
+                    position.y = 200 + line_index * line_height - white_space_size.height / 4;
+                    
+                    size.width = program_line_size.width - white_space_size.width * 2;
+                    size.height = line_height;
+                    draw_rectangle(position, size, no_color, selected_color, 1);
                 }
                 
-                draw_text(710 - line_nr_size.width, 200 + line_index * line_height, &line_nr_text, font, grey);
-                draw_text(750, 200 + line_index * line_height, &program_line_text, font, black);
+                draw_text((Pos2d){710 - line_nr_size.width, 200 + line_index * line_height}, &line_nr_text, font, grey);
+                draw_text((Pos2d){750, 200 + line_index * line_height}, &program_line_text, font, black);
             }
         }
         
@@ -205,33 +206,16 @@ extern "C" {
         Color4 white = {255, 255, 255, 255};
         Color4 no_color = {};
         
-        //draw_line(0, 0, 50, 0, red, 1);
-        // draw_line(0, 0, 50, 0, red, 1);
-        draw_rectangle(0, 0, 2, 2, no_color, black, 1);
-        draw_rectangle(2, 2, 3, 3, no_color, black, 1);
-        draw_rectangle(10, 0, 2, 2, black, no_color, 1);
-        draw_rectangle(12, 2, 3, 3, black, no_color, 1);
-        /*
-        draw_line(0, 0, 50, 0, red, 1);
-        draw_line(10, 1, 60, 1, blue, 1);
-        draw_line(20, 2, 70, 2, green, 1);
-        draw_line(30, 3, 80, 3, white, 1);
-        draw_line(40, 4, 90, 4, red, 1);
-        draw_line(50, 5, 250, 5, black, 1);
-        
-        draw_line(0, 500, 50, 500, red, 1);
-        draw_line(10, 501, 60, 501, blue, 1);
-        draw_line(20, 502, 70, 502, green, 1);
-        draw_line(30, 503, 80, 503, white, 1);
-        draw_line(40, 504, 90, 504, red, 1);
-        draw_line(50, 505, 250, 505, black, 1);
-        */
+        draw_rectangle((Pos2d){0, 0}, (Size2d){2, 2}, no_color, black, 1);
+        draw_rectangle((Pos2d){2, 2}, (Size2d){3, 3}, no_color, black, 1);
+        draw_rectangle((Pos2d){10, 0}, (Size2d){2, 2}, black, no_color, 1);
+        draw_rectangle((Pos2d){12, 2}, (Size2d){3, 3}, black, no_color, 1);
 
-        draw_line(0, 900, 50, 900, red, 1);
+        draw_line((Pos2d){0, 900}, (Pos2d){50, 900}, red, 1);
         
-        draw_line(5, 5, 25, 25, black, 1);
+        draw_line((Pos2d){5, 5}, (Pos2d){25, 25}, black, 1);
 
-        draw_line(5, 10, 5, 25, black, 1);
+        draw_line((Pos2d){5, 10}, (Pos2d){5, 25}, black, 1);
 
         ShortString height_text;
         int_to_string(global_input.screen.height, &height_text);
@@ -240,11 +224,11 @@ extern "C" {
         font.height = 10;
         font.family = Font_Arial;
 
-        draw_text(500, 300, &height_text, font, black);
+        draw_text((Pos2d){500, 300}, &height_text, font, black);
         
         black.a = 100;
-        draw_rectangle(100, 0, 50, 50, no_color, black, 1);
-        draw_rectangle(150, 40, 50, 50, no_color, black, 1);
+        draw_rectangle((Pos2d){100, 0}, (Size2d){50, 50}, no_color, black, 1);
+        draw_rectangle((Pos2d){150, 40}, (Size2d){50, 50}, no_color, black, 1);
 
 
     }
