@@ -212,7 +212,15 @@ extern "C" {
                 if (line_index == 3 || line_index == 4)
                 {
                     Size2d program_line_size = get_text_size(&program_line_text, font);
-                    draw_rectangle(750, 200 + line_index * line_height - program_line_size.height / 4, program_line_size.width + white_space_size.width, line_height, no_color, fill_color2, 1);
+                    draw_rectangle(
+                        750 + white_space_size.width * 3, // FIXME: workaround (there are 4 spaces in front of this line!) 
+                        200 + line_index * line_height - white_space_size.height / 4, 
+                        program_line_size.width - white_space_size.width * 2, 
+                        line_height, 
+                        no_color, 
+                        fill_color2, 
+                        1
+                    );
                 }
                 
                 draw_text(710 - line_nr_size.width, 200 + line_index * line_height, &line_nr_text, font, grey);
