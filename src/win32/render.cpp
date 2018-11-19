@@ -53,12 +53,12 @@ void get_brush(Color4 color, ID2D1SolidColorBrush ** brush)
 // TODO: don't we want to pass two positions to most of these functions? Instead of pos + size?
 // TODO: don't we want f32 for colors?
  
-void draw_rectangle(i32 x, i32 y, i32 width, i32 height, Color4 line_color, Color4 fill_color, i32 line_width)
+void draw_rectangle(Pos2d position, Size2d size, Color4 line_color, Color4 fill_color, i32 line_width)
 {
     ID2D1SolidColorBrush * line_brush = 0;
     ID2D1SolidColorBrush * fill_brush = 0;
     
-    D2D1_RECT_F rectangle = D2D1::RectF(x, y, x + width,y + height);
+    D2D1_RECT_F rectangle = D2D1::RectF(position.x, position.y, position.x + size.width, position.y + size.height);
     
     if (fill_color.a)
     {
@@ -76,30 +76,30 @@ void draw_rectangle(i32 x, i32 y, i32 width, i32 height, Color4 line_color, Colo
 
 }
 
-void draw_line(i32 x_start, i32 y_start, i32 x_end, i32 y_end, Color4 line_color, i32 line_width)
+void draw_line(Pos2d start_position, Pos2d end_position, Color4 line_color, i32 line_width)
 {
-    D2D1_POINT_2F start_position, end_position;
+    D2D1_POINT_2F start_pos, end_pos;
     ID2D1SolidColorBrush * line_brush = 0;
     
-	start_position.x = x_start;
-	start_position.y = y_start;
+	start_pos.x = start_position.x;
+	start_pos.y = start_position.y;
     
-	end_position.x = x_end;
-	end_position.y = y_end;
+	end_pos.x = end_position.x;
+	end_pos.y = end_position.y;
     
     get_brush(line_color, &line_brush);
     
-    render_target->DrawLine(start_position, end_position, line_brush, line_width);
+    render_target->DrawLine(start_pos, end_pos, line_brush, line_width);
     
     release_brush(line_brush);
 }
 
-void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r, Color4 line_color, Color4 fill_color, i32 line_width)
+void draw_rounded_rectangle(Pos2d position, Size2d size, i32 r, Color4 line_color, Color4 fill_color, i32 line_width)
 {
     ID2D1SolidColorBrush * line_brush = 0;
     ID2D1SolidColorBrush * fill_brush = 0;
     
-    D2D1_RECT_F rectangle = D2D1::RectF(x, y, x + width,y + height);
+    D2D1_RECT_F rectangle = D2D1::RectF(position.x, position.y, position.x + size.width, position.y + size.height);
     D2D1_ROUNDED_RECT rounded_rectangle = D2D1::RoundedRect(rectangle, r, r);
     
     if (fill_color.a)
@@ -118,8 +118,8 @@ void draw_rounded_rectangle(i32 x, i32 y, i32 width, i32 height, i32 r, Color4 l
     
 }
 
-void draw_lane_segment(i32 left_top_x, i32 right_top_x, i32 top_y, 
-                       i32 left_bottom_x, i32 right_bottom_x, i32 bottom_y, i32 radius,
+void draw_lane_segment(Pos2d left_top_position, Pos2d right_top_position, 
+                       Pos2d left_bottom_position, Pos2d right_bottom_position, i32 radius,
                        Color4 line_color, Color4 fill_color, i32 line_width)
 {
     ID2D1SolidColorBrush * line_brush = 0;
@@ -129,34 +129,34 @@ void draw_lane_segment(i32 left_top_x, i32 right_top_x, i32 top_y,
     ID2D1GeometrySink * sink = 0;
     
     // FIXME: shouldn't we have middle_y as argument?
-    i32 middle_y = top_y + (bottom_y - top_y) / 2;
+    i32 middle_y = left_top_position.y + (left_bottom_position.y - left_top_position.y) / 2;
     
-    D2D1_POINT_2F left_top = D2D1::Point2F(left_top_x, top_y);
-    D2D1_POINT_2F left_top_down = D2D1::Point2F(left_top_x, middle_y - radius);
+    D2D1_POINT_2F left_top = D2D1::Point2F(left_top_position.x, left_top_position.y);
+    D2D1_POINT_2F left_top_down = D2D1::Point2F(left_top_position.x, middle_y - radius);
     D2D1_POINT_2F left_top_arc_end;
     D2D1_POINT_2F left_middle_line_end;
-    D2D1_POINT_2F left_bottom_arc_end = D2D1::Point2F(left_bottom_x, middle_y + radius);
-    D2D1_POINT_2F left_bottom = D2D1::Point2F(left_bottom_x, bottom_y);
+    D2D1_POINT_2F left_bottom_arc_end = D2D1::Point2F(left_bottom_position.x, middle_y + radius);
+    D2D1_POINT_2F left_bottom = D2D1::Point2F(left_bottom_position.x, left_bottom_position.y);
     
     D2D1_ARC_SEGMENT left_top_arc_segment;
     D2D1_ARC_SEGMENT left_bottom_arc_segment;
     
-    D2D1_POINT_2F right_bottom = D2D1::Point2F(right_bottom_x, bottom_y);
-    D2D1_POINT_2F right_bottom_up = D2D1::Point2F(right_bottom_x, middle_y + radius);
+    D2D1_POINT_2F right_bottom = D2D1::Point2F(right_bottom_position.x, left_bottom_position.y);
+    D2D1_POINT_2F right_bottom_up = D2D1::Point2F(right_bottom_position.x, middle_y + radius);
     D2D1_POINT_2F right_bottom_arc_end;
     D2D1_POINT_2F right_middle_line_end;
-    D2D1_POINT_2F right_top_arc_end = D2D1::Point2F(right_top_x, middle_y - radius);
-    D2D1_POINT_2F right_top = D2D1::Point2F(right_top_x, top_y);
+    D2D1_POINT_2F right_top_arc_end = D2D1::Point2F(right_top_position.x, middle_y - radius);
+    D2D1_POINT_2F right_top = D2D1::Point2F(right_top_position.x, left_top_position.y);
     
     D2D1_ARC_SEGMENT right_top_arc_segment;
     D2D1_ARC_SEGMENT right_bottom_arc_segment;
     
     b32 left_side_is_straight = false;
     b32 right_side_is_straight = false;
-    if (left_bottom_x < left_top_x)
+    if (left_bottom_position.x < left_top_position.x)
     {
-        left_top_arc_end = D2D1::Point2F(left_top_x - radius, middle_y);
-        left_middle_line_end = D2D1::Point2F(left_bottom_x + radius, middle_y);
+        left_top_arc_end = D2D1::Point2F(left_top_position.x - radius, middle_y);
+        left_middle_line_end = D2D1::Point2F(left_bottom_position.x + radius, middle_y);
         left_top_arc_segment = D2D1::ArcSegment(
             left_top_arc_end,
             D2D1::SizeF(radius, radius),
@@ -172,10 +172,10 @@ void draw_lane_segment(i32 left_top_x, i32 right_top_x, i32 top_y,
             D2D1_ARC_SIZE_SMALL  // means: smaller than 180 degrees
         );  
     }
-    else if (left_bottom_x > left_top_x)
+    else if (left_bottom_position.x > left_top_position.x)
     {
-        left_top_arc_end = D2D1::Point2F(left_top_x + radius, middle_y);
-        left_middle_line_end = D2D1::Point2F(left_bottom_x - radius, middle_y);
+        left_top_arc_end = D2D1::Point2F(left_top_position.x + radius, middle_y);
+        left_middle_line_end = D2D1::Point2F(left_bottom_position.x - radius, middle_y);
         left_top_arc_segment = D2D1::ArcSegment(
             left_top_arc_end,
             D2D1::SizeF(radius, radius),
@@ -195,10 +195,10 @@ void draw_lane_segment(i32 left_top_x, i32 right_top_x, i32 top_y,
         left_side_is_straight = true;
     }
     
-    if (right_bottom_x < right_top_x)
+    if (right_bottom_position.x < right_top_position.x)
     {
-        right_bottom_arc_end = D2D1::Point2F(right_bottom_x + radius, middle_y);
-        right_middle_line_end = D2D1::Point2F(right_top_x - radius, middle_y);
+        right_bottom_arc_end = D2D1::Point2F(right_bottom_position.x + radius, middle_y);
+        right_middle_line_end = D2D1::Point2F(right_top_position.x - radius, middle_y);
         right_bottom_arc_segment = D2D1::ArcSegment(
             right_bottom_arc_end,
             D2D1::SizeF(radius, radius),
@@ -214,10 +214,10 @@ void draw_lane_segment(i32 left_top_x, i32 right_top_x, i32 top_y,
             D2D1_ARC_SIZE_SMALL  // means: smaller than 180 degrees
         );  
     }
-    else if (right_bottom_x > right_top_x)
+    else if (right_bottom_position.x > right_top_position.x)
     {
-        right_bottom_arc_end = D2D1::Point2F(right_bottom_x - radius, middle_y);
-        right_middle_line_end = D2D1::Point2F(right_top_x + radius, middle_y);
+        right_bottom_arc_end = D2D1::Point2F(right_bottom_position.x - radius, middle_y);
+        right_middle_line_end = D2D1::Point2F(right_top_position.x + radius, middle_y);
         right_bottom_arc_segment = D2D1::ArcSegment(
             right_bottom_arc_end,
             D2D1::SizeF(radius, radius),
@@ -334,13 +334,13 @@ void draw_lane_segment(i32 left_top_x, i32 right_top_x, i32 top_y,
 }
 
 // TODO: shouldn't we use radius x and radius y instead of using width and height?
-void draw_ellipse(i32 x, i32 y, i32 width, i32 height, 
+void draw_ellipse(Pos2d position, Size2d size, 
                   Color4 line_color, Color4 fill_color, i32 line_width)
 {
     ID2D1SolidColorBrush * line_brush = 0;
     ID2D1SolidColorBrush * fill_brush = 0;
     
-    D2D1_ELLIPSE ellipse = D2D1::Ellipse(D2D1::Point2F(x + (f32)width/(f32)2, y + (f32)height/(f32)2), (f32)width/(f32)2, (f32)height/(f32)2);
+    D2D1_ELLIPSE ellipse = D2D1::Ellipse(D2D1::Point2F(position.x + (f32)size.width/(f32)2, position.y + (f32)size.height/(f32)2), (f32)size.width/(f32)2, (f32)size.height/(f32)2);
     
     if (fill_color.a)
     {
@@ -447,7 +447,7 @@ Size2dFloat get_text_size_float(ShortString * text, Font font)
     return text_size;
 }
 
-void draw_text(i32 x, i32 y, ShortString * text, Font font, Color4 font_color)
+void draw_text(Pos2d position, ShortString * text, Font font, Color4 font_color)
 {
     ID2D1SolidColorBrush * font_brush = 0;
     get_brush(font_color, &font_brush);
@@ -485,7 +485,7 @@ void draw_text(i32 x, i32 y, ShortString * text, Font font, Color4 font_color)
     text_layout->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
     
     render_target->DrawTextLayout(
-        D2D1::Point2F(x, y),
+        D2D1::Point2F(position.x, position.y),
         text_layout,
         font_brush
     );
@@ -493,11 +493,11 @@ void draw_text(i32 x, i32 y, ShortString * text, Font font, Color4 font_color)
     release_brush(font_brush);
 }
 
-void draw_text_c(i32 x, i32 y, const char * cstring, Font font, Color4 font_color)
+void draw_text_c(Pos2d position, const char * cstring, Font font, Color4 font_color)
 {
     ShortString text;
     copy_cstring_to_short_string(cstring, &text);
-    draw_text(x, y, &text, font, font_color);
+    draw_text(position, &text, font, font_color);
 }
 
 void log(u8 * text)

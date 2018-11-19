@@ -62,10 +62,9 @@ extern "C" {
         
         Color4 black =  {  0,   0,   0, 255};
         Color4 red =    {255,   0,   0, 255};
-        Color4 blue =   {  0,   0, 255, 255};
+        Color4 blue =   {  0,   0, 255, 150};
         Color4 green =  {  0, 255,   0, 255};
         Color4 yellow = {255, 255,   0, 255};
-        Color4 white =  {255, 255, 255, 255};
         Color4 no_color = {};
 
         // First entity
