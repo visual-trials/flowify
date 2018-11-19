@@ -43,17 +43,17 @@ extern "C" {
         font.family = Font_Arial;
         
         int_to_string(touch_info->touch_count, &nr_of_touches_string);
-        draw_text(500, 50, &nr_of_touches_string, font, green);
+        draw_text((Pos2d){500, 50}, &nr_of_touches_string, font, green);
         
-        // draw_ellipse(50, 50, 50, 50, green, transparant, 6);
+        // draw_ellipse((Pos2d){50, 50}, (Size2d){50, 50}, green, transparant, 6);
         
         for (i32 touch_index = 0; touch_index < touch_info->touch_count; touch_index++)
         {
             TouchInput touch = touch_info->touches[touch_index];
-            draw_ellipse(touch.position.x - 20, touch.position.y - 20, 
-                           40, 40,
-                           green, transparant, 
-                           4);
+            draw_ellipse((Pos2d){touch.position.x - 20, touch.position.y - 20}, 
+                         (Size2d){40, 40},
+                         green, transparant, 
+                         4);
                            
             // Drawing a cross around the touch-point
             
