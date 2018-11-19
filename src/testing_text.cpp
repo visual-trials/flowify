@@ -64,15 +64,11 @@ extern "C" {
         world->third_entity_index = world->nr_of_entities++;
         Entity * third_entity = world->entities + world->third_entity_index;
         
-        third_entity->line_color.r = 0;
-        third_entity->line_color.g = 0;
-        third_entity->line_color.b = 255;
-        third_entity->line_color.a = 255;
+        Color4 blue = {0, 0, 255, 255};
+        Color4 light_blue = {150, 150, 255, 255};
         
-        third_entity->fill_color.r = 150;
-        third_entity->fill_color.g = 150;
-        third_entity->fill_color.b = 255;
-        third_entity->fill_color.a = 255;
+        third_entity->line_color = blue;
+        third_entity->fill_color = light_blue;
         
         third_entity->line_width = 2;
         
@@ -90,15 +86,11 @@ extern "C" {
         world->first_entity_index = world->nr_of_entities++;
         Entity * first_entity = world->entities + world->first_entity_index;
         
-        first_entity->line_color.r = 255;
-        first_entity->line_color.g = 50;
-        first_entity->line_color.b = 255;
-        first_entity->line_color.a = 0;
-        
-        first_entity->fill_color.r = 255;
-        first_entity->fill_color.g = 200;
-        first_entity->fill_color.b = 255;
-        first_entity->fill_color.a = 255;
+        Color4 violet = {255, 50, 255, 255};
+        Color4 light_violet = {255, 200, 255, 255};
+
+        first_entity->line_color = violet;
+        first_entity->fill_color = light_violet;
         
         first_entity->line_width = 1;
         
@@ -133,9 +125,8 @@ extern "C" {
         WorldData * world = &global_world;
 
         Color4 no_color = {};
-        Color4 red = {};
-        red.r = 255;
-        red.a = 255;
+        Color4 black =  {0, 0, 0, 255};
+        Color4 red = {255, 0, 0, 255};
         
         for (i32 entity_index = 0; entity_index < world->nr_of_entities; entity_index++)
         {
@@ -148,14 +139,8 @@ extern "C" {
                            
             if (current_entity->has_text)
             {
-                Color4 font_color;
-                font_color.r = 0;
-                font_color.g = 0;
-                font_color.b = 0;
-                font_color.a = 255;
-                
                 Size2dFloat text_size = get_text_size_float(&current_entity->text, current_entity->text_font);
-                draw_text(current_entity->pos.x, current_entity->pos.y, &current_entity->text, current_entity->text_font, font_color);
+                draw_text(current_entity->pos.x, current_entity->pos.y, &current_entity->text, current_entity->text_font, black);
                 
                 draw_rectangle(current_entity->pos.x, current_entity->pos.y, 
                                text_size.width, text_size.height,
@@ -165,11 +150,11 @@ extern "C" {
                 ShortString height_string = {};
                 float_to_string(text_size.width, &width_string);
                 float_to_string(text_size.height, &height_string);
-                draw_text(current_entity->pos.x, current_entity->pos.y + 50, &width_string, current_entity->text_font, font_color);
-                draw_text(current_entity->pos.x, current_entity->pos.y + 50 + text_size.height, &height_string, current_entity->text_font, font_color);
+                draw_text(current_entity->pos.x, current_entity->pos.y + 50, &width_string, current_entity->text_font, black);
+                draw_text(current_entity->pos.x, current_entity->pos.y + 50 + text_size.height, &height_string, current_entity->text_font, black);
                 ShortString height_aspect_string = {};
                 float_to_string(text_size.height / current_entity->text_font.height, &height_aspect_string);
-                draw_text(current_entity->pos.x, current_entity->pos.y + 50 + text_size.height * 2, &height_aspect_string, current_entity->text_font, font_color);
+                draw_text(current_entity->pos.x, current_entity->pos.y + 50 + text_size.height * 2, &height_aspect_string, current_entity->text_font, black);
                 
                 
             }
