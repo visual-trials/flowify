@@ -22,6 +22,7 @@
 
 struct WorldData
 {
+    b32 recorded_memory;
     i32 total_memory;
     i32 block_size;
     // FIXME: this should not be hardcoded
@@ -42,6 +43,9 @@ extern "C" {
         world->block_size = 64 * 1024;
         world->nr_of_memory_blocks = world->total_memory / world->block_size;
         
+        world->recorded_memory = false;
+        
+        // TODO: do this (once) when triggered by the user
         for (i32 memory_block_index = 0; memory_block_index < world->nr_of_memory_blocks; memory_block_index++)
         {
             u8 * first_memory_address_in_block = (u8*)(memory_block_index * world->block_size);
@@ -53,6 +57,7 @@ extern "C" {
                 }
             }
         }
+        world->recorded_memory = true;
     }
     
     void update_frame()
