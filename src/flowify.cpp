@@ -39,15 +39,15 @@ extern "C" {
         WorldData * world = &global_world;
         Input * input = &global_input;
         
-        world->total_memory = (input->memory.address + input->memory.size);
+        world->total_memory = ((i32)input->memory.address + input->memory.size);
         world->block_size = 64 * 1024;
         world->nr_of_memory_blocks = world->total_memory / world->block_size;
         
         world->recorded_memory = false;
         
         
-        i32 * my_array = (i32*)input->memory.address; // + input->memory.size
-        i32 * my_array2 = (i32*)(input->memory.address + 10 * 1024 * 1024); // + input->memory.size
+        i32 * my_array = (i32 *)input->memory.address; // + input->memory.size
+        i32 * my_array2 = (i32 *)((i32)input->memory.address + 10 * 1024 * 1024); // + input->memory.size
         
         i32 number = 1;
         for (i32 i = 0; i < 10000; i++)
@@ -87,8 +87,8 @@ extern "C" {
         
         ShortString address;
         ShortString size;
-        int_to_string(input->memory.address, &address);
-        int_to_string(input->memory.size, &size);
+        int_to_string((i32)input->memory.address, &address);
+        int_to_string((i32)input->memory.size, &size);
         
         Font font;
         font.family = Font_Arial;

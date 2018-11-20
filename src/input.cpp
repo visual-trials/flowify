@@ -94,7 +94,7 @@ struct Screen
 
 struct Memory
 {
-    i32 address;
+    void * address;
     i32 size;
 };
 
@@ -204,7 +204,7 @@ extern "C" {
 
     void set_address_and_size_dynamic_memory(i32 memory_address, i32 memory_size)
     {
-        global_input.memory.address = memory_address;
+        global_input.memory.address = (void *)memory_address;
         global_input.memory.size = memory_size;
     }
     
