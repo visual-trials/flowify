@@ -25,7 +25,7 @@ struct WorldData
     b32 recorded_memory;
     i32 total_memory;
     i32 block_size;
-    // FIXME: this should not be hardcoded
+    
     b32 memory_usage[512];
     i32 nr_of_memory_blocks;
 };
@@ -39,22 +39,22 @@ extern "C" {
         WorldData * world = &global_world;
         Input * input = &global_input;
         
-        world->total_memory = ((i32)input->memory.address + input->memory.size);
-        world->block_size = 64 * 1024;
-        world->nr_of_memory_blocks = world->total_memory / world->block_size;
+        world->total_memory = input->memory.size;
+        world->nr_of_memory_blocks = 512;
+        world->block_size = input->memory.size / world->nr_of_memory_blocks;
         
         world->recorded_memory = false;
-        
-        
+
+        // Filling with fake memory
         i32 * my_array = (i32 *)input->memory.address; // + input->memory.size
         i32 * my_array2 = (i32 *)((i32)input->memory.address + 10 * 1024 * 1024); // + input->memory.size
         
         i32 number = 1;
-        for (i32 i = 0; i < 10000; i++)
+        for (i32 i = 0; i < 70000; i++)
         {
             my_array[i] = number++;
         }
-        for (i32 i = 0; i < 10000; i++)
+        for (i32 i = 0; i < 30000; i++)
         {
             my_array2[i] = number++;
         }
@@ -62,7 +62,7 @@ extern "C" {
         // TODO: do this (once) when triggered by the user
         for (i32 memory_block_index = 0; memory_block_index < world->nr_of_memory_blocks; memory_block_index++)
         {
-            u8 * first_memory_address_in_block = (u8*)(memory_block_index * world->block_size);
+            u8 * first_memory_address_in_block = (u8*)((i32)input->memory.address + memory_block_index * world->block_size);
             for (i32 memory_index_within_block = 0; memory_index_within_block < world->block_size; memory_index_within_block++)
             {
                 if (first_memory_address_in_block[memory_index_within_block])
