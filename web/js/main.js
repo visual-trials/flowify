@@ -91,7 +91,7 @@ Flowify.main = function () {
     
     let wasmEnv = {}
     let dynamicBase = null
-    let totalMemory = null
+    let dynamicSize = null
     
     // This calculation of STACKTOP, DYNAMICTOP_PTR and DYNAMIC_BASE is extracted from the .js file emcc generated
     {
@@ -116,8 +116,8 @@ Flowify.main = function () {
         
         STATIC_BASE = STATICTOP = STACK_BASE = STACKTOP = STACK_MAX = DYNAMIC_BASE = DYNAMICTOP_PTR = 0
         
-        let TOTAL_STACK =   5242880 // Module["TOTAL_STACK"]
-        let TOTAL_MEMORY = 33554432 // Module["TOTAL_MEMORY"]
+        let TOTAL_STACK = 1024 * 1024  // 1MB stack memory
+        let TOTAL_MEMORY = 34 * 1024 * 1024  // 34MB of total memory (1MB for stack, 32BM for dynamic)
 
         let GLOBAL_BASE = 1024
         STATIC_BASE = GLOBAL_BASE
@@ -126,6 +126,11 @@ Flowify.main = function () {
         let STATIC_BUMP = 65536 // 16992 
         STATICTOP = STATIC_BASE + STATIC_BUMP
         STATICTOP += 16
+        
+        DYNAMICTOP_PTR = staticAlloc(4)
+        STACK_BASE = STACKTOP = alignMemory(STATICTOP)
+        STACK_MAX = STACK_BASE + TOTAL_STACK
+        DYNAMIC_BASE = alignMemory(STACK_MAX)
         
         let memory = new WebAssembly.Memory({
                 initial: TOTAL_MEMORY / WASM_PAGE_SIZE,  // 512 = 32MB
@@ -137,11 +142,6 @@ Flowify.main = function () {
                 maximum: 1024,
                 element: 'anyfunc',
         })
-        
-        DYNAMICTOP_PTR = staticAlloc(4)
-        STACK_BASE = STACKTOP = alignMemory(STATICTOP)
-        STACK_MAX = STACK_BASE + TOTAL_STACK
-        DYNAMIC_BASE = alignMemory(STACK_MAX)
         
         my.bufferU8 = new Uint8Array(memory.buffer)
         my.bufferI32 = new Int32Array(memory.buffer)
@@ -162,7 +162,7 @@ Flowify.main = function () {
         }
         
         dynamicBase = DYNAMIC_BASE
-        totalMemory = TOTAL_MEMORY
+        dynamicSize = 32 * 1024 * 1024  // 32MB of dynamic memory
     }
     
     let exportedFunctions = Flowify.canvas.getExportedFunctions()
@@ -186,7 +186,7 @@ Flowify.main = function () {
             
             my.wasmInstance = wasm_module.instance
             
-            my.wasmInstance.exports._set_address_and_size_dynamic_memory(dynamicBase, totalMemory - dynamicBase)
+            my.wasmInstance.exports._set_address_and_size_dynamic_memory(dynamicBase, dynamicSize)
             
             my.wasmInstance.exports._init_world()
             
