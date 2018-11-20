@@ -117,7 +117,7 @@ Flowify.main = function () {
         STATIC_BASE = STATICTOP = STACK_BASE = STACKTOP = STACK_MAX = DYNAMIC_BASE = DYNAMICTOP_PTR = 0
         
         let TOTAL_STACK = 1024 * 1024  // 1MB stack memory
-        let TOTAL_MEMORY = 34 * 1024 * 1024  // 34MB of total memory (1MB for stack, 32BM for dynamic)
+        let TOTAL_MEMORY = 34 * 1024 * 1024  // 34MB of total memory (1MB for stack, 32BM for dynamic)  --> this has to be equal to TOTAL_MEMORY in emmc-command line call
 
         let GLOBAL_BASE = 1024
         STATIC_BASE = GLOBAL_BASE
