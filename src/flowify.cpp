@@ -87,8 +87,11 @@ extern "C" {
         
         ShortString address;
         ShortString size;
+        ShortString pointer_length;
+        
         int_to_string((i32)input->memory.address, &address);
         int_to_string((i32)input->memory.size, &size);
+        int_to_string(sizeof(void *), &pointer_length);
         
         Font font;
         font.family = Font_Arial;
@@ -101,6 +104,8 @@ extern "C" {
         
         draw_text((Pos2d){100,100}, &address, font, black);
         draw_text((Pos2d){100,140}, &size, font, black);
+        draw_text((Pos2d){100,180}, &pointer_length, font, black);
+        
         
         for (i32 memory_block_index = 0; memory_block_index < world->nr_of_memory_blocks; memory_block_index++)
         {
