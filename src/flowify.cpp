@@ -47,11 +47,16 @@ extern "C" {
         
         
         i32 * my_array = (i32*)input->memory.address; // + input->memory.size
+        i32 * my_array2 = (i32*)(input->memory.address + 10 * 1024 * 1024); // + input->memory.size
         
         i32 number = 1;
-        for (i32 i = 0; i < 1000; i++)
+        for (i32 i = 0; i < 10000; i++)
         {
             my_array[i] = number++;
+        }
+        for (i32 i = 0; i < 10000; i++)
+        {
+            my_array2[i] = number++;
         }
         
         // TODO: do this (once) when triggered by the user
