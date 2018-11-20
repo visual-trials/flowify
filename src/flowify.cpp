@@ -45,6 +45,15 @@ extern "C" {
         
         world->recorded_memory = false;
         
+        
+        i32 * my_array = (i32*)input->memory.address; // + input->memory.size
+        
+        i32 number = 1;
+        for (i32 i = 0; i < 1000; i++)
+        {
+            my_array[i] = number++;
+        }
+        
         // TODO: do this (once) when triggered by the user
         for (i32 memory_block_index = 0; memory_block_index < world->nr_of_memory_blocks; memory_block_index++)
         {
