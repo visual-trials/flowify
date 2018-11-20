@@ -20,17 +20,40 @@
 #include "input.cpp"
 #include "render.cpp"
 
+struct WorldData
+{
+};
+
+WorldData global_world = {};  // FIXME: allocate this properly!
+
 extern "C" {
     
     void init_world()
     {
+        WorldData * world = &global_world;
     }
     
     void update_frame()
     {
+        
+        
     }
     
     void render_frame()
     {
+        Input * input = &global_input;
+        ShortString address;
+        ShortString size;
+        int_to_string(input->memory.address, &address);
+        int_to_string(input->memory.size, &size);
+        
+        Font font;
+        font.family = Font_Arial;
+        font.height = 20;
+        
+        Color4 black = {0, 0, 0, 255};
+        
+        draw_text((Pos2d){100,100}, &address, font, black);
+        draw_text((Pos2d){100,140}, &size, font, black);
     }
 }

@@ -90,6 +90,8 @@ Flowify.main = function () {
     }
     
     let wasmEnv = {}
+    let dynamicBase = null
+    let totalMemory = null
     
     // This calculation of STACKTOP, DYNAMICTOP_PTR and DYNAMIC_BASE is extracted from the .js file emcc generated
     {
@@ -158,6 +160,9 @@ Flowify.main = function () {
             my.bufferU8.set(my.bufferU8.subarray(src, src+num), dest)
             return dest
         }
+        
+        dynamicBase = DYNAMIC_BASE
+        totalMemory = TOTAL_MEMORY
     }
     
     let exportedFunctions = Flowify.canvas.getExportedFunctions()
@@ -180,6 +185,8 @@ Flowify.main = function () {
         .then( wasm_module => {
             
             my.wasmInstance = wasm_module.instance
+            
+            my.wasmInstance.exports._set_address_and_size_dynamic_memory(dynamicBase, totalMemory - dynamicBase)
             
             my.wasmInstance.exports._init_world()
             

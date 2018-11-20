@@ -92,6 +92,12 @@ struct Screen
     i32 height;
 };
 
+struct Memory
+{
+    i32 address;
+    i32 size;
+};
+
 struct Input
 {
     MouseInput     mouse;
@@ -99,6 +105,7 @@ struct Input
     TouchesInput   touch;
     Timing         timing;
     Screen         screen;
+    Memory         memory;
 };
 
 Input global_input = {};
@@ -193,6 +200,12 @@ extern "C" {
     {
         global_input.screen.width = width;
         global_input.screen.height = height;
+    }
+
+    void set_address_and_size_dynamic_memory(i32 memory_address, i32 memory_size)
+    {
+        global_input.memory.address = memory_address;
+        global_input.memory.size = memory_size;
     }
     
 }
