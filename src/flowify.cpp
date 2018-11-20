@@ -22,6 +22,11 @@
 
 struct WorldData
 {
+    i32 total_memory;
+    i32 block_size;
+    // FIXME: this should not be hardcoded
+    b32 memory_usage[512];
+    i32 nr_of_memory_blocks;
 };
 
 WorldData global_world = {};  // FIXME: allocate this properly!
@@ -31,17 +36,36 @@ extern "C" {
     void init_world()
     {
         WorldData * world = &global_world;
+        Input * input = &global_input;
+        
+        world->total_memory = (input->memory.address + input->memory.size);
+        world->block_size = 64 * 1024;
+        world->nr_of_memory_blocks = world->total_memory / world->block_size;
+        
+        for (i32 memory_block_index = 0; memory_block_index < world->nr_of_memory_blocks; memory_block_index++)
+        {
+            u8 * first_memory_address_in_block = (u8*)(memory_block_index * world->block_size);
+            for (i32 memory_index_within_block = 0; memory_index_within_block < world->block_size; memory_index_within_block++)
+            {
+                if (first_memory_address_in_block[memory_index_within_block])
+                {
+                    world->memory_usage[memory_block_index] = true;
+                }
+            }
+        }
     }
     
     void update_frame()
     {
-        
+        WorldData * world = &global_world;
         
     }
     
     void render_frame()
     {
+        WorldData * world = &global_world;
         Input * input = &global_input;
+        
         ShortString address;
         ShortString size;
         int_to_string(input->memory.address, &address);
@@ -52,8 +76,22 @@ extern "C" {
         font.height = 20;
         
         Color4 black = {0, 0, 0, 255};
+        Color4 dark_blue = {0, 0, 100, 255};
+        Color4 light_blue = {220, 220, 255, 255};
+        Color4 no_color = {};
         
         draw_text((Pos2d){100,100}, &address, font, black);
         draw_text((Pos2d){100,140}, &size, font, black);
+        
+        for (i32 memory_block_index = 0; memory_block_index < world->nr_of_memory_blocks; memory_block_index++)
+        {
+            if (world->memory_usage[memory_block_index])
+            {
+                draw_rectangle((Pos2d){100 + memory_block_index * 2, 400}, (Size2d){2,100}, no_color, dark_blue, 1);
+            }
+            else {
+                draw_rectangle((Pos2d){100 + memory_block_index * 2, 400}, (Size2d){2,100}, no_color, light_blue, 1);
+            }
+        }
     }
 }
