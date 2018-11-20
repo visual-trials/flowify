@@ -1,6 +1,6 @@
 @echo off
-REM SET PROJECT_NAME=flowify
-SET PROJECT_NAME=testing_animation
+SET PROJECT_NAME=flowify
+REM SET PROJECT_NAME=testing_animation
 
 REM TODO: add more warnings!
 

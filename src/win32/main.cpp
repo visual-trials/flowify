@@ -232,6 +232,20 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
     
     OutputDebugStringA("Starting!\n");
 
+    i32 dynamic_memory_size = 32 * 1024 * 1024;
+    void * game_memory_address = (void *)VirtualAlloc(0, dynamic_memory_size, MEM_RESERVE|MEM_COMMIT, PAGE_READWRITE);
+    
+    if (!game_memory_address)
+    {
+        MessageBox(0, "Could not allocate dynamic memory!", "Error!", MB_ICONEXCLAMATION | MB_OK);
+        return 0;
+    }
+    
+    // TODO: we shouldn't use 'new_input' for memory
+    new_input.memory.address = game_memory_address;
+    new_input.memory.size = dynamic_memory_size;
+    global_input = new_input; // TODO: We have to copy this right now, because new_input.memory is filled and being used in init_world()
+
     init_world();
     
     WNDCLASSA window_class = {};
