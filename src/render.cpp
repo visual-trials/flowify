@@ -60,9 +60,12 @@ struct HoveredOrPressed
     b32 is_pressed;
 };
 
-HoveredOrPressed check_hovered_or_pressed(Pos2d position, Size2d size, MouseInput * mouse_input, TouchesInput * touches_input)
+HoveredOrPressed check_hovered_or_pressed(Pos2d position, Size2d size, Input * input)
 {
     HoveredOrPressed result = {};
+    
+    MouseInput * mouse_input = &input->mouse;
+    TouchesInput * touches_input = &input->touch;
     
     if (mouse_input->position.x >= position.x && mouse_input->position.x <= position.x + size.width &&
         mouse_input->position.y >= position.y && mouse_input->position.y <= position.y + size.height)
@@ -91,10 +94,10 @@ HoveredOrPressed check_hovered_or_pressed(Pos2d position, Size2d size, MouseInpu
     return result;
 }
 
-b32 do_button(Pos2d position, Size2d size, ShortString * label, b32 is_active, MouseInput * mouse_input, TouchesInput * touches_input)
+b32 do_button(Pos2d position, Size2d size, ShortString * label, b32 is_active, Input * input)
 {
     
-    HoveredOrPressed hovered_or_pressed = check_hovered_or_pressed(position, size, mouse_input, touches_input);
+    HoveredOrPressed hovered_or_pressed = check_hovered_or_pressed(position, size, input);
     
     Color4 line_color = {  0,   0,   0, 255};
     Color4 fill_color = {255, 255, 255, 255};
@@ -130,12 +133,12 @@ b32 do_button(Pos2d position, Size2d size, ShortString * label, b32 is_active, M
     return hovered_or_pressed.is_pressed;
 }
 
-b32 do_integer_button(Pos2d position, Size2d size, i32 number, b32 is_active, MouseInput * mouse_input, TouchesInput * touches_input)
+b32 do_integer_button(Pos2d position, Size2d size, i32 number, b32 is_active, Input * input)
 {
     ShortString decimal_string;
     int_to_string(number, &decimal_string);
     
-    return do_button(position, size, &decimal_string, is_active, mouse_input, touches_input);
+    return do_button(position, size, &decimal_string, is_active, input);
 }
 
 void do_physical_pixels_switch(Input * input)
@@ -152,7 +155,7 @@ void do_physical_pixels_switch(Input * input)
         ShortString label;
         copy_char_to_string('S', &label);
         
-        b32 button_is_pressed = do_button(position_button, size_button, &label, screen->using_physical_pixels, &input->mouse, &input->touch);
+        b32 button_is_pressed = do_button(position_button, size_button, &label, screen->using_physical_pixels, input);
         
         if (button_is_pressed)
         {
@@ -165,8 +168,6 @@ void do_frame_timing(Input * input, b32 * is_verbose)
 {
     Timing * timing = &input->timing;
     Screen * screen = &input->screen;
-    MouseInput * mouse_input = &input->mouse;
-    TouchesInput * touches_input = &input->touch;
     
     i32 nr_of_bars_to_show = MAX_NR_OF_FRAMES_FOR_TIMING;
     i32 bar_width = 6;
@@ -266,7 +267,7 @@ void do_frame_timing(Input * input, b32 * is_verbose)
         }
     }
     
-    HoveredOrPressed hovered_or_pressed = check_hovered_or_pressed(start_position, graph_size, mouse_input, touches_input);
+    HoveredOrPressed hovered_or_pressed = check_hovered_or_pressed(start_position, graph_size, input);
     
     if (hovered_or_pressed.is_pressed)
     {

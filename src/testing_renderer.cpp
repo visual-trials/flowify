@@ -250,7 +250,7 @@ extern "C" {
             }
             
             position_button.y = 20 + page_index * (margin_between_buttons + size_button.height);
-            b32 button_is_pressed = do_integer_button(position_button, size_button, page_index + 1, button_is_active, &global_input.mouse, &global_input.touch);
+            b32 button_is_pressed = do_integer_button(position_button, size_button, page_index + 1, button_is_active, &global_input);
             
             if (button_is_pressed)
             {
