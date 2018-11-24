@@ -94,7 +94,7 @@ HoveredOrPressed check_hovered_or_pressed(Pos2d position, Size2d size, Input * i
     return result;
 }
 
-b32 do_button(Pos2d position, Size2d size, ShortString * label, b32 is_active, Input * input)
+b32 do_button(Pos2d position, Size2d size, ShortString * label, b32 is_active, Input * input, ShortString * label_active = 0)
 {
     
     HoveredOrPressed hovered_or_pressed = check_hovered_or_pressed(position, size, input);
@@ -104,9 +104,22 @@ b32 do_button(Pos2d position, Size2d size, ShortString * label, b32 is_active, I
     
     if (is_active)
     {
-        fill_color.r = 80;
-        fill_color.g = 80;
-        fill_color.b = 255;
+        if (label_active)
+        {
+            label = label_active;
+            if (hovered_or_pressed.is_hovered)
+            {
+                fill_color.r = 200;
+                fill_color.g = 200;
+                fill_color.b = 200;
+            }
+        }
+        else
+        {
+            fill_color.r = 80;
+            fill_color.g = 80;
+            fill_color.b = 255;
+        }
     }
     else if (hovered_or_pressed.is_hovered)
     {
@@ -153,9 +166,11 @@ void do_physical_pixels_switch(Input * input)
         position_button.y = 20;
         
         ShortString label;
-        copy_char_to_string('S', &label);
+        copy_char_to_string('-', &label);
+        ShortString label_active;
+        copy_char_to_string('+', &label_active);
         
-        b32 button_is_pressed = do_button(position_button, size_button, &label, screen->using_physical_pixels, input);
+        b32 button_is_pressed = do_button(position_button, size_button, &label, screen->using_physical_pixels, input, &label_active);
         
         if (button_is_pressed)
         {
