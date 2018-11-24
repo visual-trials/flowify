@@ -51,8 +51,6 @@ extern "C" {
         
         world->active_page_index = 1;
         world->nr_of_pages = 3;
-        
-        set_using_physical_pixels(true);
     }
     
     void update_frame()
