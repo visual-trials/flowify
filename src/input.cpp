@@ -90,6 +90,8 @@ struct Screen
 {
     i32 width;
     i32 height;
+    f32 scale;
+    
     f32 device_pixel_ratio;
     b32 using_physical_pixels;
 };
@@ -198,10 +200,12 @@ extern "C" {
         global_input.timing.frame_times[frame_index].waiting_time = waiting_time;
     }
     
-    void set_screen_size(i32 width, i32 height, f32 device_pixel_ratio, b32 using_physical_pixels)
+    void set_screen_size(i32 width, i32 height, f32 scale, f32 device_pixel_ratio, b32 using_physical_pixels)
     {
         global_input.screen.width = width;
         global_input.screen.height = height;
+        global_input.screen.scale = scale;
+
         global_input.screen.device_pixel_ratio = device_pixel_ratio;
         global_input.screen.using_physical_pixels = using_physical_pixels;
     }

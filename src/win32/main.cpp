@@ -364,6 +364,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
         GetClientRect(window, &window_rect);
         new_input.screen.width = window_rect.right - window_rect.left;
         new_input.screen.height = window_rect.bottom - window_rect.top;
+        new_input.screen.scale = 1.0f;                  // TODO: right now we do not support dpi-awareness
         new_input.screen.device_pixel_ratio = 1.0f;     // TODO: right now we do not support dpi-awareness
         new_input.screen.using_physical_pixels = false; // TODO: right now we do not support dpi-awareness
 

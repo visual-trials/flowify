@@ -91,7 +91,7 @@ HoveredOrPressed check_hovered_or_pressed(Pos2d position, Size2d size, MouseInpu
     return result;
 }
 
-b32 do_button(Pos2d position, Size2d size, i32 number, b32 is_active, MouseInput * mouse_input, TouchesInput * touches_input)
+b32 do_button(Pos2d position, Size2d size, ShortString * label, b32 is_active, MouseInput * mouse_input, TouchesInput * touches_input)
 {
     
     HoveredOrPressed hovered_or_pressed = check_hovered_or_pressed(position, size, mouse_input, touches_input);
@@ -116,21 +116,26 @@ b32 do_button(Pos2d position, Size2d size, i32 number, b32 is_active, MouseInput
     
     draw_rounded_rectangle(position, size, 5, line_color, fill_color, line_width);
     
-    ShortString decimal_string;
-    int_to_string(number, &decimal_string);
-    
     Font font = {};
     font.height = 13;
     font.family = Font_Arial;
     
-    Size2d text_size = get_text_size(&decimal_string, font);
+    Size2d text_size = get_text_size(label, font);
     
     Pos2d text_position = {};
     text_position.x = position.x + (size.width - text_size.width) / 2;
     text_position.y = position.y + (size.height - text_size.height) / 2;
-    draw_text(text_position, &decimal_string, font, line_color);
+    draw_text(text_position, label, font, line_color);
     
     return hovered_or_pressed.is_pressed;
+}
+
+b32 do_integer_button(Pos2d position, Size2d size, i32 number, b32 is_active, MouseInput * mouse_input, TouchesInput * touches_input)
+{
+    ShortString decimal_string;
+    int_to_string(number, &decimal_string);
+    
+    return do_button(position, size, &decimal_string, is_active, mouse_input, touches_input);
 }
 
 void do_frame_timing(Input * input, b32 * is_verbose)

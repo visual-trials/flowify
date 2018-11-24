@@ -62,6 +62,7 @@ Flowify.main = function () {
         my.wasmInstance.exports._set_screen_size(
             Flowify.canvas.canvasElement.width,
             Flowify.canvas.canvasElement.height,
+            Flowify.canvas.scale,
             window.devicePixelRatio ? window.devicePixelRatio : 1,
             Flowify.canvas.usingPhysicalPixels,
         )
