@@ -25,7 +25,7 @@ Flowify.canvas = function () {
     my.canvasElement = document.getElementById("canvas")
     my.context2d = my.canvasElement.getContext("2d")
     
-    my.usingPhysicalPixels = false
+    my.usingPhysicalPixels = false // TODO: you might want to save this in a cookie! (since its device dependent)
     my.scale = 1
 
     my.fixedCanvasSize = null
