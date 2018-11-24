@@ -192,6 +192,8 @@ Flowify.main = function () {
             
             my.wasmInstance.exports._set_address_and_size_dynamic_memory(dynamicBase, dynamicSize)
             
+            Flowify.canvas.loadUsingPhysicalPixelsFromCookie()
+            
             my.wasmInstance.exports._init_world()
             
             Flowify.input.addressKeysThatAreDown = my.wasmInstance.exports._get_address_keys_that_are_down()

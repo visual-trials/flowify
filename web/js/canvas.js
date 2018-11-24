@@ -25,7 +25,7 @@ Flowify.canvas = function () {
     my.canvasElement = document.getElementById("canvas")
     my.context2d = my.canvasElement.getContext("2d")
     
-    my.usingPhysicalPixels = false // TODO: you might want to save this in a cookie! (since its device dependent)
+    my.usingPhysicalPixels = false
     my.scale = 1
 
     my.fixedCanvasSize = null
@@ -61,7 +61,12 @@ Flowify.canvas = function () {
     // Taken from here: https://stackoverflow.com/questions/9677985/uncaught-typeerror-illegal-invocation-in-chrome
     my.requestAnimFrame = requestAnimFrame ? requestAnimFrame.bind(window) : null
 
-    // Resizing Canvas
+    // (Re)sizing Canvas
+    
+    my.loadUsingPhysicalPixelsFromCookie = function () {
+        my.usingPhysicalPixels = Flowify.input.getCookie('usingPhysicalPixels') === '1' ? true : false
+        my.resizeCanvasToWindowSize()
+    }
 
     my.resizeCanvas = function () {
         if (my.fixedCanvasSize == null) {
@@ -376,6 +381,8 @@ Flowify.canvas = function () {
             
             _jsSetUsingPhysicalPixels: function(usingPhysicalPixels) {
                 my.usingPhysicalPixels = usingPhysicalPixels
+                Flowify.input.storeCookie('usingPhysicalPixels', usingPhysicalPixels)
+                
                 // TODO: should we really do this here? We might still be in de middle of rendering. Better to do this after the render, right?
                 my.resizeCanvasToWindowSize()
             }
