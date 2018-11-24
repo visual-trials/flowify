@@ -73,16 +73,19 @@ Flowify.canvas = function () {
     }
 
     my.resizeCanvasToWindowSize = function () {
-        if ( my.canvasElement.width != window.innerWidth || my.canvasElement.height != window.innerHeight) {
-            my.scale = 1
-            if (my.usingPhysicalPixels) {
-                if (window.devicePixelRatio) {
-                    // TODO: if we enable this, we should also respond to it by
-                    //       using bigger fonts and bigger shapes. For now this
-                    //       is turned off.
-                    my.scale = window.devicePixelRatio
-                }
+        
+        let scale = 1
+        if (my.usingPhysicalPixels) {
+            if (window.devicePixelRatio) {
+                // TODO: if we enable this, we should also respond to it by
+                //       using bigger fonts and bigger shapes. For now this
+                //       is turned off.
+                scale = window.devicePixelRatio
             }
+        }
+        my.scale = scale
+        
+        if ( my.canvasElement.width != window.innerWidth * my.scale || my.canvasElement.height != window.innerHeight * my.scale) {
             my.canvasElement.style.width = window.innerWidth
             my.canvasElement.style.height = window.innerHeight
             my.canvasElement.width = window.innerWidth * my.scale
@@ -373,6 +376,8 @@ Flowify.canvas = function () {
             
             _jsSetUsingPhysicalPixels: function(usingPhysicalPixels) {
                 my.usingPhysicalPixels = usingPhysicalPixels
+                // TODO: should we really do this here? We might still be in de middle of rendering. Better to do this after the render, right?
+                my.resizeCanvasToWindowSize()
             }
         }
         

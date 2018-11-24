@@ -279,11 +279,11 @@ extern "C" {
             draw_pixel_borders();
         }
         
-
         draw_and_update_button_menu(world);
         
         // Draw frame timing
         do_frame_timing(&global_input, &world->verbose_frame_times);
+        do_physical_pixels_switch(&global_input);
     }
     
 }

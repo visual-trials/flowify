@@ -138,6 +138,29 @@ b32 do_integer_button(Pos2d position, Size2d size, i32 number, b32 is_active, Mo
     return do_button(position, size, &decimal_string, is_active, mouse_input, touches_input);
 }
 
+void do_physical_pixels_switch(Input * input)
+{
+    Screen * screen = &input->screen;
+    if (screen->device_pixel_ratio != 1.0f)
+    {
+        Size2d size_button = {50, 50};
+        
+        Pos2d position_button = {};
+        position_button.x = screen->width - size_button.width - 20;
+        position_button.y = 20;
+        
+        ShortString label;
+        copy_char_to_string('S', &label);
+        
+        b32 button_is_pressed = do_button(position_button, size_button, &label, screen->using_physical_pixels, &input->mouse, &input->touch);
+        
+        if (button_is_pressed)
+        {
+            set_using_physical_pixels(!screen->using_physical_pixels);
+        }
+    }
+}
+
 void do_frame_timing(Input * input, b32 * is_verbose)
 {
     Timing * timing = &input->timing;
