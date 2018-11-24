@@ -79,6 +79,10 @@ Flowify.canvas = function () {
 
     my.resizeCanvasToWindowSize = function () {
         
+        // FIXME: when we change the *scale* of the canvas (by for example clicking on a button to re-scale), 
+        //        the old mouse positions are now wrong. The problem is that we do not get any mouse-event
+        //        when we resize/rescale the canvas! We should somehow get (and store) the mouse positions!
+        
         let scale = 1
         if (my.usingPhysicalPixels) {
             if (window.devicePixelRatio) {
