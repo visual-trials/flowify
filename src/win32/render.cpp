@@ -505,6 +505,11 @@ void log(u8 * text)
     OutputDebugStringA((LPCSTR)text);
 }
 
+void set_using_physical_pixels(b32 using_physical_pixels)
+{
+    // TODO: not implemented yet
+}
+
 // Init functions
 
 b32 create_factory_d2d()
@@ -626,4 +631,3 @@ void render_d2d(HWND window)
         render_target->EndDraw();
     }
 }
-

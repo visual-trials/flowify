@@ -24,7 +24,7 @@ Flowify.canvas = function () {
 
     my.canvasElement = document.getElementById("canvas")
     my.context2d = my.canvasElement.getContext("2d")
-    my.scale = 1
+    my.usingPhysicalPixels = false
 
     my.fixedCanvasSize = null
 
@@ -72,17 +72,20 @@ Flowify.canvas = function () {
 
     my.resizeCanvasToWindowSize = function () {
         if ( my.canvasElement.width != window.innerWidth || my.canvasElement.height != window.innerHeight) {
-            if (window.devicePixelRatio) {
-                // TODO: if we enable this, we should also respond to it by
-                //       using bigger fonts and bigger shapes. For now this
-                //       is turned off.
-                my.scale = window.devicePixelRatio
-            }        
+            let scaleCanvas = 1
+            if (my.usingPhysicalPixels) {
+                if (window.devicePixelRatio) {
+                    // TODO: if we enable this, we should also respond to it by
+                    //       using bigger fonts and bigger shapes. For now this
+                    //       is turned off.
+                    scaleCanvas = window.devicePixelRatio
+                }
+            }
             my.canvasElement.style.width = window.innerWidth
             my.canvasElement.style.height = window.innerHeight
-            my.canvasElement.width = window.innerWidth * my.scale
-            my.canvasElement.height = window.innerHeight * my.scale
-            // my.context2d.scale(my.scale, my.scale);  // apparently, this is not need. Maybe because it "scales to fit" somehow?
+            my.canvasElement.width = window.innerWidth * scaleCanvas
+            my.canvasElement.height = window.innerHeight * scaleCanvas
+            // my.context2d.scale(scaleCanvas, scaleCanvas);  // apparently, this is not need. Maybe because it "scales to fit" somehow?
         }
         
     }
@@ -364,8 +367,11 @@ Flowify.canvas = function () {
             
             _jsLogInt: function(logInteger) {
                 console.log(logInteger)
-            }
+            },
             
+            _jsSetUsingPhysicalPixels: function(usingPhysicalPixels) {
+                my.usingPhysicalPixels = usingPhysicalPixels
+            }
         }
         
         return exportedFunctions

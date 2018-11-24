@@ -59,6 +59,8 @@ extern "C" {
     extern void jsLog(u8 * text_data, i32 text_length);
     
     extern void jsLogInt(i32 log_integer);
+    
+    extern void jsSetUsingPhysicalPixels(b32 using_physical_pixels);
 }
 
 void draw_rounded_rectangle(Pos2d position, Size2d size, i32 r,
@@ -163,3 +165,7 @@ void log(ShortString * text)
     jsLog(text->data, text->length);
 }
 
+void set_using_physical_pixels(b32 using_physical_pixels)
+{
+    jsSetUsingPhysicalPixels(using_physical_pixels);
+}
