@@ -22,6 +22,10 @@
 
 struct WorldData
 {
+    i32 iteration;
+    i32 selected_lane_segment_index;
+    
+    
     i32 active_page_index;
     i32 nr_of_pages;
     b32 verbose_frame_times;
@@ -78,10 +82,29 @@ extern "C" {
         
         world->active_page_index = 1;
         world->nr_of_pages = 3;
+        
+        world->iteration = 0;
+        world->selected_lane_segment_index = 0;
     }
     
     void update_frame()
     {
+        WorldData * world = &global_world;
+        
+        // FIXME: use array_length(lane_segments)
+        i32 lane_segments_count = sizeof(lane_segments)/sizeof(lane_segments[0]); 
+        
+        world->iteration++;
+        if (world->iteration > 60) // every second
+        {
+            world->iteration = 0;
+            
+            world->selected_lane_segment_index++;
+            if (world->selected_lane_segment_index > lane_segments_count)
+            {
+                world->selected_lane_segment_index = 0;
+            }        
+        }
     }
     
     void draw_basic_figures()
@@ -102,9 +125,8 @@ extern "C" {
         draw_rounded_rectangle((Pos2d){500, 200}, (Size2d){200, 350}, 20, line_color_rounded, fill_color_rounded, 4);
     }
     
-    void draw_lanes()
+    void draw_lanes(WorldData * world)
     {
-        
         Color4 line_color       = {  0,   0,   0, 255};
         Color4 unselected_color = {180, 180, 255, 255};
         Color4 selected_color   = {180, 255, 180, 255};
@@ -116,12 +138,12 @@ extern "C" {
             // IDEA: remember the *ENDING* x1, x2 and y of the previous segment and use it
             //       as *STARTING* x1, x2 and y of the next segment.
             
-            // TODO: use array_length(lane_segments)
+            // FIXME: use array_length(lane_segments)
             i32 lane_segments_count = sizeof(lane_segments)/sizeof(lane_segments[0]); 
             Color4 fill_color;
             for (i32 lane_segment_index = 0; lane_segment_index < lane_segments_count; lane_segment_index++)
             {
-                if (lane_segment_index == 2)
+                if (lane_segment_index == world->selected_lane_segment_index)
                 {
                     fill_color = selected_color;
                 }
@@ -270,7 +292,7 @@ extern "C" {
         }
         else if (world->active_page_index == 1)
         {
-            draw_lanes();
+            draw_lanes(world);
         }
         else if (world->active_page_index == 2)
         {
