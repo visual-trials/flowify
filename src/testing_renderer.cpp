@@ -49,15 +49,15 @@ struct LaneSegment
 };
 
 const LaneSegment lane_segments[9] = {
-  {0,0,13,1,  {250, 50}, {500, 50}, {150, 200}, {550, 200} },  // Start narrow and do widening
+  {0,0,14,1,  {250, 50}, {500, 50}, {150, 200}, {550, 200} },  // Start narrow and do widening
   {17,2,17,2, {400, 200}, {550, 200}, {450, 240}, {550, 240} }, // Going right
-  {0,3,23,3,  {450, 240}, {550, 240}, {450, 280}, {600, 280} }, // Extending right 1
-  {0,4,15,4,  {450, 280}, {600, 280}, {450, 500}, {600, 500} }, // Extending right 2
+  {4,3,23,3,  {450, 240}, {550, 240}, {450, 280}, {600, 280} }, // Extending right 1
+  {4,4,15,4,  {450, 280}, {600, 280}, {450, 500}, {600, 500} }, // Extending right 2
   {0,5,0,5, {450, 500}, {600, 500}, {400, 540}, {600, 540} }, // Right back to middle
   {0,6,6,6, {150, 200}, {400, 200}, {150, 240}, {350, 240} }, // Going left
-  {0,7,13,7, {150, 240}, {350, 240}, {150, 500}, {350, 500} }, // Extending left
+  {4,7,23,7, {150, 240}, {350, 240}, {150, 500}, {350, 500} }, // Extending left
   {0,8,0,8, {150, 500}, {350, 500}, {150, 540}, {400, 540} }, // Left back to middle
-  {0,9,13,9, {150, 540}, {600, 540}, {300, 650}, {500, 650} }  // Combining left and right
+  {0,9,23,9, {150, 540}, {600, 540}, {300, 650}, {500, 650} }  // Combining left and right
 };
 
 const char * program_lines[] = { 
@@ -154,6 +154,8 @@ extern "C" {
                 draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
                                   lane_segment.left_bottom, lane_segment.right_bottom, 
                                   20, line_color, fill_color, line_width);
+                                  
+                
             }
             
         }
@@ -178,10 +180,27 @@ extern "C" {
             copy_char_to_string(' ', &program_line_text);
             Size2d white_space_size = get_text_size(&program_line_text, font);
             i32 line_height = white_space_size.height * 1.5;
-            
+
             Pos2d position = {};
             Size2d size = {};
             
+            i32 lane_segments_count = sizeof(lane_segments)/sizeof(lane_segments[0]); 
+            Color4 fill_color;
+            for (i32 lane_segment_index = 0; lane_segment_index < lane_segments_count; lane_segment_index++)
+            {
+                if (lane_segment_index == world->selected_lane_segment_index)
+                {
+                    LaneSegment lane_segment = lane_segments[lane_segment_index];
+            
+                    position.x = 750 + lane_segment.begin_text_character_index * white_space_size.width;
+                    position.y = 200 + lane_segment.begin_text_line_number * line_height - white_space_size.height / 4;
+                    
+                    size.width = (1 + lane_segment.end_text_character_index - lane_segment.begin_text_character_index) * white_space_size.width; // - white_space_size.width * 2;
+                    size.height = line_height * (1 + lane_segment.end_text_line_number - lane_segment.begin_text_line_number);
+                    draw_rectangle(position, size, no_color, selected_color, 1);
+                }
+            }
+                
             for (i32 line_index = 0; line_index < nr_of_program_lines; line_index++)
             {
                 
@@ -189,18 +208,6 @@ extern "C" {
                 Size2d line_nr_size = get_text_size(&line_nr_text, font);
                 
                 copy_cstring_to_short_string(program_lines[line_index], &program_line_text);
-                
-                if (line_index == 3 || line_index == 4)
-                {
-                    Size2d program_line_size = get_text_size(&program_line_text, font);
-                    
-                    position.x = 750 + white_space_size.width * 3; // FIXME: workaround (there are 4 spaces in front of this line!) 
-                    position.y = 200 + line_index * line_height - white_space_size.height / 4;
-                    
-                    size.width = program_line_size.width - white_space_size.width * 2;
-                    size.height = line_height;
-                    draw_rectangle(position, size, no_color, selected_color, 1);
-                }
                 
                 draw_text((Pos2d){710 - line_nr_size.width, 200 + line_index * line_height}, &line_nr_text, font, grey);
                 draw_text((Pos2d){750, 200 + line_index * line_height}, &program_line_text, font, black);
