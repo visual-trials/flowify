@@ -29,6 +29,33 @@ struct WorldData
 
 WorldData global_world = {};  // FIXME: allocate this properly!
 
+struct LaneSegment
+{
+    i32 begin_text_character_index;
+    i32 begin_text_line_number;
+    
+    i32 end_text_character_index;
+    i32 end_text_line_number;
+    
+    Pos2d left_top;
+    Pos2d right_top;
+    
+    Pos2d left_bottom;
+    Pos2d right_bottom;
+};
+
+const LaneSegment lane_segments[9] = {
+  {0,0,13,1,  {250, 50}, {500, 50}, {150, 200}, {550, 200} },  // Start narrow and do widening
+  {17,2,17,2, {400, 200}, {550, 200}, {450, 240}, {550, 240} }, // Going right
+  {0,3,23,3,  {450, 240}, {550, 240}, {450, 280}, {600, 280} }, // Extending right 1
+  {0,4,15,4,  {450, 280}, {600, 280}, {450, 500}, {600, 500} }, // Extending right 2
+  {0,5,0,5, {450, 500}, {600, 500}, {400, 540}, {600, 540} }, // Right back to middle
+  {0,6,6,6, {150, 200}, {400, 200}, {150, 240}, {350, 240} }, // Going left
+  {0,7,13,7, {150, 240}, {350, 240}, {150, 500}, {350, 500} }, // Extending left
+  {0,8,0,8, {150, 500}, {350, 500}, {150, 540}, {400, 540} }, // Left back to middle
+  {0,9,13,9, {150, 540}, {600, 540}, {300, 650}, {500, 650} }  // Combining left and right
+};
+
 const char * program_lines[] = { 
     "number = arg[0]",
     "increased = 0",
@@ -78,10 +105,10 @@ extern "C" {
     void draw_lanes()
     {
         
-        Color4 line_color     = {  0,   0,   0, 255};
-        Color4 fill_color     = {180, 180, 255, 255};
-        Color4 selected_color = {180, 255, 180, 255};
-        Color4 no_color       = {};
+        Color4 line_color       = {  0,   0,   0, 255};
+        Color4 unselected_color = {180, 180, 255, 255};
+        Color4 selected_color   = {180, 255, 180, 255};
+        Color4 no_color         = {};
         
         i32 line_width = 4;
 
@@ -89,50 +116,23 @@ extern "C" {
             // IDEA: remember the *ENDING* x1, x2 and y of the previous segment and use it
             //       as *STARTING* x1, x2 and y of the next segment.
             
-            // Start narrow and do widening
-            draw_lane_segment((Pos2d){250, 50},  (Pos2d){500, 50}, 
-                              (Pos2d){150, 200}, (Pos2d){550, 200}, 
-                              20, line_color, fill_color, line_width);
-            
-            // Going left
-            draw_lane_segment((Pos2d){150, 200}, (Pos2d){400, 200}, 
-                              (Pos2d){150, 240}, (Pos2d){350, 240}, 
-                              20, line_color, fill_color, line_width);
-            
-            // Extending left
-            draw_lane_segment((Pos2d){150, 240}, (Pos2d){350, 240}, 
-                              (Pos2d){150, 500}, (Pos2d){350, 500}, 
-                              20, line_color, fill_color, line_width);
-                             
-            // Going right
-            draw_lane_segment((Pos2d){400, 200}, (Pos2d){550, 200}, 
-                              (Pos2d){450, 240}, (Pos2d){550, 240}, 
-                              20, line_color, fill_color, line_width);
-                              
-            // Extending right
-            draw_lane_segment((Pos2d){450, 240}, (Pos2d){550, 240}, 
-                              (Pos2d){450, 280}, (Pos2d){600, 280}, 
-                              20, line_color, fill_color, line_width);
-                              
-            // Extending right
-            draw_lane_segment((Pos2d){450, 280}, (Pos2d){600, 280}, 
-                              (Pos2d){450, 500}, (Pos2d){600, 500}, 
-                              20, line_color, selected_color, line_width);
-                              
-            // Left back to middle
-            draw_lane_segment((Pos2d){150, 500}, (Pos2d){350, 500}, 
-                              (Pos2d){150, 540}, (Pos2d){400, 540}, 
-                              20, line_color, fill_color, line_width);
-            
-            // Right back to middle
-            draw_lane_segment((Pos2d){450, 500}, (Pos2d){600, 500}, 
-                              (Pos2d){400, 540}, (Pos2d){600, 540}, 
-                              20, line_color, selected_color, line_width);
-                              
-            // Combining left and right
-            draw_lane_segment((Pos2d){150, 540}, (Pos2d){600, 540}, 
-                              (Pos2d){300, 650}, (Pos2d){500, 650}, 
-                              20, line_color, fill_color, line_width);
+            // TODO: use array_length(lane_segments)
+            i32 lane_segments_count = sizeof(lane_segments)/sizeof(lane_segments[0]); 
+            Color4 fill_color;
+            for (i32 lane_segment_index = 0; lane_segment_index < lane_segments_count; lane_segment_index++)
+            {
+                if (lane_segment_index == 2)
+                {
+                    fill_color = selected_color;
+                }
+                else {
+                    fill_color = unselected_color;
+                }
+                LaneSegment lane_segment = lane_segments[lane_segment_index];
+                draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
+                                  lane_segment.left_bottom, lane_segment.right_bottom, 
+                                  20, line_color, fill_color, line_width);
+            }
             
         }
         
