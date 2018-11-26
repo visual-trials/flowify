@@ -477,6 +477,49 @@ Flowify.input = function () {
         my.fileContentLength = 0
     }
 
+    my.openFileDialog = function () {
+        if (my.fileInputElement != null) {
+            my.fileInputElement.click();
+        }
+    }
+    
+    my.fileInputElementChanged = function (e) {
+        
+        let files = e.target.files;
+        
+        let file = null
+        if (files && files.length === 1) {
+            file = files[0]
+        }
+
+        // Read this: https://www.html5rocks.com/en/tutorials/file/dndfiles/
+        let reader = new FileReader()
+        reader.onload = (function(uploadedFile) {
+            return function(e) {
+                let max_file_size = 10000 // FIXME: sync this value and make it bigger!
+                if (e.target.result.length <= max_file_size) {
+                    // FIXME: this SHOULD work: 
+                    // if (e.target.result.byteLength <= max_file_size) {
+                        
+                    // TODO: also set the file name using uploadedFile
+                    for (let i = 0; i < e.target.result.length; i++) {
+                        //console.log(e.target.result.charCodeAt(i))
+                        Flowify.main.bufferU8[my.addressFileUpload + i] = e.target.result.charCodeAt(i)
+                    }
+                    // FIXME: this SHOULD work: 
+                    // Flowify.main.bufferU8.set(e.target.result, my.addressFileUpload)
+                    
+                    my.fileWasUploaded = true
+                    my.fileContentLength = e.target.result.length
+                }
+            };
+        })(file);
+
+        reader.readAsText(file)
+        //reader.readAsBinaryString(file)
+        // FIXME: this SHOULD work: reader.readAsArrayBuffer(file);
+    }
+    
     my.addInputListeners = function () {
         Flowify.canvas.canvasElement.addEventListener("mousedown", my.mouseButtonDown, false)
         Flowify.canvas.canvasElement.addEventListener("mouseup", my.mouseButtonUp, false)
@@ -498,8 +541,16 @@ Flowify.input = function () {
         Flowify.canvas.canvasElement.addEventListener("touchend", my.touchEnded, false)
         Flowify.canvas.canvasElement.addEventListener("touchcancel", my.touchCanceled, false)
         Flowify.canvas.canvasElement.addEventListener("touchmove", my.touchMoved, false)
+        
+        if (window.File && window.FileReader && window.FileList && window.Blob) {
+            my.addFileInputElement()
+            my.fileInputElement.addEventListener("change", my.fileInputElementChanged, false)
+        }
+        else {
+            console.log('FileReader not supported for this browser!')
+        }
     }
-    
+
     my.addFileInputElement = function() {
         my.fileInputElement = document.createElement("input");
         my.fileInputElement.id = 'fileDialog'
@@ -507,12 +558,6 @@ Flowify.input = function () {
         my.fileInputElement.style="width:100px; height:100px; position: absolute; top: -200px; left: -200px;"
         
         document.body.appendChild(my.fileInputElement);
-    }
-    
-    my.openFileDialog = function () {
-        if (my.fileInputElement != null) {
-            my.fileInputElement.click();
-        }
     }
     
     my.addClipboard = function () {
