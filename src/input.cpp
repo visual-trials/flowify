@@ -69,6 +69,14 @@ struct TouchesInput
     i32 touch_count;
 };
 
+#define MAX_FILE_UPLOAD_SIZE 10000 // FIXME: we need more room!
+
+struct FileUpload
+{
+    String file_contents;
+    b32 file_was_uploaded;
+};
+
 #define MAX_NR_OF_FRAMES_FOR_TIMING 60 // Keep this the same in input.js!
 
 struct FrameTiming
@@ -107,6 +115,7 @@ struct Input
     MouseInput     mouse;
     KeyboardInput  keyboard;
     TouchesInput   touch;
+    FileUpload     file;
     Timing         timing;
     Screen         screen;
     Memory         memory;
@@ -114,6 +123,8 @@ struct Input
 
 Input global_input = {};
 Input new_input = {};
+
+u8 global_file_contents[MAX_FILE_UPLOAD_SIZE]; // TODO: allocate this dynamically!
 
 extern "C" {
     
@@ -159,12 +170,13 @@ extern "C" {
     {
         return global_input.keyboard.sequence_keys_up_down;
     }
-    
+
     void set_sequence_keys_length(i32 sequence_keys_length)
     {
        global_input.keyboard.sequence_keys_length = sequence_keys_length;
     }
     
+    // Touch 
     void set_touch_count(i32 touch_count)
     {
         // TODO: make sure touch_count <= MAX_NR_OF_TOUCHES
@@ -188,7 +200,26 @@ extern "C" {
         global_input.touch.touches[touch_index].position.x = x;
         global_input.touch.touches[touch_index].position.y = y;
     }
+
+    // File upload
+    u8 * get_address_file_upload()
+    {
+        global_input.file.file_contents.data = global_file_contents;
+        return global_input.file.file_contents.data;
+    }
     
+    void set_file_upload_data(i32 length, b32 file_was_uploaded)
+    {
+        if (length > MAX_FILE_UPLOAD_SIZE)
+        {
+            length = MAX_FILE_UPLOAD_SIZE;
+        }
+        // Note: the corresponding data in global_input.file.file_contents.data should have been filled beforehand
+        global_input.file.file_contents.length = length;
+        global_input.file.file_was_uploaded = file_was_uploaded;
+    }
+
+    //Frame times
     void set_frame_time(i32 frame_index, f32 input_time, f32 updating_time, f32 rendering_time, f32 waiting_time)
     {
         // TODO: make sure frame_index <= MAX_NR_OF_FRAMES_FOR_TIMING
@@ -199,7 +230,8 @@ extern "C" {
         global_input.timing.frame_times[frame_index].rendering_time = rendering_time;
         global_input.timing.frame_times[frame_index].waiting_time = waiting_time;
     }
-    
+
+    // Screen
     void set_screen_size(i32 width, i32 height, f32 scale, f32 device_pixel_ratio, b32 using_physical_pixels)
     {
         global_input.screen.width = width;
@@ -210,6 +242,7 @@ extern "C" {
         global_input.screen.using_physical_pixels = using_physical_pixels;
     }
 
+    // Memory
     void set_address_and_size_dynamic_memory(i32 memory_address, i32 memory_size)
     {
         global_input.memory.address = (void *)memory_address;

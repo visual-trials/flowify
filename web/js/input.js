@@ -173,6 +173,11 @@ Flowify.input = function () {
     my.textHasComeFromClipboard = false
     my.textComingFromClipboard = null
 
+    // -- File upload data --
+
+    my.fileWasUploaded = false
+    my.fileContentLength = 0
+
     my.resetKeyboardData = function() {
         
         my.sequenceKeysUpDown = []
@@ -224,14 +229,16 @@ Flowify.input = function () {
         }
 
         // Ctrl-L
-        if (keyCode == 76 && e.ctrlKey) {   // FIXME: what is the proper way of checking for the key 'L'?
+        if (keyCode == 76 && e.ctrlKey) {
             if (my.fileInputElement != null) {
                 my.openFileDialog()
             }
+            // TODO: Ctrl-L is already used in browsers, so we prevent the default behaviour from happening (better to use a different method, like a button on the canvas)
+            e.preventDefault()
         }
         
         // Ctrl-C
-        if (keyCode == 67 && e.ctrlKey) {   // FIXME: what is the proper way of checking for the key 'c'?
+        if (keyCode == 67 && e.ctrlKey) {
             if (my.clipboardTextArea != null) {
                 if (my.textToCopyFrom != null) {
                     my.clipboardTextArea.value = my.textToCopyFrom
@@ -258,7 +265,7 @@ Flowify.input = function () {
         }
 
         // Ctrl-V
-        if (keyCode == 86 && e.ctrlKey) {   // FIXME: what is the proper way of checking for the key 'v'?
+        if (keyCode == 86 && e.ctrlKey) {
             if (my.clipboardTextArea != null) {
                 // This ensures the copy-pasted text goes into the textarea
                 my.clipboardTextArea.select()
@@ -459,6 +466,15 @@ Flowify.input = function () {
         }
 
         e.preventDefault()
+    }
+
+    my.sendFileUploadData = function () {
+        Flowify.main.wasmInstance.exports._set_file_upload_data(my.fileContentLength, my.fileWasUploaded)
+    }
+    
+    my.resetFileUploadData = function () {
+        my.fileWasUploaded = false
+        my.fileContentLength = 0
     }
 
     my.addInputListeners = function () {

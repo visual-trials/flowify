@@ -66,6 +66,12 @@ struct ShortString
     i32 length;
 };
 
+struct String
+{
+    u8 * data;
+    i32 length;
+};
+
 // TODO: put these function in a more common place
 
 // TODO: can we make one common array_length here?

@@ -25,6 +25,8 @@ emcc src/$PROJECT_NAME.cpp -Os -s WASM=1 -o dist/$PROJECT_NAME.html -s TOTAL_MEM
         '_set_sequence_keys_length', 
         '_set_touch_count', 
         '_set_touch_data', 
+        '_get_address_file_upload',
+        '_set_file_upload_data',
         '_set_frame_time',
         '_set_screen_size',
         '_set_address_and_size_dynamic_memory'

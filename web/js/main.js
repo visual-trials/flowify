@@ -49,6 +49,7 @@ Flowify.main = function () {
         input.sendMouseData()
         input.sendTouchData()
         input.sendKeyboardData()
+        input.sendFileUploadData()
         
         my.wasmInstance.exports._set_frame_time(
             my.frameIndex, 
@@ -57,7 +58,6 @@ Flowify.main = function () {
             renderingTime,
             waitingTime
         )
-        
         
         my.wasmInstance.exports._set_screen_size(
             Flowify.canvas.canvasElement.width,
@@ -72,6 +72,7 @@ Flowify.main = function () {
         input.resetMouseData()
         input.resetTouchData()
         input.resetKeyboardData()
+        input.resetFileUploadData()
 
         // Update world
         my.wasmInstance.exports._update_frame()
@@ -198,9 +199,9 @@ Flowify.main = function () {
             
             Flowify.input.addressKeysThatAreDown = my.wasmInstance.exports._get_address_keys_that_are_down()
             Flowify.input.addressSequenceKeysUpDown = my.wasmInstance.exports._get_address_sequence_keys_up_down()
+            Flowify.input.addressFileUpload = my.wasmInstance.exports._get_address_file_upload()
 
-            Flowify.input.addFileInputElement()
-            Flowify.input.openFileDialog()
+            Flowify.input.addFileInputElement()  // TODO: put this in addInputListeners?
             Flowify.input.addInputListeners()
             
             my.mainLoop()
