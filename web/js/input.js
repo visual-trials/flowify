@@ -223,7 +223,14 @@ Flowify.input = function () {
             console.log("ERROR: Invalid keyCode (" + keyCode + ") encountered!") 
         }
 
-        // Ctrl-c
+        // Ctrl-L
+        if (keyCode == 76 && e.ctrlKey) {   // FIXME: what is the proper way of checking for the key 'L'?
+            if (my.fileInputElement != null) {
+                my.openFileDialog()
+            }
+        }
+        
+        // Ctrl-C
         if (keyCode == 67 && e.ctrlKey) {   // FIXME: what is the proper way of checking for the key 'c'?
             if (my.clipboardTextArea != null) {
                 if (my.textToCopyFrom != null) {
@@ -250,7 +257,7 @@ Flowify.input = function () {
             }
         }
 
-        // Ctrl-v
+        // Ctrl-V
         if (keyCode == 86 && e.ctrlKey) {   // FIXME: what is the proper way of checking for the key 'v'?
             if (my.clipboardTextArea != null) {
                 // This ensures the copy-pasted text goes into the textarea
@@ -476,7 +483,22 @@ Flowify.input = function () {
         Flowify.canvas.canvasElement.addEventListener("touchcancel", my.touchCanceled, false)
         Flowify.canvas.canvasElement.addEventListener("touchmove", my.touchMoved, false)
     }
-
+    
+    my.addFileInputElement = function() {
+        my.fileInputElement = document.createElement("input");
+        my.fileInputElement.id = 'fileDialog'
+        my.fileInputElement.type = 'file'
+        my.fileInputElement.style="width:100px; height:100px; position: absolute; top: -200px; left: -200px;"
+        
+        document.body.appendChild(my.fileInputElement);
+    }
+    
+    my.openFileDialog = function () {
+        if (my.fileInputElement != null) {
+            my.fileInputElement.click();
+        }
+    }
+    
     my.addClipboard = function () {
         // let body = document.getElementById("body")
         my.clipboardTextArea = document.createElement("textarea");

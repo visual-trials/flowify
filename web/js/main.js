@@ -199,6 +199,8 @@ Flowify.main = function () {
             Flowify.input.addressKeysThatAreDown = my.wasmInstance.exports._get_address_keys_that_are_down()
             Flowify.input.addressSequenceKeysUpDown = my.wasmInstance.exports._get_address_sequence_keys_up_down()
 
+            Flowify.input.addFileInputElement()
+            Flowify.input.openFileDialog()
             Flowify.input.addInputListeners()
             
             my.mainLoop()
