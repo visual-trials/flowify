@@ -81,6 +81,8 @@ extern "C" {
         // TODO: implement keys_that_have_gone_down[255] in input.cpp as general way of retrieving this info 
         //       OR a function that does this loop for one key you want to know (or a set of keys)
         
+        b32 arrow_up_pressed = false;
+        b32 arrow_down_pressed = false;
         b32 page_up_pressed = false;
         b32 page_down_pressed = false;
         for (i32 frame_sequence_index = 0; frame_sequence_index < keyboard->sequence_keys_length; frame_sequence_index++)
@@ -88,14 +90,27 @@ extern "C" {
             b32 is_down = (b32)keyboard->sequence_keys_up_down[frame_sequence_index * 2];
             u8 key_code = keyboard->sequence_keys_up_down[frame_sequence_index * 2 + 1];
             
-            if (key_code == Key_PageUp && is_down)
+            if (is_down)
             {
-                page_up_pressed = true;
-            }
-            
-            if (key_code == Key_PageDown && is_down)
-            {
-                page_down_pressed = true;
+                if (key_code == Key_ArrowUp)
+                {
+                    arrow_up_pressed = true;
+                }
+                
+                if (key_code == Key_ArrowDown)
+                {
+                    arrow_down_pressed = true;
+                }
+                
+                if (key_code == Key_PageUp)
+                {
+                    page_up_pressed = true;
+                }
+                
+                if (key_code == Key_PageDown)
+                {
+                    page_down_pressed = true;
+                }
             }
         }
         
@@ -153,6 +168,16 @@ extern "C" {
                 // TODO: limit scrolling! if (world->line_offset < world->nr_of_file_lines)
                 world->line_offset += 3;
             }
+        }
+        
+        if (arrow_down_pressed)
+        {
+            world->line_offset += 1;
+        }
+
+        if (arrow_up_pressed)
+        {
+            world->line_offset -= 1;
         }
         
         if (page_down_pressed)
