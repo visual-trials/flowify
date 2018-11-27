@@ -24,6 +24,14 @@ struct WorldData
 {
     String file_lines[1000];
     i32 nr_of_file_lines;
+    i32 line_offset;
+    
+    Font font;
+    i32 line_margin;
+    
+    Pos2d text_start_position;
+    i32 bottom_margin;
+    i32 nr_of_lines_to_show;
     
     b32 verbose_frame_times;
 };
@@ -35,15 +43,37 @@ extern "C" {
     void init_world()
     {
         WorldData * world = &global_world;
+        Input * input = &global_input;
         
         world->nr_of_file_lines = 0;
+        world->line_offset = 0;
+        
+        Font font = {};
+        font.height = 20;
+        font.family = Font_CourierNew;
+        world->font = font;
+        
+        i32 line_margin = 4;
+        world->line_margin = line_margin;
+        
+        Pos2d start_position = {200, 120};
+        world->text_start_position = start_position;
+
+        i32 bottom_margin = 30;
+        world->bottom_margin = bottom_margin;
+        
+        // TODO: we do not know screen size at this point, so we have to calculate that each frame.
     }
     
     void update_frame()
     {
         WorldData * world = &global_world;
         Input * input = &global_input;
+        MouseInput * mouse = &global_input.mouse;
         
+        world->nr_of_lines_to_show = (i32)(((f32)input->screen.height - (f32)world->text_start_position.y - world->bottom_margin) / 
+                                           ((f32)world->font.height + (f32)world->line_margin));
+
         if (input->file.file_was_uploaded)
         {
             // FIXME: this might be erased, so the pointer in .data may become invalid. We have to copy the content!
@@ -74,7 +104,29 @@ extern "C" {
                 }
             }
             world->nr_of_file_lines = file_line_index + 1;
+            
+            // If file has just loaded, show it from the start
+            world->line_offset = 0;
         }
+        
+        if (mouse->wheel_has_moved)
+        {
+            // TODO: account for a "Mac" mouse! (which has a 'continous' wheel)
+            if (mouse->wheel_delta > 0)
+            {
+                // TODO: limit scrolling! if (world->line_offset < world->nr_of_file_lines)
+                world->line_offset -= 2;
+            }
+            
+            if (mouse->wheel_delta < 0)
+            {
+                // TODO: limit scrolling! if (world->line_offset < world->nr_of_file_lines)
+                world->line_offset += 2;
+            }
+        }
+        
+        
+        
     }
     
     void render_frame()
@@ -84,11 +136,13 @@ extern "C" {
         Color4 black = {};
         black.a = 255;
         
-        Font font = {};
-        font.height = 20;
-        font.family = Font_CourierNew;
+        Color4 grey = {};
+        grey.a = 100;
         
-        i32 line_margin = 4;
+        Font font = world->font;
+        i32 line_margin = world->line_margin;
+        i32 nr_of_lines_to_show = world->nr_of_lines_to_show;
+        Pos2d start_position = world->text_start_position;
         
         ShortString help_text;
         copy_cstring_to_short_string("Press Ctrl + L to open file", &help_text);
@@ -96,15 +150,42 @@ extern "C" {
         
         if (world->nr_of_file_lines > 0)
         {
+            ShortString line_nr_text;
+            
             // TODO: show file-name and file-length
             // ShortString file_length_text;
             // int_to_string(world->file_length, &file_length_text);
             
-            for (i32 file_line_index = 0; file_line_index < world->nr_of_file_lines; file_line_index++)
+            for (i32 line_on_screen_index = 0; line_on_screen_index < nr_of_lines_to_show; line_on_screen_index++)
             {
-                String line_text = world->file_lines[file_line_index];
-                draw_text((Pos2d){700, 120 + file_line_index * (font.height + line_margin)}, &line_text, font, black);
+                i32 file_line_index = world->line_offset + line_on_screen_index;
+                
+                // CHECK: 0 AND nr_of_file_lines
+                
+                // TODO: use start_position!
+                if (file_line_index >= 0 && file_line_index < world->nr_of_file_lines)
+                {
+                    Pos2d position = start_position;
+                    position.x = start_position.x;
+                    position.y = start_position.y + line_on_screen_index * (font.height + line_margin);
+                    
+                    Pos2d position_line_nr = position;
+                    // Line number
+                    int_to_string(file_line_index + 1, &line_nr_text);
+                    Size2d line_nr_size = get_text_size(&line_nr_text, font);
+                    position_line_nr.x -= 10 + line_nr_size.width;
+                    draw_text(position_line_nr, &line_nr_text, font, grey);
+                    
+                    // Line text
+                    String line_text = world->file_lines[file_line_index];
+                    
+                    position.x += 30;
+                    draw_text(position, &line_text, font, black);
+                }
             }
         }
+        
+        // Draw frame timing
+        do_frame_timing(&global_input, &world->verbose_frame_times);
     }
 }
