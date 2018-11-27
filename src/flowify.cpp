@@ -22,6 +22,9 @@
 
 struct WorldData
 {
+    i32 file_length;
+    ShortString file_name; // TODO: implement this! Should this be a ShortString or String?
+    
     String file_lines[1000];
     i32 nr_of_file_lines;
     i32 line_offset;
@@ -81,6 +84,7 @@ extern "C" {
             
             i32 file_line_index = 0;
             world->nr_of_file_lines = 1;
+            world->file_length = file_contents.length;
             world->file_lines[file_line_index].data = file_contents.data;
             world->file_lines[file_line_index].length = 0;
             
@@ -93,7 +97,7 @@ extern "C" {
                 if (ch == '\n')
                 {
                     // TODO: somewhere we need to remove the newline from either start_of_line or length!
-                    world->file_lines[file_line_index].length = (position - 1) - start_of_line;
+                    world->file_lines[file_line_index].length = (position - 1) - start_of_line; // the -1 is because we do not include the newline to the line-text
                     start_of_line = position;
                     
                     // FIXME: limit to length of file_lines[]!
@@ -104,6 +108,7 @@ extern "C" {
                 }
             }
             world->nr_of_file_lines = file_line_index + 1;
+            world->file_lines[file_line_index].length = position - start_of_line;
             
             // If file has just loaded, show it from the start
             world->line_offset = 0;
@@ -115,13 +120,13 @@ extern "C" {
             if (mouse->wheel_delta > 0)
             {
                 // TODO: limit scrolling! if (world->line_offset < world->nr_of_file_lines)
-                world->line_offset -= 2;
+                world->line_offset -= 3;
             }
             
             if (mouse->wheel_delta < 0)
             {
                 // TODO: limit scrolling! if (world->line_offset < world->nr_of_file_lines)
-                world->line_offset += 2;
+                world->line_offset += 3;
             }
         }
         
@@ -162,6 +167,7 @@ extern "C" {
             // TODO: show file-name and file-length
             // ShortString file_length_text;
             // int_to_string(world->file_length, &file_length_text);
+            // draw_text((Pos2d){10,10}, &file_length_text, font, black);
             
             for (i32 line_on_screen_index = 0; line_on_screen_index < nr_of_lines_to_show; line_on_screen_index++)
             {
