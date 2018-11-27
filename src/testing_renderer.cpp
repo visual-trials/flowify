@@ -25,9 +25,6 @@ struct WorldData
     i32 iteration;
     i32 selected_lane_segment_index;
     
-    u8 * file_content;
-    i32 file_length;
-    
     i32 active_page_index;
     i32 nr_of_pages;
     b32 verbose_frame_times;
@@ -85,8 +82,6 @@ extern "C" {
         world->active_page_index = 1;
         world->nr_of_pages = 3;
         
-        world->file_length = 0;
-        
         world->iteration = 0;
         world->selected_lane_segment_index = 0;
     }
@@ -94,16 +89,7 @@ extern "C" {
     void update_frame()
     {
         WorldData * world = &global_world;
-        Input * input = &global_input;
         
-        if (input->file.file_was_uploaded)
-        {
-            // TODO: expand this!
-            world->file_length = input->file.file_contents.length;
-            // FIXME: this might be erased, so this pointer may become invalid. We have to copy the content!
-            world->file_content = input->file.file_contents.data; 
-        }
-
         // FIXME: use array_length(lane_segments)
         i32 lane_segments_count = sizeof(lane_segments)/sizeof(lane_segments[0]); 
         
@@ -167,8 +153,6 @@ extern "C" {
                 draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
                                   lane_segment.left_bottom, lane_segment.right_bottom, 
                                   20, line_color, fill_color, line_width);
-                                  
-                
             }
             
         }
@@ -215,7 +199,6 @@ extern "C" {
                 
             for (i32 line_index = 0; line_index < nr_of_program_lines; line_index++)
             {
-                
                 int_to_string(line_index + 1, &line_nr_text);
                 Size2d line_nr_size = get_text_size(&line_nr_text, font);
                 
@@ -223,20 +206,6 @@ extern "C" {
                 
                 draw_text((Pos2d){710 - line_nr_size.width, 200 + line_index * line_height}, &line_nr_text, font, grey);
                 draw_text((Pos2d){750, 200 + line_index * line_height}, &program_line_text, font, black);
-            }
-            
-            if (world->file_length > 0)
-            {
-                ShortString file_length_text;
-                ShortString file_content_text;
-                int_to_string(world->file_length, &file_length_text);
-                
-                world->file_content[30] = 0;
-                copy_cstring_to_short_string((const char *)world->file_content, &file_content_text);
-                //copy_char_to_string(world->file_content[0], &file_content_text);
-                
-                draw_text((Pos2d){700, 100}, &file_length_text, font, black);
-                draw_text((Pos2d){700, 120}, &file_content_text, font, black);
             }
             
         }
