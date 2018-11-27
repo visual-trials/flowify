@@ -447,7 +447,7 @@ Size2dFloat get_text_size_float(ShortString * text, Font font)
     return text_size;
 }
 
-void draw_text(Pos2d position, ShortString * text, Font font, Color4 font_color)
+void draw_text(Pos2d position, String * text, Font font, Color4 font_color)
 {
     ID2D1SolidColorBrush * font_brush = 0;
     get_brush(font_color, &font_brush);
@@ -491,6 +491,15 @@ void draw_text(Pos2d position, ShortString * text, Font font, Color4 font_color)
     );
     
     release_brush(font_brush);
+}
+
+void draw_text(Pos2d position, ShortString * text, Font font, Color4 font_color)
+{
+    String text_string;
+    text_string.data = text->data;
+    text_string.length = text->length;
+    
+    draw_text(position, &text_string, font, font_color);
 }
 
 void draw_text_c(Pos2d position, const char * cstring, Font font, Color4 font_color)
