@@ -73,6 +73,31 @@ extern "C" {
         WorldData * world = &global_world;
         Input * input = &global_input;
         MouseInput * mouse = &global_input.mouse;
+        KeyboardInput * keyboard = &global_input.keyboard;
+        
+        u8 sequence_keys_up_down[MAX_KEY_SEQUENCE_PER_FRAME * 2];
+        i32 sequence_keys_length;
+
+        // TODO: implement keys_that_have_gone_down[255] in input.cpp as general way of retrieving this info 
+        //       OR a function that does this loop for one key you want to know (or a set of keys)
+        
+        b32 page_up_pressed = false;
+        b32 page_down_pressed = false;
+        for (i32 frame_sequence_index = 0; frame_sequence_index < keyboard->sequence_keys_length; frame_sequence_index++)
+        {
+            b32 is_down = (b32)keyboard->sequence_keys_up_down[frame_sequence_index * 2];
+            u8 key_code = keyboard->sequence_keys_up_down[frame_sequence_index * 2 + 1];
+            
+            if (key_code == Key_PageUp && is_down)
+            {
+                page_up_pressed = true;
+            }
+            
+            if (key_code == Key_PageDown && is_down)
+            {
+                page_down_pressed = true;
+            }
+        }
         
         world->nr_of_lines_to_show = (i32)(((f32)input->screen.height - (f32)world->text_start_position.y - world->bottom_margin) / 
                                            ((f32)world->font.height + (f32)world->line_margin));
@@ -128,6 +153,16 @@ extern "C" {
                 // TODO: limit scrolling! if (world->line_offset < world->nr_of_file_lines)
                 world->line_offset += 3;
             }
+        }
+        
+        if (page_down_pressed)
+        {
+            world->line_offset += world->nr_of_lines_to_show - 2;
+        }
+
+        if (page_up_pressed)
+        {
+            world->line_offset -= world->nr_of_lines_to_show - 2;
         }
         
         if (world->line_offset > world->nr_of_file_lines - world->nr_of_lines_to_show)
