@@ -22,8 +22,8 @@
 
 struct WorldData
 {
-    u8 * file_content;
-    i32 file_length;
+    String file_lines[1000];
+    i32 nr_of_file_lines;
     
     b32 verbose_frame_times;
 };
@@ -36,7 +36,7 @@ extern "C" {
     {
         WorldData * world = &global_world;
         
-        world->file_length = 0;
+        world->nr_of_file_lines = 0;
     }
     
     void update_frame()
@@ -46,10 +46,34 @@ extern "C" {
         
         if (input->file.file_was_uploaded)
         {
-            // TODO: expand this!
-            world->file_length = input->file.file_contents.length;
-            // FIXME: this might be erased, so this pointer may become invalid. We have to copy the content!
-            world->file_content = input->file.file_contents.data; 
+            // FIXME: this might be erased, so the pointer in .data may become invalid. We have to copy the content!
+            String file_contents = input->file.file_contents;
+            
+            i32 file_line_index = 0;
+            world->nr_of_file_lines = 1;
+            world->file_lines[file_line_index].data = file_contents.data;
+            world->file_lines[file_line_index].length = 0;
+            
+            i32 position = 0;
+            i32 start_of_line = 0;
+            while (position < file_contents.length)
+            {
+                char ch = file_contents.data[position++];
+                
+                if (ch == '\n')
+                {
+                    // TODO: somewhere we need to remove the newline from either start_of_line or length!
+                    world->file_lines[file_line_index].length = (position - 1) - start_of_line;
+                    start_of_line = position;
+                    
+                    // FIXME: limit to length of file_lines[]!
+                    file_line_index++;
+                    
+                    world->file_lines[file_line_index].data = (u8 *)((i32)file_contents.data + start_of_line);
+                    world->file_lines[file_line_index].length = 0;
+                }
+            }
+            world->nr_of_file_lines = file_line_index + 1;
         }
     }
     
@@ -64,18 +88,23 @@ extern "C" {
         font.height = 20;
         font.family = Font_CourierNew;
         
-        if (world->file_length > 0)
+        i32 line_margin = 4;
+        
+        ShortString help_text;
+        copy_cstring_to_short_string("Press Ctrl + L to open file", &help_text);
+        draw_text((Pos2d){700, 50}, &help_text, font, black);
+        
+        if (world->nr_of_file_lines > 0)
         {
-            ShortString file_length_text;
-            ShortString file_content_text;
-            int_to_string(world->file_length, &file_length_text);
+            // TODO: show file-name and file-length
+            // ShortString file_length_text;
+            // int_to_string(world->file_length, &file_length_text);
             
-            world->file_content[30] = 0;
-            copy_cstring_to_short_string((const char *)world->file_content, &file_content_text);
-            //copy_char_to_string(world->file_content[0], &file_content_text);
-            
-            draw_text((Pos2d){700, 100}, &file_length_text, font, black);
-            draw_text((Pos2d){700, 120}, &file_content_text, font, black);
+            for (i32 file_line_index = 0; file_line_index < world->nr_of_file_lines; file_line_index++)
+            {
+                String line_text = world->file_lines[file_line_index];
+                draw_text((Pos2d){700, 120 + file_line_index * (font.height + line_margin)}, &line_text, font, black);
+            }
         }
     }
 }

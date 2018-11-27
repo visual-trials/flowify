@@ -153,6 +153,14 @@ void draw_text(Pos2d position, ShortString * text, Font font, Color4 font_color)
     jsDrawText(position.x, position.y, text->data, text->length, font.height, font.family, font_color_rgb, font_color_alpha);
 }
 
+void draw_text(Pos2d position, String * text, Font font, Color4 font_color)
+{
+    i32 font_color_rgb = font_color.r + font_color.g * 256 + font_color.b * 256 * 256; 
+    i32 font_color_alpha = (i32)font_color.a;
+    
+    jsDrawText(position.x, position.y, text->data, text->length, font.height, font.family, font_color_rgb, font_color_alpha);
+}
+
 void draw_text_c(Pos2d position, const char * cstring, Font font, Color4 font_color)
 {
     ShortString text;
