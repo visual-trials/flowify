@@ -125,8 +125,15 @@ extern "C" {
             }
         }
         
+        if (world->line_offset < 0)
+        {
+            world->line_offset = 0;
+        }
         
-        
+        if (world->line_offset > world->nr_of_file_lines - world->nr_of_lines_to_show)
+        {
+            world->line_offset = world->nr_of_file_lines - world->nr_of_lines_to_show;
+        }
     }
     
     void render_frame()
