@@ -160,27 +160,23 @@ extern "C" {
             {
                 i32 file_line_index = world->line_offset + line_on_screen_index;
                 
-                // CHECK: 0 AND nr_of_file_lines
-                
-                // TODO: use start_position!
                 if (file_line_index >= 0 && file_line_index < world->nr_of_file_lines)
                 {
+                    // Line text
                     Pos2d position = start_position;
                     position.x = start_position.x;
                     position.y = start_position.y + line_on_screen_index * (font.height + line_margin);
                     
-                    Pos2d position_line_nr = position;
+                    String line_text = world->file_lines[file_line_index];
+                    draw_text(position, &line_text, font, black);
+                    
                     // Line number
+                    Pos2d position_line_nr = position;
                     int_to_string(file_line_index + 1, &line_nr_text);
                     Size2d line_nr_size = get_text_size(&line_nr_text, font);
-                    position_line_nr.x -= 10 + line_nr_size.width;
+                    position_line_nr.x -= 40 + line_nr_size.width;
                     draw_text(position_line_nr, &line_nr_text, font, grey);
                     
-                    // Line text
-                    String line_text = world->file_lines[file_line_index];
-                    
-                    position.x += 30;
-                    draw_text(position, &line_text, font, black);
                 }
             }
         }
