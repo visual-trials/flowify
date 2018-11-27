@@ -69,7 +69,7 @@ struct TouchesInput
     i32 touch_count;
 };
 
-#define MAX_FILE_UPLOAD_SIZE 10000 // FIXME: we need more room!
+#define MAX_FILE_UPLOAD_SIZE 50000 // FIXME: sync this value with input.js and we need more room!
 
 struct FileUpload
 {

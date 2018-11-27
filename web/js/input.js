@@ -496,7 +496,7 @@ Flowify.input = function () {
         let reader = new FileReader()
         reader.onload = (function(uploadedFile) {
             return function(e) {
-                let max_file_size = 10000 // FIXME: sync this value and make it bigger!
+                let max_file_size = 50000 // FIXME: sync this value with input.cpp and make it bigger!
                 if (e.target.result.length <= max_file_size) {
                     // FIXME: this SHOULD work: 
                     // if (e.target.result.byteLength <= max_file_size) {
