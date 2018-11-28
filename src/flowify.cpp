@@ -57,8 +57,10 @@ enum TokenType
     
     Token_OpenParenteses,
     Token_CloseParenteses,
+    
     Token_OpenBracket,
     Token_CloseBracket,
+    
     Token_OpenBrace,
     Token_CloseBrace,
     
@@ -75,7 +77,7 @@ struct Token
 {
     TokenType type;
     
-    ShortString text;
+    String text;
 };
 
 struct Tokenizer
@@ -84,8 +86,47 @@ struct Tokenizer
 };
 
 
+b32 is_end_of_line(char ch)
+{
+    b32 is_end_of_line = ((ch == '\n') || (ch == '\r'));
 
+    return is_end_of_line;
+}
 
+b32 is_white_space(char ch)
+{
+    b32 is_white_space = ((ch == ' ') || (ch == '\t') || (ch == '\v') || (ch == '\f') || is_end_of_line(ch));
+
+    return is_white_space;
+}
+
+void eat_all_white_spaces(Tokenizer * tokenizer)
+{
+    while(true)
+    {
+        if(is_white_space(tokenizer->at[0]))
+        {
+            tokenizer->at++;
+        }
+        // TODO: implement comments // and /* */
+        else
+        {
+            break;
+        }
+    }
+};
+
+Token get_token(Tokenizer * tokenizer)
+{
+    eat_all_white_spaces(tokenizer);
+    
+    Token token = {};
+    
+    
+    
+    
+    return token;
+};
 
 
 
@@ -95,10 +136,34 @@ extern "C" {
     {
         WorldData * world = &global_world;
         
-        world->program_text.data = (u8 *)simple_assign_program_text;
-        world->program_text.length = cstring_length((u8 *)simple_assign_program_text);
+        const char * text_to_parse = simple_assign_program_text;
+        
+        world->program_text.data = (u8 *)text_to_parse;
+        world->program_text.length = cstring_length((u8 *)text_to_parse);
         
         world->nr_of_lines = split_string_into_lines(world->program_text, world->program_lines);
+        
+        Tokenizer tokenizer = {};
+        tokenizer.at = (char *)text_to_parse;
+
+        b32 parsing = true;
+        while(parsing)
+        {
+            Token token = get_token(&tokenizer);
+            switch(token.type)
+            {
+                case Token_EndOfStream:
+                {
+                    parsing = false;
+                } break;
+                
+                default:
+                {
+                    // TODO: log unknown token
+                } break;
+            }
+        }
+        
     }
     
     void update_frame()
