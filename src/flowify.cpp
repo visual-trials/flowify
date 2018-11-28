@@ -195,6 +195,8 @@ Token get_token(Tokenizer * tokenizer)
         case '<': {
             if (tokenizer->at[0] == '?')
             {
+                tokenizer->at++;
+                
                 // TODO: right now all tags starting with '<?' are assumed to be StartPhp-tokens
                 token.type = Token_StartOfPhp;
                 
@@ -217,6 +219,7 @@ Token get_token(Tokenizer * tokenizer)
         case '?': {
             if (tokenizer->at[0] == '>')
             {
+                tokenizer->at++;
                 // TODO: we assume that all tags that end with '?>' are EndPhp-tokens
                 token.type = Token_EndOfPhp;
             }
