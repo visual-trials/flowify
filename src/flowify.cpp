@@ -55,6 +55,9 @@ enum TokenType
 {
     Token_Unknown,
     
+    Token_StartOfPhp,
+    Token_EndOfPhp,
+    
     Token_OpenParenteses,
     Token_CloseParenteses,
     
