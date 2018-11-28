@@ -20,6 +20,27 @@
 #include "input.cpp"
 #include "render.cpp"
 
+const char * simple_assign_program_text = 
+    "<?php\n"
+    "\n"
+    "$answer = 42;\n"
+;
+
+const char * simple_if_program_text = 
+    "<?php\n"
+    "\n"
+    "$myVar = 34;\n"
+    "\n"
+    "$b = 76;\n"
+    "\n"
+    "\n"
+    "if ($b > 50) {\n"
+    "	$b = 50;\n"
+    "}\n"
+    "\n"
+    "$c = $myVar + $b;\n"
+;
+
 extern "C" {
     
     void init_world()
