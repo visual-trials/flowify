@@ -192,8 +192,41 @@ Token get_token(Tokenizer * tokenizer)
         case '+': {token.type = Token_Plus;} break;
         case '-': {token.type = Token_Minus;} break;
         
-        case '<': {token.type = Token_SmallerThan;} break;
+        case '<': {
+            if (tokenizer->at[0] == '?')
+            {
+                // TODO: right now all tags starting with '<?' are assumed to be StartPhp-tokens
+                token.type = Token_StartOfPhp;
+                
+                // TODO: we assume the '<?'-tag only contains alpha characters
+                while(is_alpha(tokenizer->at[0])) 
+                {
+                    tokenizer->at++;
+                }
+                token.text.length = tokenizer->at - token.text.data;
+            }
+            else
+            {
+                token.type = Token_SmallerThan;
+            }
+            
+        } break;
+        
         case '>': {token.type = Token_GreaterThan;} break;
+        
+        case '?': {
+            if (tokenizer->at[0] == '>')
+            {
+                // TODO: we assume that all tags that end with '?>' are EndPhp-tokens
+                token.type = Token_EndOfPhp;
+            }
+            else
+            {
+                // TODO: we do not support '??' and inline if's using '.. ? .. : ..'
+                token.type = Token_Unknown;
+            }
+            
+        } break;
         
         case '$':
         {
