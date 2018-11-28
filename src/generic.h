@@ -229,3 +229,36 @@ ShortString * float_to_string(f32 number, ShortString * decimal_string)
     
     return decimal_string;
 }
+
+i32 split_string_into_lines(String string, String * lines)
+{
+    i32 nr_of_lines;
+    
+    i32 file_line_index = 0;
+    lines[file_line_index].data = string.data;
+    lines[file_line_index].length = 0;
+    
+    i32 position = 0;
+    i32 start_of_line = 0;
+    while (position < string.length)
+    {
+        char ch = string.data[position++];
+        
+        if (ch == '\n')
+        {
+            // TODO: somewhere we need to remove the newline from either start_of_line or length!
+            lines[file_line_index].length = (position - 1) - start_of_line; // the -1 is because we do not include the newline to the line-text
+            start_of_line = position;
+            
+            // FIXME: limit to length of lines[]!
+            file_line_index++;
+            
+            lines[file_line_index].data = (u8 *)((i32)string.data + start_of_line);
+            lines[file_line_index].length = 0;
+        }
+    }
+    lines[file_line_index].length = position - start_of_line;
+    nr_of_lines = file_line_index + 1;
+    
+    return nr_of_lines;
+}
