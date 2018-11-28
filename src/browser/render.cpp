@@ -134,6 +134,17 @@ Size2d get_text_size(ShortString * text, Font font)
     return text_size;
 }
 
+Size2d get_text_size(String * text, Font font)
+{
+    f32 text_width = jsGetTextWidth(text->data, text->length, font.height, font.family);
+    
+    Size2d text_size = {};
+    text_size.width = (i32)text_width;
+    text_size.height = (i32)((f32)font.height * textHeightToFontSizeRatio[font.family]); // Note: this is a workaround. The browser doens't give us this info!
+    
+    return text_size;
+}
+
 Size2dFloat get_text_size_float(ShortString * text, Font font)
 {
     f32 text_width = jsGetTextWidth(text->data, text->length, font.height, font.family);

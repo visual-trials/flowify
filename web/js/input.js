@@ -469,7 +469,7 @@ Flowify.input = function () {
     }
 
     my.sendFileUploadData = function () {
-        Flowify.main.wasmInstance.exports._set_file_upload_data(my.fileContentLength, my.fileWasUploaded)
+        Flowify.main.wasmInstance.exports._set_file_upload_data(my.fileContentLength, my.fileNameLength, my.fileWasUploaded)
     }
     
     my.resetFileUploadData = function () {
@@ -497,20 +497,28 @@ Flowify.input = function () {
         reader.onload = (function(uploadedFile) {
             return function(e) {
                 let max_file_size = 50000 // FIXME: sync this value with input.cpp and make it bigger!
-                if (e.target.result.length <= max_file_size) {
+                let max_file_name = 255   // FIXME: sync this value with input.cpp and make it bigger!
+                if (e.target.result.length <= max_file_size && uploadedFile.name.length <= max_file_name) {
+                        
+                    for (let i = 0; i < uploadedFile.name.length; i++) {
+                        Flowify.main.bufferU8[my.addressFileName + i] = uploadedFile.name.charCodeAt(i)
+                    }
+                    my.fileNameLength = uploadedFile.name.length
+                    
                     // FIXME: this SHOULD work: 
                     // if (e.target.result.byteLength <= max_file_size) {
-                        
-                    // TODO: also set the file name using uploadedFile
                     for (let i = 0; i < e.target.result.length; i++) {
-                        //console.log(e.target.result.charCodeAt(i))
                         Flowify.main.bufferU8[my.addressFileUpload + i] = e.target.result.charCodeAt(i)
                     }
+                    my.fileContentLength = e.target.result.length
+                    
                     // FIXME: this SHOULD work: 
                     // Flowify.main.bufferU8.set(e.target.result, my.addressFileUpload)
                     
                     my.fileWasUploaded = true
-                    my.fileContentLength = e.target.result.length
+                }
+                else {
+                    // TODO: notify that file size or file name is out of bounds!
                 }
             };
         })(file);

@@ -23,7 +23,7 @@
 struct WorldData
 {
     i32 file_length;
-    ShortString file_name; // TODO: implement this! Should this be a ShortString or String?
+    String file_name;
     
     String file_lines[1000];
     i32 nr_of_file_lines;
@@ -157,6 +157,7 @@ extern "C" {
             }
             world->nr_of_file_lines = file_line_index + 1;
             world->file_lines[file_line_index].length = position - start_of_line;
+            world->file_name = input->file.file_name;
             
             // If file has just loaded, show it from the start
             world->line_offset = 0;
@@ -229,8 +230,11 @@ extern "C" {
         copy_cstring_to_short_string("Press Ctrl + L to open file", &help_text);
         Size2d help_text_size = get_text_size(&help_text, world->font);
         i32 help_text_x = ((f32)input->screen.width / (f32)2) - ((f32)help_text_size.width / (f32)2);
-        
         draw_text((Pos2d){help_text_x, 50}, &help_text, font, black);
+        
+        Size2d file_name_size = get_text_size(&world->file_name, world->font);
+        i32 file_name_x = ((f32)input->screen.width / (f32)2) - ((f32)file_name_size.width / (f32)2);
+        draw_text((Pos2d){file_name_x, 80}, &world->file_name, font, black);
         
         if (world->nr_of_file_lines > 0)
         {

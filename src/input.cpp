@@ -70,10 +70,12 @@ struct TouchesInput
 };
 
 #define MAX_FILE_UPLOAD_SIZE 50000 // FIXME: sync this value with input.js and we need more room!
+#define MAX_FILE_NAME_SIZE     255 // FIXME: sync this value with input.js and we need more room!
 
 struct FileUpload
 {
     String file_contents;
+    String file_name;
     b32 file_was_uploaded;
 };
 
@@ -125,6 +127,7 @@ Input global_input = {};
 Input new_input = {};
 
 u8 global_file_contents[MAX_FILE_UPLOAD_SIZE]; // TODO: allocate this dynamically!
+u8 global_file_name[MAX_FILE_NAME_SIZE]; // TODO: allocate this dynamically!
 
 extern "C" {
     
@@ -208,7 +211,13 @@ extern "C" {
         return global_input.file.file_contents.data;
     }
     
-    void set_file_upload_data(i32 length, b32 file_was_uploaded)
+    u8 * get_address_file_name()
+    {
+        global_input.file.file_name.data = global_file_name;
+        return global_input.file.file_name.data;
+    }
+    
+    void set_file_upload_data(i32 length, i32 file_name_length, b32 file_was_uploaded)
     {
         if (length > MAX_FILE_UPLOAD_SIZE)
         {
@@ -216,6 +225,7 @@ extern "C" {
         }
         // Note: the corresponding data in global_input.file.file_contents.data should have been filled beforehand
         global_input.file.file_contents.length = length;
+        global_input.file.file_name.length = file_name_length;
         global_input.file.file_was_uploaded = file_was_uploaded;
     }
 
