@@ -71,7 +71,16 @@ enum TokenType
     Token_SemiColon,
     
     Token_String,
+    Token_Number,
     Token_Identifier,
+    Token_VariableIdentifier,  // starts with $
+    
+    Token_Equals,
+    Token_Plus,
+    Token_Minus,
+    
+    Token_SmallerThan,
+    Token_GreaterThan,
     
     Token_EndOfStream    
 };
