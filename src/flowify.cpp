@@ -32,9 +32,13 @@ struct WorldData
     Font font;
     i32 line_margin;
     
-    Pos2d text_start_position;
+    i32 left_margin;
+    i32 top_margin;
     i32 bottom_margin;
+    i32 right_margin;
+    
     i32 nr_of_lines_to_show;
+    i32 max_line_width_in_characters;
     
     b32 verbose_frame_times;
 };
@@ -56,14 +60,13 @@ extern "C" {
         font.family = Font_CourierNew;
         world->font = font;
         
-        i32 line_margin = 4;
-        world->line_margin = line_margin;
-        
-        Pos2d start_position = {200, 120};
-        world->text_start_position = start_position;
+        world->line_margin = 4;
 
-        i32 bottom_margin = 30;
-        world->bottom_margin = bottom_margin;
+        // TODO: do we want to use nr-of-characters or percentage-of-screen for margins?
+        world->left_margin = 120;
+        world->top_margin = 120;
+        world->right_margin = 60;
+        world->bottom_margin = 30;
         
         // TODO: we do not know screen size at this point, so we have to calculate that each frame.
     }
@@ -114,9 +117,14 @@ extern "C" {
             }
         }
         
-        world->nr_of_lines_to_show = (i32)(((f32)input->screen.height - (f32)world->text_start_position.y - world->bottom_margin) / 
+        world->nr_of_lines_to_show = (i32)(((f32)input->screen.height - (f32)world->top_margin - world->bottom_margin) / 
                                            ((f32)world->font.height + (f32)world->line_margin));
 
+        ShortString white_space;
+        copy_char_to_string(' ', &white_space);
+        Size2d white_space_size = get_text_size(&white_space, world->font);
+        world->max_line_width_in_characters = (i32)((f32)(input->screen.width - world->left_margin - world->right_margin) / (f32)white_space_size.width);
+            
         if (input->file.file_was_uploaded)
         {
             // FIXME: this might be erased, so the pointer in .data may become invalid. We have to copy the content!
@@ -205,6 +213,7 @@ extern "C" {
     void render_frame()
     {
         WorldData * world = &global_world;
+        Input * input = &global_input;
         
         Color4 black = {};
         black.a = 255;
@@ -215,11 +224,13 @@ extern "C" {
         Font font = world->font;
         i32 line_margin = world->line_margin;
         i32 nr_of_lines_to_show = world->nr_of_lines_to_show;
-        Pos2d start_position = world->text_start_position;
         
         ShortString help_text;
         copy_cstring_to_short_string("Press Ctrl + L to open file", &help_text);
-        draw_text((Pos2d){700, 50}, &help_text, font, black);
+        Size2d help_text_size = get_text_size(&help_text, world->font);
+        i32 help_text_x = ((f32)input->screen.width / (f32)2) - ((f32)help_text_size.width / (f32)2);
+        
+        draw_text((Pos2d){help_text_x, 50}, &help_text, font, black);
         
         if (world->nr_of_file_lines > 0)
         {
@@ -237,11 +248,15 @@ extern "C" {
                 if (file_line_index >= 0 && file_line_index < world->nr_of_file_lines)
                 {
                     // Line text
-                    Pos2d position = start_position;
-                    position.x = start_position.x;
-                    position.y = start_position.y + line_on_screen_index * (font.height + line_margin);
+                    Pos2d position;
+                    position.x = world->left_margin;
+                    position.y = world->top_margin + line_on_screen_index * (font.height + line_margin);
                     
                     String line_text = world->file_lines[file_line_index];
+                    if (line_text.length > world->max_line_width_in_characters)
+                    {
+                        line_text.length = world->max_line_width_in_characters;
+                    }
                     draw_text(position, &line_text, font, black);
                     
                     // Line number
@@ -250,7 +265,6 @@ extern "C" {
                     Size2d line_nr_size = get_text_size(&line_nr_text, font);
                     position_line_nr.x -= 40 + line_nr_size.width;
                     draw_text(position_line_nr, &line_nr_text, font, grey);
-                    
                 }
             }
         }
