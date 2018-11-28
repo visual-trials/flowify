@@ -63,10 +63,10 @@ extern "C" {
         world->line_margin = 4;
 
         // TODO: do we want to use nr-of-characters or percentage-of-screen for margins?
-        world->left_margin = 120;
+        world->left_margin = 130;
         world->top_margin = 120;
-        world->right_margin = 60;
-        world->bottom_margin = 30;
+        world->right_margin = 10;
+        world->bottom_margin = 10;
         
         // TODO: we do not know screen size at this point, so we have to calculate that each frame.
     }
