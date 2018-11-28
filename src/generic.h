@@ -85,10 +85,10 @@ i32 array_length(u8 * array)
     return sizeof(array)/sizeof(array[0]);
 }
 
-i32 cstring_length(u8 * string)
+i32 cstring_length(u8 * cstring)
 {
     i32 count = 0;
-    while (*string++)
+    while (*cstring++)
     {
         count++;
     }

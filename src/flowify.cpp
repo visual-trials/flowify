@@ -20,6 +20,16 @@
 #include "input.cpp"
 #include "render.cpp"
 
+struct WorldData
+{
+    String program_text;
+    String program_lines[1000]; // TODO: allocate this properly!
+    
+    i32 nr_of_lines;
+};
+
+WorldData global_world = {};  // FIXME: allocate this properly!
+
 const char * simple_assign_program_text = 
     "<?php\n"
     "\n"
@@ -45,6 +55,12 @@ extern "C" {
     
     void init_world()
     {
+        WorldData * world = &global_world;
+        
+        world->program_text.data = (u8 *)simple_assign_program_text;
+        world->program_text.length = cstring_length((u8 *)simple_assign_program_text);
+        
+        world->nr_of_lines = split_string_into_lines(world->program_text, world->program_lines);
     }
     
     void update_frame()
@@ -53,5 +69,41 @@ extern "C" {
     
     void render_frame()
     {
+        WorldData * world = &global_world;
+        
+        Color4 black = {};
+        black.a = 255;
+        
+        Color4 grey = {};
+        grey.a = 100;
+        
+        Font font = {};
+        font.height = 20;
+        font.family = Font_CourierNew;
+        
+        i32 line_margin = 4;
+        
+        i32 left_margin = 500;
+        i32 top_margin = 200;
+        
+        ShortString line_nr_text;
+            
+        for (i32 line_index = 0; line_index < world->nr_of_lines; line_index++)
+        {
+            // Line text
+            Pos2d position;
+            position.x = left_margin;
+            position.y = top_margin + line_index * (font.height + line_margin);
+            
+            String line_text = world->program_lines[line_index];
+            draw_text(position, &line_text, font, black);
+            
+            // Line number
+            Pos2d position_line_nr = position;
+            int_to_string(line_index + 1, &line_nr_text);
+            Size2d line_nr_size = get_text_size(&line_nr_text, font);
+            position_line_nr.x -= 40 + line_nr_size.width;
+            draw_text(position_line_nr, &line_nr_text, font, grey);
+        }
     }
 }
