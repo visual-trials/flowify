@@ -184,6 +184,19 @@ void log(ShortString * text)
     jsLog(text->data, text->length);
 }
 
+void log(String * text)
+{
+    jsLog(text->data, text->length);
+}
+
+void log(const char * text)
+{
+    String text_string;
+    text_string.data = (u8 *)text;
+    text_string.length = cstring_length((u8 *)text);
+    log(&text_string);
+}
+
 void set_using_physical_pixels(b32 using_physical_pixels)
 {
     jsSetUsingPhysicalPixels(using_physical_pixels);

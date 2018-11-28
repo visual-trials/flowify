@@ -304,7 +304,10 @@ extern "C" {
                 
                 default:
                 {
-                    // TODO: log unknown token
+                    ShortString token_integer;
+                    int_to_string(token.type, &token_integer);
+                    log("Token found: ");
+                    log(&token_integer);
                 } break;
             }
         }
