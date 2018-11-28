@@ -68,7 +68,7 @@ enum TokenType
     Token_CloseBrace,
     
     Token_Colon,
-    Token_SemiColon,
+    Token_Semicolon,
     
     Token_String,
     Token_Number,
@@ -94,7 +94,7 @@ struct Token
 
 struct Tokenizer
 {
-    char * at;
+    u8 * at;
 };
 
 
@@ -112,6 +112,20 @@ b32 is_white_space(char ch)
     return is_white_space;
 }
 
+b32 is_alpha(char ch)
+{
+    b32 is_alpha = (((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z')));
+
+    return is_alpha;
+}
+
+b32 is_number(char ch)
+{
+    b32 is_number = ((ch >= '0') && (ch <= '9'));
+    
+    return is_number;
+}
+
 void eat_all_white_spaces(Tokenizer * tokenizer)
 {
     while(true)
@@ -120,7 +134,27 @@ void eat_all_white_spaces(Tokenizer * tokenizer)
         {
             tokenizer->at++;
         }
-        // TODO: implement comments // and /* */
+        else if((tokenizer->at[0] == '/') && (tokenizer->at[1] == '/'))
+        {
+            tokenizer->at += 2;
+            while(tokenizer->at[0] && !is_end_of_line(tokenizer->at[0]))
+            {
+                tokenizer->at++;
+            }
+        }
+        else if((tokenizer->at[0] == '/') && (tokenizer->at[1] == '*'))
+        {
+            tokenizer->at += 2;
+            while(tokenizer->at[0] && !((tokenizer->at[0] == '*') && (tokenizer->at[1] == '/')))
+            {
+                tokenizer->at++;
+            }
+            
+            if(tokenizer->at[0] == '*')
+            {
+                tokenizer->at += 2;
+            }
+        }
         else
         {
             break;
@@ -134,8 +168,74 @@ Token get_token(Tokenizer * tokenizer)
     
     Token token = {};
     
-    
-    
+    token.text.length = 1;
+    token.text.data = tokenizer->at;
+    char ch = tokenizer->at[0];
+    tokenizer->at++;
+    switch(ch)
+    {
+        case '\0': {token.type = Token_EndOfStream;} break;
+        
+        case '(': {token.type = Token_OpenParenteses;} break;
+        case ')': {token.type = Token_CloseParenteses;} break;
+        
+        case '[': {token.type = Token_OpenBracket;} break;
+        case ']': {token.type = Token_CloseBracket;} break;
+        
+        case '{': {token.type = Token_OpenBrace;} break;
+        case '}': {token.type = Token_CloseBrace;} break;
+        
+        case ':': {token.type = Token_Colon;} break;
+        case ';': {token.type = Token_Semicolon;} break;
+        
+        case '=': {token.type = Token_Equals;} break;
+        case '+': {token.type = Token_Plus;} break;
+        case '-': {token.type = Token_Minus;} break;
+        
+        case '<': {token.type = Token_SmallerThan;} break;
+        case '>': {token.type = Token_GreaterThan;} break;
+        
+        case '$':
+        {
+            token.type = Token_VariableIdentifier;
+            // TODO: should a variable name always begin with a alpha character in php?
+            while(is_alpha(tokenizer->at[0]) || is_number(tokenizer->at[0]) || (tokenizer->at[0] == '_'))
+            {
+                tokenizer->at++;
+            }
+            token.text.length = tokenizer->at - token.text.data;
+            
+        } break;
+        
+        default:
+        {
+            if (is_alpha(ch))
+            {
+                token.type = Token_Identifier;
+                while(is_alpha(tokenizer->at[0]) || is_number(tokenizer->at[0]) || (tokenizer->at[0] == '_'))
+                {
+                    tokenizer->at++;
+                }
+                token.text.length = tokenizer->at - token.text.data;
+            }
+            if (is_number(ch))
+            {
+                // TODO: implement constant floats
+                
+                token.type = Token_Number;
+                while(is_number(tokenizer->at[0]))
+                {
+                    tokenizer->at++;
+                }
+                token.text.length = tokenizer->at - token.text.data;
+            }
+            else
+            {
+                token.type = Token_Unknown;
+            }
+        }
+        
+    }
     
     return token;
 };
@@ -156,7 +256,7 @@ extern "C" {
         world->nr_of_lines = split_string_into_lines(world->program_text, world->program_lines);
         
         Tokenizer tokenizer = {};
-        tokenizer.at = (char *)text_to_parse;
+        tokenizer.at = (u8 *)text_to_parse;
 
         b32 parsing = true;
         while(parsing)
