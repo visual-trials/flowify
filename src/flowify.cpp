@@ -307,6 +307,7 @@ extern "C" {
                     ShortString token_integer;
                     int_to_string(token.type, &token_integer);
                     log("Token found: ");
+                    log(&token.text);
                     log(&token_integer);
                 } break;
             }
