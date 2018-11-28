@@ -51,6 +51,44 @@ const char * simple_if_program_text =
     "$c = $myVar + $b;\n"
 ;
 
+enum TokenType
+{
+    Token_Unknown,
+    
+    Token_OpenParenteses,
+    Token_CloseParenteses,
+    Token_OpenBracket,
+    Token_CloseBracket,
+    Token_OpenBrace,
+    Token_CloseBrace,
+    
+    Token_Colon,
+    Token_SemiColon,
+    
+    Token_String,
+    Token_Identifier,
+    
+    Token_EndOfStream    
+};
+
+struct Token
+{
+    TokenType type;
+    
+    ShortString text;
+};
+
+struct Tokenizer
+{
+    char * at;
+};
+
+
+
+
+
+
+
 extern "C" {
     
     void init_world()
