@@ -67,6 +67,7 @@ struct Tokenizer
     
     Token tokens[1000]; // TODO: allocate this properly!
     i32 nr_of_tokens;
+    i32 current_token_index;
 };
 
 
@@ -248,25 +249,86 @@ Token get_token(Tokenizer * tokenizer)
     return token;
 };
 
-
 void tokenize (Tokenizer * tokenizer)
 {
     b32 tokenizing = true;
     while(tokenizing)
     {
         Token token = get_token(tokenizer);
-        switch(token.type)
+        tokenizer->tokens[tokenizer->nr_of_tokens++] = token;
+        if (token.type == Token_EndOfStream)
         {
-            case Token_EndOfStream:
-            {
-                tokenizing = false;
-            } break;
-            
-            default:
-            {
-                tokenizer->tokens[tokenizer->nr_of_tokens++] = token;
-            } break;
+            tokenizing = false;
         }
+    }
+}
+
+void next_token(Tokenizer * tokenizer)
+{
+    // FIXME: we should check if we reached the last token!
+    tokenizer->current_token_index++;
+}
+
+b32 accept_token(Tokenizer * tokenizer, TokenType token_type)
+{
+    Token token = tokenizer->tokens[tokenizer->current_token_index];
+    if (token.type == token_type)
+    {
+        next_token(tokenizer);
+        return true;
+    }
+    return false;
+}
+
+b32 expect_token(Tokenizer * tokenizer, TokenType token_type)
+{
+    if (accept_token(tokenizer, token_type))
+    {
+        return true;
+    }
+    // FIXME: give a better error!
+    log("ERROR: required token not found!");
+    return false;
+}
+
+void parse_expression(Tokenizer * tokenizer)
+{
+    if (accept_token(tokenizer, Token_Number))
+    {
+        log("Found an expression starting with a Number");
+        
+    }
+    // TODO: implement more variants of expressions
+}
+
+void parse_statement(Tokenizer * tokenizer)
+{
+    if (accept_token(tokenizer, Token_VariableIdentifier))
+    {
+        log("Found a statement starting with VariableIdentifier");
+        
+        // TODO: maybe we should call it 'Token_Assignment' ?
+        expect_token(tokenizer, Token_Equals); 
+        parse_expression(tokenizer);
+    }
+    // TODO implement more variants of statements
+    
+}
+
+void parse_program(Tokenizer * tokenizer)
+{
+    if (expect_token(tokenizer, Token_StartOfPhp))
+    {
+        log("Program starts with StartOfPhp");
+        
+        while (!accept_token(tokenizer, Token_EndOfStream))  // TODO: also stop if '}' is reached (but only in "block") 
+        {
+            parse_statement(tokenizer);
+        } 
+            
+    }
+    else {
+        // TODO: Program doesn't start with StartOfPhp
     }
 }
 
@@ -311,7 +373,7 @@ extern "C" {
     {
         WorldData * world = &global_world;
         
-        const char * text_to_parse = simple_if_program_text; //simple_assign_program_text;
+        const char * text_to_parse = simple_assign_program_text;
         
         world->program_text.data = (u8 *)text_to_parse;
         world->program_text.length = cstring_length((u8 *)text_to_parse);
@@ -320,10 +382,12 @@ extern "C" {
 
         Tokenizer tokenizer = {};
         tokenizer.at = (u8 *)text_to_parse;
-        tokenizer.nr_of_tokens = 0;     
 
         tokenize(&tokenizer);
 
+        parse_program(&tokenizer);
+        
+        /*
         for (i32 token_index = 0; token_index < tokenizer.nr_of_tokens; token_index++)
         {
             Token token = tokenizer.tokens[token_index];
@@ -334,6 +398,7 @@ extern "C" {
             log(&token.text);
             log(&token_integer);
         }
+        */
 
         
     }
