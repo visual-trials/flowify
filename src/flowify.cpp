@@ -20,37 +20,6 @@
 #include "input.cpp"
 #include "render.cpp"
 
-struct WorldData
-{
-    String program_text;
-    String program_lines[1000]; // TODO: allocate this properly!
-    
-    i32 nr_of_lines;
-};
-
-WorldData global_world = {};  // FIXME: allocate this properly!
-
-const char * simple_assign_program_text = 
-    "<?php\n"
-    "\n"
-    "$answer = 42;\n"
-;
-
-const char * simple_if_program_text = 
-    "<?php\n"
-    "\n"
-    "$myVar = 34;\n"
-    "\n"
-    "$b = 76;\n"
-    "\n"
-    "\n"
-    "if ($b > 50) {\n"
-    "	$b = 50;\n"
-    "}\n"
-    "\n"
-    "$c = $myVar + $b;\n"
-;
-
 enum TokenType
 {
     Token_Unknown,
@@ -277,6 +246,42 @@ Token get_token(Tokenizer * tokenizer)
 };
 
 
+// 
+
+
+struct WorldData
+{
+    String program_text;
+    String program_lines[1000]; // TODO: allocate this properly!
+    
+    Token tokens[1000]; // TODO: allocate this properly!
+    i32 nr_of_tokens;
+    
+    i32 nr_of_lines;
+};
+
+WorldData global_world = {};  // FIXME: allocate this properly!
+
+const char * simple_assign_program_text = 
+    "<?php\n"
+    "\n"
+    "$answer = 42;\n"
+;
+
+const char * simple_if_program_text = 
+    "<?php\n"
+    "\n"
+    "$myVar = 34;\n"
+    "\n"
+    "$b = 76;\n"
+    "\n"
+    "\n"
+    "if ($b > 50) {\n"
+    "	$b = 50;\n"
+    "}\n"
+    "\n"
+    "$c = $myVar + $b;\n"
+;
 
 extern "C" {
     
@@ -284,37 +289,47 @@ extern "C" {
     {
         WorldData * world = &global_world;
         
-        const char * text_to_parse = simple_assign_program_text;
+        const char * text_to_parse = simple_if_program_text; //simple_assign_program_text;
         
         world->program_text.data = (u8 *)text_to_parse;
         world->program_text.length = cstring_length((u8 *)text_to_parse);
         
         world->nr_of_lines = split_string_into_lines(world->program_text, world->program_lines);
+
+        world->nr_of_tokens = 0;        
         
         Tokenizer tokenizer = {};
         tokenizer.at = (u8 *)text_to_parse;
 
-        b32 parsing = true;
-        while(parsing)
+        b32 tokenizing = true;
+        while(tokenizing)
         {
             Token token = get_token(&tokenizer);
             switch(token.type)
             {
                 case Token_EndOfStream:
                 {
-                    parsing = false;
+                    tokenizing = false;
                 } break;
                 
                 default:
                 {
-                    ShortString token_integer;
-                    int_to_string(token.type, &token_integer);
-                    log("Token found: ");
-                    log(&token.text);
-                    log(&token_integer);
+                    world->tokens[world->nr_of_tokens++] = token;
                 } break;
             }
         }
+
+        for (i32 token_index = 0; token_index < world->nr_of_tokens; token_index++)
+        {
+            Token token = world->tokens[token_index];
+                    
+            ShortString token_integer;
+            int_to_string(token.type, &token_integer);
+            log("Token found: ");
+            log(&token.text);
+            log(&token_integer);
+        }
+
         
     }
     
