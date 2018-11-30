@@ -64,6 +64,9 @@ struct Token
 struct Tokenizer
 {
     u8 * at;
+    
+    Token tokens[1000]; // TODO: allocate this properly!
+    i32 nr_of_tokens;
 };
 
 
@@ -246,6 +249,28 @@ Token get_token(Tokenizer * tokenizer)
 };
 
 
+void tokenize (Tokenizer * tokenizer)
+{
+    b32 tokenizing = true;
+    while(tokenizing)
+    {
+        Token token = get_token(tokenizer);
+        switch(token.type)
+        {
+            case Token_EndOfStream:
+            {
+                tokenizing = false;
+            } break;
+            
+            default:
+            {
+                tokenizer->tokens[tokenizer->nr_of_tokens++] = token;
+            } break;
+        }
+    }
+}
+
+
 // 
 
 
@@ -253,9 +278,6 @@ struct WorldData
 {
     String program_text;
     String program_lines[1000]; // TODO: allocate this properly!
-    
-    Token tokens[1000]; // TODO: allocate this properly!
-    i32 nr_of_tokens;
     
     i32 nr_of_lines;
 };
@@ -296,32 +318,15 @@ extern "C" {
         
         world->nr_of_lines = split_string_into_lines(world->program_text, world->program_lines);
 
-        world->nr_of_tokens = 0;        
-        
         Tokenizer tokenizer = {};
         tokenizer.at = (u8 *)text_to_parse;
+        tokenizer.nr_of_tokens = 0;     
 
-        b32 tokenizing = true;
-        while(tokenizing)
-        {
-            Token token = get_token(&tokenizer);
-            switch(token.type)
-            {
-                case Token_EndOfStream:
-                {
-                    tokenizing = false;
-                } break;
-                
-                default:
-                {
-                    world->tokens[world->nr_of_tokens++] = token;
-                } break;
-            }
-        }
+        tokenize(&tokenizer);
 
-        for (i32 token_index = 0; token_index < world->nr_of_tokens; token_index++)
+        for (i32 token_index = 0; token_index < tokenizer.nr_of_tokens; token_index++)
         {
-            Token token = world->tokens[token_index];
+            Token token = tokenizer.tokens[token_index];
                     
             ShortString token_integer;
             int_to_string(token.type, &token_integer);
