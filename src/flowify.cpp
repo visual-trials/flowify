@@ -28,6 +28,8 @@ struct WorldData
     i32 nr_of_lines;
     
     String dump_text;
+    String dump_lines[100]; // TODO: allocate this properly!
+    i32 nr_of_dump_lines;
 };
 
 WorldData global_world = {};  // FIXME: allocate this properly!
@@ -82,6 +84,8 @@ extern "C" {
         world->dump_text.length = 0;
         world->dump_text.data = global_dump_text;
         dump_tree(root_node, &world->dump_text);
+        
+        world->nr_of_dump_lines = split_string_into_lines(world->dump_text, world->dump_lines);
     }
     
     void update_frame()
@@ -127,9 +131,16 @@ extern "C" {
             draw_text(position_line_nr, &line_nr_text, font, grey);
         }
         
-        
-        draw_text((Pos2d){100,100}, &world->dump_text, font, black);
-        
+        for (i32 dump_line_index = 0; dump_line_index < world->nr_of_dump_lines; dump_line_index++)
+        {
+            // Dump line text
+            Pos2d position;
+            position.x = left_margin + 300; // FIXME: measure width of program lines!
+            position.y = top_margin + dump_line_index * (font.height + line_margin);
+            
+            String dump_line_text = world->dump_lines[dump_line_index];
+            draw_text(position, &dump_line_text, font, black);
+        }
         
     }
 }
