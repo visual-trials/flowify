@@ -32,6 +32,7 @@ struct WorldData
 
 WorldData global_world = {};  // FIXME: allocate this properly!
 
+// FIXME: CAREFUL WE ARE AT THE LIMIT!!!
 u8 global_dump_text[1000]; // TODO: allocate this properly!
 
 const char * simple_assign_program_text = 
