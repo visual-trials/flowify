@@ -67,9 +67,7 @@ struct Tokenizer
     
     Token tokens[1000]; // TODO: allocate this properly!
     i32 nr_of_tokens;
-    i32 current_token_index;
 };
-
 
 b32 is_end_of_line(char ch)
 {
@@ -263,26 +261,65 @@ void tokenize (Tokenizer * tokenizer)
     }
 }
 
-void next_token(Tokenizer * tokenizer)
+// Parser
+
+enum NodeType
+{
+    Node_Unknown,
+    
+    Node_BinExprPlus,
+    Node_BinExprMinus,
+    
+    Node_AssignStmt,
+    Node_IfStmt,
+    Node_Function,
+    Node_FunctionCall,
+    
+    Node_Variable,
+    Node_Number,
+    Node_String
+};
+
+struct Node
+{
+    NodeType node_type;
+    
+    Node * next_sibling;
+    Node * first_child;
+    
+};
+
+struct Parser
+{
+    Tokenizer * tokenizer;
+    i32 current_token_index;
+
+    Node nodes[1000]; // TODO: allocate this properly!
+    i32 nr_of_nodes;
+};
+
+void next_token(Parser * parser)
 {
     // FIXME: we should check if we reached the last token!
-    tokenizer->current_token_index++;
+    parser->current_token_index++;
 }
 
-b32 accept_token(Tokenizer * tokenizer, TokenType token_type)
+b32 accept_token(Parser * parser, TokenType token_type)
 {
-    Token token = tokenizer->tokens[tokenizer->current_token_index];
+    Tokenizer * tokenizer = parser->tokenizer;
+
+    Token token = tokenizer->tokens[parser->current_token_index];
     if (token.type == token_type)
     {
-        next_token(tokenizer);
+        next_token(parser);
         return true;
     }
     return false;
 }
 
-b32 expect_token(Tokenizer * tokenizer, TokenType token_type)
+b32 expect_token(Parser * parser, TokenType token_type)
 {
-    if (accept_token(tokenizer, token_type))
+    if (accept_token(parser, token_type))
     {
         return true;
     }
@@ -291,9 +328,9 @@ b32 expect_token(Tokenizer * tokenizer, TokenType token_type)
     return false;
 }
 
-void parse_expression(Tokenizer * tokenizer)
+void parse_expression(Parser * parser)
 {
-    if (accept_token(tokenizer, Token_Number))
+    if (accept_token(parser, Token_Number))
     {
         log("Found an expression starting with a Number");
         
@@ -301,29 +338,31 @@ void parse_expression(Tokenizer * tokenizer)
     // TODO: implement more variants of expressions
 }
 
-void parse_statement(Tokenizer * tokenizer)
+void parse_statement(Parser * parser)
 {
-    if (accept_token(tokenizer, Token_VariableIdentifier))
+    if (accept_token(parser, Token_VariableIdentifier))
     {
         log("Found a statement starting with VariableIdentifier");
         
         // TODO: maybe we should call it 'Token_Assignment' ?
-        expect_token(tokenizer, Token_Equals); 
-        parse_expression(tokenizer);
+        expect_token(parser, Token_Equals); 
+        parse_expression(parser);
+        expect_token(parser, Token_Semicolon); 
     }
     // TODO implement more variants of statements
     
 }
 
-void parse_program(Tokenizer * tokenizer)
+void parse_program(Parser * parser)
 {
-    if (expect_token(tokenizer, Token_StartOfPhp))
+    if (expect_token(parser, Token_StartOfPhp))
     {
         log("Program starts with StartOfPhp");
         
-        while (!accept_token(tokenizer, Token_EndOfStream))  // TODO: also stop if '}' is reached (but only in "block") 
+        // FIXME: if there is a syntax error, this will loop forever!
+        while (!accept_token(parser, Token_EndOfStream))  // TODO: also stop if '}' is reached (but only in "block") 
         {
-            parse_statement(tokenizer);
+            parse_statement(parser);
         } 
             
     }
@@ -385,7 +424,10 @@ extern "C" {
 
         tokenize(&tokenizer);
 
-        parse_program(&tokenizer);
+        Parser parser = {};
+        parser.tokenizer = &tokenizer;
+        
+        parse_program(&parser);
         
         /*
         for (i32 token_index = 0; token_index < tokenizer.nr_of_tokens; token_index++)
