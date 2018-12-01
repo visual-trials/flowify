@@ -448,21 +448,19 @@ void dump_tree(Node * node, String * dump_text, i32 depth = 0)
     }
 
     String node_type_string = {};
-    copy_cstring_to_string(node_type_names[node->first_child->type], &node_type_string);
+    copy_cstring_to_string(node_type_names[node->type], &node_type_string);
     append_string(dump_text, &node_type_string);
     
     dump_text->data[dump_text->length] = '\n';
     dump_text->length++;
     
-    /*
     if (node->first_child)
     {
         dump_tree(node->first_child, dump_text, depth + 1);
     }
-    
+
     if (node->next_sibling)
     {
         dump_tree(node->first_child, dump_text, depth);
     }
-    */
 }
