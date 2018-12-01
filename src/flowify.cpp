@@ -328,6 +328,11 @@ b32 expect_token(Parser * parser, TokenType token_type)
     return false;
 }
 
+Node * new_node(Parser * parser)
+{
+    return &parser->nodes[parser->nr_of_nodes++];
+}
+
 void parse_expression(Parser * parser)
 {
     if (accept_token(parser, Token_Number))
@@ -353,8 +358,10 @@ void parse_statement(Parser * parser)
     
 }
 
-void parse_program(Parser * parser)
+Node * parse_program(Parser * parser)
 {
+    Node * root_node = new_node(parser);
+    
     if (expect_token(parser, Token_StartOfPhp))
     {
         log("Program starts with StartOfPhp");
@@ -369,6 +376,8 @@ void parse_program(Parser * parser)
     else {
         // TODO: Program doesn't start with StartOfPhp
     }
+    
+    return root_node;
 }
 
 
