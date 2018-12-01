@@ -110,6 +110,15 @@ void append_string(ShortString * dest, ShortString * src)
     dest->length = dest->length + nr_of_characters_to_append;
 }
 
+void append_string(String * dest, String * src)
+{
+    for (i32 i = 0; i < src->length; i++)
+    {
+        dest->data[dest->length + i] = src->data[i];
+    }
+    dest->length = dest->length + src->length;
+}
+
 void copy_string(ShortString * src, ShortString * dest)
 {
     for (i32 i = 0; i < src->length; i++)
@@ -119,12 +128,12 @@ void copy_string(ShortString * src, ShortString * dest)
     dest->length = src->length;
 }
 
-i32 copy_cstring(const char * src, u8 * dest, i32 max_length)
+i32 copy_cstring(const char * src, u8 * dest, i32 max_length = -1)
 {
     i32 count = 0;
     while (char ch = *src++)
     {
-        if (count >= max_length)
+        if (max_length >= 0 && count >= max_length)
         {
             break;
         }
@@ -138,6 +147,14 @@ i32 copy_cstring(const char * src, u8 * dest, i32 max_length)
 ShortString * copy_cstring_to_short_string(const char * src, ShortString * dest)
 {
     i32 length = copy_cstring(src, dest->data, MAX_LENGTH_SHORT_STRING);
+    dest->length = length;
+    
+    return dest;
+}
+
+String * copy_cstring_to_string(const char * src, String * dest)
+{
+    i32 length = copy_cstring(src, dest->data);
     dest->length = length;
     
     return dest;

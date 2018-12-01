@@ -65,27 +65,52 @@ struct Tokenizer
     i32 nr_of_tokens;
 };
 
-
+// TODO: Keep this in sync with node_type_names below!
 enum NodeType
 {
     Node_Unknown,
+ 
+    Node_Root, 
     
-    Node_BinExprPlus,
-    Node_BinExprMinus,
+    // Node_Stmt_Expr, // TODO: in php this is used. We use Stmt_Assign.
+    Node_Stmt_Assign,
+    Node_Stmt_If,
+    Node_Stmt_FunctionDecl,
+    Node_Stmt_FunctionCall,
     
-    Node_AssignStmt,
-    Node_IfStmt,
-    Node_Function,
-    Node_FunctionCall,
+    // Node_Expr_Assign, // TODO: in php this is used. We use Stmt_Assign.
+    Node_Expr_BinPlus,
+    Node_Expr_BinMinus,
     
     Node_Variable,
     Node_Number,
     Node_String
 };
 
+// TODO: Keep this in sync with the enum above!
+const char * node_type_names[] = {
+    "Unknown",
+    
+    "Root",
+    
+    // "Stmt_Expr", // TODO: in php this is used. We use Stmt_Assign.
+    "Stmt_Assign",
+    "Stmt_If",
+    "Stmt_FunctionDecl",
+    "Stmt_FunctionCall",
+    
+    // "Expr_Assign", // TODO: in php this is used. We use Stmt_Assign.
+    "Expr_BinPlus",
+    "Expr_BinMinus",
+    
+    "Variable",
+    "Number",
+    "String"
+};
+
 struct Node
 {
-    NodeType node_type;
+    NodeType type;
     
     // TODO: store from-to tokens (and/or positions in text)
     
@@ -329,7 +354,11 @@ b32 expect_token(Parser * parser, TokenType token_type)
 
 Node * new_node(Parser * parser)
 {
-    return &parser->nodes[parser->nr_of_nodes++];
+    Node * new_node = &parser->nodes[parser->nr_of_nodes++];
+    new_node->first_child = 0;
+    new_node->next_sibling = 0;
+    new_node->type = Node_Unknown;
+    return new_node;
 }
 
 void parse_expression(Parser * parser)
@@ -342,33 +371,61 @@ void parse_expression(Parser * parser)
     // TODO: implement more variants of expressions
 }
 
-void parse_statement(Parser * parser)
+Node * parse_statement(Parser * parser)
 {
+    Node * statement_node = new_node(parser);
     if (accept_token(parser, Token_VariableIdentifier))
     {
+        
         log("Found a statement starting with VariableIdentifier");
+        
+        statement_node->type = Node_Stmt_Assign;
         
         // TODO: maybe we should call it 'Token_Assignment' ?
         expect_token(parser, Token_Equals); 
         parse_expression(parser);
         expect_token(parser, Token_Semicolon); 
     }
+    else {
+        // if statement was not found, returning 0 (so the caller known no statement was found)
+        statement_node = 0;  // TODO: we should "free" this statement_node (but an error occured so it might nog matter)
+        return statement_node;
+    }
     // TODO implement more variants of statements
     
+    return statement_node;
 }
 
 Node * parse_program(Parser * parser)
 {
     Node * root_node = new_node(parser);
+    root_node->type = Node_Root;
     
+    Node * previous_sibling = 0;
     if (expect_token(parser, Token_StartOfPhp))
     {
         log("Program starts with StartOfPhp");
         
-        // FIXME: if there is a syntax error, this will loop forever!
         while (!accept_token(parser, Token_EndOfStream))  // TODO: also stop if '}' is reached (but only in "block") 
         {
-            parse_statement(parser);
+            Node * statement_node = parse_statement(parser);
+            
+            if (!statement_node)
+            {
+                // No statement was found, even though it was expected. We break the loop.
+                break;
+            }
+            
+            if (!root_node->first_child)
+            {
+                root_node->first_child = statement_node;
+                previous_sibling = statement_node;
+            }
+            else
+            {
+                previous_sibling->next_sibling = statement_node;
+                previous_sibling = statement_node;
+            }
         } 
             
     }
@@ -377,4 +434,35 @@ Node * parse_program(Parser * parser)
     }
     
     return root_node;
+}
+
+void dump_tree(Node * node, String * dump_text, i32 depth = 0)
+{
+    const char indent[] = "    "; 
+    String indent_string = {};
+    copy_cstring_to_string(indent, &indent_string);
+    
+    for (i32 indentation_index = 0; indentation_index < depth; indentation_index++)
+    {
+        append_string(dump_text, &indent_string);
+    }
+
+    String node_type_string = {};
+    copy_cstring_to_string(node_type_names[node->first_child->type], &node_type_string);
+    append_string(dump_text, &node_type_string);
+    
+    dump_text->data[dump_text->length] = '\n';
+    dump_text->length++;
+    
+    /*
+    if (node->first_child)
+    {
+        dump_tree(node->first_child, dump_text, depth + 1);
+    }
+    
+    if (node->next_sibling)
+    {
+        dump_tree(node->first_child, dump_text, depth);
+    }
+    */
 }

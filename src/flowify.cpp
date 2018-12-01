@@ -25,11 +25,14 @@ struct WorldData
 {
     String program_text;
     String program_lines[1000]; // TODO: allocate this properly!
-    
     i32 nr_of_lines;
+    
+    String dump_text;
 };
 
 WorldData global_world = {};  // FIXME: allocate this properly!
+
+u8 global_dump_text[1000]; // TODO: allocate this properly!
 
 const char * simple_assign_program_text = 
     "<?php\n"
@@ -75,6 +78,9 @@ extern "C" {
         
         Node * root_node = parse_program(&parser);
         
+        world->dump_text.length = 0;
+        world->dump_text.data = global_dump_text;
+        dump_tree(root_node, &world->dump_text);
     }
     
     void update_frame()
@@ -119,5 +125,10 @@ extern "C" {
             position_line_nr.x -= 40 + line_nr_size.width;
             draw_text(position_line_nr, &line_nr_text, font, grey);
         }
+        
+        
+        draw_text((Pos2d){100,100}, &world->dump_text, font, black);
+        
+        
     }
 }
