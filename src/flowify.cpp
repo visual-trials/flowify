@@ -73,21 +73,7 @@ extern "C" {
         Parser parser = {};
         parser.tokenizer = &tokenizer;
         
-        parse_program(&parser);
-        
-        /*
-        for (i32 token_index = 0; token_index < tokenizer.nr_of_tokens; token_index++)
-        {
-            Token token = tokenizer.tokens[token_index];
-                    
-            ShortString token_integer;
-            int_to_string(token.type, &token_integer);
-            log("Token found: ");
-            log(&token.text);
-            log(&token_integer);
-        }
-        */
-
+        Node * root_node = parse_program(&parser);
         
     }
     
