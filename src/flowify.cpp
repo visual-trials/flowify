@@ -24,7 +24,7 @@
 struct WorldData
 {
     String program_text;
-    String program_lines[1000]; // TODO: allocate this properly!
+    String program_lines[100]; // TODO: allocate this properly!
     i32 nr_of_lines;
     
     String dump_text;
@@ -108,7 +108,7 @@ extern "C" {
         
         i32 line_margin = 4;
         
-        i32 left_margin = 500;
+        i32 left_margin = 400;
         i32 top_margin = 200;
         
         ShortString line_nr_text;

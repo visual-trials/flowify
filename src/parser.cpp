@@ -328,6 +328,15 @@ void next_token(Parser * parser)
     parser->current_token_index++;
 }
 
+Token * get_latest_token(Parser * parser)
+{
+    Tokenizer * tokenizer = parser->tokenizer;
+    
+    // FIXME: check bounds!    
+    Token * token = &tokenizer->tokens[parser->current_token_index - 1];
+    return token;
+}
+
 b32 accept_token(Parser * parser, TokenType token_type)
 {
     Tokenizer * tokenizer = parser->tokenizer;
@@ -361,14 +370,26 @@ Node * new_node(Parser * parser)
     return new_node;
 }
 
-void parse_expression(Parser * parser)
+Node * parse_expression(Parser * parser)
 {
+    Node * expression_node = new_node(parser);
+    
     if (accept_token(parser, Token_Number))
     {
-        log("Found an expression starting with a Number");
+        // TODO: use token to set number inside Node!
+        Token * token = get_latest_token(parser);
         
+        expression_node->type = Node_Number;
     }
     // TODO: implement more variants of expressions
+    else
+    {
+        // if no expression was found, returning 0 (so the caller known no expression was found)
+        expression_node = 0;  // TODO: we should "free" this expression_node (but an error occured so it might nog matter)
+        return expression_node;
+    }
+    
+    return expression_node;
 }
 
 Node * parse_statement(Parser * parser)
@@ -376,18 +397,24 @@ Node * parse_statement(Parser * parser)
     Node * statement_node = new_node(parser);
     if (accept_token(parser, Token_VariableIdentifier))
     {
-        
-        log("Found a statement starting with VariableIdentifier");
+        // TODO: use token to set variable name inside the Node_Variable!
+        Token * variable_token = get_latest_token(parser);
         
         statement_node->type = Node_Stmt_Assign;
         
-        // TODO: maybe we should call it 'Token_Assignment' ?
         expect_token(parser, Token_Equals); 
-        parse_expression(parser);
+        Node * expression_node = parse_expression(parser);
         expect_token(parser, Token_Semicolon); 
+        
+        Node * variable_node = new_node(parser);
+        variable_node->type = Node_Variable;
+        
+        statement_node->first_child = variable_node;
+        
+        statement_node->first_child->next_sibling = expression_node;
     }
     else {
-        // if statement was not found, returning 0 (so the caller known no statement was found)
+        // if no statement was found, returning 0 (so the caller known no statement was found)
         statement_node = 0;  // TODO: we should "free" this statement_node (but an error occured so it might nog matter)
         return statement_node;
     }
@@ -404,7 +431,6 @@ Node * parse_program(Parser * parser)
     Node * previous_sibling = 0;
     if (expect_token(parser, Token_StartOfPhp))
     {
-        log("Program starts with StartOfPhp");
         
         while (!accept_token(parser, Token_EndOfStream))  // TODO: also stop if '}' is reached (but only in "block") 
         {
@@ -461,6 +487,6 @@ void dump_tree(Node * node, String * dump_text, i32 depth = 0)
 
     if (node->next_sibling)
     {
-        dump_tree(node->first_child, dump_text, depth);
+        dump_tree(node->next_sibling, dump_text, depth);
     }
 }
