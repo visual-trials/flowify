@@ -64,21 +64,21 @@ const char * simple_if_else_program_text =
 const char * fibonacci_iterative_program_text = 
     "<?php\n"
     "\n"
-    "$fib = fibonacci_iterative(10);\n"
-    "\n"
-    "function fibonacci_iterative($n)\n"
-    "{\n"
-    "    $a = 0;\n"
-    "    $b = 1;\n"
-    /*
+//    "$fib = fibonacci_iterative(10);\n"
+//    "\n"
+//    "function fibonacci_iterative($n)\n"
+//    "{\n"
+//    "    $a = 0;\n"
+//    "    $b = 1;\n"
     "    for ($i = 0; $i < $n; $i++) {\n"
     "        $c = $a;\n"
+    /*
     "        $a = $b;\n"
     "        $b += $c;\n"
-    "    }\n"
-    "    return $a;\n"
     */
-    "}\n"
+    "    }\n"
+//    "    return $a;\n"
+//    "}\n"
 ;
 
 extern "C" {

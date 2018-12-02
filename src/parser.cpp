@@ -89,11 +89,15 @@ enum NodeType
     
     // Statements
     Node_Stmt_If,
-    Node_Stmt_Cond,
-    Node_Stmt_Then,
-    Node_Stmt_Else,
+    Node_Stmt_If_Cond,
+    Node_Stmt_If_Then,
+    Node_Stmt_If_Else,
     
     Node_Stmt_For,
+    Node_Stmt_For_Init,
+    Node_Stmt_For_Cond,
+    Node_Stmt_For_Update,
+    
     Node_Stmt_Function,
     Node_Stmt_Function_Args,
     Node_Stmt_Function_Body,
@@ -136,11 +140,15 @@ const char * node_type_names[] = {
     
     // Statements
     "Stmt_If",
-    "Stmt_Cond",
-    "Stmt_Then",
-    "Stmt_Else",
+    "Stmt_If_Cond",
+    "Stmt_If_Then",
+    "Stmt_If_Else",
     
     "Stmt_For",
+    "Stmt_For_Init",
+    "Stmt_For_Cond",
+    "Stmt_For_Update",
+    
     "Stmt_Function",
     "Stmt_Function_Args",
     "Stmt_Function_Body",
@@ -557,9 +565,9 @@ Node * parse_expression(Parser * parser)
             expression_node->first_child->next_sibling = child_expression_node;
         }
         // TODO: we should combine the code below with the code above!
-        else if (accept_token(parser, Token_Plus))
+        else if (accept_token(parser, Token_Smaller))
         {
-            expression_node->type = Node_Expr_BinaryOp_Plus;
+            expression_node->type = Node_Expr_BinaryOp_Smaller;
 
             // Left side of the compare (the variable)
             Node * variable_node = new_node(parser);
@@ -571,6 +579,36 @@ Node * parse_expression(Parser * parser)
             Node * child_expression_node = parse_expression(parser);
             
             expression_node->first_child->next_sibling = child_expression_node;
+        }
+        // TODO: we should combine the code below with the code above!
+        else if (accept_token(parser, Token_Plus))
+        {
+            if (accept_token(parser, Token_Plus))
+            {
+                // TODO: we should only allow '++' *right* behind a variableIdentifier!
+                
+                expression_node->type = Node_Expr_PostInc;
+                
+                Node * variable_node = new_node(parser);
+                variable_node->type = Node_Expr_Variable;
+                
+                expression_node->first_child = variable_node;
+            }
+            else 
+            {
+                expression_node->type = Node_Expr_BinaryOp_Plus;
+
+                // Left side of the compare (the variable)
+                Node * variable_node = new_node(parser);
+                variable_node->type = Node_Expr_Variable;
+                
+                expression_node->first_child = variable_node;
+                
+                // Right side of the compare (an expression)
+                Node * child_expression_node = parse_expression(parser);
+                
+                expression_node->first_child->next_sibling = child_expression_node;
+            }
         }
         // TODO: implement more types of assignments
         else
@@ -656,7 +694,7 @@ Node * parse_statement(Parser * parser)
             log("ERROR: Expected Token_OpenParenteses but did NOT get it after if-statement!");
         }
         Node * condition_node = new_node(parser);
-        condition_node->type = Node_Stmt_Cond;
+        condition_node->type = Node_Stmt_If_Cond;
         statement_node->first_child = condition_node;
         
         Node * condition_expression_node = parse_expression(parser);
@@ -665,7 +703,7 @@ Node * parse_statement(Parser * parser)
         
         // If-then
         Node * then_node = new_node(parser);
-        then_node->type = Node_Stmt_Then;
+        then_node->type = Node_Stmt_If_Then;
         parse_block(parser, then_node);
         
         condition_node->next_sibling = then_node;
@@ -674,7 +712,7 @@ Node * parse_statement(Parser * parser)
         {
             // If-else
             Node * else_node = new_node(parser);
-            else_node->type = Node_Stmt_Else;
+            else_node->type = Node_Stmt_If_Else;
             parse_block(parser, else_node);
             
             then_node->next_sibling = else_node;
@@ -684,8 +722,36 @@ Node * parse_statement(Parser * parser)
     }
     else if (accept_token(parser, Token_For))
     {
-        log("WARNING: Found For, not yet implented!");
-        // TODO: implement For
+        statement_node->type = Node_Stmt_For;
+        
+        expect_token(parser, Token_OpenParenteses);
+        
+        Node * init_node = new_node(parser);
+        init_node->type = Node_Stmt_For_Init;
+        statement_node->first_child = init_node;
+        
+        Node * init_expression_node = parse_expression(parser);
+        init_node->first_child = init_expression_node;
+        
+        expect_token(parser, Token_Semicolon);
+            
+        Node * condition_node = new_node(parser);
+        condition_node->type = Node_Stmt_For_Cond;
+        init_node->next_sibling = condition_node;
+        
+        Node * condition_expression_node = parse_expression(parser);
+        condition_node->first_child = condition_expression_node;
+        
+        expect_token(parser, Token_Semicolon);
+        
+        Node * update_node = new_node(parser);
+        update_node->type = Node_Stmt_For_Update;
+        condition_node->next_sibling = update_node;
+        
+        Node * update_expression_node = parse_expression(parser);
+        update_node->first_child = update_expression_node;
+        
+        expect_token(parser, Token_CloseParenteses);
     }
     else if (accept_token(parser, Token_Function))
     {
