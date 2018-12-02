@@ -97,6 +97,7 @@ enum NodeType
     Node_Stmt_For_Init,
     Node_Stmt_For_Cond,
     Node_Stmt_For_Update,
+    Node_Stmt_For_Body,
     
     Node_Stmt_Function,
     Node_Stmt_Function_Args,
@@ -148,6 +149,7 @@ const char * node_type_names[] = {
     "Stmt_For_Init",
     "Stmt_For_Cond",
     "Stmt_For_Update",
+    "Stmt_For_Body",
     
     "Stmt_Function",
     "Stmt_Function_Args",
@@ -752,6 +754,14 @@ Node * parse_statement(Parser * parser)
         update_node->first_child = update_expression_node;
         
         expect_token(parser, Token_CloseParenteses);
+        
+        // For body
+        Node * for_body_node = new_node(parser);
+        for_body_node->type = Node_Stmt_For_Body;
+        parse_block(parser, for_body_node);
+        
+        update_node->next_sibling = for_body_node;
+        
     }
     else if (accept_token(parser, Token_Function))
     {
