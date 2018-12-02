@@ -486,14 +486,11 @@ Node * parse_expression(Parser * parser)
     
     if (accept_token(parser, Token_VariableIdentifier))
     {
-        log("Found variable");
         // TODO: use token to set variable name inside the Node_Variable!
         Token * variable_token = get_latest_token(parser);
         
         if (accept_token(parser, Token_Assign))
         {
-            log("Found Token_Assign");
-            
             expression_node->type = Node_Expr_Assign;
 
             // Left side of the assignment (the variable)
@@ -507,10 +504,26 @@ Node * parse_expression(Parser * parser)
             
             expression_node->first_child->next_sibling = child_expression_node;
         }
+        // TODO: we should combine the code below with the code above!
         else if (accept_token(parser, Token_Greater))
         {
-            log("Found Token_Greater");
             expression_node->type = Node_Expr_BinaryOp_Greater;
+
+            // Left side of the compare (the variable)
+            Node * variable_node = new_node(parser);
+            variable_node->type = Node_Expr_Variable;
+            
+            expression_node->first_child = variable_node;
+            
+            // Right side of the compare (an expression)
+            Node * child_expression_node = parse_expression(parser);
+            
+            expression_node->first_child->next_sibling = child_expression_node;
+        }
+        // TODO: we should combine the code below with the code above!
+        else if (accept_token(parser, Token_Plus))
+        {
+            expression_node->type = Node_Expr_BinaryOp_Plus;
 
             // Left side of the compare (the variable)
             Node * variable_node = new_node(parser);
@@ -526,14 +539,12 @@ Node * parse_expression(Parser * parser)
         // TODO: implement more types of assignments
         else
         {
-            log("Defaulting to Node_Expr_Variable");
             // If the variable was not followed by anything, we assume the expression only contains the variable
             expression_node->type = Node_Expr_Variable;
         }
     }
     else if (accept_token(parser, Token_Number))
     {
-        log("Found number");
         // TODO: use token to set number inside Node!
         Token * token = get_latest_token(parser);
      
@@ -558,19 +569,14 @@ Node * parse_statement(Parser * parser)
     Node * statement_node = new_node(parser);
     if (accept_token(parser, Token_If))
     {
-        log("Found If");
         statement_node->type = Node_Stmt_If;
         
         // Note: we do not allow single-line bodies atm (without braces)
 
         // If-condition
-        if (expect_token(parser, Token_OpenParenteses))
+        if (!expect_token(parser, Token_OpenParenteses))
         {
-            log("Expected and got Token_OpenParenteses");
-        }
-        else
-        {
-            log("ERROR: Expected and did NOT get Token_OpenParenteses");
+            log("ERROR: Expected Token_OpenParenteses but did NOT get it after if-statement!");
         }
         Node * condition_node = new_node(parser);
         condition_node->type = Node_Stmt_Cond;
@@ -591,15 +597,11 @@ Node * parse_statement(Parser * parser)
     }
     else if (accept_token(parser, Token_For))
     {
-        log("Found For");
+        log("WARNING: Found For, not yet implented!");
         // TODO: implement For
     }
     else
     {
-        log("This is most like going to be Node_Stmt_Expr. Starting with:");
-        Token token = parser->tokenizer->tokens[parser->current_token_index];
-        log(token.text);
-        
         // We assume its a statement with only an expression
         statement_node->type = Node_Stmt_Expr;
         
@@ -614,9 +616,6 @@ Node * parse_statement(Parser * parser)
         statement_node->first_child = expression_node;
         
         expect_token(parser, Token_Semicolon); 
-        log("This is most like going to be Node_Stmt_Expr. Ended with:");
-        token = parser->tokenizer->tokens[parser->current_token_index];
-        log(token.text);
     }
     // TODO implement more variants of statements
     
@@ -632,11 +631,7 @@ void parse_statements(Parser * parser, Node * parent_node)
            !accept_token(parser, Token_CloseBrace) && 
            !accept_token(parser, Token_EndOfPhp))
     {
-        log("Starting to parse a statement");
-        
         Node * statement_node = parse_statement(parser);
-        
-        log("Ended parsing a statement");
         
         if (!statement_node)
         {
@@ -666,7 +661,6 @@ void parse_block(Parser * parser, Node * parent_node)
 {
     if (expect_token(parser, Token_OpenBrace))
     {
-        log("Found open brace");
         parse_statements(parser, parent_node);    
         // Note: Token_CloseBrace is already eaten by parse_statements
     }
