@@ -76,19 +76,37 @@ enum NodeType
  
     Node_Root, 
     
-    // Node_Stmt_Expr, // TODO: in php this is used. We use Stmt_Assign.
-    Node_Stmt_Assign,
+    // Statements
     Node_Stmt_If,
-    Node_Stmt_FunctionDecl,
-    Node_Stmt_FunctionCall,
+    Node_Stmt_Else,
+    Node_Stmt_For,
+    Node_Stmt_Function,
     
-    // Node_Expr_Assign, // TODO: in php this is used. We use Stmt_Assign.
-    Node_Expr_BinPlus,
-    Node_Expr_BinMinus,
+    Node_Stmt_Return,
+    Node_Stmt_Break,
+    Node_Stmt_Continue,
     
-    Node_Variable,
-    Node_Number,
-    Node_String
+    Node_Stmt_Expr,
+    
+    // Expressions
+    Node_Expr_PreInc,
+    Node_Expr_PostInc,
+    
+    Node_Expr_AssignOp_Plus,
+    Node_Expr_AssignOp_Concat,
+    
+    Node_Expr_BinaryOp_Plus,
+    Node_Expr_BinaryOp_Minus,
+    
+    Node_Expr_Assign,
+    
+    Node_Expr_FuncCall,
+    
+    Node_Expr_Variable,
+    
+    // Scalars
+    Node_Scalar_Number,
+    Node_Scalar_String
 };
 
 // TODO: Keep this in sync with the enum above!
@@ -97,19 +115,37 @@ const char * node_type_names[] = {
     
     "Root",
     
-    // "Stmt_Expr", // TODO: in php this is used. We use Stmt_Assign.
-    "Stmt_Assign",
+    // Statements
     "Stmt_If",
-    "Stmt_FunctionDecl",
-    "Stmt_FunctionCall",
+    "Stmt_Else",
+    "Stmt_For",
+    "Stmt_Function",
     
-    // "Expr_Assign", // TODO: in php this is used. We use Stmt_Assign.
-    "Expr_BinPlus",
-    "Expr_BinMinus",
+    "Stmt_Return",
+    "Stmt_Break",
+    "Stmt_Continue",
     
-    "Variable",
-    "Number",
-    "String"
+    "Stmt_Expr",
+    
+    // Expressions
+    "Expr_PreInc",
+    "Expr_PostInc",
+    
+    "Expr_AssignOp_Plus",
+    "Expr_AssignOp_Concat",
+    
+    "Expr_BinaryOp_Plus",
+    "Expr_BinaryOp_Minus",
+    
+    "Expr_Assign",
+    
+    "Expr_FuncCall",
+    
+    "Expr_Variable",
+    
+    // Scalars
+    "Scalar_Number",
+    "Scalar_String"
 };
 
 struct Node
@@ -401,7 +437,7 @@ Node * parse_expression(Parser * parser)
         // TODO: use token to set number inside Node!
         Token * token = get_latest_token(parser);
         
-        expression_node->type = Node_Number;
+        expression_node->type = Node_Scalar_Number;
     }
     // TODO: implement more variants of expressions
     else
@@ -422,14 +458,14 @@ Node * parse_statement(Parser * parser)
         // TODO: use token to set variable name inside the Node_Variable!
         Token * variable_token = get_latest_token(parser);
         
-        statement_node->type = Node_Stmt_Assign;
+        statement_node->type = Node_Expr_Assign;
         
         expect_token(parser, Token_Equals); 
         Node * expression_node = parse_expression(parser);
         expect_token(parser, Token_Semicolon); 
         
         Node * variable_node = new_node(parser);
-        variable_node->type = Node_Variable;
+        variable_node->type = Node_Expr_Variable;
         
         statement_node->first_child = variable_node;
         
