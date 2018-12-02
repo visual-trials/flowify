@@ -83,7 +83,10 @@ enum NodeType
     
     // Statements
     Node_Stmt_If,
+    Node_Stmt_Cond,
+    Node_Stmt_Then,
     Node_Stmt_Else,
+    
     Node_Stmt_For,
     Node_Stmt_Function,
     
@@ -523,7 +526,19 @@ Node * parse_statement(Parser * parser)
     Node * statement_node = new_node(parser);
     if (accept_token(parser, Token_If))
     {
-        // TODO: implement If
+        expect_token(parser, Token_OpenParenteses);
+        
+        // TODO: parse if-cond expression
+        
+        expect_token(parser, Token_CloseParenteses);
+        
+        // Note: we do not allow single-line bodies atm (without brackets)
+        
+        expect_token(parser, Token_OpenBracket);
+        
+        // TODO: parse if-then body
+        
+        expect_token(parser, Token_CloseBracket);
     }
     if (accept_token(parser, Token_For))
     {
@@ -551,37 +566,56 @@ Node * parse_statement(Parser * parser)
     return statement_node;
 }
 
+void parse_statements(Parser * parser, Node * parent_node)
+{
+    Node * previous_sibling = 0;
+    
+    // TODO: only accept EndOfPhp and EndOfStream for program, only accept CloseBracket for block (use an boolean argument to this function)
+    while (!accept_token(parser, Token_EndOfStream) && 
+           !accept_token(parser, Token_CloseBracket) && 
+           !accept_token(parser, Token_EndOfPhp))
+    {
+        Node * statement_node = parse_statement(parser);
+        
+        if (!statement_node)
+        {
+            // No statement was found, even though it was expected. We break the loop.
+            break;
+        }
+        
+        if (!parent_node->first_child)
+        {
+            parent_node->first_child = statement_node;
+            previous_sibling = statement_node;
+        }
+        else
+        {
+            previous_sibling->next_sibling = statement_node;
+            previous_sibling = statement_node;
+        }
+    }
+    
+    // TODO: if Token_EndOfPhp we should also retrieve/expect the Token_EndOfStream after that!
+    
+}
+
+void parse_block(Parser * parser, Node * parent_node)
+{
+    expect_token(parser, Token_OpenBracket);
+    
+    parse_statements(parser, parent_node);    
+    
+    // TODO: we should probably return a boolean that parser went ok or not
+}
+
 Node * parse_program(Parser * parser)
 {
     Node * root_node = new_node(parser);
     root_node->type = Node_Root;
     
-    Node * previous_sibling = 0;
     if (expect_token(parser, Token_StartOfPhp))
     {
-        
-        while (!accept_token(parser, Token_EndOfStream))  // TODO: also stop if '}' is reached (but only in "block") 
-        {
-            Node * statement_node = parse_statement(parser);
-            
-            if (!statement_node)
-            {
-                // No statement was found, even though it was expected. We break the loop.
-                break;
-            }
-            
-            if (!root_node->first_child)
-            {
-                root_node->first_child = statement_node;
-                previous_sibling = statement_node;
-            }
-            else
-            {
-                previous_sibling->next_sibling = statement_node;
-                previous_sibling = statement_node;
-            }
-        } 
-            
+        parse_statements(parser, root_node);    
     }
     else {
         // TODO: Program doesn't start with StartOfPhp
