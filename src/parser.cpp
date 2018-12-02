@@ -586,12 +586,22 @@ Node * parse_statement(Parser * parser)
         condition_node->first_child = condition_expression_node;
         expect_token(parser, Token_CloseParenteses);
         
-        // If-then-body
+        // If-then
         Node * then_node = new_node(parser);
         then_node->type = Node_Stmt_Then;
         parse_block(parser, then_node);
         
-        statement_node->first_child->next_sibling = then_node;
+        condition_node->next_sibling = then_node;
+        
+        if (accept_token(parser, Token_Else))
+        {
+            // If-else
+            Node * else_node = new_node(parser);
+            else_node->type = Node_Stmt_Else;
+            parse_block(parser, else_node);
+            
+            then_node->next_sibling = else_node;
+        }
         
         // Note: if-statemets (or any other block-ending statements) do not require a Semocolon at the end!
     }

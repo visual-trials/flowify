@@ -43,7 +43,7 @@ const char * simple_assign_program_text =
     "$answer = 42;\n"
 ;
 
-const char * simple_if_program_text = 
+const char * simple_if_else_program_text = 
     "<?php\n"
     "\n"
     "$myVar = 34;\n"
@@ -52,7 +52,10 @@ const char * simple_if_program_text =
     "\n"
     "\n"
     "if ($b > 50) {\n"
-    "	$b = 50;\n"
+    "   $b = 50;\n"
+    "}\n"
+    "else {\n"
+    "    $b = 30;\n"
     "}\n"
     "\n"
     "$c = $myVar + $b;\n"
@@ -64,7 +67,7 @@ extern "C" {
     {
         WorldData * world = &global_world;
         
-        const char * text_to_parse = simple_if_program_text; // simple_assign_program_text;
+        const char * text_to_parse = simple_if_else_program_text; // simple_assign_program_text;
         
         world->program_text.data = (u8 *)text_to_parse;
         world->program_text.length = cstring_length(text_to_parse);
