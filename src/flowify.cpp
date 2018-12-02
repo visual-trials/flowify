@@ -67,7 +67,7 @@ extern "C" {
         const char * text_to_parse = simple_assign_program_text;
         
         world->program_text.data = (u8 *)text_to_parse;
-        world->program_text.length = cstring_length((u8 *)text_to_parse);
+        world->program_text.length = cstring_length(text_to_parse);
         
         world->nr_of_lines = split_string_into_lines(world->program_text, world->program_lines);
 

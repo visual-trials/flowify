@@ -85,7 +85,7 @@ i32 array_length(u8 * array)
     return sizeof(array)/sizeof(array[0]);
 }
 
-i32 cstring_length(u8 * cstring)
+i32 cstring_length(const char * cstring)
 {
     i32 count = 0;
     while (*cstring++)
@@ -117,6 +117,26 @@ void append_string(String * dest, String * src)
         dest->data[dest->length + i] = src->data[i];
     }
     dest->length = dest->length + src->length;
+}
+
+b32 equals(String string1, const char * cstring2)
+{
+    i32 cstring2_length = cstring_length(cstring2);
+    
+    if (string1.length != cstring2_length)
+    {
+        return false;
+    }
+    
+    b32 equals = true;
+    for (i32 i = 0; i < string1.length; i++)
+    {
+        if (string1.data[i] != cstring2[i])
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 void copy_string(ShortString * src, ShortString * dest)

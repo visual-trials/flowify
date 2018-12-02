@@ -40,6 +40,10 @@ enum TokenType
     Token_Identifier,
     Token_VariableIdentifier,  // starts with $
     
+    Token_If,
+    Token_Else,
+    Token_For,
+    
     Token_Equals,
     Token_Plus,
     Token_Minus,
@@ -283,6 +287,16 @@ Token get_token(Tokenizer * tokenizer)
                     tokenizer->at++;
                 }
                 token.text.length = tokenizer->at - token.text.data;
+                
+                if (equals(token.text, "if"))
+                {
+                    token.type = Token_If;
+                }
+                // TODO: add more keywords
+                else
+                {
+                    token.type = Token_Identifier;
+                }
             }
             if (is_number(ch))
             {
@@ -412,6 +426,10 @@ Node * parse_statement(Parser * parser)
         statement_node->first_child = variable_node;
         
         statement_node->first_child->next_sibling = expression_node;
+    }
+    else if (accept_token(parser, Token_If))
+    {
+        // TODO: implement IF
     }
     else {
         // if no statement was found, returning 0 (so the caller known no statement was found)

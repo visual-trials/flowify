@@ -193,7 +193,7 @@ void log(const char * text)
 {
     String text_string;
     text_string.data = (u8 *)text;
-    text_string.length = cstring_length((u8 *)text);
+    text_string.length = cstring_length(text);
     log(&text_string);
 }
 
