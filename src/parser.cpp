@@ -572,15 +572,20 @@ Node * parse_statement(Parser * parser)
         {
             log("ERROR: Expected and did NOT get Token_OpenParenteses");
         }
+        Node * condition_node = new_node(parser);
+        condition_node->type = Node_Stmt_Cond;
+        statement_node->first_child = condition_node;
+        
         Node * condition_expression_node = parse_expression(parser);
-        statement_node->first_child = condition_expression_node;
+        condition_node->first_child = condition_expression_node;
         expect_token(parser, Token_CloseParenteses);
         
         // If-then-body
-        Node * then_body = new_node(parser);
-        parse_block(parser, then_body);
+        Node * then_node = new_node(parser);
+        then_node->type = Node_Stmt_Then;
+        parse_block(parser, then_node);
         
-        statement_node->first_child->next_sibling = then_body;
+        statement_node->first_child->next_sibling = then_node;
         
         // Note: if-statemets (or any other block-ending statements) do not require a Semocolon at the end!
     }
