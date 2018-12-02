@@ -264,6 +264,7 @@ Token get_token(Tokenizer * tokenizer)
         case ';': {token.type = Token_Semicolon;} break;
         
         case '=': {token.type = Token_Assign;} break;
+        
         case '+': {
             if (tokenizer->at[0] == '=')
             {
@@ -477,18 +478,27 @@ Node * parse_expression(Parser * parser)
         // TODO: use token to set variable name inside the Node_Variable!
         Token * variable_token = get_latest_token(parser);
         
-        expression_node->type = Node_Expr_Assign;
-        
-        expect_token(parser, Token_Assign); 
-        Node * child_expression_node = parse_expression(parser);
-        expect_token(parser, Token_Semicolon); 
-        
-        Node * variable_node = new_node(parser);
-        variable_node->type = Node_Expr_Variable;
-        
-        expression_node->first_child = variable_node;
-        
-        expression_node->first_child->next_sibling = child_expression_node;
+        if (accept_token(parser, Token_Assign))
+        {
+            expression_node->type = Node_Expr_Assign;
+
+            // Left side of the assignment (the variable)
+            Node * variable_node = new_node(parser);
+            variable_node->type = Node_Expr_Variable;
+            
+            expression_node->first_child = variable_node;
+            
+            // Right side of the assignment (an expression)
+            Node * child_expression_node = parse_expression(parser);
+            
+            expression_node->first_child->next_sibling = child_expression_node;
+        }
+        // TODO: implement more types of assignments
+        else
+        {
+            // If the variable was not followed by anything, we assume the expression only contains the variable
+            expression_node->type = Node_Expr_Variable;
+        }
     }
     else if (accept_token(parser, Token_Number))
     {
@@ -521,7 +531,7 @@ Node * parse_statement(Parser * parser)
     }
     else
     {
-        // We assume its a 
+        // We assume its a statement with only an expression
         statement_node->type = Node_Stmt_Expr;
         
         Node * expression_node = parse_expression(parser);
@@ -535,6 +545,8 @@ Node * parse_statement(Parser * parser)
     }
         
     // TODO implement more variants of statements
+    
+    expect_token(parser, Token_Semicolon); 
     
     return statement_node;
 }
