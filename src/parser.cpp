@@ -432,7 +432,25 @@ Node * parse_expression(Parser * parser)
 {
     Node * expression_node = new_node(parser);
     
-    if (accept_token(parser, Token_Number))
+    if (accept_token(parser, Token_VariableIdentifier))
+    {
+        // TODO: use token to set variable name inside the Node_Variable!
+        Token * variable_token = get_latest_token(parser);
+        
+        expression_node->type = Node_Expr_Assign;
+        
+        expect_token(parser, Token_Equals); 
+        Node * child_expression_node = parse_expression(parser);
+        expect_token(parser, Token_Semicolon); 
+        
+        Node * variable_node = new_node(parser);
+        variable_node->type = Node_Expr_Variable;
+        
+        expression_node->first_child = variable_node;
+        
+        expression_node->first_child->next_sibling = child_expression_node;
+    }
+    else if (accept_token(parser, Token_Number))
     {
         // TODO: use token to set number inside Node!
         Token * token = get_latest_token(parser);
@@ -453,33 +471,29 @@ Node * parse_expression(Parser * parser)
 Node * parse_statement(Parser * parser)
 {
     Node * statement_node = new_node(parser);
-    if (accept_token(parser, Token_VariableIdentifier))
+    if (accept_token(parser, Token_If))
     {
-        // TODO: use token to set variable name inside the Node_Variable!
-        Token * variable_token = get_latest_token(parser);
+        // TODO: implement If
+    }
+    if (accept_token(parser, Token_For))
+    {
+        // TODO: implement For
+    }
+    else
+    {
+        // We assume its a 
+        statement_node->type = Node_Stmt_Expr;
         
-        statement_node->type = Node_Expr_Assign;
-        
-        expect_token(parser, Token_Equals); 
         Node * expression_node = parse_expression(parser);
-        expect_token(parser, Token_Semicolon); 
-        
-        Node * variable_node = new_node(parser);
-        variable_node->type = Node_Expr_Variable;
-        
-        statement_node->first_child = variable_node;
-        
-        statement_node->first_child->next_sibling = expression_node;
+        if (!expression_node)
+        {
+            // We found no expression, so we probably got an error. We return 0;
+            statement_node = 0; // TODO: we should "free" this expression_node (but an error occured so it might nog matter)
+            return statement_node;
+        }
+        statement_node->first_child = expression_node;
     }
-    else if (accept_token(parser, Token_If))
-    {
-        // TODO: implement IF
-    }
-    else {
-        // if no statement was found, returning 0 (so the caller known no statement was found)
-        statement_node = 0;  // TODO: we should "free" this statement_node (but an error occured so it might nog matter)
-        return statement_node;
-    }
+        
     // TODO implement more variants of statements
     
     return statement_node;
