@@ -292,6 +292,14 @@ Token get_token(Tokenizer * tokenizer)
                 {
                     token.type = Token_If;
                 }
+                if (equals(token.text, "else"))
+                {
+                    token.type = Token_Else;
+                }
+                if (equals(token.text, "for"))
+                {
+                    token.type = Token_For;
+                }
                 // TODO: add more keywords
                 else
                 {
