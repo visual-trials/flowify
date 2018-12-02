@@ -64,7 +64,7 @@ extern "C" {
     {
         WorldData * world = &global_world;
         
-        const char * text_to_parse = simple_assign_program_text;
+        const char * text_to_parse = simple_if_program_text; // simple_assign_program_text;
         
         world->program_text.data = (u8 *)text_to_parse;
         world->program_text.length = cstring_length(text_to_parse);
