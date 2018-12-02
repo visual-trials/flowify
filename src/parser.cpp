@@ -45,6 +45,11 @@ enum TokenType
     Token_Else,
     Token_For,
     
+    Token_Function,
+    Token_Break,
+    Token_Continue,
+    Token_Return,
+    
     Token_Assign,
     Token_AssignPlus,
     Token_AssignMinus,
@@ -90,6 +95,8 @@ enum NodeType
     
     Node_Stmt_For,
     Node_Stmt_Function,
+    Node_Stmt_Function_Args,
+    Node_Stmt_Function_Body,
     
     Node_Stmt_Return,
     Node_Stmt_Break,
@@ -135,6 +142,8 @@ const char * node_type_names[] = {
     
     "Stmt_For",
     "Stmt_Function",
+    "Stmt_Function_Args",
+    "Stmt_Function_Body",
     
     "Stmt_Return",
     "Stmt_Break",
@@ -390,6 +399,22 @@ Token get_token(Tokenizer * tokenizer)
                 {
                     token.type = Token_For;
                 }
+                else if (equals(token.text, "function"))
+                {
+                    token.type = Token_Function;
+                }
+                else if (equals(token.text, "break"))
+                {
+                    token.type = Token_Break;
+                }
+                else if (equals(token.text, "continue"))
+                {
+                    token.type = Token_Continue;
+                }
+                else if (equals(token.text, "return"))
+                {
+                    token.type = Token_Return;
+                }
                 // TODO: add more keywords
                 else
                 {
@@ -415,6 +440,11 @@ Token get_token(Tokenizer * tokenizer)
         
     }
     
+    if (true)
+    {
+        log(token.text);
+    }
+    
     return token;
 };
 
@@ -430,6 +460,8 @@ void tokenize (Tokenizer * tokenizer)
             tokenizing = false;
         }
     }
+    
+    log("-------");
 }
 
 // Parser
@@ -481,6 +513,8 @@ Node * new_node(Parser * parser)
     new_node->type = Node_Unknown;
     return new_node;
 }
+
+void parse_arguments(Parser * parser, Node * parent_node);
 
 Node * parse_expression(Parser * parser)
 {
@@ -552,34 +586,7 @@ Node * parse_expression(Parser * parser)
 
         expression_node->type = Node_Expr_FuncCall;
         
-        expect_token(parser, Token_OpenParenteses);
-        
-        Node * previous_sibling;
-        while(!accept_token(parser, Token_CloseParenteses))
-        {
-            Node * argument_node = parse_expression(parser);
-            if (argument_node)
-            {
-                if (!expression_node->first_child)
-                {
-                    expression_node->first_child = argument_node;
-                    previous_sibling = argument_node;
-                }
-                else
-                {
-                    previous_sibling->next_sibling = argument_node;
-                    previous_sibling = argument_node;
-                }
-                
-                // TODO: Only allow next argument if it comma separated
-                accept_token(parser, Token_Comma);
-            }
-            else
-            {
-                log("ERROR: invalid argument (not an expression) in function call");
-                break;
-            }
-        }
+        parse_arguments(parser, expression_node);
     }
     else if (accept_token(parser, Token_Number))
     {
@@ -598,6 +605,38 @@ Node * parse_expression(Parser * parser)
     }
     
     return expression_node;
+}
+
+void parse_arguments(Parser * parser, Node * parent_node)
+{
+    expect_token(parser, Token_OpenParenteses);
+    
+    Node * previous_sibling;
+    while(!accept_token(parser, Token_CloseParenteses))
+    {
+        Node * argument_node = parse_expression(parser);
+        if (argument_node)
+        {
+            if (!parent_node->first_child)
+            {
+                parent_node->first_child = argument_node;
+                previous_sibling = argument_node;
+            }
+            else
+            {
+                previous_sibling->next_sibling = argument_node;
+                previous_sibling = argument_node;
+            }
+            
+            // TODO: Only allow next argument if it comma separated
+            accept_token(parser, Token_Comma);
+        }
+        else
+        {
+            log("ERROR: invalid argument (not an expression) in function call or declaration");
+            break;
+        }
+    }
 }
 
 void parse_block(Parser * parser, Node * parent_node);
@@ -647,6 +686,33 @@ Node * parse_statement(Parser * parser)
     {
         log("WARNING: Found For, not yet implented!");
         // TODO: implement For
+    }
+    else if (accept_token(parser, Token_Function))
+    {
+        if (expect_token(parser, Token_Identifier))
+        {
+            // TODO: use token to set function name inside the Node_Expr_Function!
+            Token * function_token = get_latest_token(parser);
+
+            statement_node->type = Node_Stmt_Function;
+            
+            Node * function_arguments_node = new_node(parser);
+            function_arguments_node->type = Node_Stmt_Function_Args;
+            statement_node->first_child = function_arguments_node;
+            
+            parse_arguments(parser, function_arguments_node);
+
+            // Function body
+            Node * function_body_node = new_node(parser);
+            function_body_node->type = Node_Stmt_Function_Body;
+            parse_block(parser, function_body_node);
+            
+            function_arguments_node->next_sibling = function_body_node;
+        }
+        else
+        {
+            log("ERROR: no function name found!");
+        }
     }
     else
     {
