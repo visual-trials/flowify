@@ -582,18 +582,15 @@ Node * parse_statement(Parser * parser)
         
         // Note: if-statemets (or any other block-ending statements) do not require a Semocolon at the end!
     }
-    if (accept_token(parser, Token_For))
+    else if (accept_token(parser, Token_For))
     {
         log("Found For");
         // TODO: implement For
     }
     else
     {
-        log("Defaulting to Node_Stmt_Expr");
-        
-        Tokenizer * tokenizer = parser->tokenizer;
-
-        Token token = tokenizer->tokens[parser->current_token_index];
+        log("This is most like going to be Node_Stmt_Expr. Starting with:");
+        Token token = parser->tokenizer->tokens[parser->current_token_index];
         log(token.text);
         
         // We assume its a statement with only an expression
@@ -610,6 +607,9 @@ Node * parse_statement(Parser * parser)
         statement_node->first_child = expression_node;
         
         expect_token(parser, Token_Semicolon); 
+        log("This is most like going to be Node_Stmt_Expr. Ended with:");
+        token = parser->tokenizer->tokens[parser->current_token_index];
+        log(token.text);
     }
     // TODO implement more variants of statements
     
@@ -628,6 +628,8 @@ void parse_statements(Parser * parser, Node * parent_node)
         log("Starting to parse a statement");
         
         Node * statement_node = parse_statement(parser);
+        
+        log("Ended parsing a statement");
         
         if (!statement_node)
         {

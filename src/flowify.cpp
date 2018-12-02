@@ -109,7 +109,7 @@ extern "C" {
         i32 line_margin = 4;
         
         i32 left_margin = 400;
-        i32 top_margin = 200;
+        i32 top_margin = 100;
         
         ShortString line_nr_text;
             
