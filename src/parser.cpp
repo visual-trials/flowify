@@ -44,12 +44,17 @@ enum TokenType
     Token_Else,
     Token_For,
     
-    Token_Equals,
+    Token_Assign,
+    Token_AssignPlus,
+    Token_AssignMinus,
+    
     Token_Plus,
     Token_Minus,
     
-    Token_SmallerThan,
-    Token_GreaterThan,
+    Token_Smaller,
+    Token_SmallerOrEqual,
+    Token_Greater,
+    Token_GreaterOrEqual,
     
     Token_EndOfStream    
 };
@@ -258,9 +263,29 @@ Token get_token(Tokenizer * tokenizer)
         case ':': {token.type = Token_Colon;} break;
         case ';': {token.type = Token_Semicolon;} break;
         
-        case '=': {token.type = Token_Equals;} break;
-        case '+': {token.type = Token_Plus;} break;
-        case '-': {token.type = Token_Minus;} break;
+        case '=': {token.type = Token_Assign;} break;
+        case '+': {
+            if (tokenizer->at[0] == '=')
+            {
+                tokenizer->at++;
+                token.type = Token_AssignPlus;
+            }
+            else
+            {
+                token.type = Token_Plus;
+            }
+        } break;
+        case '-': {
+            if (tokenizer->at[0] == '=')
+            {
+                tokenizer->at++;
+                token.type = Token_AssignMinus;
+            }
+            else
+            {
+                token.type = Token_Minus;
+            }
+        } break;
         
         case '<': {
             if (tokenizer->at[0] == '?')
@@ -277,14 +302,29 @@ Token get_token(Tokenizer * tokenizer)
                 }
                 token.text.length = tokenizer->at - token.text.data;
             }
+            else if (tokenizer->at[0] == '=')
+            {
+                tokenizer->at++;
+                token.type = Token_SmallerOrEqual;
+            }
             else
             {
-                token.type = Token_SmallerThan;
+                token.type = Token_Smaller;
             }
             
         } break;
         
-        case '>': {token.type = Token_GreaterThan;} break;
+        case '>': {
+            if (tokenizer->at[0] == '=')
+            {
+                tokenizer->at++;
+                token.type = Token_GreaterOrEqual;
+            }
+            else
+            {
+                token.type = Token_Greater;
+            }
+        } break;
         
         case '?': {
             if (tokenizer->at[0] == '>')
@@ -439,7 +479,7 @@ Node * parse_expression(Parser * parser)
         
         expression_node->type = Node_Expr_Assign;
         
-        expect_token(parser, Token_Equals); 
+        expect_token(parser, Token_Assign); 
         Node * child_expression_node = parse_expression(parser);
         expect_token(parser, Token_Semicolon); 
         
