@@ -65,6 +65,7 @@ const char * fibonacci_iterative_program_text =
     "<?php\n"
     "\n"
     "$fib = fibonacci_iterative(10);\n"
+    /*
     "\n"
     "function fibonacci_iterative($n)\n"
     "{\n"
@@ -77,6 +78,7 @@ const char * fibonacci_iterative_program_text =
     "    }\n"
     "    return $a;\n"
     "}\n"
+    */
 ;
 
 extern "C" {
@@ -85,7 +87,7 @@ extern "C" {
     {
         WorldData * world = &global_world;
         
-        const char * text_to_parse = simple_if_else_program_text; // simple_assign_program_text;
+        const char * text_to_parse = fibonacci_iterative_program_text;
         
         world->program_text.data = (u8 *)text_to_parse;
         world->program_text.length = cstring_length(text_to_parse);
@@ -156,7 +158,7 @@ extern "C" {
         {
             // Dump line text
             Pos2d position;
-            position.x = left_margin + 300; // FIXME: measure width of program lines!
+            position.x = left_margin + 500; // FIXME: measure width of program lines!
             position.y = top_margin + dump_line_index * (font.height + line_margin);
             
             String dump_line_text = world->dump_lines[dump_line_index];

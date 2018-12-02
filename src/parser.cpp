@@ -34,6 +34,7 @@ enum TokenType
     
     Token_Colon,
     Token_Semicolon,
+    Token_Comma,
     
     Token_String,
     Token_Number,
@@ -273,6 +274,7 @@ Token get_token(Tokenizer * tokenizer)
         
         case ':': {token.type = Token_Colon;} break;
         case ';': {token.type = Token_Semicolon;} break;
+        case ',': {token.type = Token_Comma;} break;
         
         case '=': {token.type = Token_Assign;} break;
         
@@ -486,7 +488,7 @@ Node * parse_expression(Parser * parser)
     
     if (accept_token(parser, Token_VariableIdentifier))
     {
-        // TODO: use token to set variable name inside the Node_Variable!
+        // TODO: use token to set variable name inside the Node_Expr_Variable!
         Token * variable_token = get_latest_token(parser);
         
         if (accept_token(parser, Token_Assign))
@@ -541,6 +543,42 @@ Node * parse_expression(Parser * parser)
         {
             // If the variable was not followed by anything, we assume the expression only contains the variable
             expression_node->type = Node_Expr_Variable;
+        }
+    }
+    else if (accept_token(parser, Token_Identifier))
+    {
+        // TODO: use token to set function name inside the Node_Expr_FuncCall!
+        Token * function_call_token = get_latest_token(parser);
+
+        expression_node->type = Node_Expr_FuncCall;
+        
+        expect_token(parser, Token_OpenParenteses);
+        
+        Node * previous_sibling;
+        while(!accept_token(parser, Token_CloseParenteses))
+        {
+            Node * argument_node = parse_expression(parser);
+            if (argument_node)
+            {
+                if (!expression_node->first_child)
+                {
+                    expression_node->first_child = argument_node;
+                    previous_sibling = argument_node;
+                }
+                else
+                {
+                    previous_sibling->next_sibling = argument_node;
+                    previous_sibling = argument_node;
+                }
+                
+                // TODO: Only allow next argument if it comma separated
+                accept_token(parser, Token_Comma);
+            }
+            else
+            {
+                log("ERROR: invalid argument (not an expression) in function call");
+                break;
+            }
         }
     }
     else if (accept_token(parser, Token_Number))
