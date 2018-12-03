@@ -24,13 +24,11 @@
 struct WorldData
 {
     String program_text;
-    // String program_lines[100]; // TODO: allocate this properly!
-    // i32 nr_of_lines;
+    
     ScrollableText scrollable_program_text;  // TODO: allocate this properly!
     
     String dump_text;
-    // String dump_lines[100]; // TODO: allocate this properly!
-    // i32 nr_of_dump_lines;
+    
     ScrollableText scrollable_ast_dump;  // TODO: allocate this properly!
 };
 
@@ -129,12 +127,22 @@ extern "C" {
         
         // The screen size can change, so we have to update the position and size of the scrollables.
         scrollable_program_text->position.x = 0;
-        scrollable_program_text->position.y = 110; // TODO: we should properly account for the hieght of the text above
+        scrollable_program_text->position.y = 110; // TODO: we should properly account for the height of the text above this
 
         scrollable_program_text->size.width = input->screen.width - scrollable_program_text->position.x;
         scrollable_program_text->size.height = input->screen.height - scrollable_program_text->position.y;
         
         update_scrollable_text(scrollable_program_text, input);
+        
+        ScrollableText * scrollable_ast_dump = &world->scrollable_ast_dump;
+        
+        scrollable_ast_dump->position.x = 500;
+        scrollable_ast_dump->position.y = 0;
+
+        scrollable_ast_dump->size.width = input->screen.width - scrollable_ast_dump->position.x;
+        scrollable_ast_dump->size.height = input->screen.height - scrollable_ast_dump->position.y;
+        
+        update_scrollable_text(scrollable_ast_dump, input);
     }
     
     void render_frame()
@@ -142,13 +150,12 @@ extern "C" {
         WorldData * world = &global_world;
         
         ScrollableText * scrollable_program_text = &world->scrollable_program_text;
-        // ScrollableText * scrollable_ast_dump = &world->scrollable_ast_dump;
+        ScrollableText * scrollable_ast_dump = &world->scrollable_ast_dump;
         
         draw_scrollable_text(scrollable_program_text);
-        // draw_scrollable_text(scrollable_ast_dump);
+        draw_scrollable_text(scrollable_ast_dump);
         
         
-        /*
         Color4 black = {};
         black.a = 255;
         
@@ -165,7 +172,7 @@ extern "C" {
         i32 top_margin = 100;
         
         ShortString line_nr_text;
-            
+/*            
         for (i32 line_index = 0; line_index < world->nr_of_lines; line_index++)
         {
             // Line text
@@ -183,19 +190,19 @@ extern "C" {
             position_line_nr.x -= 40 + line_nr_size.width;
             draw_text(position_line_nr, &line_nr_text, font, grey);
         }
-        
-        for (i32 dump_line_index = 0; dump_line_index < world->nr_of_dump_lines; dump_line_index++)
+        */
+/*        
+        for (i32 dump_line_index = 0; dump_line_index < scrollable_ast_dump->nr_of_lines; dump_line_index++)
         {
             // Dump line text
             Pos2d position;
             position.x = left_margin + 500; // FIXME: measure width of program lines!
             position.y = top_margin + dump_line_index * (font.height + line_margin);
             
-            String dump_line_text = world->dump_lines[dump_line_index];
+            String dump_line_text = scrollable_ast_dump->lines[dump_line_index];
             draw_text(position, &dump_line_text, font, black);
         }
         */
-        
         do_physical_pixels_switch(&global_input);
     }
 }

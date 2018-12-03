@@ -256,7 +256,7 @@ void update_scrollable_text(ScrollableText * scrollable_text, Input * input)
         }
     }
     
-    scrollable_text->nr_of_lines_to_show = (i32)(((f32)scrollable_text->size.height - (f32)scrollable_text->top_margin - scrollable_text->bottom_margin) / 
+    scrollable_text->nr_of_lines_to_show = (i32)((f32)(scrollable_text->size.height - scrollable_text->top_margin - scrollable_text->bottom_margin) / 
                                        ((f32)scrollable_text->font.height + (f32)scrollable_text->line_margin));
 
     ShortString white_space;
