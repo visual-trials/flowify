@@ -34,6 +34,8 @@ struct WorldData
     const char * program_texts[10];
     i32 nr_of_program_texts;
     i32 current_program_text_index;
+    
+    b32 verbose_frame_times;
 };
 
 WorldData global_world = {};  // FIXME: allocate this properly!
@@ -141,7 +143,7 @@ extern "C" {
         ScrollableText * scrollable_program_text = &world->scrollable_program_text;
         
         // The screen size can change, so we have to update the position and size of the scrollables.
-        scrollable_program_text->position.x = 0;
+        scrollable_program_text->position.x = 100;
         scrollable_program_text->position.y = 50; // TODO: we should properly account for the height of the text above this
 
         scrollable_program_text->size.width = input->screen.width - scrollable_program_text->position.x;
@@ -160,6 +162,34 @@ extern "C" {
         update_scrollable_text(scrollable_ast_dump, input);
     }
     
+    void draw_and_update_button_menu(WorldData * world)
+    {
+        // Draw (and update) button menu
+        
+        Size2d size_button = {50, 50};
+        Pos2d position_button = {20, 20};
+        i32 margin_between_buttons = 20;
+        
+        for (i32 program_text_index = 0; program_text_index < world->nr_of_program_texts; program_text_index++)
+        {
+            b32 button_is_active = false;
+            if (program_text_index == world->current_program_text_index)
+            {
+                button_is_active = true;
+            }
+            
+            position_button.y = 20 + program_text_index * (margin_between_buttons + size_button.height);
+            b32 button_is_pressed = do_integer_button(position_button, size_button, program_text_index + 1, button_is_active, &global_input);
+            
+            if (button_is_pressed)
+            {
+                world->current_program_text_index = program_text_index;
+                load_program_text(world->program_texts[world->current_program_text_index], world);
+            }
+        }
+        
+    }
+    
     void render_frame()
     {
         WorldData * world = &global_world;
@@ -170,6 +200,9 @@ extern "C" {
         draw_scrollable_text(scrollable_program_text);
         draw_scrollable_text(scrollable_ast_dump);
         
+        draw_and_update_button_menu(world);
+
+        do_frame_timing(&global_input, &world->verbose_frame_times);
         do_physical_pixels_switch(&global_input);
     }
 }
