@@ -55,7 +55,9 @@ enum TokenType
     Token_AssignMinus,
     
     Token_Plus,
+    Token_PlusPlus,
     Token_Minus,
+    Token_MinusMinus,
     
     Token_Smaller,
     Token_SmallerOrEqual,
@@ -303,6 +305,11 @@ Token get_token(Tokenizer * tokenizer)
                 tokenizer->at++;
                 token.type = Token_AssignPlus;
             }
+            else if (tokenizer->at[0] == '+')
+            {
+                tokenizer->at++;
+                token.type = Token_PlusPlus;
+            }
             else
             {
                 token.type = Token_Plus;
@@ -313,6 +320,11 @@ Token get_token(Tokenizer * tokenizer)
             {
                 tokenizer->at++;
                 token.type = Token_AssignMinus;
+            }
+            else if (tokenizer->at[0] == '-')
+            {
+                tokenizer->at++;
+                token.type = Token_MinusMinus;
             }
             else
             {
@@ -599,34 +611,32 @@ Node * parse_expression(Parser * parser)
             expression_node->first_child->next_sibling = child_expression_node;
         }
         // TODO: we should combine the code below with the code above!
+        else if (accept_token(parser, Token_PlusPlus))
+        {
+            // TODO: we should only allow '++' *right* behind a variableIdentifier!
+                
+            expression_node->type = Node_Expr_PostInc;
+                
+            Node * variable_node = new_node(parser);
+            variable_node->type = Node_Expr_Variable;
+                
+            expression_node->first_child = variable_node;
+        }
+        // TODO: we should combine the code below with the code above!
         else if (accept_token(parser, Token_Plus))
         {
-            if (accept_token(parser, Token_Plus))
-            {
-                // TODO: we should only allow '++' *right* behind a variableIdentifier!
-                
-                expression_node->type = Node_Expr_PostInc;
-                
-                Node * variable_node = new_node(parser);
-                variable_node->type = Node_Expr_Variable;
-                
-                expression_node->first_child = variable_node;
-            }
-            else 
-            {
-                expression_node->type = Node_Expr_BinaryOp_Plus;
+            expression_node->type = Node_Expr_BinaryOp_Plus;
 
-                // Left side of the compare (the variable)
-                Node * variable_node = new_node(parser);
-                variable_node->type = Node_Expr_Variable;
+            // Left side of the compare (the variable)
+            Node * variable_node = new_node(parser);
+            variable_node->type = Node_Expr_Variable;
                 
-                expression_node->first_child = variable_node;
+            expression_node->first_child = variable_node;
                 
-                // Right side of the compare (an expression)
-                Node * child_expression_node = parse_expression(parser);
+            // Right side of the compare (an expression)
+            Node * child_expression_node = parse_expression(parser);
                 
-                expression_node->first_child->next_sibling = child_expression_node;
-            }
+            expression_node->first_child->next_sibling = child_expression_node;
         }
         // TODO: implement more types of assignments
         else
