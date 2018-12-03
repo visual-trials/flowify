@@ -127,7 +127,7 @@ extern "C" {
         
         // The screen size can change, so we have to update the position and size of the scrollables.
         scrollable_program_text->position.x = 0;
-        scrollable_program_text->position.y = 110; // TODO: we should properly account for the height of the text above this
+        scrollable_program_text->position.y = 50; // TODO: we should properly account for the height of the text above this
 
         scrollable_program_text->size.width = input->screen.width - scrollable_program_text->position.x;
         scrollable_program_text->size.height = input->screen.height - scrollable_program_text->position.y;
@@ -136,11 +136,11 @@ extern "C" {
         
         ScrollableText * scrollable_ast_dump = &world->scrollable_ast_dump;
         
-        scrollable_ast_dump->position.x = 600; // TODO: calculate by percentage?
-        scrollable_ast_dump->position.y = 110; // TODO: where do we want to let this begin?
+        scrollable_ast_dump->position.x = input->screen.width / 2 - 50; // TODO: calculate by percentage?
+        scrollable_ast_dump->position.y = 50; // TODO: where do we want to let this begin?
 
         scrollable_ast_dump->size.width = input->screen.width - scrollable_ast_dump->position.x;
-        scrollable_ast_dump->size.height = input->screen.height - scrollable_ast_dump->position.y;
+        scrollable_ast_dump->size.height = input->screen.height - scrollable_ast_dump->position.y - 50;
         
         update_scrollable_text(scrollable_ast_dump, input);
     }
