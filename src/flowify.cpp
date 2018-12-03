@@ -167,5 +167,6 @@ extern "C" {
             draw_text(position, &dump_line_text, font, black);
         }
         
+        do_physical_pixels_switch(&global_input);
     }
 }

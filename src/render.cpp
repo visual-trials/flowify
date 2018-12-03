@@ -253,13 +253,13 @@ void update_scrollable_text(ScrollableText * scrollable_text, Input * input)
         }
     }
     
-    scrollable_text->nr_of_lines_to_show = (i32)(((f32)input->screen.height - (f32)scrollable_text->top_margin - scrollable_text->bottom_margin) / 
+    scrollable_text->nr_of_lines_to_show = (i32)(((f32)scrollable_text->size.height - (f32)scrollable_text->top_margin - scrollable_text->bottom_margin) / 
                                        ((f32)scrollable_text->font.height + (f32)scrollable_text->line_margin));
 
     ShortString white_space;
     copy_char_to_string(' ', &white_space);
     Size2d white_space_size = get_text_size(&white_space, scrollable_text->font);
-    scrollable_text->max_line_width_in_characters = (i32)((f32)(input->screen.width - scrollable_text->left_margin - scrollable_text->right_margin) / (f32)white_space_size.width);
+    scrollable_text->max_line_width_in_characters = (i32)((f32)(scrollable_text->size.width - scrollable_text->left_margin - scrollable_text->right_margin) / (f32)white_space_size.width);
         
     if (mouse->wheel_has_moved)
     {
@@ -336,8 +336,8 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
             {
                 // Line text
                 Pos2d position;
-                position.x = scrollable_text->left_margin;
-                position.y = scrollable_text->top_margin + line_on_screen_index * (font.height + line_margin);
+                position.x = scrollable_text->position.x + scrollable_text->left_margin;
+                position.y = scrollable_text->position.y + scrollable_text->top_margin + line_on_screen_index * (font.height + line_margin);
                 
                 String line_text = scrollable_text->lines[file_line_index];
                 if (line_text.length > scrollable_text->max_line_width_in_characters)

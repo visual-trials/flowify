@@ -51,6 +51,8 @@ extern "C" {
         WorldData * world = &global_world;
         Input * input = &global_input;
         
+        ScrollableText * scrollable_file = &world->scrollable_file;
+        
         // Preparing file info
         if (input->file.file_was_uploaded)
         {
@@ -59,13 +61,19 @@ extern "C" {
             world->file_length = file_contents.length;
             world->file_name = input->file.file_name;
             
-            world->scrollable_file.nr_of_lines = split_string_into_lines(file_contents, world->scrollable_file.lines);
+            scrollable_file->nr_of_lines = split_string_into_lines(file_contents, scrollable_file->lines);
             
             // If file has just loaded, show it from the start
-            world->scrollable_file.line_offset = 0;
+            scrollable_file->line_offset = 0;
         }
         
-        update_scrollable_text(&world->scrollable_file, input);
+        // TODO: we should account for the text above
+        scrollable_file->position.x = 0;
+        scrollable_file->position.y = 0;
+        scrollable_file->size.width = input->screen.width;
+        scrollable_file->size.height = input->screen.height;
+        
+        update_scrollable_text(scrollable_file, input);
         
     }
     
