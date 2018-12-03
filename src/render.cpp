@@ -170,6 +170,7 @@ struct ScrollableText
     i32 bottom_margin;
     i32 right_margin;
     
+    b32 draw_line_numbers;
     i32 line_numbers_width;
     
     Pos2d position;
@@ -179,7 +180,7 @@ struct ScrollableText
     i32 max_line_width_in_characters;
 };
 
-void init_scrollable_text(ScrollableText * scrollable_text)
+void init_scrollable_text(ScrollableText * scrollable_text, b32 draw_line_numbers = true)
 {
     scrollable_text->nr_of_lines = 0;
     scrollable_text->line_offset = 0;
@@ -197,7 +198,15 @@ void init_scrollable_text(ScrollableText * scrollable_text)
     scrollable_text->right_margin = 10;
     scrollable_text->bottom_margin = 10;
     
-    scrollable_text->line_numbers_width = 120; // TODO: we should properly calculate this
+    scrollable_text->draw_line_numbers = draw_line_numbers;
+    if (draw_line_numbers)
+    {
+        scrollable_text->line_numbers_width = 120; // TODO: we should properly calculate this
+    }
+    else
+    {
+        scrollable_text->line_numbers_width = 0;
+    }
     
     // These should be calculated each update
     scrollable_text->position.x = 0;
@@ -349,12 +358,15 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
                 }
                 draw_text(position, &line_text, font, black);
                 
-                // Line number
-                Pos2d position_line_nr = position;
-                int_to_string(file_line_index + 1, &line_nr_text);
-                Size2d line_nr_size = get_text_size(&line_nr_text, font);
-                position_line_nr.x -= 40 + line_nr_size.width;
-                draw_text(position_line_nr, &line_nr_text, font, grey);
+                if (scrollable_text->draw_line_numbers)
+                {
+                    // Line number
+                    Pos2d position_line_nr = position;
+                    int_to_string(file_line_index + 1, &line_nr_text);
+                    Size2d line_nr_size = get_text_size(&line_nr_text, font);
+                    position_line_nr.x -= 40 + line_nr_size.width;
+                    draw_text(position_line_nr, &line_nr_text, font, grey);
+                }
             }
         }
     }

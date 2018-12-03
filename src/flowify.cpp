@@ -89,7 +89,7 @@ extern "C" {
         init_scrollable_text(scrollable_program_text);
 
         ScrollableText * scrollable_ast_dump = &world->scrollable_ast_dump;
-        init_scrollable_text(scrollable_ast_dump);
+        init_scrollable_text(scrollable_ast_dump, false);
         
         const char * text_to_parse = fibonacci_iterative_program_text;
         
@@ -136,8 +136,8 @@ extern "C" {
         
         ScrollableText * scrollable_ast_dump = &world->scrollable_ast_dump;
         
-        scrollable_ast_dump->position.x = 500;
-        scrollable_ast_dump->position.y = 0;
+        scrollable_ast_dump->position.x = 600;
+        scrollable_ast_dump->position.y = 110;
 
         scrollable_ast_dump->size.width = input->screen.width - scrollable_ast_dump->position.x;
         scrollable_ast_dump->size.height = input->screen.height - scrollable_ast_dump->position.y;
