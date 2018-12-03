@@ -59,6 +59,52 @@ const char * i_plus_plus_program_text =
     "$c = ++$b;"
 ;
 
+const char * simple_functions_program_text = 
+    "<?php\n"
+    "\n"
+    "$myVar = 34;\n"
+    "\n"
+    "$b = 76;\n"
+    "\n"
+    "$extraVar = (19 + 51) * (47 + 31);\n"
+    "\n"
+    "$c = $myVar + $b;\n"
+    "\n"
+    "$d = dechex($c);\n"
+    "\n"
+    "$e = 128;\n"
+    "\n"
+    "$sq = square($c);\n"
+    "\n"
+    "$f = average2($b, $e);\n"
+    "\n"
+    "function square ($toBeSquared) {\n"
+    "    $square = $toBeSquared * $toBeSquared;\n"
+    "\n"
+    "    return  $square;\n"
+    "}\n"
+    "\n"
+    "function average2 ($first, $second) {\n"
+    "    $average = ($first + $second) / 2;\n"
+    "\n"
+    "    return $average;\n"
+    "}"
+;
+
+const char * simple_if_program_text = 
+    "<?php\n"
+    "\n"
+    "$myVar = 34;\n"
+    "\n"
+    "$b = 76;\n"
+    "\n"
+    "if ($b > 50) {\n"
+    "	$b = 50;\n"
+    "}\n"
+    "\n"
+    "$c = $myVar + $b;\n"
+;
+
 const char * simple_if_else_program_text = 
     "<?php\n"
     "\n"
@@ -173,11 +219,13 @@ extern "C" {
         
         world->program_texts[0] = simple_assign_program_text;
         world->program_texts[1] = i_plus_plus_program_text;
-        world->program_texts[2] = simple_if_else_program_text;
-        world->program_texts[3] = simple_for_continue_break_program_text;
-        world->program_texts[4] = fibonacci_iterative_program_text;
-        world->program_texts[5] = fibonacci_recursive_early_return_program_text;
-        world->nr_of_program_texts = 6;
+        world->program_texts[2] = simple_functions_program_text;
+        world->program_texts[3] = simple_if_program_text;
+        world->program_texts[4] = simple_if_else_program_text;
+        world->program_texts[5] = simple_for_continue_break_program_text;
+        world->program_texts[6] = fibonacci_iterative_program_text;
+        world->program_texts[7] = fibonacci_recursive_early_return_program_text;
+        world->nr_of_program_texts = 8;
         
         world->current_program_text_index = 0;
         
