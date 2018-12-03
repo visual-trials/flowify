@@ -69,7 +69,7 @@ enum TokenType
 
 struct Token
 {
-    TokenType type;
+    i32 type; // TODO: somehow we can't use TokenType as the type in win32. Using i32 instead.
     
     String text; // TODO: do want store explicitly the line number and column in the source text? 
 };
@@ -503,7 +503,7 @@ Token * get_latest_token(Parser * parser)
     return token;
 }
 
-b32 accept_token(Parser * parser, TokenType token_type)
+b32 accept_token(Parser * parser, i32 token_type)  // TODO: somehow we can't use TokenType as the type in win32. Using i32 instead.
 {
     Tokenizer * tokenizer = parser->tokenizer;
 
@@ -516,7 +516,7 @@ b32 accept_token(Parser * parser, TokenType token_type)
     return false;
 }
 
-b32 expect_token(Parser * parser, TokenType token_type)
+b32 expect_token(Parser * parser, i32 token_type)  // TODO: somehow we can't use TokenType as the type in win32. Using i32 instead.
 {
     if (accept_token(parser, token_type))
     {
@@ -881,17 +881,21 @@ Node * parse_program(Parser * parser)
 
 void dump_tree(Node * node, String * dump_text, i32 depth = 0)
 {
-    const char indent[] = "    "; 
+    u8 temp_string[100]; // TODO: use a temp-memory buffer instead
+    
     String indent_string = {};
-    copy_cstring_to_string(indent, &indent_string);
+    indent_string.data = temp_string;
+    copy_cstring_to_string("    ", &indent_string);
     
     for (i32 indentation_index = 0; indentation_index < depth; indentation_index++)
     {
         append_string(dump_text, &indent_string);
     }
-
+    
     String node_type_string = {};
+    node_type_string.data = temp_string;
     copy_cstring_to_string(node_type_names[node->type], &node_type_string);
+    
     append_string(dump_text, &node_type_string);
     
     dump_text->data[dump_text->length] = '\n';

@@ -509,7 +509,33 @@ void draw_text_c(Pos2d position, const char * cstring, Font font, Color4 font_co
     draw_text(position, &text, font, font_color);
 }
 
-void log(u8 * text)
+void log(ShortString * text)
+{
+    char cstring[200];  // TODO: this might not be big enough!
+    i32 max_length = text->length;
+    if (max_length > sizeof(cstring) - 1)
+    {
+        max_length = sizeof(cstring) - 1;
+    }
+    copy_cstring((const char *)text->data, (u8 *)cstring, max_length);
+    cstring[max_length] = '\0';
+    OutputDebugStringA((LPCSTR)cstring);
+}
+
+void log(String text)
+{
+    char cstring[200];  // TODO: this might not be big enough!
+    i32 max_length = text.length;
+    if (max_length > sizeof(cstring) - 1)
+    {
+        max_length = sizeof(cstring) - 1;
+    }
+    copy_cstring((const char *)text.data, (u8 *)cstring, max_length);
+    cstring[max_length] = '\0';
+    OutputDebugStringA((LPCSTR)cstring);
+}
+
+void log(const char * text)
 {
     OutputDebugStringA((LPCSTR)text);
 }
