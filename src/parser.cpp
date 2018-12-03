@@ -117,11 +117,14 @@ enum NodeType
     
     // Expressions
     Node_Expr_PreInc,
+    Node_Expr_PreDec,
     Node_Expr_PostInc,
+    Node_Expr_PostDec,
     
     Node_Expr_AssignOp_Multiply,
     Node_Expr_AssignOp_Divide,
     Node_Expr_AssignOp_Plus,
+    Node_Expr_AssignOp_Minus,
     Node_Expr_AssignOp_Concat,
     
     Node_Expr_BinaryOp_Multiply,
@@ -173,11 +176,14 @@ const char * node_type_names[] = {
     
     // Expressions
     "Expr_PreInc",
+    "Expr_PreDec",
     "Expr_PostInc",
+    "Expr_PostDec",
     
     "Expr_AssignOp_Multiply",
     "Expr_AssignOp_Divide",
     "Expr_AssignOp_Plus",
+    "Expr_AssignOp_Minus",
     "Expr_AssignOp_Concat",
     
     "Expr_BinaryOp_Multiply",
@@ -646,6 +652,13 @@ Node * parse_expression(Parser * parser)
             expression_node->first_child = child_expression;
             child_expression->next_sibling = right_expression;
         }
+        else if (accept_token(parser, Token_Minus))
+        {
+            expression_node->type = Node_Expr_BinaryOp_Minus;
+            Node * right_expression = parse_expression(parser);
+            expression_node->first_child = child_expression;
+            child_expression->next_sibling = right_expression;
+        }
         else
         {
             // TODO: should we copy the content of the child_expression or just the pointer?
@@ -678,6 +691,11 @@ Node * parse_expression(Parser * parser)
             expression_node->type = Node_Expr_AssignOp_Plus;
             parse_variable_expression(parser, expression_node);
         }
+        else if (accept_token(parser, Token_AssignMinus))
+        {
+            expression_node->type = Node_Expr_AssignOp_Minus;
+            parse_variable_expression(parser, expression_node);
+        }
         else if (accept_token(parser, Token_Greater))
         {
             expression_node->type = Node_Expr_BinaryOp_Greater;
@@ -703,10 +721,25 @@ Node * parse_expression(Parser * parser)
             expression_node->type = Node_Expr_BinaryOp_Plus;
             parse_variable_expression(parser, expression_node);
         }
+        else if (accept_token(parser, Token_Minus))
+        {
+            expression_node->type = Node_Expr_BinaryOp_Minus;
+            parse_variable_expression(parser, expression_node);
+        }
         else if (accept_token(parser, Token_PlusPlus))
         {
             // TODO: we should only allow '++' *right* behind a variableIdentifier!
             expression_node->type = Node_Expr_PostInc;
+                
+            Node * variable_node = new_node(parser);
+            variable_node->type = Node_Expr_Variable;
+                
+            expression_node->first_child = variable_node;
+        }
+        else if (accept_token(parser, Token_MinusMinus))
+        {
+            // TODO: we should only allow '++' *right* behind a variableIdentifier!
+            expression_node->type = Node_Expr_PostDec;
                 
             Node * variable_node = new_node(parser);
             variable_node->type = Node_Expr_Variable;
@@ -750,6 +783,11 @@ Node * parse_expression(Parser * parser)
             expression_node->type = Node_Expr_BinaryOp_Plus;
             parse_number_expression(parser, expression_node);
         }
+        else if (accept_token(parser, Token_Minus))
+        {
+            expression_node->type = Node_Expr_BinaryOp_Minus;
+            parse_number_expression(parser, expression_node);
+        }
         else
         {
             // If the number was not followed by anything, we assume the expression only contains the number
@@ -764,6 +802,20 @@ Node * parse_expression(Parser * parser)
         Token * variable_token = get_latest_token(parser);
         
         expression_node->type = Node_Expr_PreInc;
+            
+        Node * variable_node = new_node(parser);
+        variable_node->type = Node_Expr_Variable;
+            
+        expression_node->first_child = variable_node;
+    }
+    else if (accept_token(parser, Token_MinusMinus))
+    {
+        expect_token(parser, Token_VariableIdentifier);
+        
+        // TODO: use token to set variable name inside the Node_Expr_Variable!
+        Token * variable_token = get_latest_token(parser);
+        
+        expression_node->type = Node_Expr_PreDec;
             
         Node * variable_node = new_node(parser);
         variable_node->type = Node_Expr_Variable;
@@ -932,6 +984,16 @@ Node * parse_statement(Parser * parser)
         {
             log("ERROR: no function name found!");
         }
+    }
+    else if (accept_token(parser, Token_Continue))
+    {
+        statement_node->type = Node_Stmt_Continue;
+        expect_token(parser, Token_Semicolon); 
+    }
+    else if (accept_token(parser, Token_Break))
+    {
+        statement_node->type = Node_Stmt_Break;
+        expect_token(parser, Token_Semicolon); 
     }
     else if (accept_token(parser, Token_Return))
     {
