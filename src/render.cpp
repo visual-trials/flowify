@@ -170,6 +170,8 @@ struct ScrollableText
     i32 bottom_margin;
     i32 right_margin;
     
+    i32 line_numbers_width;
+    
     Pos2d position;
     Size2d size;
     
@@ -191,10 +193,12 @@ void init_scrollable_text(ScrollableText * scrollable_text)
     scrollable_text->line_margin = 4;
 
     // TODO: do we want to use nr-of-characters or percentage-of-screen for margins?
-    scrollable_text->left_margin = 130;  // TODO: should be lower (calculate width of line numbers each frame)
-    scrollable_text->top_margin = 120;   // TODO: should be lower! (assume no top-text)
+    scrollable_text->left_margin = 10;
+    scrollable_text->top_margin = 10;
     scrollable_text->right_margin = 10;
     scrollable_text->bottom_margin = 10;
+    
+    scrollable_text->line_numbers_width = 120; // TODO: we should properly calculate this
     
     // These should be calculated each update
     scrollable_text->position.x = 0;
@@ -259,7 +263,7 @@ void update_scrollable_text(ScrollableText * scrollable_text, Input * input)
     ShortString white_space;
     copy_char_to_string(' ', &white_space);
     Size2d white_space_size = get_text_size(&white_space, scrollable_text->font);
-    scrollable_text->max_line_width_in_characters = (i32)((f32)(scrollable_text->size.width - scrollable_text->left_margin - scrollable_text->right_margin) / (f32)white_space_size.width);
+    scrollable_text->max_line_width_in_characters = (i32)((f32)(scrollable_text->size.width - scrollable_text->left_margin - scrollable_text->line_numbers_width - scrollable_text->right_margin) / (f32)white_space_size.width);
         
     if (mouse->wheel_has_moved)
     {
@@ -336,7 +340,7 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
             {
                 // Line text
                 Pos2d position;
-                position.x = scrollable_text->position.x + scrollable_text->left_margin;
+                position.x = scrollable_text->position.x + scrollable_text->left_margin + scrollable_text->line_numbers_width;
                 position.y = scrollable_text->position.y + scrollable_text->top_margin + line_on_screen_index * (font.height + line_margin);
                 
                 String line_text = scrollable_text->lines[file_line_index];

@@ -43,7 +43,6 @@ extern "C" {
         
         init_scrollable_text(scrollable_file);
         
-        // TODO: we do not know screen size at this point, so we have to calculate the available space each frame (in update_frame).
     }
         
     void update_frame()
@@ -67,11 +66,12 @@ extern "C" {
             scrollable_file->line_offset = 0;
         }
         
-        // TODO: we should account for the text above
+        // The screen size can change, so we have to update the position and size of the scrollables.
         scrollable_file->position.x = 0;
-        scrollable_file->position.y = 0;
-        scrollable_file->size.width = input->screen.width;
-        scrollable_file->size.height = input->screen.height;
+        scrollable_file->position.y = 110; // TODO: we should properly account for the hieght of the text above
+
+        scrollable_file->size.width = input->screen.width - scrollable_file->position.x;
+        scrollable_file->size.height = input->screen.height - scrollable_file->position.y;
         
         update_scrollable_text(scrollable_file, input);
         
