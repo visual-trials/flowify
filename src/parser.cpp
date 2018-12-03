@@ -537,6 +537,21 @@ Node * new_node(Parser * parser)
 }
 
 void parse_arguments(Parser * parser, Node * parent_node);
+Node * parse_expression(Parser * parser);
+
+void parse_variable_expression(Parser * parser, Node * expression_node)
+{
+    // Left side of the expression (a variable)
+    Node * variable_node = new_node(parser);
+    variable_node->type = Node_Expr_Variable;
+
+    expression_node->first_child = variable_node;
+
+    // Right side of the expression (an expression)
+    Node * child_expression_node = parse_expression(parser);
+
+    expression_node->first_child->next_sibling = child_expression_node;
+}
 
 Node * parse_expression(Parser * parser)
 {
@@ -550,93 +565,37 @@ Node * parse_expression(Parser * parser)
         if (accept_token(parser, Token_Assign))
         {
             expression_node->type = Node_Expr_Assign;
-
-            // Left side of the assignment (the variable)
-            Node * variable_node = new_node(parser);
-            variable_node->type = Node_Expr_Variable;
-            
-            expression_node->first_child = variable_node;
-            
-            // Right side of the assignment (an expression)
-            Node * child_expression_node = parse_expression(parser);
-            
-            expression_node->first_child->next_sibling = child_expression_node;
+            parse_variable_expression(parser, expression_node);
         }
-        // TODO: we should combine the code below with the code above!
         else if (accept_token(parser, Token_AssignPlus))
         {
             expression_node->type = Node_Expr_AssignOp_Plus;
-
-            // Left side of the assignment (the variable)
-            Node * variable_node = new_node(parser);
-            variable_node->type = Node_Expr_Variable;
-            
-            expression_node->first_child = variable_node;
-            
-            // Right side of the assignment (an expression)
-            Node * child_expression_node = parse_expression(parser);
-            
-            expression_node->first_child->next_sibling = child_expression_node;
+            parse_variable_expression(parser, expression_node);
         }
-        // TODO: we should combine the code below with the code above!
         else if (accept_token(parser, Token_Greater))
         {
             expression_node->type = Node_Expr_BinaryOp_Greater;
-
-            // Left side of the compare (the variable)
-            Node * variable_node = new_node(parser);
-            variable_node->type = Node_Expr_Variable;
-            
-            expression_node->first_child = variable_node;
-            
-            // Right side of the compare (an expression)
-            Node * child_expression_node = parse_expression(parser);
-            
-            expression_node->first_child->next_sibling = child_expression_node;
+            parse_variable_expression(parser, expression_node);
         }
-        // TODO: we should combine the code below with the code above!
         else if (accept_token(parser, Token_Smaller))
         {
             expression_node->type = Node_Expr_BinaryOp_Smaller;
-
-            // Left side of the compare (the variable)
-            Node * variable_node = new_node(parser);
-            variable_node->type = Node_Expr_Variable;
-            
-            expression_node->first_child = variable_node;
-            
-            // Right side of the compare (an expression)
-            Node * child_expression_node = parse_expression(parser);
-            
-            expression_node->first_child->next_sibling = child_expression_node;
+            parse_variable_expression(parser, expression_node);
         }
-        // TODO: we should combine the code below with the code above!
+        else if (accept_token(parser, Token_Plus))
+        {
+            expression_node->type = Node_Expr_BinaryOp_Plus;
+            parse_variable_expression(parser, expression_node);
+        }
         else if (accept_token(parser, Token_PlusPlus))
         {
             // TODO: we should only allow '++' *right* behind a variableIdentifier!
-                
             expression_node->type = Node_Expr_PostInc;
                 
             Node * variable_node = new_node(parser);
             variable_node->type = Node_Expr_Variable;
                 
             expression_node->first_child = variable_node;
-        }
-        // TODO: we should combine the code below with the code above!
-        else if (accept_token(parser, Token_Plus))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Plus;
-
-            // Left side of the compare (the variable)
-            Node * variable_node = new_node(parser);
-            variable_node->type = Node_Expr_Variable;
-                
-            expression_node->first_child = variable_node;
-                
-            // Right side of the compare (an expression)
-            Node * child_expression_node = parse_expression(parser);
-                
-            expression_node->first_child->next_sibling = child_expression_node;
         }
         // TODO: implement more types of assignments
         else
