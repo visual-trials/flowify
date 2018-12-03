@@ -49,6 +49,16 @@ const char * simple_assign_program_text =
     "$answer = 42;\n"
 ;
 
+const char * i_plus_plus_program_text = 
+"<?php\n"
+"\n"
+"$i = 7;\n"
+"\n"
+"$b = $i++;\n"
+"\n"
+"$c = ++$b;"
+;
+
 const char * simple_if_else_program_text = 
     "<?php\n"
     "\n"
@@ -83,6 +93,23 @@ const char * fibonacci_iterative_program_text =
     "    }\n"
     "    return $a;\n"
     "}\n"
+;
+
+const char * fibonacci_recursive_early_return_program_text = 
+"<?php\n"
+"\n"
+"$fib = fibonacci_recursive(10);\n"
+"\n"
+"function fibonacci_recursive($n)\n"
+"{\n"
+"    if ($n == 0) {\n"
+"        return 0;\n"
+"    }\n"
+"    if ($n == 1) {\n"
+"        return 1;\n"
+"    }\n"
+"    return fibonacci_recursive($n - 1) + fibonacci_recursive($n - 2);\n"
+"}"
 ;
 
 extern "C" {
@@ -125,9 +152,11 @@ extern "C" {
         WorldData * world = &global_world;
         
         world->program_texts[0] = simple_assign_program_text;
-        world->program_texts[1] = simple_if_else_program_text;
-        world->program_texts[2] = fibonacci_iterative_program_text;
-        world->nr_of_program_texts = 3;
+        world->program_texts[1] = i_plus_plus_program_text;
+        world->program_texts[2] = simple_if_else_program_text;
+        world->program_texts[3] = fibonacci_iterative_program_text;
+        world->program_texts[4] = fibonacci_recursive_early_return_program_text;
+        world->nr_of_program_texts = 5;
         
         world->current_program_text_index = 0;
         
