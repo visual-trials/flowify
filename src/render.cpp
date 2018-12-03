@@ -156,6 +156,8 @@ b32 do_integer_button(Pos2d position, Size2d size, i32 number, b32 is_active, In
 
 struct ScrollableText
 {
+    b32 is_active;  // TODO: implement this
+    
     String lines[1000];
     i32 nr_of_lines;
     i32 line_offset;
@@ -168,9 +170,39 @@ struct ScrollableText
     i32 bottom_margin;
     i32 right_margin;
     
+    Pos2d position;
+    Size2d size;
+    
     i32 nr_of_lines_to_show;
     i32 max_line_width_in_characters;
 };
+
+void init_scrollable_text(ScrollableText * scrollable_text)
+{
+    // TODO: put below in init_scrollable_text?
+    scrollable_text->nr_of_lines = 0;
+    scrollable_text->line_offset = 0;
+    
+    Font font = {};
+    font.height = 20;
+    font.family = Font_CourierNew;
+    scrollable_text->font = font;
+    
+    scrollable_text->line_margin = 4;
+
+    // TODO: do we want to use nr-of-characters or percentage-of-screen for margins?
+    scrollable_text->left_margin = 130;  // TODO: should be lower (calculate width of line numbers each frame)
+    scrollable_text->top_margin = 120;   // TODO: should be lower! (assume no top-text)
+    scrollable_text->right_margin = 10;
+    scrollable_text->bottom_margin = 10;
+    
+    // These should be calculated each update
+    scrollable_text->position.x = 0;
+    scrollable_text->position.y = 0;
+    
+    scrollable_text->size.width = 100;
+    scrollable_text->size.height = 100;
+}
 
 void update_scrollable_text(ScrollableText * scrollable_text, Input * input)
 {
@@ -184,8 +216,9 @@ void update_scrollable_text(ScrollableText * scrollable_text, Input * input)
     // TODO: implement keys_that_have_gone_down[255] in input.cpp as general way of retrieving this info 
     //       OR a function that does this loop for one key you want to know (or a set of keys)
     
-// FIXME: check if active, only then scroll
-// FIXME: activate if hovered or pressed (do this outside this function?)        
+    // TODO: check if active, only then scroll
+    // TODO: activate if hovered or pressed or touched
+    // TODO: use touch to scroll (and activate)
     
     b32 arrow_up_pressed = false;
     b32 arrow_down_pressed = false;

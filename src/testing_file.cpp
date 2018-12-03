@@ -41,24 +41,9 @@ extern "C" {
 
         ScrollableText * scrollable_file = &world->scrollable_file;
         
-        // TODO: put below in init_scrollable_text?
-        scrollable_file->nr_of_lines = 0;
-        scrollable_file->line_offset = 0;
+        init_scrollable_text(scrollable_file);
         
-        Font font = {};
-        font.height = 20;
-        font.family = Font_CourierNew;
-        scrollable_file->font = font;
-        
-        scrollable_file->line_margin = 4;
-
-        // TODO: do we want to use nr-of-characters or percentage-of-screen for margins?
-        scrollable_file->left_margin = 130;
-        scrollable_file->top_margin = 120;
-        scrollable_file->right_margin = 10;
-        scrollable_file->bottom_margin = 10;
-        
-        // TODO: we do not know screen size at this point, so we have to calculate that each frame (in update_frame).
+        // TODO: we do not know screen size at this point, so we have to calculate the available space each frame (in update_frame).
     }
         
     void update_frame()
