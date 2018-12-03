@@ -50,13 +50,13 @@ const char * simple_assign_program_text =
 ;
 
 const char * i_plus_plus_program_text = 
-"<?php\n"
-"\n"
-"$i = 7;\n"
-"\n"
-"$b = $i++;\n"
-"\n"
-"$c = ++$b;"
+    "<?php\n"
+    "\n"
+    "$i = 7;\n"
+    "\n"
+    "$b = $i++;\n"
+    "\n"
+    "$c = ++$b;"
 ;
 
 const char * simple_if_else_program_text = 
@@ -72,6 +72,26 @@ const char * simple_if_else_program_text =
     "}\n"
     "else {\n"
     "    $b = 30;\n"
+    "}\n"
+    "\n"
+    "$c = $myVar + $b;\n"
+;
+
+const char * simple_for_continue_break_program_text = 
+    "<?php\n"
+    "\n"
+    "$myVar = 34;\n"
+    "\n"
+    "$b = 76;\n"
+    "\n"
+    "for ($i = 0; $i < 10; $i = $i + 1) {\n"
+    "    if ($b < 20) {\n"
+    "        break;\n"
+    "    }\n"
+    "    if ($i > 5) {\n"
+    "        continue;\n"
+    "    }\n"
+    "    $b = $b - 5;\n"
     "}\n"
     "\n"
     "$c = $myVar + $b;\n"
@@ -96,20 +116,20 @@ const char * fibonacci_iterative_program_text =
 ;
 
 const char * fibonacci_recursive_early_return_program_text = 
-"<?php\n"
-"\n"
-"$fib = fibonacci_recursive(10);\n"
-"\n"
-"function fibonacci_recursive($n)\n"
-"{\n"
-"    if ($n == 0) {\n"
-"        return 0;\n"
-"    }\n"
-"    if ($n == 1) {\n"
-"        return 1;\n"
-"    }\n"
-"    return fibonacci_recursive($n - 1) + fibonacci_recursive($n - 2);\n"
-"}"
+    "<?php\n"
+    "\n"
+    "$fib = fibonacci_recursive(10);\n"
+    "\n"
+    "function fibonacci_recursive($n)\n"
+    "{\n"
+    "    if ($n == 0) {\n"
+    "        return 0;\n"
+    "    }\n"
+    "    if ($n == 1) {\n"
+    "        return 1;\n"
+    "    }\n"
+    "    return fibonacci_recursive($n - 1) + fibonacci_recursive($n - 2);\n"
+    "}"
 ;
 
 extern "C" {
@@ -154,9 +174,10 @@ extern "C" {
         world->program_texts[0] = simple_assign_program_text;
         world->program_texts[1] = i_plus_plus_program_text;
         world->program_texts[2] = simple_if_else_program_text;
-        world->program_texts[3] = fibonacci_iterative_program_text;
-        world->program_texts[4] = fibonacci_recursive_early_return_program_text;
-        world->nr_of_program_texts = 5;
+        world->program_texts[3] = simple_for_continue_break_program_text;
+        world->program_texts[4] = fibonacci_iterative_program_text;
+        world->program_texts[5] = fibonacci_recursive_early_return_program_text;
+        world->nr_of_program_texts = 6;
         
         world->current_program_text_index = 0;
         
