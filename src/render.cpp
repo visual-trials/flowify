@@ -154,6 +154,177 @@ b32 do_integer_button(Pos2d position, Size2d size, i32 number, b32 is_active, In
     return do_button(position, size, &decimal_string, is_active, input);
 }
 
+struct ScrollableText
+{
+    String lines[1000];
+    i32 nr_of_lines;
+    i32 line_offset;
+    
+    Font font;
+    i32 line_margin;
+    
+    i32 left_margin;
+    i32 top_margin;
+    i32 bottom_margin;
+    i32 right_margin;
+    
+    i32 nr_of_lines_to_show;
+    i32 max_line_width_in_characters;
+};
+
+void update_scrollable_text(ScrollableText * scrollable_text, Input * input)
+{
+    // Updating scrollable text
+    MouseInput * mouse = &input->mouse;
+    KeyboardInput * keyboard = &input->keyboard;
+    
+    u8 sequence_keys_up_down[MAX_KEY_SEQUENCE_PER_FRAME * 2];
+    i32 sequence_keys_length;
+
+    // TODO: implement keys_that_have_gone_down[255] in input.cpp as general way of retrieving this info 
+    //       OR a function that does this loop for one key you want to know (or a set of keys)
+    
+// FIXME: check if active, only then scroll
+// FIXME: activate if hovered or pressed (do this outside this function?)        
+    
+    b32 arrow_up_pressed = false;
+    b32 arrow_down_pressed = false;
+    b32 page_up_pressed = false;
+    b32 page_down_pressed = false;
+    for (i32 sequence_key_index = 0; sequence_key_index < keyboard->sequence_keys_length; sequence_key_index++)
+    {
+        b32 is_down = (b32)keyboard->sequence_keys_up_down[sequence_key_index * 2];
+        u8 key_code = keyboard->sequence_keys_up_down[sequence_key_index * 2 + 1];
+        
+        if (is_down)
+        {
+            if (key_code == Key_ArrowUp)
+            {
+                arrow_up_pressed = true;
+            }
+            
+            if (key_code == Key_ArrowDown)
+            {
+                arrow_down_pressed = true;
+            }
+            
+            if (key_code == Key_PageUp)
+            {
+                page_up_pressed = true;
+            }
+            
+            if (key_code == Key_PageDown)
+            {
+                page_down_pressed = true;
+            }
+        }
+    }
+    
+    scrollable_text->nr_of_lines_to_show = (i32)(((f32)input->screen.height - (f32)scrollable_text->top_margin - scrollable_text->bottom_margin) / 
+                                       ((f32)scrollable_text->font.height + (f32)scrollable_text->line_margin));
+
+    ShortString white_space;
+    copy_char_to_string(' ', &white_space);
+    Size2d white_space_size = get_text_size(&white_space, scrollable_text->font);
+    scrollable_text->max_line_width_in_characters = (i32)((f32)(input->screen.width - scrollable_text->left_margin - scrollable_text->right_margin) / (f32)white_space_size.width);
+        
+    if (mouse->wheel_has_moved)
+    {
+        // TODO: account for a "Mac" mouse! (which has a 'continous' wheel)
+        if (mouse->wheel_delta > 0)
+        {
+            scrollable_text->line_offset -= 3;
+        }
+        
+        if (mouse->wheel_delta < 0)
+        {
+            scrollable_text->line_offset += 3;
+        }
+    }
+    
+    if (arrow_down_pressed)
+    {
+        scrollable_text->line_offset += 1;
+    }
+
+    if (arrow_up_pressed)
+    {
+        scrollable_text->line_offset -= 1;
+    }
+    
+    if (page_down_pressed)
+    {
+        scrollable_text->line_offset += scrollable_text->nr_of_lines_to_show - 2;
+    }
+
+    if (page_up_pressed)
+    {
+        scrollable_text->line_offset -= scrollable_text->nr_of_lines_to_show - 2;
+    }
+    
+    if (scrollable_text->line_offset > scrollable_text->nr_of_lines - scrollable_text->nr_of_lines_to_show)
+    {
+        scrollable_text->line_offset = scrollable_text->nr_of_lines - scrollable_text->nr_of_lines_to_show;
+    }
+    
+    if (scrollable_text->line_offset < 0)
+    {
+        scrollable_text->line_offset = 0;
+    }
+    
+}
+
+void draw_scrollable_text(ScrollableText * scrollable_text)
+{
+    
+    // TODO: turn line numbers on/off
+    // TODO: add scroll bars
+    
+    
+    Color4 black = {};
+    black.a = 255;
+    
+    Color4 grey = {};
+    grey.a = 100;
+    
+    Font font = scrollable_text->font;
+    i32 line_margin = scrollable_text->line_margin;
+    i32 nr_of_lines_to_show = scrollable_text->nr_of_lines_to_show;
+    
+    if (scrollable_text->nr_of_lines > 0)
+    {
+        ShortString line_nr_text;
+        
+        for (i32 line_on_screen_index = 0; line_on_screen_index < nr_of_lines_to_show; line_on_screen_index++)
+        {
+            i32 file_line_index = scrollable_text->line_offset + line_on_screen_index;
+            
+            if (file_line_index >= 0 && file_line_index < scrollable_text->nr_of_lines)
+            {
+                // Line text
+                Pos2d position;
+                position.x = scrollable_text->left_margin;
+                position.y = scrollable_text->top_margin + line_on_screen_index * (font.height + line_margin);
+                
+                String line_text = scrollable_text->lines[file_line_index];
+                if (line_text.length > scrollable_text->max_line_width_in_characters)
+                {
+                    line_text.length = scrollable_text->max_line_width_in_characters;
+                }
+                draw_text(position, &line_text, font, black);
+                
+                // Line number
+                Pos2d position_line_nr = position;
+                int_to_string(file_line_index + 1, &line_nr_text);
+                Size2d line_nr_size = get_text_size(&line_nr_text, font);
+                position_line_nr.x -= 40 + line_nr_size.width;
+                draw_text(position_line_nr, &line_nr_text, font, grey);
+            }
+        }
+    }
+    
+}
+
 void do_physical_pixels_switch(Input * input)
 {
     Screen * screen = &input->screen;

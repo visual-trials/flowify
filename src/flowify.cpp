@@ -26,10 +26,12 @@ struct WorldData
     String program_text;
     String program_lines[100]; // TODO: allocate this properly!
     i32 nr_of_lines;
+    i32 program_line_offset;
     
     String dump_text;
     String dump_lines[100]; // TODO: allocate this properly!
     i32 nr_of_dump_lines;
+    i32 dump_line_offset;
 };
 
 WorldData global_world = {};  // FIXME: allocate this properly!
@@ -63,16 +65,16 @@ const char * simple_if_else_program_text =
 
 const char * fibonacci_iterative_program_text = 
     "<?php\n"
-//    "\n"
-//    "$fib = fibonacci_iterative(10);\n"
-//    "\n"
+    "\n"
+    "$fib = fibonacci_iterative(10);\n"
+    "\n"
     "function fibonacci_iterative($n)\n"
     "{\n"
-//    "    $a = 0;\n"
-//    "    $b = 1;\n"
+    "    $a = 0;\n"
+    "    $b = 1;\n"
     "    for ($i = 0; $i < $n; $i++) {\n"
     "        $c = $a;\n"
-//    "        $a = $b;\n"
+    "        $a = $b;\n"
     "        $b += $c;\n"
     "    }\n"
     "    return $a;\n"
@@ -91,6 +93,7 @@ extern "C" {
         world->program_text.length = cstring_length(text_to_parse);
         
         world->nr_of_lines = split_string_into_lines(world->program_text, world->program_lines);
+        world->program_line_offset = 0;
 
         Tokenizer tokenizer = {};
         tokenizer.at = (u8 *)text_to_parse;
@@ -107,6 +110,7 @@ extern "C" {
         dump_tree(root_node, &world->dump_text);
         
         world->nr_of_dump_lines = split_string_into_lines(world->dump_text, world->dump_lines);
+        world->dump_line_offset = 0;
     }
     
     void update_frame()
