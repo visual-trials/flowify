@@ -30,6 +30,10 @@ struct WorldData
     String dump_text;
     
     ScrollableText scrollable_ast_dump;  // TODO: allocate this properly!
+    
+    const char * program_texts[10];
+    i32 nr_of_program_texts;
+    i32 current_program_text_index;
 };
 
 WorldData global_world = {};  // FIXME: allocate this properly!
@@ -81,26 +85,23 @@ const char * fibonacci_iterative_program_text =
 
 extern "C" {
     
-    void init_world()
+    
+    void load_program_text(const char * program_text, WorldData * world)
     {
-        WorldData * world = &global_world;
-        
         ScrollableText * scrollable_program_text = &world->scrollable_program_text;
         init_scrollable_text(scrollable_program_text);
 
         ScrollableText * scrollable_ast_dump = &world->scrollable_ast_dump;
         init_scrollable_text(scrollable_ast_dump, false);
         
-        const char * text_to_parse = fibonacci_iterative_program_text;
-        
-        world->program_text.data = (u8 *)text_to_parse;
-        world->program_text.length = cstring_length(text_to_parse);
+        world->program_text.data = (u8 *)program_text;
+        world->program_text.length = cstring_length(program_text);
         
         scrollable_program_text->nr_of_lines = split_string_into_lines(world->program_text, scrollable_program_text->lines);
         scrollable_program_text->line_offset = 0;
 
         Tokenizer tokenizer = {};
-        tokenizer.at = (u8 *)text_to_parse;
+        tokenizer.at = (u8 *)program_text;
 
         tokenize(&tokenizer);
 
@@ -115,6 +116,20 @@ extern "C" {
         
         scrollable_ast_dump->nr_of_lines = split_string_into_lines(world->dump_text, scrollable_ast_dump->lines);
         scrollable_ast_dump->line_offset = 0;
+    }
+    
+    void init_world()
+    {
+        WorldData * world = &global_world;
+        
+        world->program_texts[0] = simple_assign_program_text;
+        world->program_texts[1] = simple_if_else_program_text;
+        world->program_texts[2] = fibonacci_iterative_program_text;
+        world->nr_of_program_texts = 3;
+        
+        world->current_program_text_index = 0;
+        
+        load_program_text(world->program_texts[world->current_program_text_index], world);
         
     }
     
