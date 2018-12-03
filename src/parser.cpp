@@ -450,7 +450,7 @@ Token get_token(Tokenizer * tokenizer)
         
     }
     
-    if (true)
+    if (false)
     {
         log(token.text);
     }
@@ -471,7 +471,7 @@ void tokenize (Tokenizer * tokenizer)
         }
     }
     
-    log("-------");
+    // log("-------");
 }
 
 // Parser
