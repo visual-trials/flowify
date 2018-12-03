@@ -604,6 +604,20 @@ Node * parse_expression(Parser * parser)
             expression_node->type = Node_Expr_Variable;
         }
     }
+    else if (accept_token(parser, Token_PlusPlus))
+    {
+        expect_token(parser, Token_VariableIdentifier);
+        
+        // TODO: use token to set variable name inside the Node_Expr_Variable!
+        Token * variable_token = get_latest_token(parser);
+        
+        expression_node->type = Node_Expr_PreInc;
+            
+        Node * variable_node = new_node(parser);
+        variable_node->type = Node_Expr_Variable;
+            
+        expression_node->first_child = variable_node;
+    }
     else if (accept_token(parser, Token_Identifier))
     {
         // TODO: use token to set function name inside the Node_Expr_FuncCall!
