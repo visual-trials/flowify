@@ -808,10 +808,12 @@ Node * parse_statement(Parser * parser)
     }
     else if (accept_token(parser, Token_Return))
     {
-            statement_node->type = Node_Stmt_Return;
-            
-            Node * expression_node = parse_expression(parser);
-            statement_node->first_child = expression_node;
+        statement_node->type = Node_Stmt_Return;
+        
+        Node * expression_node = parse_expression(parser);
+        statement_node->first_child = expression_node;
+        
+        expect_token(parser, Token_Semicolon); 
     }
     else
     {
@@ -823,6 +825,13 @@ Node * parse_statement(Parser * parser)
         {
             // We found no expression, so we probably got an error. We return 0;
             log("ERROR: found no expression where expression was expected");
+            
+            // TODO: create a helper-function that log the current position!
+            Tokenizer * tokenizer = parser->tokenizer;
+            Token token = tokenizer->tokens[parser->current_token_index];
+            log("Next token starts with:");
+            log(token.text);
+            
             statement_node = 0; // TODO: we should "free" this expression_node (but an error occured so it might nog matter)
             return statement_node;
         }
