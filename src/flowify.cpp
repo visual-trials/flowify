@@ -73,7 +73,7 @@ const char * fibonacci_iterative_program_text =
     "    for ($i = 0; $i < $n; $i++) {\n"
     "        $c = $a;\n"
 //    "        $a = $b;\n"
-// FIXME    "        $b += $c;\n"
+    "        $b += $c;\n"
     "    }\n"
     "    return $a;\n"
     "}\n"

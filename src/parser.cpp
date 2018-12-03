@@ -551,6 +551,22 @@ Node * parse_expression(Parser * parser)
             expression_node->first_child->next_sibling = child_expression_node;
         }
         // TODO: we should combine the code below with the code above!
+        else if (accept_token(parser, Token_AssignPlus))
+        {
+            expression_node->type = Node_Expr_AssignOp_Plus;
+
+            // Left side of the assignment (the variable)
+            Node * variable_node = new_node(parser);
+            variable_node->type = Node_Expr_Variable;
+            
+            expression_node->first_child = variable_node;
+            
+            // Right side of the assignment (an expression)
+            Node * child_expression_node = parse_expression(parser);
+            
+            expression_node->first_child->next_sibling = child_expression_node;
+        }
+        // TODO: we should combine the code below with the code above!
         else if (accept_token(parser, Token_Greater))
         {
             expression_node->type = Node_Expr_BinaryOp_Greater;
