@@ -682,7 +682,6 @@ Node * parse_expression(Parser * parser)
         }
         else
         {
-            // TODO: should we copy the content of the child_expression or just the pointer?
             expression_node = child_expression;
         }
         
@@ -858,9 +857,63 @@ Node * parse_expression(Parser * parser)
         // TODO: use token to set function name inside the Node_Expr_FuncCall!
         Token * function_call_token = get_latest_token(parser);
 
-        expression_node->type = Node_Expr_FuncCall;
+        Node * function_call_node = new_node(parser);
+        function_call_node->type = Node_Expr_FuncCall;
+        parse_arguments(parser, function_call_node);
         
-        parse_arguments(parser, expression_node);
+        if (accept_token(parser, Token_Greater))
+        {
+            expression_node->type = Node_Expr_BinaryOp_Greater;
+            Node * right_expression = parse_expression(parser);
+            expression_node->first_child = function_call_node;
+            function_call_node->next_sibling = right_expression;
+        }
+        else if (accept_token(parser, Token_Smaller))
+        {
+            expression_node->type = Node_Expr_BinaryOp_Smaller;
+            Node * right_expression = parse_expression(parser);
+            expression_node->first_child = function_call_node;
+            function_call_node->next_sibling = right_expression;
+        }
+        else if (accept_token(parser, Token_Equal))
+        {
+            expression_node->type = Node_Expr_BinaryOp_Equal;
+            Node * right_expression = parse_expression(parser);
+            expression_node->first_child = function_call_node;
+            function_call_node->next_sibling = right_expression;
+        }
+        else if (accept_token(parser, Token_Multiply))
+        {
+            expression_node->type = Node_Expr_BinaryOp_Multiply;
+            Node * right_expression = parse_expression(parser);
+            expression_node->first_child = function_call_node;
+            function_call_node->next_sibling = right_expression;
+        }
+        else if (accept_token(parser, Token_Divide))
+        {
+            expression_node->type = Node_Expr_BinaryOp_Divide;
+            Node * right_expression = parse_expression(parser);
+            expression_node->first_child = function_call_node;
+            function_call_node->next_sibling = right_expression;
+        }
+        else if (accept_token(parser, Token_Plus))
+        {
+            expression_node->type = Node_Expr_BinaryOp_Plus;
+            Node * right_expression = parse_expression(parser);
+            expression_node->first_child = function_call_node;
+            function_call_node->next_sibling = right_expression;
+        }
+        else if (accept_token(parser, Token_Minus))
+        {
+            expression_node->type = Node_Expr_BinaryOp_Minus;
+            Node * right_expression = parse_expression(parser);
+            expression_node->first_child = function_call_node;
+            function_call_node->next_sibling = right_expression;
+        }
+        else
+        {
+            expression_node = function_call_node;
+        }
     }
     // TODO: implement more variants of expressions
     else
