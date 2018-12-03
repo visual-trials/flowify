@@ -68,6 +68,8 @@ enum TokenType
     Token_Greater,
     Token_GreaterOrEqual,
     
+    Token_Equal,
+    
     Token_EndOfStream    
 };
 
@@ -133,6 +135,7 @@ enum NodeType
     Node_Expr_BinaryOp_Minus,
     Node_Expr_BinaryOp_Smaller,
     Node_Expr_BinaryOp_Greater,
+    Node_Expr_BinaryOp_Equal,
     
     Node_Expr_Assign,
     
@@ -192,6 +195,7 @@ const char * node_type_names[] = {
     "Expr_BinaryOp_Minus",
     "Expr_BinaryOp_Smaller",
     "Expr_BinaryOp_Greater",
+    "Expr_BinaryOp_Equal",
     
     "Expr_Assign",
     
@@ -315,7 +319,17 @@ Token get_token(Tokenizer * tokenizer)
         case ';': {token.type = Token_Semicolon;} break;
         case ',': {token.type = Token_Comma;} break;
         
-        case '=': {token.type = Token_Assign;} break;
+        case '=': {
+            if (tokenizer->at[0] == '=')
+            {
+                tokenizer->at++;
+                token.type = Token_Equal;
+            }
+            else
+            {
+                token.type = Token_Assign;
+            }
+        } break;
         
         case '*': {
             if (tokenizer->at[0] == '=')
@@ -631,6 +645,13 @@ Node * parse_expression(Parser * parser)
             expression_node->first_child = child_expression;
             child_expression->next_sibling = right_expression;
         }
+        else if (accept_token(parser, Token_Equal))
+        {
+            expression_node->type = Node_Expr_BinaryOp_Equal;
+            Node * right_expression = parse_expression(parser);
+            expression_node->first_child = child_expression;
+            child_expression->next_sibling = right_expression;
+        }
         else if (accept_token(parser, Token_Multiply))
         {
             expression_node->type = Node_Expr_BinaryOp_Multiply;
@@ -706,6 +727,11 @@ Node * parse_expression(Parser * parser)
             expression_node->type = Node_Expr_BinaryOp_Smaller;
             parse_variable_expression(parser, expression_node);
         }
+        else if (accept_token(parser, Token_Equal))
+        {
+            expression_node->type = Node_Expr_BinaryOp_Equal;
+            parse_variable_expression(parser, expression_node);
+        }
         else if (accept_token(parser, Token_Multiply))
         {
             expression_node->type = Node_Expr_BinaryOp_Multiply;
@@ -766,6 +792,11 @@ Node * parse_expression(Parser * parser)
         else if (accept_token(parser, Token_Smaller))
         {
             expression_node->type = Node_Expr_BinaryOp_Smaller;
+            parse_number_expression(parser, expression_node);
+        }
+        else if (accept_token(parser, Token_Equal))
+        {
+            expression_node->type = Node_Expr_BinaryOp_Equal;
             parse_number_expression(parser, expression_node);
         }
         else if (accept_token(parser, Token_Multiply))
