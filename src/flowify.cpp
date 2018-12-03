@@ -35,7 +35,7 @@ struct WorldData
 WorldData global_world = {};  // FIXME: allocate this properly!
 
 // FIXME: CAREFUL WE ARE AT THE LIMIT!!!
-u8 global_dump_text[1000]; // TODO: allocate this properly!
+u8 global_dump_text[2000]; // TODO: allocate this properly!
 
 const char * simple_assign_program_text = 
     "<?php\n"
@@ -63,19 +63,19 @@ const char * simple_if_else_program_text =
 
 const char * fibonacci_iterative_program_text = 
     "<?php\n"
-    "\n"
-    "$fib = fibonacci_iterative(10);\n"
-    "\n"
+//    "\n"
+//    "$fib = fibonacci_iterative(10);\n"
+//    "\n"
     "function fibonacci_iterative($n)\n"
     "{\n"
-    "    $a = 0;\n"
-    "    $b = 1;\n"
+//    "    $a = 0;\n"
+//    "    $b = 1;\n"
     "    for ($i = 0; $i < $n; $i++) {\n"
     "        $c = $a;\n"
-    "        $a = $b;\n"
+//    "        $a = $b;\n"
 // FIXME    "        $b += $c;\n"
     "    }\n"
-// FIXME    "    return $a;\n"
+    "    return $a;\n"
     "}\n"
 ;
 

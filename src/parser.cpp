@@ -790,6 +790,13 @@ Node * parse_statement(Parser * parser)
             log("ERROR: no function name found!");
         }
     }
+    else if (accept_token(parser, Token_Return))
+    {
+            statement_node->type = Node_Stmt_Return;
+            
+            Node * expression_node = parse_expression(parser);
+            statement_node->first_child = expression_node;
+    }
     else
     {
         // We assume its a statement with only an expression
