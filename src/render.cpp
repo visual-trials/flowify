@@ -181,7 +181,6 @@ struct ScrollableText
 
 void init_scrollable_text(ScrollableText * scrollable_text)
 {
-    // TODO: put below in init_scrollable_text?
     scrollable_text->nr_of_lines = 0;
     scrollable_text->line_offset = 0;
     

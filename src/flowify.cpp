@@ -24,14 +24,14 @@
 struct WorldData
 {
     String program_text;
-    String program_lines[100]; // TODO: allocate this properly!
-    i32 nr_of_lines;
-    i32 program_line_offset;
+    // String program_lines[100]; // TODO: allocate this properly!
+    // i32 nr_of_lines;
+    ScrollableText scrollable_program_text;  // TODO: allocate this properly!
     
     String dump_text;
-    String dump_lines[100]; // TODO: allocate this properly!
-    i32 nr_of_dump_lines;
-    i32 dump_line_offset;
+    // String dump_lines[100]; // TODO: allocate this properly!
+    // i32 nr_of_dump_lines;
+    ScrollableText scrollable_ast_dump;  // TODO: allocate this properly!
 };
 
 WorldData global_world = {};  // FIXME: allocate this properly!
@@ -87,13 +87,19 @@ extern "C" {
     {
         WorldData * world = &global_world;
         
+        ScrollableText * scrollable_program_text = &world->scrollable_program_text;
+        init_scrollable_text(scrollable_program_text);
+
+        ScrollableText * scrollable_ast_dump = &world->scrollable_ast_dump;
+        init_scrollable_text(scrollable_ast_dump);
+        
         const char * text_to_parse = fibonacci_iterative_program_text;
         
         world->program_text.data = (u8 *)text_to_parse;
         world->program_text.length = cstring_length(text_to_parse);
         
-        world->nr_of_lines = split_string_into_lines(world->program_text, world->program_lines);
-        world->program_line_offset = 0;
+        scrollable_program_text->nr_of_lines = split_string_into_lines(world->program_text, scrollable_program_text->lines);
+        scrollable_program_text->line_offset = 0;
 
         Tokenizer tokenizer = {};
         tokenizer.at = (u8 *)text_to_parse;
@@ -109,18 +115,40 @@ extern "C" {
         world->dump_text.data = global_dump_text;
         dump_tree(root_node, &world->dump_text);
         
-        world->nr_of_dump_lines = split_string_into_lines(world->dump_text, world->dump_lines);
-        world->dump_line_offset = 0;
+        scrollable_ast_dump->nr_of_lines = split_string_into_lines(world->dump_text, scrollable_ast_dump->lines);
+        scrollable_ast_dump->line_offset = 0;
+        
     }
     
     void update_frame()
     {
+        WorldData * world = &global_world;
+        Input * input = &global_input;
+
+        ScrollableText * scrollable_program_text = &world->scrollable_program_text;
+        
+        // The screen size can change, so we have to update the position and size of the scrollables.
+        scrollable_program_text->position.x = 0;
+        scrollable_program_text->position.y = 110; // TODO: we should properly account for the hieght of the text above
+
+        scrollable_program_text->size.width = input->screen.width - scrollable_program_text->position.x;
+        scrollable_program_text->size.height = input->screen.height - scrollable_program_text->position.y;
+        
+        update_scrollable_text(scrollable_program_text, input);
     }
     
     void render_frame()
     {
         WorldData * world = &global_world;
         
+        ScrollableText * scrollable_program_text = &world->scrollable_program_text;
+        // ScrollableText * scrollable_ast_dump = &world->scrollable_ast_dump;
+        
+        draw_scrollable_text(scrollable_program_text);
+        // draw_scrollable_text(scrollable_ast_dump);
+        
+        
+        /*
         Color4 black = {};
         black.a = 255;
         
@@ -166,6 +194,7 @@ extern "C" {
             String dump_line_text = world->dump_lines[dump_line_index];
             draw_text(position, &dump_line_text, font, black);
         }
+        */
         
         do_physical_pixels_switch(&global_input);
     }
