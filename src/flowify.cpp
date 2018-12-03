@@ -136,8 +136,8 @@ extern "C" {
         
         ScrollableText * scrollable_ast_dump = &world->scrollable_ast_dump;
         
-        scrollable_ast_dump->position.x = 600;
-        scrollable_ast_dump->position.y = 110;
+        scrollable_ast_dump->position.x = 600; // TODO: calculate by percentage?
+        scrollable_ast_dump->position.y = 110; // TODO: where do we want to let this begin?
 
         scrollable_ast_dump->size.width = input->screen.width - scrollable_ast_dump->position.x;
         scrollable_ast_dump->size.height = input->screen.height - scrollable_ast_dump->position.y;
@@ -155,54 +155,6 @@ extern "C" {
         draw_scrollable_text(scrollable_program_text);
         draw_scrollable_text(scrollable_ast_dump);
         
-        
-        Color4 black = {};
-        black.a = 255;
-        
-        Color4 grey = {};
-        grey.a = 100;
-        
-        Font font = {};
-        font.height = 20;
-        font.family = Font_CourierNew;
-        
-        i32 line_margin = 4;
-        
-        i32 left_margin = 400;
-        i32 top_margin = 100;
-        
-        ShortString line_nr_text;
-/*            
-        for (i32 line_index = 0; line_index < world->nr_of_lines; line_index++)
-        {
-            // Line text
-            Pos2d position;
-            position.x = left_margin;
-            position.y = top_margin + line_index * (font.height + line_margin);
-            
-            String line_text = world->program_lines[line_index];
-            draw_text(position, &line_text, font, black);
-            
-            // Line number
-            Pos2d position_line_nr = position;
-            int_to_string(line_index + 1, &line_nr_text);
-            Size2d line_nr_size = get_text_size(&line_nr_text, font);
-            position_line_nr.x -= 40 + line_nr_size.width;
-            draw_text(position_line_nr, &line_nr_text, font, grey);
-        }
-        */
-/*        
-        for (i32 dump_line_index = 0; dump_line_index < scrollable_ast_dump->nr_of_lines; dump_line_index++)
-        {
-            // Dump line text
-            Pos2d position;
-            position.x = left_margin + 500; // FIXME: measure width of program lines!
-            position.y = top_margin + dump_line_index * (font.height + line_margin);
-            
-            String dump_line_text = scrollable_ast_dump->lines[dump_line_index];
-            draw_text(position, &dump_line_text, font, black);
-        }
-        */
         do_physical_pixels_switch(&global_input);
     }
 }
