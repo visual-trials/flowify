@@ -38,6 +38,7 @@ enum TokenType
     
     Token_String,
     Token_Number,
+    Token_Float,
     Token_Identifier,
     Token_VariableIdentifier,  // starts with $
     
@@ -145,6 +146,7 @@ enum NodeType
     
     // Scalars
     Node_Scalar_Number,
+    Node_Scalar_Float,
     Node_Scalar_String
 };
 
@@ -205,6 +207,7 @@ const char * node_type_names[] = {
     
     // Scalars
     "Scalar_Number",
+    "Scalar_Float",
     "Scalar_String"
 };
 
@@ -593,37 +596,23 @@ Node * new_node(Parser * parser)
 void parse_arguments(Parser * parser, Node * parent_node);
 Node * parse_expression(Parser * parser);
 
-void parse_number_expression(Parser * parser, Node * expression_node)
-{
-    // Left side of the expression (a number)
-    Node * number_node = new_node(parser);
-    number_node->type = Node_Scalar_Number;
-
-    expression_node->first_child = number_node;
-
-    // Right side of the expression (an expression)
-    Node * child_expression_node = parse_expression(parser);
-
-    expression_node->first_child->next_sibling = child_expression_node;
-}
-
-void parse_variable_expression(Parser * parser, Node * expression_node)
+void parse_variable_assignment(Parser * parser, Node * sub_expression_node)
 {
     // Left side of the expression (a variable)
     Node * variable_node = new_node(parser);
     variable_node->type = Node_Expr_Variable;
 
-    expression_node->first_child = variable_node;
+    sub_expression_node->first_child = variable_node;
 
     // Right side of the expression (an expression)
     Node * child_expression_node = parse_expression(parser);
 
-    expression_node->first_child->next_sibling = child_expression_node;
+    sub_expression_node->first_child->next_sibling = child_expression_node;
 }
 
-Node * parse_expression(Parser * parser)
+Node * parse_sub_expression(Parser * parser)
 {
-    Node * expression_node = new_node(parser);
+    Node * sub_expression_node = new_node(parser);
     
     if (accept_token(parser, Token_OpenParenteses))
     {
@@ -631,198 +620,7 @@ Node * parse_expression(Parser * parser)
         
         expect_token(parser, Token_CloseParenteses);
         
-        if (accept_token(parser, Token_Greater))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Greater;
-            Node * right_expression = parse_expression(parser);
-            expression_node->first_child = child_expression;
-            child_expression->next_sibling = right_expression;
-        }
-        else if (accept_token(parser, Token_Smaller))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Smaller;
-            Node * right_expression = parse_expression(parser);
-            expression_node->first_child = child_expression;
-            child_expression->next_sibling = right_expression;
-        }
-        else if (accept_token(parser, Token_Equal))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Equal;
-            Node * right_expression = parse_expression(parser);
-            expression_node->first_child = child_expression;
-            child_expression->next_sibling = right_expression;
-        }
-        else if (accept_token(parser, Token_Multiply))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Multiply;
-            Node * right_expression = parse_expression(parser);
-            expression_node->first_child = child_expression;
-            child_expression->next_sibling = right_expression;
-        }
-        else if (accept_token(parser, Token_Divide))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Divide;
-            Node * right_expression = parse_expression(parser);
-            expression_node->first_child = child_expression;
-            child_expression->next_sibling = right_expression;
-        }
-        else if (accept_token(parser, Token_Plus))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Plus;
-            Node * right_expression = parse_expression(parser);
-            expression_node->first_child = child_expression;
-            child_expression->next_sibling = right_expression;
-        }
-        else if (accept_token(parser, Token_Minus))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Minus;
-            Node * right_expression = parse_expression(parser);
-            expression_node->first_child = child_expression;
-            child_expression->next_sibling = right_expression;
-        }
-        else
-        {
-            expression_node = child_expression;
-        }
-        
-    }
-    else if (accept_token(parser, Token_VariableIdentifier))
-    {
-        // TODO: use token to set variable name inside the Node_Expr_Variable!
-        Token * variable_token = get_latest_token(parser);
-        
-        if (accept_token(parser, Token_Assign))
-        {
-            expression_node->type = Node_Expr_Assign;
-            parse_variable_expression(parser, expression_node);
-        }
-        else if (accept_token(parser, Token_AssignMultiply))
-        {
-            expression_node->type = Node_Expr_AssignOp_Multiply;
-            parse_variable_expression(parser, expression_node);
-        }
-        else if (accept_token(parser, Token_AssignDivide))
-        {
-            expression_node->type = Node_Expr_AssignOp_Divide;
-            parse_variable_expression(parser, expression_node);
-        }
-        else if (accept_token(parser, Token_AssignPlus))
-        {
-            expression_node->type = Node_Expr_AssignOp_Plus;
-            parse_variable_expression(parser, expression_node);
-        }
-        else if (accept_token(parser, Token_AssignMinus))
-        {
-            expression_node->type = Node_Expr_AssignOp_Minus;
-            parse_variable_expression(parser, expression_node);
-        }
-        else if (accept_token(parser, Token_Greater))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Greater;
-            parse_variable_expression(parser, expression_node);
-        }
-        else if (accept_token(parser, Token_Smaller))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Smaller;
-            parse_variable_expression(parser, expression_node);
-        }
-        else if (accept_token(parser, Token_Equal))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Equal;
-            parse_variable_expression(parser, expression_node);
-        }
-        else if (accept_token(parser, Token_Multiply))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Multiply;
-            parse_variable_expression(parser, expression_node);
-        }
-        else if (accept_token(parser, Token_Divide))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Divide;
-            parse_variable_expression(parser, expression_node);
-        }
-        else if (accept_token(parser, Token_Plus))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Plus;
-            parse_variable_expression(parser, expression_node);
-        }
-        else if (accept_token(parser, Token_Minus))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Minus;
-            parse_variable_expression(parser, expression_node);
-        }
-        else if (accept_token(parser, Token_PlusPlus))
-        {
-            // TODO: we should only allow '++' *right* behind a variableIdentifier!
-            expression_node->type = Node_Expr_PostInc;
-                
-            Node * variable_node = new_node(parser);
-            variable_node->type = Node_Expr_Variable;
-                
-            expression_node->first_child = variable_node;
-        }
-        else if (accept_token(parser, Token_MinusMinus))
-        {
-            // TODO: we should only allow '++' *right* behind a variableIdentifier!
-            expression_node->type = Node_Expr_PostDec;
-                
-            Node * variable_node = new_node(parser);
-            variable_node->type = Node_Expr_Variable;
-                
-            expression_node->first_child = variable_node;
-        }
-        // TODO: implement more types of assignments
-        else
-        {
-            // If the variable was not followed by anything, we assume the expression only contains the variable
-            expression_node->type = Node_Expr_Variable;
-        }
-    }
-    else if (accept_token(parser, Token_Number))
-    {
-        // TODO: use token to set number inside Node!
-        Token * token = get_latest_token(parser);
-     
-        if (accept_token(parser, Token_Greater))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Greater;
-            parse_number_expression(parser, expression_node);
-        }
-        else if (accept_token(parser, Token_Smaller))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Smaller;
-            parse_number_expression(parser, expression_node);
-        }
-        else if (accept_token(parser, Token_Equal))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Equal;
-            parse_number_expression(parser, expression_node);
-        }
-        else if (accept_token(parser, Token_Multiply))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Multiply;
-            parse_number_expression(parser, expression_node);
-        }
-        else if (accept_token(parser, Token_Divide))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Divide;
-            parse_number_expression(parser, expression_node);
-        }
-        else if (accept_token(parser, Token_Plus))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Plus;
-            parse_number_expression(parser, expression_node);
-        }
-        else if (accept_token(parser, Token_Minus))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Minus;
-            parse_number_expression(parser, expression_node);
-        }
-        else
-        {
-            // If the number was not followed by anything, we assume the expression only contains the number
-            expression_node->type = Node_Scalar_Number;
-        }
+        sub_expression_node = child_expression;
     }
     else if (accept_token(parser, Token_PlusPlus))
     {
@@ -831,12 +629,12 @@ Node * parse_expression(Parser * parser)
         // TODO: use token to set variable name inside the Node_Expr_Variable!
         Token * variable_token = get_latest_token(parser);
         
-        expression_node->type = Node_Expr_PreInc;
+        sub_expression_node->type = Node_Expr_PreInc;
             
         Node * variable_node = new_node(parser);
         variable_node->type = Node_Expr_Variable;
             
-        expression_node->first_child = variable_node;
+        sub_expression_node->first_child = variable_node;
     }
     else if (accept_token(parser, Token_MinusMinus))
     {
@@ -845,82 +643,174 @@ Node * parse_expression(Parser * parser)
         // TODO: use token to set variable name inside the Node_Expr_Variable!
         Token * variable_token = get_latest_token(parser);
         
-        expression_node->type = Node_Expr_PreDec;
+        sub_expression_node->type = Node_Expr_PreDec;
             
         Node * variable_node = new_node(parser);
         variable_node->type = Node_Expr_Variable;
             
-        expression_node->first_child = variable_node;
+        sub_expression_node->first_child = variable_node;
+    }
+    else if (accept_token(parser, Token_VariableIdentifier))
+    {
+        // TODO: use token to set variable name inside the Node_Expr_Variable!
+        Token * variable_token = get_latest_token(parser);
+        
+        if (accept_token(parser, Token_PlusPlus))
+        {
+            // TODO: we should only allow '++' *right* behind a variableIdentifier!
+            sub_expression_node->type = Node_Expr_PostInc;
+                
+            Node * variable_node = new_node(parser);
+            variable_node->type = Node_Expr_Variable;
+                
+            sub_expression_node->first_child = variable_node;
+        }
+        else if (accept_token(parser, Token_MinusMinus))
+        {
+            // TODO: we should only allow '++' *right* behind a variableIdentifier!
+            sub_expression_node->type = Node_Expr_PostDec;
+                
+            Node * variable_node = new_node(parser);
+            variable_node->type = Node_Expr_Variable;
+                
+            sub_expression_node->first_child = variable_node;
+        }
+        else if (accept_token(parser, Token_AssignMultiply))
+        {
+            sub_expression_node->type = Node_Expr_AssignOp_Multiply;
+            parse_variable_assignment(parser, sub_expression_node);
+        }
+        else if (accept_token(parser, Token_AssignDivide))
+        {
+            sub_expression_node->type = Node_Expr_AssignOp_Divide;
+            parse_variable_assignment(parser, sub_expression_node);
+        }
+        else if (accept_token(parser, Token_AssignPlus))
+        {
+            sub_expression_node->type = Node_Expr_AssignOp_Plus;
+            parse_variable_assignment(parser, sub_expression_node);
+        }
+        else if (accept_token(parser, Token_AssignMinus))
+        {
+            sub_expression_node->type = Node_Expr_AssignOp_Minus;
+            parse_variable_assignment(parser, sub_expression_node);
+        }
+        else if (accept_token(parser, Token_Assign))
+        {
+            sub_expression_node->type = Node_Expr_Assign;
+            parse_variable_assignment(parser, sub_expression_node);
+        }
+        else
+        {
+            // If the variable was not followed by anything, we assume the expression only contains the variable
+            sub_expression_node->type = Node_Expr_Variable;
+        }
+    }
+    else if (accept_token(parser, Token_Number))
+    {
+        // TODO: use token to set number inside Node!
+        Token * token = get_latest_token(parser);
+        
+        sub_expression_node->type = Node_Scalar_Number;
+    }
+    else if (accept_token(parser, Token_Float))
+    {
+        // TODO: use token to set number inside Node!
+        Token * token = get_latest_token(parser);
+        
+        sub_expression_node->type = Node_Scalar_Float;
+    }
+    else if (accept_token(parser, Token_String))
+    {
+        // TODO: use token to set number inside Node!
+        Token * token = get_latest_token(parser);
+        
+        sub_expression_node->type = Node_Scalar_String;
     }
     else if (accept_token(parser, Token_Identifier))
     {
         // TODO: use token to set function name inside the Node_Expr_FuncCall!
         Token * function_call_token = get_latest_token(parser);
 
-        Node * function_call_node = new_node(parser);
-        function_call_node->type = Node_Expr_FuncCall;
-        parse_arguments(parser, function_call_node);
-        
-        if (accept_token(parser, Token_Greater))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Greater;
-            Node * right_expression = parse_expression(parser);
-            expression_node->first_child = function_call_node;
-            function_call_node->next_sibling = right_expression;
-        }
-        else if (accept_token(parser, Token_Smaller))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Smaller;
-            Node * right_expression = parse_expression(parser);
-            expression_node->first_child = function_call_node;
-            function_call_node->next_sibling = right_expression;
-        }
-        else if (accept_token(parser, Token_Equal))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Equal;
-            Node * right_expression = parse_expression(parser);
-            expression_node->first_child = function_call_node;
-            function_call_node->next_sibling = right_expression;
-        }
-        else if (accept_token(parser, Token_Multiply))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Multiply;
-            Node * right_expression = parse_expression(parser);
-            expression_node->first_child = function_call_node;
-            function_call_node->next_sibling = right_expression;
-        }
-        else if (accept_token(parser, Token_Divide))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Divide;
-            Node * right_expression = parse_expression(parser);
-            expression_node->first_child = function_call_node;
-            function_call_node->next_sibling = right_expression;
-        }
-        else if (accept_token(parser, Token_Plus))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Plus;
-            Node * right_expression = parse_expression(parser);
-            expression_node->first_child = function_call_node;
-            function_call_node->next_sibling = right_expression;
-        }
-        else if (accept_token(parser, Token_Minus))
-        {
-            expression_node->type = Node_Expr_BinaryOp_Minus;
-            Node * right_expression = parse_expression(parser);
-            expression_node->first_child = function_call_node;
-            function_call_node->next_sibling = right_expression;
-        }
-        else
-        {
-            expression_node = function_call_node;
-        }
+        sub_expression_node->type = Node_Expr_FuncCall;
+        parse_arguments(parser, sub_expression_node);
     }
-    // TODO: implement more variants of expressions
     else
+    {
+        log("ERROR: unknown sub expression!");
+        sub_expression_node = 0;  // TODO: we should "free" this sub_expression_node (but an error occured so it might nog matter)
+        return sub_expression_node;
+    }
+    
+    return sub_expression_node;
+   
+}
+
+Node * parse_expression(Parser * parser)
+{
+    Node * expression_node = new_node(parser);
+    
+    Node * left_sub_expression = parse_sub_expression(parser);
+    
+    if (!left_sub_expression)
     {
         // if no expression was found, returning 0 (so the caller known no expression was found)
         expression_node = 0;  // TODO: we should "free" this expression_node (but an error occured so it might nog matter)
         return expression_node;
+    }
+    
+    if (accept_token(parser, Token_Greater))
+    {
+        expression_node->type = Node_Expr_BinaryOp_Greater;
+        Node * right_sub_expression = parse_sub_expression(parser);
+        expression_node->first_child = left_sub_expression;
+        left_sub_expression->next_sibling = right_sub_expression;
+    }
+    else if (accept_token(parser, Token_Smaller))
+    {
+        expression_node->type = Node_Expr_BinaryOp_Smaller;
+        Node * right_sub_expression = parse_sub_expression(parser);
+        expression_node->first_child = left_sub_expression;
+        left_sub_expression->next_sibling = right_sub_expression;
+    }
+    else if (accept_token(parser, Token_Equal))
+    {
+        expression_node->type = Node_Expr_BinaryOp_Equal;
+        Node * right_sub_expression = parse_sub_expression(parser);
+        expression_node->first_child = left_sub_expression;
+        left_sub_expression->next_sibling = right_sub_expression;
+    }
+    else if (accept_token(parser, Token_Multiply))
+    {
+        expression_node->type = Node_Expr_BinaryOp_Multiply;
+        Node * right_sub_expression = parse_sub_expression(parser);
+        expression_node->first_child = left_sub_expression;
+        left_sub_expression->next_sibling = right_sub_expression;
+    }
+    else if (accept_token(parser, Token_Divide))
+    {
+        expression_node->type = Node_Expr_BinaryOp_Divide;
+        Node * right_sub_expression = parse_sub_expression(parser);
+        expression_node->first_child = left_sub_expression;
+        left_sub_expression->next_sibling = right_sub_expression;
+    }
+    else if (accept_token(parser, Token_Plus))
+    {
+        expression_node->type = Node_Expr_BinaryOp_Plus;
+        Node * right_sub_expression = parse_sub_expression(parser);
+        expression_node->first_child = left_sub_expression;
+        left_sub_expression->next_sibling = right_sub_expression;
+    }
+    else if (accept_token(parser, Token_Minus))
+    {
+        expression_node->type = Node_Expr_BinaryOp_Minus;
+        Node * right_sub_expression = parse_sub_expression(parser);
+        expression_node->first_child = left_sub_expression;
+        left_sub_expression->next_sibling = right_sub_expression;
+    }
+    else
+    {
+        expression_node = left_sub_expression;
     }
     
     return expression_node;
