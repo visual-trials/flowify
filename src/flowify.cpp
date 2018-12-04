@@ -277,11 +277,11 @@ extern "C" {
             world->iteration = 0;
             
             world->selected_token_index++;
-            if (world->selected_token_index >= world->tokenizer.nr_of_tokens)
-            {
-                world->selected_token_index = 0;
-            }        
         }
+        if (world->selected_token_index >= world->tokenizer.nr_of_tokens)
+        {
+            world->selected_token_index = 0;
+        }        
         
     }
     
