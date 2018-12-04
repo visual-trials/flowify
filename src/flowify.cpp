@@ -37,6 +37,9 @@ struct WorldData
     i32 nr_of_program_texts;
     i32 current_program_text_index;
     
+    i32 iteration;
+    i32 selected_token_index;
+    
     b32 verbose_frame_times;
 };
 
@@ -223,6 +226,9 @@ extern "C" {
     {
         WorldData * world = &global_world;
         
+        world->iteration = 0;
+        world->selected_token_index = 0;
+        
         world->program_texts[0] = simple_assign_program_text;
         world->program_texts[1] = i_plus_plus_program_text;
         world->program_texts[2] = simple_functions_program_text;
@@ -264,6 +270,19 @@ extern "C" {
         scrollable_ast_dump->size.height = input->screen.height - scrollable_ast_dump->position.y - 50;
         
         update_scrollable_text(scrollable_ast_dump, input);
+        
+        world->iteration++;
+        if (world->iteration > 60) // every second
+        {
+            world->iteration = 0;
+            
+            world->selected_token_index++;
+            if (world->selected_token_index >= world->tokenizer.nr_of_tokens)
+            {
+                world->selected_token_index = 0;
+            }        
+        }
+        
     }
     
     void draw_and_update_button_menu(WorldData * world)
@@ -310,8 +329,7 @@ extern "C" {
         
         if (world->tokenizer.nr_of_tokens > 0)
         {
-            i32 current_token_index = 0;
-            Token token = world->tokenizer.tokens[current_token_index];
+            Token token = world->tokenizer.tokens[world->selected_token_index];
             
             i32 character_in_line_index = (i32)token.text.data - (i32)scrollable_program_text->lines[token.line_index].data;
 
