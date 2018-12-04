@@ -314,19 +314,7 @@ extern "C" {
             Token token = world->tokenizer.tokens[current_token_index];
             
             i32 character_in_line_index = (i32)token.text.data - (i32)scrollable_program_text->lines[token.line_index].data;
-            
-            /*
-            ShortString decimal_number;
-            
-            draw_text((Pos2d){100,100}, &token.text, font, black);
-            
-            int_to_string(token.line_index, &decimal_number);
-            draw_text((Pos2d){100,150}, &decimal_number, font, black);
-            
-            int_to_string(character_in_line_index, &decimal_number);
-            draw_text((Pos2d){100,180}, &decimal_number, font, black);
-            */
-            
+
             HighlightedLinePart highlighted_line_part = {};
             highlighted_line_part.line_index = token.line_index;
             highlighted_line_part.start_character_index = (u16)character_in_line_index;
@@ -335,6 +323,8 @@ extern "C" {
             // FIXME: do not hardcode it this way!
             scrollable_program_text->highlighted_line_parts[0] = highlighted_line_part;
             scrollable_program_text->nr_of_highlighted_parts = 1;
+            
+            // TODO: we might want to draw the TokenType
         }
         
         draw_scrollable_text(scrollable_program_text);
