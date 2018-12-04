@@ -27,6 +27,8 @@ struct WorldData
     
     ScrollableText scrollable_program_text;  // TODO: allocate this properly!
     
+    Tokenizer tokenizer;
+    
     String dump_text;
     
     ScrollableText scrollable_ast_dump;  // TODO: allocate this properly!
@@ -195,13 +197,17 @@ extern "C" {
         scrollable_program_text->nr_of_lines = split_string_into_lines(world->program_text, scrollable_program_text->lines);
         scrollable_program_text->line_offset = 0;
 
-        Tokenizer tokenizer = {};
-        tokenizer.at = (u8 *)program_text;
+        // TODO: we need a ZeroStruct function/macro!
+        world->tokenizer.nr_of_tokens = 0;
+        world->tokenizer.current_line_index = 0;
+        world->tokenizer.at = (u8 *)program_text;
+        
+        Tokenizer * tokenizer = &world->tokenizer;
 
-        tokenize(&tokenizer);
+        tokenize(tokenizer);
 
         Parser parser = {};
-        parser.tokenizer = &tokenizer;
+        parser.tokenizer = tokenizer;
         
         Node * root_node = parse_program(&parser);
         
@@ -294,6 +300,38 @@ extern "C" {
         
         ScrollableText * scrollable_program_text = &world->scrollable_program_text;
         ScrollableText * scrollable_ast_dump = &world->scrollable_ast_dump;
+        
+        Font font = {};
+        font.height = 20;
+        font.family = Font_CourierNew;
+
+        Color4 black = {};
+        black.a = 255;
+        
+        if (world->tokenizer.nr_of_tokens > 0)
+        {
+            i32 current_token_index = 0;
+            Token token = world->tokenizer.tokens[current_token_index];
+            
+            ShortString decimal_number;
+            int_to_string(token.line_index, &decimal_number);
+            
+            draw_text((Pos2d){100,100}, &token.text, font, black);
+            
+            draw_text((Pos2d){100,150}, &decimal_number, font, black);
+            
+            i32 character_in_line_index = (i32)token.text.data - (i32)scrollable_program_text->lines[token.line_index].data;
+            int_to_string(character_in_line_index, &decimal_number);
+            draw_text((Pos2d){100,180}, &decimal_number, font, black);
+            
+            HighlightedLinePart highlighted_line_part = {};
+            highlighted_line_part.line_index = token.line_index;
+            highlighted_line_part.start_character_index = (u16)character_in_line_index;
+            highlighted_line_part.length = (u16)token.text.length;
+
+            scrollable_program_text->highlighted_line_parts[0] = highlighted_line_part;
+            scrollable_program_text->nr_of_highlighted_parts = 1;
+        }
         
         draw_scrollable_text(scrollable_program_text);
         draw_scrollable_text(scrollable_ast_dump);

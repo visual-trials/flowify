@@ -313,6 +313,7 @@ void eat_all_white_spaces(Tokenizer * tokenizer)
 
 Token get_token(Tokenizer * tokenizer)
 {
+    // TODO: we should create tokens for white space too (and seperate them between lines)
     eat_all_white_spaces(tokenizer);
     
     Token token = {};
@@ -559,7 +560,6 @@ void tokenize (Tokenizer * tokenizer)
         }
     }
     
-    log_int(tokenizer->current_line_index);
     // log("-------");
 }
 

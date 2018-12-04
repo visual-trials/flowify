@@ -154,6 +154,13 @@ b32 do_integer_button(Pos2d position, Size2d size, i32 number, b32 is_active, In
     return do_button(position, size, &decimal_string, is_active, input);
 }
 
+struct HighlightedLinePart
+{
+    i32 line_index;
+    u16 start_character_index;
+    u16 length;
+};
+
 struct ScrollableText
 {
     b32 is_active;  // TODO: implement this
@@ -161,6 +168,9 @@ struct ScrollableText
     String lines[1000];
     i32 nr_of_lines;
     i32 line_offset;
+    
+    HighlightedLinePart highlighted_line_parts[1000];
+    i32 nr_of_highlighted_parts;
     
     Font font;
     i32 line_margin;
@@ -325,6 +335,7 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
     // TODO: turn line numbers on/off
     // TODO: add scroll bars
     
+    Color4 no_color = {};
     
     Color4 black = {};
     black.a = 255;
@@ -332,12 +343,42 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
     Color4 grey = {};
     grey.a = 100;
     
+    Color4 selected_color = {180, 255, 180, 255};
+
     Font font = scrollable_text->font;
     i32 line_margin = scrollable_text->line_margin;
     i32 nr_of_lines_to_show = scrollable_text->nr_of_lines_to_show;
     
+    ShortString white_space_text;
+    copy_char_to_string(' ', &white_space_text);
+    Size2d white_space_size = get_text_size(&white_space_text, font);
+    
     if (scrollable_text->nr_of_lines > 0)
     {
+        for (i32 highlighted_line_part_index = 0; highlighted_line_part_index < scrollable_text->nr_of_highlighted_parts; highlighted_line_part_index++)
+        {
+            HighlightedLinePart line_part = scrollable_text->highlighted_line_parts[highlighted_line_part_index]; 
+            
+            i32 x_position_part = (i32)line_part.start_character_index * white_space_size.width;
+            i32 x_width_part = (i32)line_part.length * white_space_size.width;
+            
+            i32 line_on_screen_index = line_part.line_index - scrollable_text->line_offset;
+            // FIXME: check if line_part is on screen! (vertical AND horizontal!)
+            if (true)
+            {
+                
+                Pos2d position;
+                position.x = x_position_part + scrollable_text->position.x + scrollable_text->left_margin + scrollable_text->line_numbers_width;
+                position.y = scrollable_text->position.y + scrollable_text->top_margin + line_on_screen_index * (font.height + line_margin);
+                
+                Size2d size;
+                size.width = x_width_part;
+                size.height = font.height + line_margin;
+                
+                draw_rectangle(position, size, no_color, selected_color, 1);
+            }
+        }
+        
         ShortString line_nr_text;
         
         for (i32 line_on_screen_index = 0; line_on_screen_index < nr_of_lines_to_show; line_on_screen_index++)
