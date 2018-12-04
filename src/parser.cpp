@@ -358,6 +358,7 @@ Token get_token(Tokenizer * tokenizer)
             {
                 tokenizer->at++;
                 token.type = Token_AssignMultiply;
+                token.text.length = tokenizer->at - token.text.data;
             }
             else
             {
@@ -369,6 +370,7 @@ Token get_token(Tokenizer * tokenizer)
             {
                 tokenizer->at++;
                 token.type = Token_AssignDivide;
+                token.text.length = tokenizer->at - token.text.data;
             }
             else
             {
@@ -380,11 +382,13 @@ Token get_token(Tokenizer * tokenizer)
             {
                 tokenizer->at++;
                 token.type = Token_AssignPlus;
+                token.text.length = tokenizer->at - token.text.data;
             }
             else if (tokenizer->at[0] == '+')
             {
                 tokenizer->at++;
                 token.type = Token_PlusPlus;
+                token.text.length = tokenizer->at - token.text.data;
             }
             else
             {
@@ -396,11 +400,13 @@ Token get_token(Tokenizer * tokenizer)
             {
                 tokenizer->at++;
                 token.type = Token_AssignMinus;
+                token.text.length = tokenizer->at - token.text.data;
             }
             else if (tokenizer->at[0] == '-')
             {
                 tokenizer->at++;
                 token.type = Token_MinusMinus;
+                token.text.length = tokenizer->at - token.text.data;
             }
             else
             {
@@ -427,6 +433,7 @@ Token get_token(Tokenizer * tokenizer)
             {
                 tokenizer->at++;
                 token.type = Token_SmallerOrEqual;
+                token.text.length = tokenizer->at - token.text.data;
             }
             else
             {
@@ -440,6 +447,7 @@ Token get_token(Tokenizer * tokenizer)
             {
                 tokenizer->at++;
                 token.type = Token_GreaterOrEqual;
+                token.text.length = tokenizer->at - token.text.data;
             }
             else
             {
