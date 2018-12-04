@@ -545,6 +545,56 @@ void tokenize (Tokenizer * tokenizer)
 
 // Parser
 
+/*
+
+= Grammar used =
+
+program = "<?php" statements ["?>"]
+
+block = "{" statements "}"
+
+statements = { statement }
+
+statement = 
+      "if" "(" expr ")" block [ else block ]
+    | "for" "(" expr ";" expr ";" expr ")" block
+    | "function" identifier arguments block
+    | "continue" ";"
+    | "break" ";"
+    | "return" expr ";"
+    | expr ";"
+
+arguments =
+    "(" [ expr { ", " expr } ] ")"
+
+expr =
+    sub_expr "<" sub_expr
+    sub_expr ">" sub_expr
+    sub_expr "-" sub_expr
+    sub_expr "+" sub_expr
+    sub_expr "*" sub_expr
+    sub_expr "==" sub_expr
+    sub_expr
+    
+sub_expr :=
+    "(" expr ")"
+    "++" var
+    "--" var
+    var "++"
+    var "--"
+    var "*=" expr
+    var "/=" expr
+    var "+=" expr
+    var "-=" expr
+    var "="  expr
+    var
+    number
+    float
+    string
+    identifier arguments
+    
+*/
+
 void next_token(Parser * parser)
 {
     // FIXME: we should check if we reached the last token!
