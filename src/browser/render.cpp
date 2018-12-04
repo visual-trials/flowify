@@ -197,6 +197,13 @@ void log(const char * text)
     log(text_string);
 }
 
+void log_int(i32 integer)
+{
+    ShortString decimal_number;
+    int_to_string(integer, &decimal_number);
+    log(&decimal_number);
+}
+
 void set_using_physical_pixels(b32 using_physical_pixels)
 {
     jsSetUsingPhysicalPixels(using_physical_pixels);

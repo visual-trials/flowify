@@ -78,7 +78,11 @@ struct Token
 {
     i32 type; // TODO: somehow we can't use TokenType as the type in win32. Using i32 instead.
     
-    String text; // TODO: do want store explicitly the line number and column in the source text? 
+    String text;
+    
+    i32 line_index;
+    // TODO: maybe we can calculate this once using split_string_into_lines(): 
+    // i32 character_in_line_index;
 };
 
 struct Tokenizer
@@ -87,6 +91,8 @@ struct Tokenizer
     
     Token tokens[1000]; // TODO: allocate this properly!
     i32 nr_of_tokens;
+    
+    i32 current_line_index;
 };
 
 // TODO: Keep this in sync with node_type_names below!
@@ -265,6 +271,11 @@ void eat_all_white_spaces(Tokenizer * tokenizer)
     {
         if(is_white_space(tokenizer->at[0]))
         {
+            // Note: right now we only count '\n' as being a *new* line (since we split on '\n')
+            if (tokenizer->at[0] == '\n')
+            {
+                tokenizer->current_line_index++;
+            }
             tokenizer->at++;
         }
         else if((tokenizer->at[0] == '/') && (tokenizer->at[1] == '/'))
@@ -280,6 +291,11 @@ void eat_all_white_spaces(Tokenizer * tokenizer)
             tokenizer->at += 2;
             while(tokenizer->at[0] && !((tokenizer->at[0] == '*') && (tokenizer->at[1] == '/')))
             {
+                // Note: right now we only count '\n' as being a *new* line (since we split on '\n')
+                if (tokenizer->at[0] == '\n')
+                {
+                    tokenizer->current_line_index++;
+                }
                 tokenizer->at++;
             }
             
@@ -303,6 +319,8 @@ Token get_token(Tokenizer * tokenizer)
     
     token.text.length = 1;
     token.text.data = tokenizer->at;
+    token.line_index = tokenizer->current_line_index;
+    
     char ch = tokenizer->at[0];
     tokenizer->at++;
     switch(ch)
@@ -529,6 +547,7 @@ Token get_token(Tokenizer * tokenizer)
 
 void tokenize (Tokenizer * tokenizer)
 {
+    tokenizer->current_line_index = 0;
     b32 tokenizing = true;
     while(tokenizing)
     {
@@ -540,6 +559,7 @@ void tokenize (Tokenizer * tokenizer)
         }
     }
     
+    log_int(tokenizer->current_line_index);
     // log("-------");
 }
 
