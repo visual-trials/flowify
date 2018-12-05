@@ -363,14 +363,6 @@ extern "C" {
         {
             Node node = world->parser.nodes[world->selected_node_index];
             
-            ShortString decimal_string;
-            
-            int_to_string(node.first_token_index, &decimal_string);
-            draw_text((Pos2d){100,100}, &decimal_string, font, black);
-            
-            int_to_string(node.last_token_index, &decimal_string);
-            draw_text((Pos2d){100,140}, &decimal_string, font, black);
-            
             scrollable_program_text->nr_of_highlighted_parts = 0;
             for (i32 token_index = node.first_token_index; token_index <= node.last_token_index; token_index++)
             {
