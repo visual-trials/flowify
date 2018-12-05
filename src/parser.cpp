@@ -704,10 +704,9 @@ Node * parse_sub_expression(Parser * parser)
         
         expect_token(parser, Token_CloseParenteses);
         
+        // TODO: We should mark the child_expression as to-be-removed from the list of Nodes (in the parser)
         sub_expression_node->type = child_expression->type; 
         sub_expression_node->first_child = child_expression->first_child; 
-        // we effectively remove child_expression from the list of Nodes (in the parser)
-        parser->nr_of_nodes--;
         
         sub_expression_node->last_token_index = parser->current_token_index;
     }
