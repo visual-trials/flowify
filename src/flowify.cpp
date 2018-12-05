@@ -351,7 +351,7 @@ extern "C" {
         }
         
         // FIXME: hardcoded for now!
-        i32 selected_node_index = 3;
+        i32 selected_node_index = 4;
         if (world->parser.nr_of_nodes > 0)
         {
             Node node = world->parser.nodes[selected_node_index];
