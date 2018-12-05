@@ -72,8 +72,6 @@ struct String
     i32 length;
 };
 
-// TODO: put these function in a more common place
-
 // TODO: can we make one common array_length here?
 i32 array_length(i32 * array)
 {
