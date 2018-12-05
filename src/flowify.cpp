@@ -350,6 +350,22 @@ extern "C" {
             // TODO: we might want to draw the TokenType
         }
         
+        // FIXME: hardcoded for now!
+        i32 selected_node_index = 3;
+        if (world->parser.nr_of_nodes > 0)
+        {
+            Node node = world->parser.nodes[selected_node_index];
+            
+            ShortString decimal_string;
+            
+            int_to_string(node.first_token_index, &decimal_string);
+            draw_text((Pos2d){100,100}, &decimal_string, font, black);
+            
+            int_to_string(node.last_token_index, &decimal_string);
+            draw_text((Pos2d){100,140}, &decimal_string, font, black);
+            
+        }
+        
         draw_scrollable_text(scrollable_program_text);
         draw_scrollable_text(scrollable_ast_dump);
         

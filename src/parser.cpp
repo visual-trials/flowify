@@ -706,6 +706,8 @@ Node * parse_sub_expression(Parser * parser)
         
         sub_expression_node->type = child_expression->type; 
         sub_expression_node->first_child = child_expression->first_child; 
+        // we effectively remove child_expression from the list of Nodes (in the parser)
+        parser->nr_of_nodes--;
         
         sub_expression_node->last_token_index = parser->current_token_index;
     }
@@ -951,6 +953,7 @@ Node * parse_expression(Parser * parser)
     }
     else
     {
+        // TODO: We should mark the old expression_node as to-be-removed from the list of Nodes (in the parser)
         expression_node = left_sub_expression;
     }
     
