@@ -376,14 +376,17 @@ extern "C" {
             {
                 Token token = world->tokenizer.tokens[token_index];
                 
-                i32 character_in_line_index = (i32)token.text.data - (i32)scrollable_program_text->lines[token.line_index].data;
+                if (token.type != Token_EndOfStream)
+                {
+                    i32 character_in_line_index = (i32)token.text.data - (i32)scrollable_program_text->lines[token.line_index].data;
 
-                HighlightedLinePart highlighted_line_part = {};
-                highlighted_line_part.line_index = token.line_index;
-                highlighted_line_part.start_character_index = (u16)character_in_line_index;
-                highlighted_line_part.length = (u16)token.text.length;
+                    HighlightedLinePart highlighted_line_part = {};
+                    highlighted_line_part.line_index = token.line_index;
+                    highlighted_line_part.start_character_index = (u16)character_in_line_index;
+                    highlighted_line_part.length = (u16)token.text.length;
 
-                scrollable_program_text->highlighted_line_parts[scrollable_program_text->nr_of_highlighted_parts++] = highlighted_line_part;
+                    scrollable_program_text->highlighted_line_parts[scrollable_program_text->nr_of_highlighted_parts++] = highlighted_line_part;
+                }
             }
             
         }
