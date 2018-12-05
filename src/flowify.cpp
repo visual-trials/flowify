@@ -40,6 +40,7 @@ struct WorldData
     
     i32 iteration;
     i32 selected_token_index;
+    i32 selected_node_index;
     
     b32 verbose_frame_times;
 };
@@ -233,6 +234,7 @@ extern "C" {
         
         world->iteration = 0;
         world->selected_token_index = 0;
+        world->selected_node_index = 0;
         
         world->program_texts[0] = simple_assign_program_text;
         world->program_texts[1] = i_plus_plus_program_text;
@@ -282,11 +284,16 @@ extern "C" {
             world->iteration = 0;
             
             world->selected_token_index++;
+            world->selected_node_index++;
         }
         if (world->selected_token_index >= world->tokenizer.nr_of_tokens)
         {
             world->selected_token_index = 0;
         }        
+        if (world->selected_node_index >= world->parser.nr_of_nodes)
+        {
+            world->selected_node_index = 0;
+        }
         
     }
     
@@ -332,6 +339,7 @@ extern "C" {
         Color4 black = {};
         black.a = 255;
         
+        /*
         if (world->tokenizer.nr_of_tokens > 0)
         {
             Token token = world->tokenizer.tokens[world->selected_token_index];
@@ -349,12 +357,11 @@ extern "C" {
             
             // TODO: we might want to draw the TokenType
         }
+        */
         
-        // FIXME: hardcoded for now!
-        i32 selected_node_index = 4;
         if (world->parser.nr_of_nodes > 0)
         {
-            Node node = world->parser.nodes[selected_node_index];
+            Node node = world->parser.nodes[world->selected_node_index];
             
             ShortString decimal_string;
             
@@ -363,6 +370,21 @@ extern "C" {
             
             int_to_string(node.last_token_index, &decimal_string);
             draw_text((Pos2d){100,140}, &decimal_string, font, black);
+            
+            scrollable_program_text->nr_of_highlighted_parts = 0;
+            for (i32 token_index = node.first_token_index; token_index <= node.last_token_index; token_index++)
+            {
+                Token token = world->tokenizer.tokens[token_index];
+                
+                i32 character_in_line_index = (i32)token.text.data - (i32)scrollable_program_text->lines[token.line_index].data;
+
+                HighlightedLinePart highlighted_line_part = {};
+                highlighted_line_part.line_index = token.line_index;
+                highlighted_line_part.start_character_index = (u16)character_in_line_index;
+                highlighted_line_part.length = (u16)token.text.length;
+
+                scrollable_program_text->highlighted_line_parts[scrollable_program_text->nr_of_highlighted_parts++] = highlighted_line_part;
+            }
             
         }
         
