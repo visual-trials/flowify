@@ -28,6 +28,7 @@ struct WorldData
     ScrollableText scrollable_program_text;  // TODO: allocate this properly!
     
     Tokenizer tokenizer;
+    Parser parser;
     
     String dump_text;
     
@@ -209,10 +210,14 @@ extern "C" {
 
         tokenize(tokenizer);
 
-        Parser parser = {};
-        parser.tokenizer = tokenizer;
+        // TODO: we need a ZeroStruct function/macro!
+        world->parser.current_token_index = 0;
+        world->parser.nr_of_nodes = 0;
+        world->parser.tokenizer = tokenizer;
         
-        Node * root_node = parse_program(&parser);
+        Parser * parser = &world->parser;
+        
+        Node * root_node = parse_program(parser);
         
         world->dump_text.length = 0;
         world->dump_text.data = global_dump_text;
