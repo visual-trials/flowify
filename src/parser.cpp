@@ -224,6 +224,8 @@ struct Node
     i32 first_token_index;
     i32 last_token_index;
     
+    HighlightedLinePart highlighted_line_part;
+    
     Node * next_sibling;
     Node * first_child;
 };
@@ -1266,7 +1268,7 @@ Node * parse_program(Parser * parser)
     return root_node;
 }
 
-void dump_tree(Node * node, String * dump_text, i32 depth = 0)
+i32 dump_tree(Node * node, String * dump_text, i32 dump_line_index = 0, i32 depth = 0)
 {
     u8 temp_string[100]; // TODO: use a temp-memory buffer instead
     
@@ -1288,13 +1290,19 @@ void dump_tree(Node * node, String * dump_text, i32 depth = 0)
     dump_text->data[dump_text->length] = '\n';
     dump_text->length++;
     
+    node->highlighted_line_part.line_index = dump_line_index++;
+    node->highlighted_line_part.start_character_index = (u16)(depth * 4);
+    node->highlighted_line_part.length = (u16)node_type_string.length;
+    
     if (node->first_child)
     {
-        dump_tree(node->first_child, dump_text, depth + 1);
+        dump_line_index = dump_tree(node->first_child, dump_text, dump_line_index, depth + 1);
     }
 
     if (node->next_sibling)
     {
-        dump_tree(node->next_sibling, dump_text, depth);
+        dump_line_index = dump_tree(node->next_sibling, dump_text, dump_line_index, depth);
     }
+    
+    return dump_line_index;
 }

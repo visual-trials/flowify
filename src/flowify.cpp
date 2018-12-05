@@ -389,6 +389,9 @@ extern "C" {
                 }
             }
             
+            scrollable_ast_dump->nr_of_highlighted_parts = 1;
+            scrollable_ast_dump->highlighted_line_parts[0] = node.highlighted_line_part;
+            
         }
         
         draw_scrollable_text(scrollable_program_text);
