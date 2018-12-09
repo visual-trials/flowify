@@ -68,6 +68,7 @@ struct FlowElement
     FlowElement * first_child;
     FlowElement * next_sibling;
 
+    b32 is_selected;
     
     // TODO: i32 scale;
     
@@ -111,6 +112,7 @@ FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowEleme
     new_flow_element->first_child = 0;
     new_flow_element->next_sibling = 0;
     new_flow_element->type = flow_element_type;
+    new_flow_element->is_selected = false;
     return new_flow_element;
 }
 
@@ -238,11 +240,17 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         right_bottom = left_bottom;
         right_bottom.x += flow_element->size.width;
         
-        unselected_color.r -= 30;
-        unselected_color.g -= 30;
-        unselected_color.b -= 30;
+        Color4 fill_color = unselected_color;
+        if (flow_element->is_selected)
+        {
+            fill_color = selected_color;
+        }
+        // FIXME: hack!
+        fill_color.r -= 30;
+        fill_color.g -= 30;
+        fill_color.b -= 30;
         draw_lane_segment(left_top,  right_top, left_bottom, right_bottom, 
-                          20, line_color, unselected_color, line_width);
+                          20, line_color, fill_color, line_width);
     }
     else if (flow_element->type == FlowElement_Root)
     {
@@ -250,8 +258,14 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         position.x += flow_element->position.x;
         position.y += flow_element->position.y;
         
+        Color4 fill_color = unselected_color;
+        if (flow_element->is_selected)
+        {
+            fill_color = selected_color;
+        }
+        
         draw_rounded_rectangle(position, flow_element->size, 20, 
-                               line_color, unselected_color, line_width);
+                               line_color, fill_color, line_width);
                                
         FlowElement * child_element = flow_element->first_child;
         if (child_element)

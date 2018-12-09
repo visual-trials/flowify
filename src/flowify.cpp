@@ -164,12 +164,15 @@ extern "C" {
         {
             world->iteration = 0;
             
+            world->flowifier.flow_elements[world->selected_element_index].is_selected = false;
+            
             world->selected_element_index++;
         }
         if (world->selected_element_index >= world->flowifier.nr_of_flow_elements)
         {
             world->selected_element_index = 0;
         }
+        world->flowifier.flow_elements[world->selected_element_index].is_selected = true;
         
     }
     
