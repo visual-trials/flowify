@@ -28,7 +28,6 @@
 struct WorldData
 {
     String program_text;
-    
     ScrollableText scrollable_program_text;  // TODO: allocate this properly!
     
     Tokenizer tokenizer;
@@ -36,8 +35,9 @@ struct WorldData
     Flowifier flowifier;
     
     String flowify_dump_text;
-    
     ScrollableText scrollable_flowify_dump;  // TODO: allocate this properly!
+    
+    FlowElement * root_element;
     
     const char * program_texts[10];
     i32 nr_of_program_texts;
@@ -100,6 +100,7 @@ extern "C" {
         
         // TODO: should we do this in update_frame?
         layout_elements(root_element);
+        world->root_element = root_element;
         
         world->flowify_dump_text.length = 0;
         world->flowify_dump_text.data = global_dump_text;
@@ -199,6 +200,10 @@ extern "C" {
                 load_program_text(world->program_texts[world->current_program_text_index], world);
             }
         }
+        
+        Pos2d position = {500, 200};
+        FlowElement * root_element = world->root_element;
+        draw_elements(root_element, position);
         
     }
     

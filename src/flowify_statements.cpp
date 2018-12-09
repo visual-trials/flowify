@@ -162,14 +162,14 @@ void layout_elements(FlowElement * flow_element)
     else if (flow_element->type == FlowElement_Root)
     {
         // FIXME: position shouldnt be set here!
-        flow_element->position.x = 500;
-        flow_element->position.y = 200;
+        flow_element->position.x = 0;
+        flow_element->position.y = 0;
         
-        i32 top_margin = 10;
-        i32 bottom_margin = 10;
+        i32 top_margin = 20;
+        i32 bottom_margin = 20;
         
-        i32 left_margin = 10;
-        i32 right_margin = 10;
+        i32 left_margin = 20;
+        i32 right_margin = 20;
         
         i32 summed_children_height = 0;
         i32 largest_child_width = 0;
@@ -204,13 +204,65 @@ void layout_elements(FlowElement * flow_element)
     }
 }
 
-void draw_elements(FlowElement * flow_element)
+void draw_elements(FlowElement * flow_element, Pos2d position_originates_from)
 {
+    // TODO: convert relative to absolute positions!
+    // TODO: add is_position_of and position_originates_from
+    // TODO: set colors properly
+    
+    Color4 line_color       = {  0,   0,   0, 255};
+    Color4 unselected_color = {180, 180, 255, 255};
+    Color4 selected_color   = {180, 255, 180, 255};
+    Color4 no_color         = {};
+    
+    i32 line_width = 4;
+    
     if (flow_element->type == FlowElement_Assignment)
     {
+        Pos2d position = position_originates_from;
+        position.x += flow_element->position.x;
+        position.y += flow_element->position.y;
+        
+        Pos2d left_top = {};
+        Pos2d right_top = {};
+        Pos2d left_bottom = {};
+        Pos2d right_bottom = {};
+        
+        left_top = position;
+        right_top = left_top;
+        right_top.x += flow_element->size.width;
+        
+        left_bottom = left_top;
+        left_bottom.y += flow_element->size.height;
+        
+        right_bottom = left_bottom;
+        right_bottom.x += flow_element->size.width;
+        
+        unselected_color.r -= 30;
+        unselected_color.g -= 30;
+        unselected_color.b -= 30;
+        draw_lane_segment(left_top,  right_top, left_bottom, right_bottom, 
+                          20, line_color, unselected_color, line_width);
     }
     else if (flow_element->type == FlowElement_Root)
     {
+        Pos2d position = position_originates_from;
+        position.x += flow_element->position.x;
+        position.y += flow_element->position.y;
+        
+        draw_rounded_rectangle(position, flow_element->size, 20, 
+                               line_color, unselected_color, line_width);
+                               
+        FlowElement * child_element = flow_element->first_child;
+        if (child_element)
+        {
+            do
+            {
+                draw_elements(child_element, position);
+            }
+            while ((child_element = child_element->next_sibling));
+        }
+        
     }
 }
 
