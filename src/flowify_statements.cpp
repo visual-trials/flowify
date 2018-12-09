@@ -59,7 +59,13 @@ struct FlowElement
     FlowElement * first_child;
     FlowElement * next_sibling;
     
-    HighlightedLinePart highlighted_line_part;
+    // TODO: do we want to add position and size here this way?
+    // LineSegment * line_segment;
+    // Rectangle * rounded_rectangle;
+    
+    // HitShape * hit_box;               ???
+    
+    HighlightedLinePart highlighted_line_part; // This is for highlighting in the dump
 };
 
 // TODO: maybe we should create a struct for each type of FlowElement?
