@@ -130,11 +130,23 @@ void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
         {
             if (child_node->type == Node_Stmt_Expr)
             {
-                
+            
+                // FIXME: this is not always an FlowElement_Assignment!
+                FlowElementType element_type = FlowElement_Assignment;
+                if (child_node->first_child && child_node->first_child && child_node->first_child->first_child)
+                {
+                    if (child_node->first_child->first_child->next_sibling)
+                    {
+                        if (child_node->first_child->first_child->next_sibling->type == Node_Expr_PostInc)
+                        {
+                            // FIXME: hack!
+                            element_type = FlowElement_BinaryOperator;
+                        }
+                    }
+                }
                 // TODO: we should flowify the expression! (for now we create a dummy element)
                 
-                // FIXME: this is not always an FlowElement_Assignment!
-                FlowElement * new_child_element = new_flow_element(flowifier, child_node, FlowElement_Assignment);
+                FlowElement * new_child_element = new_flow_element(flowifier, child_node, element_type);
                 
                 if (!parent_element->first_child)
                 {
@@ -159,6 +171,11 @@ void layout_elements(FlowElement * flow_element)
     if (flow_element->type == FlowElement_Assignment)
     {
         flow_element->size.width = 100;
+        flow_element->size.height = 100;
+    }
+    if (flow_element->type == FlowElement_BinaryOperator)
+    {
+        flow_element->size.width = 200;
         flow_element->size.height = 100;
     }
     else if (flow_element->type == FlowElement_Root)
@@ -189,7 +206,7 @@ void layout_elements(FlowElement * flow_element)
                 child_element->position.x = left_margin;
                 child_element->position.y = top_margin + summed_children_height;
                 
-                summed_children_height += child_size.width;
+                summed_children_height += child_size.height;
                 if (child_size.width > largest_child_width)
                 {
                     largest_child_width = child_size.width;
@@ -219,7 +236,8 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
     
     i32 line_width = 4;
     
-    if (flow_element->type == FlowElement_Assignment)
+    // TODO: we probably want flags here!
+    if (flow_element->type == FlowElement_Assignment || flow_element->type == FlowElement_BinaryOperator)
     {
         Pos2d position = parent_position;
         position.x += flow_element->position.x;
