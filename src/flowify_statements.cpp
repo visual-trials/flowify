@@ -66,14 +66,14 @@ FlowElement * new_flow_element(Flowifier * flowifier)
 void flowify_statements(Flowifier * flowifier, Node * parent_node, FlowElement * parent_element)
 {
     
-    Node * child = parent_node->first_child;
+    Node * child_node = parent_node->first_child;
     FlowElement * previous_child_element = 0;
     
-    if (child)
+    if (child_node)
     {
         do
         {
-            if (child->type == Node_Stmt_Expr)
+            if (child_node->type == Node_Stmt_Expr)
             {
                 
                 // TODO: we should flowify the expression! (for now we create a dummy element)
