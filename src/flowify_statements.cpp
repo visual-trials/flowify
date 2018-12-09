@@ -20,8 +20,17 @@ enum FlowElementType
 {
     FlowElement_Unknown,
     
-    FlowElement_StatementExpression, // TODO: what to call these?
+    // Control flow elements
+    FlowElement_Root,
+    FlowElement_Function,
+    FlowElement_If,
+    FlowElement_For,
     
+    // Data flow elements
+    FlowElement_Assignment,
+    FlowElement_BinaryOperator,
+    FlowElement_FunctionCall,
+    FlowElement_Scalar,
 };
  
 struct FlowElement
@@ -39,13 +48,6 @@ struct FlowElement
 //    ExpressionStatement ((Sub)LaneSegment)
 //    IfStatement (Head/Split/2-Lanes/Join/Tail-Segments)
 //    ForStatement (...)
-struct FlowFunction // TODO: maybe call this FlowBody? or FlowBlock?
-{
-    FlowElement basic;
-    
-    
-    
-};
 
 struct Flowifier
 {
@@ -53,18 +55,20 @@ struct Flowifier
     i32 nr_of_flow_elements;
 };
 
-FlowElement * new_flow_element(Flowifier * flowifier)
+FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowElementType flow_element_type = FlowElement_Unknown)
 {
     FlowElement * new_flow_element = &flowifier->flow_elements[flowifier->nr_of_flow_elements++];
-    new_flow_element->ast_node = 0;
+    new_flow_element->ast_node = ast_node;
     new_flow_element->first_child = 0;
     new_flow_element->next_sibling = 0;
-    new_flow_element->type = FlowElement_Unknown;
+    new_flow_element->type = flow_element_type;
     return new_flow_element;
 }
 
-void flowify_statements(Flowifier * flowifier, Node * parent_node, FlowElement * parent_element)
+void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
 {
+    
+    Node * parent_node = parent_element->ast_node;
     
     Node * child_node = parent_node->first_child;
     FlowElement * previous_child_element = 0;
@@ -78,7 +82,8 @@ void flowify_statements(Flowifier * flowifier, Node * parent_node, FlowElement *
                 
                 // TODO: we should flowify the expression! (for now we create a dummy element)
                 
-                FlowElement * new_child_element = new_flow_element(flowifier);
+                // FIXME: this is not always an FlowElement_Assignment!
+                FlowElement * new_child_element = new_flow_element(flowifier, child_node, FlowElement_Assignment);
                 
                 if (!parent_element->first_child)
                 {
@@ -91,7 +96,7 @@ void flowify_statements(Flowifier * flowifier, Node * parent_node, FlowElement *
                 previous_child_element = new_child_element;
             }
         }
-        while((child = child->next_sibling));
+        while((child_node = child_node->next_sibling));
     }
     
     log_int(flowifier->nr_of_flow_elements);

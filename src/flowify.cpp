@@ -86,11 +86,11 @@ extern "C" {
         Flowifier * flowifier = &world->flowifier;
         
         // TODO: use helper function to create FlowElement
-        FlowElement * root_flow_element = new_flow_element(flowifier);
+        FlowElement * root_flow_element = new_flow_element(flowifier, root_node, FlowElement_Root);
         
         // TODO: create a container (aka root-function) type of element (= rounded rectangle)
         
-        flowify_statements(flowifier, root_node, root_flow_element);
+        flowify_statements(flowifier, root_flow_element);
         
     }
     
