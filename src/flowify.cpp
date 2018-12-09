@@ -31,10 +31,6 @@ struct WorldData
     Tokenizer tokenizer;
     Parser parser;
     
-    String dump_text;
-    
-    ScrollableText scrollable_ast_dump;  // TODO: allocate this properly!
-    
     const char * program_texts[10];
     i32 nr_of_program_texts;
     i32 current_program_text_index;
@@ -48,9 +44,6 @@ struct WorldData
 
 WorldData global_world = {};  // FIXME: allocate this properly!
 
-// FIXME: CAREFUL WE ARE AT THE LIMIT!!!
-u8 global_dump_text[2000]; // TODO: allocate this properly!
-
 extern "C" {
     
     
@@ -59,9 +52,6 @@ extern "C" {
         ScrollableText * scrollable_program_text = &world->scrollable_program_text;
         init_scrollable_text(scrollable_program_text);
 
-        ScrollableText * scrollable_ast_dump = &world->scrollable_ast_dump;
-        init_scrollable_text(scrollable_ast_dump, false);
-        
         world->program_text.data = (u8 *)program_text;
         world->program_text.length = cstring_length(program_text);
         
@@ -85,13 +75,6 @@ extern "C" {
         Parser * parser = &world->parser;
         
         Node * root_node = parse_program(parser);
-        
-        world->dump_text.length = 0;
-        world->dump_text.data = global_dump_text;
-        dump_tree(root_node, &world->dump_text);
-        
-        scrollable_ast_dump->nr_of_lines = split_string_into_lines(world->dump_text, scrollable_ast_dump->lines);
-        scrollable_ast_dump->line_offset = 0;
     }
     
     void init_world()
@@ -133,16 +116,6 @@ extern "C" {
         scrollable_program_text->size.height = input->screen.height - scrollable_program_text->position.y;
         
         update_scrollable_text(scrollable_program_text, input);
-        
-        ScrollableText * scrollable_ast_dump = &world->scrollable_ast_dump;
-        
-        scrollable_ast_dump->position.x = input->screen.width / 2 - 50; // TODO: calculate by percentage?
-        scrollable_ast_dump->position.y = 50; // TODO: where do we want to let this begin?
-
-        scrollable_ast_dump->size.width = input->screen.width - scrollable_ast_dump->position.x;
-        scrollable_ast_dump->size.height = input->screen.height - scrollable_ast_dump->position.y - 50;
-        
-        update_scrollable_text(scrollable_ast_dump, input);
         
         world->iteration++;
         if (world->iteration > 60) // every second
@@ -196,7 +169,6 @@ extern "C" {
         WorldData * world = &global_world;
         
         ScrollableText * scrollable_program_text = &world->scrollable_program_text;
-        ScrollableText * scrollable_ast_dump = &world->scrollable_ast_dump;
         
         Font font = {};
         font.height = 20;
@@ -204,26 +176,6 @@ extern "C" {
 
         Color4 black = {};
         black.a = 255;
-        
-        /*
-        if (world->tokenizer.nr_of_tokens > 0)
-        {
-            Token token = world->tokenizer.tokens[world->selected_token_index];
-            
-            i32 character_in_line_index = (i32)token.text.data - (i32)scrollable_program_text->lines[token.line_index].data;
-
-            HighlightedLinePart highlighted_line_part = {};
-            highlighted_line_part.line_index = token.line_index;
-            highlighted_line_part.start_character_index = (u16)character_in_line_index;
-            highlighted_line_part.length = (u16)token.text.length;
-
-            // FIXME: do not hardcode it this way!
-            scrollable_program_text->highlighted_line_parts[0] = highlighted_line_part;
-            scrollable_program_text->nr_of_highlighted_parts = 1;
-            
-            // TODO: we might want to draw the TokenType
-        }
-        */
         
         if (world->parser.nr_of_nodes > 0)
         {
@@ -247,13 +199,9 @@ extern "C" {
                 }
             }
             
-            scrollable_ast_dump->nr_of_highlighted_parts = 1;
-            scrollable_ast_dump->highlighted_line_parts[0] = node.highlighted_line_part;
-            
         }
         
         draw_scrollable_text(scrollable_program_text);
-        draw_scrollable_text(scrollable_ast_dump);
         
         draw_and_update_button_menu(world);
 
