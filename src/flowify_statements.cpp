@@ -67,21 +67,31 @@ void flowify_statements(Flowifier * flowifier, Node * parent_node, FlowElement *
 {
     
     Node * child = parent_node->first_child;
-    FlowElement * child_element = 0;
+    FlowElement * previous_child_element = 0;
     
     if (child)
     {
-        
-        child_element = new_flow_element(flowifier);
-        parent_element->first_child = child_element;
-        
-        while((child = child->next_sibling))
+        do
         {
-            
-            FlowElement * new_child_element = new_flow_element(flowifier);
-            child_element->next_sibling = new_child_element;
-            child_element = new_child_element;
+            if (child->type == Node_Stmt_Expr)
+            {
+                
+                // TODO: we should flowify the expression! (for now we create a dummy element)
+                
+                FlowElement * new_child_element = new_flow_element(flowifier);
+                
+                if (!parent_element->first_child)
+                {
+                    parent_element->first_child = new_child_element;
+                }
+                else 
+                {
+                    previous_child_element->next_sibling = new_child_element;
+                }
+                previous_child_element = new_child_element;
+            }
         }
+        while((child = child->next_sibling));
     }
     
     log_int(flowifier->nr_of_flow_elements);
