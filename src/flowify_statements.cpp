@@ -65,7 +65,7 @@ struct FlowElement
 
     // TODO: we could consist of several sub-shapes (like a if-statement consists of if-start, if-cond, if-then, if-else, if-end)
     
-    // HitShape * hit_box;               ???
+    // HitShape * hit_box;               or is this part of the shape(s)???
     
     HighlightedLinePart highlighted_line_part; // This is for highlighting in the dump
 };
