@@ -19,7 +19,10 @@
 #include "generic.h"
 #include "input.cpp"
 #include "render.cpp"
+
 #include "parser.cpp"
+#include "flowify_statements.cpp"
+
 #include "examples.h"
 
 struct WorldData
@@ -75,6 +78,12 @@ extern "C" {
         Parser * parser = &world->parser;
         
         Node * root_node = parse_program(parser);
+        
+        // TODO: use helper function to create FlowElement
+        FlowElement root_flow_element = {};
+        
+        flowify_statements(root_node, &root_flow_element);
+        
     }
     
     void init_world()
@@ -136,6 +145,8 @@ extern "C" {
         
     }
     
+    // TODO: make this a more general function (add arguments nr_of_buttons and current_button_index)
+    //       then return button_pressed_index (so you can load the program text for that index)
     void draw_and_update_button_menu(WorldData * world)
     {
         // Draw (and update) button menu
