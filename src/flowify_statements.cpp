@@ -29,10 +29,27 @@ enum FlowElementType
     // Data flow elements
     FlowElement_Assignment,
     FlowElement_BinaryOperator,
-    FlowElement_FunctionCall,
+    FlowElement_FunctionCall,   // TODO: is this redundant?
     FlowElement_Scalar,
 };
- 
+// TODO: Keep this in sync with the enum above!
+// TODO: DON'T FORGET THE COMMAS!!
+const char * flow_element_type_names[] = {
+    "Unknown",
+    
+    // Control flow elements
+    "Root",
+    "Function",
+    "If",
+    "For",
+    
+    // Data flow elements
+    "Assignment",
+    "BinaryOperator",
+    "FunctionCall",   // TODO: is this redundant?
+    "Scalar"
+};
+
 struct FlowElement
 {
     FlowElementType type;
@@ -41,6 +58,8 @@ struct FlowElement
     
     FlowElement * first_child;
     FlowElement * next_sibling;
+    
+    HighlightedLinePart highlighted_line_part;
 };
 
 // TODO: maybe we should create a struct for each type of FlowElement?
@@ -101,4 +120,43 @@ void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
     
     log_int(flowifier->nr_of_flow_elements);
     
+}
+
+i32 dump_element_tree(FlowElement * element, String * dump_text, i32 dump_line_index = 0, i32 depth = 0)
+{
+    u8 temp_string[100]; // TODO: use a temp-memory buffer instead
+    
+    String indent_string = {};
+    indent_string.data = temp_string;
+    copy_cstring_to_string("    ", &indent_string);
+    
+    for (i32 indentation_index = 0; indentation_index < depth; indentation_index++)
+    {
+        append_string(dump_text, &indent_string);
+    }
+    
+    String element_type_string = {};
+    element_type_string.data = temp_string;
+    copy_cstring_to_string(flow_element_type_names[element->type], &element_type_string);
+    
+    append_string(dump_text, &element_type_string);
+    
+    dump_text->data[dump_text->length] = '\n';
+    dump_text->length++;
+    
+    element->highlighted_line_part.line_index = dump_line_index++;
+    element->highlighted_line_part.start_character_index = (u16)(depth * 4);
+    element->highlighted_line_part.length = (u16)element_type_string.length;
+    
+    if (element->first_child)
+    {
+        dump_line_index = dump_element_tree(element->first_child, dump_text, dump_line_index, depth + 1);
+    }
+
+    if (element->next_sibling)
+    {
+        dump_line_index = dump_element_tree(element->next_sibling, dump_text, dump_line_index, depth);
+    }
+    
+    return dump_line_index;
 }

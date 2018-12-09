@@ -35,18 +35,24 @@ struct WorldData
     Parser parser;
     Flowifier flowifier;
     
+    String flowify_dump_text;
+    
+    ScrollableText scrollable_flowify_dump;  // TODO: allocate this properly!
+    
     const char * program_texts[10];
     i32 nr_of_program_texts;
     i32 current_program_text_index;
     
     i32 iteration;
-    i32 selected_token_index;
-    i32 selected_node_index;
+    i32 selected_element_index;
     
     b32 verbose_frame_times;
 };
 
 WorldData global_world = {};  // FIXME: allocate this properly!
+
+// FIXME: CAREFUL WE ARE AT THE LIMIT!!!
+u8 global_dump_text[2000]; // TODO: allocate this properly!
 
 extern "C" {
     
@@ -56,6 +62,9 @@ extern "C" {
         ScrollableText * scrollable_program_text = &world->scrollable_program_text;
         init_scrollable_text(scrollable_program_text);
 
+        ScrollableText * scrollable_flowify_dump = &world->scrollable_flowify_dump;
+        init_scrollable_text(scrollable_flowify_dump, false);
+        
         world->program_text.data = (u8 *)program_text;
         world->program_text.length = cstring_length(program_text);
         
@@ -85,13 +94,16 @@ extern "C" {
         
         Flowifier * flowifier = &world->flowifier;
         
-        // TODO: use helper function to create FlowElement
-        FlowElement * root_flow_element = new_flow_element(flowifier, root_node, FlowElement_Root);
+        FlowElement * root_element = new_flow_element(flowifier, root_node, FlowElement_Root);
         
-        // TODO: create a container (aka root-function) type of element (= rounded rectangle)
+        flowify_statements(flowifier, root_element);
         
-        flowify_statements(flowifier, root_flow_element);
+        world->flowify_dump_text.length = 0;
+        world->flowify_dump_text.data = global_dump_text;
+        dump_element_tree(root_element, &world->flowify_dump_text);
         
+        scrollable_flowify_dump->nr_of_lines = split_string_into_lines(world->flowify_dump_text, scrollable_flowify_dump->lines);
+        scrollable_flowify_dump->line_offset = 0;
     }
     
     void init_world()
@@ -99,8 +111,7 @@ extern "C" {
         WorldData * world = &global_world;
         
         world->iteration = 0;
-        world->selected_token_index = 0;
-        world->selected_node_index = 0;
+        world->selected_element_index = 0;
         
         world->program_texts[0] = simple_assign_program_text;
         world->program_texts[1] = i_plus_plus_program_text;
@@ -134,21 +145,26 @@ extern "C" {
         
         update_scrollable_text(scrollable_program_text, input);
         
+        ScrollableText * scrollable_flowify_dump = &world->scrollable_flowify_dump;
+        
+        scrollable_flowify_dump->position.x = input->screen.width / 2 - 50; // TODO: calculate by percentage?
+        scrollable_flowify_dump->position.y = 50; // TODO: where do we want to let this begin?
+
+        scrollable_flowify_dump->size.width = input->screen.width - scrollable_flowify_dump->position.x;
+        scrollable_flowify_dump->size.height = input->screen.height - scrollable_flowify_dump->position.y - 50;
+        
+        update_scrollable_text(scrollable_flowify_dump, input);
+        
         world->iteration++;
         if (world->iteration > 60) // every second
         {
             world->iteration = 0;
             
-            world->selected_token_index++;
-            world->selected_node_index++;
+            world->selected_element_index++;
         }
-        if (world->selected_token_index >= world->tokenizer.nr_of_tokens)
+        if (world->selected_element_index >= world->flowifier.nr_of_flow_elements)
         {
-            world->selected_token_index = 0;
-        }        
-        if (world->selected_node_index >= world->parser.nr_of_nodes)
-        {
-            world->selected_node_index = 0;
+            world->selected_element_index = 0;
         }
         
     }
@@ -188,6 +204,7 @@ extern "C" {
         WorldData * world = &global_world;
         
         ScrollableText * scrollable_program_text = &world->scrollable_program_text;
+        ScrollableText * scrollable_flowify_dump = &world->scrollable_flowify_dump;
         
         Font font = {};
         font.height = 20;
@@ -196,12 +213,13 @@ extern "C" {
         Color4 black = {};
         black.a = 255;
         
-        if (world->parser.nr_of_nodes > 0)
+        if (world->flowifier.nr_of_flow_elements > 0)
         {
-            Node node = world->parser.nodes[world->selected_node_index];
+            FlowElement element = world->flowifier.flow_elements[world->selected_element_index];
+            Node * node = element.ast_node;
             
             scrollable_program_text->nr_of_highlighted_parts = 0;
-            for (i32 token_index = node.first_token_index; token_index <= node.last_token_index; token_index++)
+            for (i32 token_index = node->first_token_index; token_index <= node->last_token_index; token_index++)
             {
                 Token token = world->tokenizer.tokens[token_index];
                 
@@ -217,10 +235,13 @@ extern "C" {
                     scrollable_program_text->highlighted_line_parts[scrollable_program_text->nr_of_highlighted_parts++] = highlighted_line_part;
                 }
             }
-            
+         
+            scrollable_flowify_dump->nr_of_highlighted_parts = 1;
+            scrollable_flowify_dump->highlighted_line_parts[0] = element.highlighted_line_part;
         }
         
         draw_scrollable_text(scrollable_program_text);
+        draw_scrollable_text(scrollable_flowify_dump);
         
         draw_and_update_button_menu(world);
 
