@@ -67,6 +67,16 @@ struct FlowElement
     
     FlowElement * first_child;
     FlowElement * next_sibling;
+
+    
+    // TODO: i32 scale;
+    
+    // TODO: should we use this? Or something more subtle? Or add something?
+    Size2d size;
+    Pos2d position;
+    
+    Size2d absolute_size;
+    Pos2d absolute_position;
     
     // TODO: what to do here?
     LaneSegment line_segment;
@@ -144,9 +154,64 @@ void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
 
 void layout_elements(FlowElement * flow_element)
 {
-
-    // TODO: implement this!
+    if (flow_element->type == FlowElement_Assignment)
+    {
+        flow_element->size.width = 100;
+        flow_element->size.height = 100;
+    }
+    else if (flow_element->type == FlowElement_Root)
+    {
+        // FIXME: position shouldnt be set here!
+        flow_element->position.x = 500;
+        flow_element->position.y = 200;
+        
+        i32 top_margin = 10;
+        i32 bottom_margin = 10;
+        
+        i32 left_margin = 10;
+        i32 right_margin = 10;
+        
+        i32 summed_children_height = 0;
+        i32 largest_child_width = 0;
+        
+        FlowElement * child_element = flow_element->first_child;
+        if (child_element)
+        {
+            do
+            {
+                layout_elements(child_element);
+                
+                // TODO: the child can be wider or narrower at the bottom or top!
+                Size2d child_size = child_element->size;
+                
+                child_element->position.x = left_margin;
+                child_element->position.y = top_margin + summed_children_height;
+                
+                summed_children_height += child_size.width;
+                if (child_size.width > largest_child_width)
+                {
+                    largest_child_width = child_size.width;
+                }
+                
+                
+            }
+            while ((child_element = child_element->next_sibling));
+        }
     
+        flow_element->size.width = left_margin + largest_child_width + right_margin;
+        flow_element->size.height = top_margin + summed_children_height + bottom_margin; 
+        
+    }
+}
+
+void draw_elements(FlowElement * flow_element)
+{
+    if (flow_element->type == FlowElement_Assignment)
+    {
+    }
+    else if (flow_element->type == FlowElement_Root)
+    {
+    }
 }
 
 i32 dump_element_tree(FlowElement * element, String * dump_text, i32 dump_line_index = 0, i32 depth = 0)
