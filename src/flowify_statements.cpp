@@ -62,6 +62,8 @@ struct FlowElement
     // TODO: do we want to add position and size here this way?
     // LineSegment * line_segment;
     // Rectangle * rounded_rectangle;
+
+    // TODO: we could consist of several sub-shapes (like a if-statement consists of if-start, if-cond, if-then, if-else, if-end)
     
     // HitShape * hit_box;               ???
     
