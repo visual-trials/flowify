@@ -204,7 +204,7 @@ void layout_elements(FlowElement * flow_element)
     }
 }
 
-void draw_elements(FlowElement * flow_element, Pos2d position_originates_from)
+void draw_elements(FlowElement * flow_element, Pos2d parent_position)
 {
     // TODO: convert relative to absolute positions!
     // TODO: add is_position_of and position_originates_from
@@ -219,7 +219,7 @@ void draw_elements(FlowElement * flow_element, Pos2d position_originates_from)
     
     if (flow_element->type == FlowElement_Assignment)
     {
-        Pos2d position = position_originates_from;
+        Pos2d position = parent_position;
         position.x += flow_element->position.x;
         position.y += flow_element->position.y;
         
@@ -246,7 +246,7 @@ void draw_elements(FlowElement * flow_element, Pos2d position_originates_from)
     }
     else if (flow_element->type == FlowElement_Root)
     {
-        Pos2d position = position_originates_from;
+        Pos2d position = parent_position;
         position.x += flow_element->position.x;
         position.y += flow_element->position.y;
         
