@@ -83,12 +83,14 @@ extern "C" {
         // TODO: we need a ZeroStruct function/macro!
         world->flowifier.nr_of_flow_elements = 0;
         
+        Flowifier * flowifier = &world->flowifier;
+        
         // TODO: use helper function to create FlowElement
-        FlowElement root_flow_element = {};
+        FlowElement * root_flow_element = new_flow_element(flowifier);
         
         // TODO: create a container (aka root-function) type of element (= rounded rectangle)
         
-        flowify_statements(&world->flowifier, root_node, &root_flow_element);
+        flowify_statements(flowifier, root_node, root_flow_element);
         
     }
     
