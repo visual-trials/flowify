@@ -50,6 +50,15 @@ const char * flow_element_type_names[] = {
     "Scalar"
 };
 
+struct LaneSegment
+{
+    Pos2d left_top;
+    Pos2d right_top;
+    
+    Pos2d left_bottom;
+    Pos2d right_bottom;
+};
+
 struct FlowElement
 {
     FlowElementType type;
@@ -59,8 +68,11 @@ struct FlowElement
     FlowElement * first_child;
     FlowElement * next_sibling;
     
+    // TODO: what to do here?
+    LaneSegment line_segment;
+    
     // TODO: do we want to add position and size here this way?
-    // LineSegment * line_segment;
+    // LaneSegment * lane_segment;
     // Rectangle * rounded_rectangle;
 
     // TODO: we could consist of several sub-shapes (like a if-statement consists of if-start, if-cond, if-then, if-else, if-end)
@@ -127,6 +139,13 @@ void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
     }
     
     log_int(flowifier->nr_of_flow_elements);
+    
+}
+
+void layout_elements(FlowElement * flow_element)
+{
+
+    // TODO: implement this!
     
 }
 

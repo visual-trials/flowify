@@ -98,6 +98,9 @@ extern "C" {
         
         flowify_statements(flowifier, root_element);
         
+        // TODO: should we do this in update_frame?
+        layout_elements(root_element);
+        
         world->flowify_dump_text.length = 0;
         world->flowify_dump_text.data = global_dump_text;
         dump_element_tree(root_element, &world->flowify_dump_text);
