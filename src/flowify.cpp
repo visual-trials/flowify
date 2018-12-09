@@ -33,6 +33,7 @@ struct WorldData
     
     Tokenizer tokenizer;
     Parser parser;
+    Flowifier flowifier;
     
     const char * program_texts[10];
     i32 nr_of_program_texts;
@@ -79,10 +80,15 @@ extern "C" {
         
         Node * root_node = parse_program(parser);
         
+        // TODO: we need a ZeroStruct function/macro!
+        world->flowifier.nr_of_flow_elements = 0;
+        
         // TODO: use helper function to create FlowElement
         FlowElement root_flow_element = {};
         
-        flowify_statements(root_node, &root_flow_element);
+        // TODO: create a container (aka root-function) type of element (= rounded rectangle)
+        
+        flowify_statements(&world->flowifier, root_node, &root_flow_element);
         
     }
     
@@ -104,7 +110,7 @@ extern "C" {
         world->program_texts[7] = fibonacci_recursive_early_return_program_text;
         world->nr_of_program_texts = 8;
         
-        world->current_program_text_index = 0;
+        world->current_program_text_index = 1;
         
         load_program_text(world->program_texts[world->current_program_text_index], world);
         
