@@ -46,7 +46,13 @@ const char * flow_element_type_names[] = {
     // Control flow elements
     "Root",
     "Function",
+    
     "If",
+    "IfStart",
+    "IfThen",
+    "IfElse",
+    "IfEnd",
+    
     "For",
     
     // Data flow elements
@@ -125,9 +131,11 @@ FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowEleme
     return new_flow_element;
 }
 
+void flowify_statements(Flowifier * flowifier, FlowElement * parent_element);
+
 FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
 {
-    FlowElement * new_child_element = 0;
+    FlowElement * new_statement_element = 0;
     
     if (statement_node->type == Node_Stmt_Expr)
     {
@@ -146,14 +154,41 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         }
         // TODO: we should flowify the expression! (for now we create a dummy element)
         
-        new_child_element = new_flow_element(flowifier, statement_node, element_type);
+        new_statement_element = new_flow_element(flowifier, statement_node, element_type);
     }
     else if (statement_node->type == Node_Stmt_If)
     {
-        // TODO: implement this
+        FlowElement * if_element = new_flow_element(flowifier, statement_node, FlowElement_If);
+        
+        Node * if_cond_node = statement_node->first_child;
+        Node * if_then_node = if_cond_node->next_sibling;
+        Node * if_else_node = if_then_node->next_sibling;
+        
+        // TODO: not sure if if_start_element correponds to if_cond_node
+        FlowElement * if_start_element = new_flow_element(flowifier, if_cond_node, FlowElement_IfStart); 
+        FlowElement * if_then_element = new_flow_element(flowifier, if_then_node, FlowElement_IfThen);
+        FlowElement * if_else_element = new_flow_element(flowifier, if_else_node, FlowElement_IfElse);
+        FlowElement * if_end_element = new_flow_element(flowifier, 0, FlowElement_IfEnd);
+        
+        if_element->first_child = if_start_element;
+        if_start_element->next_sibling = if_then_element;
+        if_then_element->next_sibling = if_else_element;
+        if_else_element->next_sibling = if_end_element;
+        
+        flowify_statements(flowifier, if_then_element);
+        if (if_else_node)
+        {
+            flowify_statements(flowifier, if_else_element);
+        }
+        else
+        {
+            // TODO: what to do with the if_else_element if no if_else_node is available?
+        }
+        
+        new_statement_element = if_element;
     }
     
-    return new_child_element;
+    return new_statement_element;
 }
 
 void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
