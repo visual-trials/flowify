@@ -243,14 +243,14 @@ void layout_elements(FlowElement * flow_element)
         layout_elements(if_then_element);
         layout_elements(if_else_element);
         
-        i32 middle_margin = 40;
+        i32 middle_margin = 80;
 
         flow_element->size.width = if_then_element->size.width + middle_margin + if_else_element->size.width;
         if_start_element->size.width = flow_element->size.width;
         if_end_element->size.width = flow_element->size.width;
         
-        if_start_element->size.height = 50;
-        if_end_element->size.height = 50;
+        if_start_element->size.height = 100;
+        if_end_element->size.height = 100;
         // TODO: determine whether if_then_element or if_else_element is higher
         flow_element->size.height = if_start_element->size.height + if_then_element->size.height + if_end_element->size.height;
         
@@ -405,7 +405,122 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         draw_lane_segment(left_top,  right_top, left_bottom, right_bottom, 
                           20, line_color, fill_color, line_width);
     }
-    else if (flow_element->type == FlowElement_Root)
+    else if (flow_element->type == FlowElement_If)
+    {
+        Pos2d position = parent_position;
+        position.x += flow_element->position.x;
+        position.y += flow_element->position.y;
+        
+        FlowElement * if_start_element = flow_element->first_child;
+        FlowElement * if_then_element = if_start_element->next_sibling;
+        FlowElement * if_else_element = if_then_element->next_sibling;
+        FlowElement * if_end_element = if_else_element->next_sibling;
+
+        draw_elements(if_start_element, position);
+        draw_elements(if_then_element, position);
+        draw_elements(if_else_element, position);
+        draw_elements(if_end_element, position);
+    }
+    else if (flow_element->type == FlowElement_IfStart)
+    {
+        Pos2d position = parent_position;
+        position.x += flow_element->position.x;
+        position.y += flow_element->position.y;
+        
+        // Colors
+        Color4 fill_color = unselected_color;
+        if (flow_element->is_selected)
+        {
+            fill_color = selected_color;
+        }
+        
+        // Size and positions
+        Size2d size = flow_element->size;
+        Size2d previous_size = size; // TODO: do we need this here?
+        Size2d left_size = size;
+        Size2d right_size = size;
+        
+        // Then size (left)
+        left_size = flow_element->next_sibling->size;
+        
+        // Else size (right)
+        right_size = flow_element->next_sibling->next_sibling->size;
+        
+        Pos2d left_top = {};
+        Pos2d right_top = {};
+        Pos2d left_bottom = {};
+        Pos2d right_bottom = {};
+
+        // TODO: maybe we should not reverse engineer middle_margin this way
+        i32 middle_margin = size.width - (left_size.width + right_size.width);
+        
+        // TODO: do we need to account for previous size? (the width of the part on top of the start-if?)
+        
+        // Top lane segment
+        left_top = position;
+        right_top = left_top;
+        right_top.x += previous_size.width;
+        
+        left_bottom = left_top;
+        left_bottom.y += flow_element->size.height / 2;
+        
+        right_bottom = left_bottom;
+        right_bottom.x += flow_element->size.width;
+        
+        draw_lane_segment(left_top,  right_top, left_bottom, right_bottom, 
+                          20, line_color, fill_color, line_width);
+        
+        // Left lane segment
+        
+        // TODO: make more use of position of then-element
+
+        position = left_bottom;
+        
+        left_top = position;
+        right_top = left_top;
+        right_top.x += left_size.width + middle_margin / 2;
+        
+        left_bottom = left_top;
+        left_bottom.y += flow_element->size.height / 2;
+        
+        right_bottom = left_bottom;
+        right_bottom.x += left_size.width;
+        
+        draw_lane_segment(left_top,  right_top, left_bottom, right_bottom, 
+                          20, line_color, fill_color, line_width);
+        
+        // Right lane segment
+        
+        // TODO: make more use of position of else-element
+         
+        left_top = position;
+        left_top.x += left_size.width + middle_margin / 2;
+        
+        right_top = position;
+        right_top.x += flow_element->size.width;
+        
+        left_bottom = position;
+        left_bottom.y += flow_element->size.height / 2;
+        left_bottom.x += left_size.width + middle_margin;
+        
+        right_bottom = position;
+        right_bottom.x += left_size.width + middle_margin + right_size.width;
+        
+        draw_lane_segment(left_top,  right_top, left_bottom, right_bottom, 
+                          20, line_color, fill_color, line_width);
+    }
+    else if (flow_element->type == FlowElement_IfEnd)
+    {
+        Pos2d position = parent_position;
+        position.x += flow_element->position.x;
+        position.y += flow_element->position.y;
+        
+        
+        
+    }
+    else if (flow_element->type == FlowElement_Root ||
+             flow_element->type == FlowElement_IfThen ||
+             flow_element->type == FlowElement_IfElse)
     {
         Pos2d position = parent_position;
         position.x += flow_element->position.x;
@@ -419,8 +534,11 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         }
         */
         
-        draw_rounded_rectangle(position, flow_element->size, 20, 
-                               function_line_color, function_fill_color, function_line_width);
+        if (flow_element->type == FlowElement_Root)
+        {
+            draw_rounded_rectangle(position, flow_element->size, 20, 
+                                   function_line_color, function_fill_color, function_line_width);
+        }
                                
         FlowElement * child_element = flow_element->first_child;
         if (child_element)
