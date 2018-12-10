@@ -237,8 +237,11 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
     Color4 unselected_color = {180, 180, 255, 255};
     Color4 selected_color   = {180, 255, 180, 255};
     Color4 no_color         = {};
-    
     i32 line_width = 4;
+    
+    Color4 function_line_color = { 200, 200, 200, 255};
+    Color4 function_fill_color = { 240, 240, 240, 255};
+    i32 function_line_width = 2;
     
     // TODO: we probably want flags here!
     if (flow_element->type == FlowElement_Assignment || flow_element->type == FlowElement_BinaryOperator)
@@ -249,11 +252,7 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         {
             fill_color = selected_color;
         }
-        // FIXME: hack!
-        fill_color.r -= 30;
-        fill_color.g -= 30;
-        fill_color.b -= 30;
-
+        
         // Size and positions
         Size2d size = flow_element->size;
         Size2d previous_size = size;
@@ -316,14 +315,16 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         position.x += flow_element->position.x;
         position.y += flow_element->position.y;
         
+        /*
         Color4 fill_color = unselected_color;
         if (flow_element->is_selected)
         {
             fill_color = selected_color;
         }
+        */
         
         draw_rounded_rectangle(position, flow_element->size, 20, 
-                               line_color, fill_color, line_width);
+                               function_line_color, function_fill_color, function_line_width);
                                
         FlowElement * child_element = flow_element->first_child;
         if (child_element)
