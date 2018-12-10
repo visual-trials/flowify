@@ -204,8 +204,12 @@ extern "C" {
             }
         }
         
-        Pos2d position = {500, 200};
+        // FIXME: hack!
         FlowElement * root_element = world->root_element;
+        Input * input = &global_input;
+        Pos2d position;
+        position.x = input->screen.width - root_element->size.width - 100;
+        position.y = 50;
         draw_elements(root_element, position);
         
     }
