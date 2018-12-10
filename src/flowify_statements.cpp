@@ -166,16 +166,11 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         
         // TODO: not sure if if_start_element correponds to if_cond_node
         FlowElement * if_start_element = new_flow_element(flowifier, if_cond_node, FlowElement_IfStart); 
+        
         FlowElement * if_then_element = new_flow_element(flowifier, if_then_node, FlowElement_IfThen);
-        FlowElement * if_else_element = new_flow_element(flowifier, if_else_node, FlowElement_IfElse);
-        FlowElement * if_end_element = new_flow_element(flowifier, 0, FlowElement_IfEnd);
-        
-        if_element->first_child = if_start_element;
-        if_start_element->next_sibling = if_then_element;
-        if_then_element->next_sibling = if_else_element;
-        if_else_element->next_sibling = if_end_element;
-        
         flowify_statements(flowifier, if_then_element);
+        
+        FlowElement * if_else_element = new_flow_element(flowifier, if_else_node, FlowElement_IfElse);
         if (if_else_node)
         {
             flowify_statements(flowifier, if_else_element);
@@ -184,6 +179,13 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         {
             // TODO: what to do with the if_else_element if no if_else_node is available?
         }
+        
+        FlowElement * if_end_element = new_flow_element(flowifier, 0, FlowElement_IfEnd);
+        
+        if_element->first_child = if_start_element;
+        if_start_element->next_sibling = if_then_element;
+        if_then_element->next_sibling = if_else_element;
+        if_else_element->next_sibling = if_end_element;
         
         new_statement_element = if_element;
     }
@@ -233,22 +235,63 @@ void layout_elements(FlowElement * flow_element)
     }
     else if (flow_element->type == FlowElement_If)
     {
-        // TODO: 
+        FlowElement * if_start_element = flow_element->first_child;
+        FlowElement * if_then_element = if_start_element->next_sibling;
+        FlowElement * if_else_element = if_then_element->next_sibling;
+        FlowElement * if_end_element = if_else_element->next_sibling;
+        
+        layout_elements(if_then_element);
+        layout_elements(if_else_element);
+        
+        i32 middle_margin = 40;
+
+        flow_element->size.width = if_then_element->size.width + middle_margin + if_else_element->size.width;
+        if_start_element->size.width = flow_element->size.width;
+        if_end_element->size.width = flow_element->size.width;
+        
+        if_start_element->size.height = 50;
+        if_end_element->size.height = 50;
+        // TODO: determine whether if_then_element or if_else_element is higher
+        flow_element->size.height = if_start_element->size.height + if_then_element->size.height + if_end_element->size.height;
+        
+        if_start_element->position.x = 0;
+        if_then_element->position.x = 0;
+        if_else_element->position.x = if_then_element->size.width + middle_margin;
+        if_end_element->position.x = 0;
+        
+        if_start_element->position.y = 0;
+        if_then_element->position.y = if_start_element->size.height;
+        if_else_element->position.y = if_start_element->size.height;
+        // TODO: determine whether if_then_element or if_else_element is higher
+        if_end_element->position.y = if_start_element->size.height + if_then_element->size.height;
+        
+        // TODO: change/extend either the else- or the then- height
     }
-    else if (flow_element->type == FlowElement_Root)
+    else if (flow_element->type == FlowElement_Root ||
+             flow_element->type == FlowElement_IfThen ||
+             flow_element->type == FlowElement_IfElse)
     {
         // FIXME: position shouldnt be set here!
         flow_element->position.x = 0;
         flow_element->position.y = 0;
         
-        i32 top_margin = 20;
-        i32 bottom_margin = 20;
+        i32 top_margin = 0;
+        i32 bottom_margin = 0;
         
-        i32 left_margin = 20;
-        i32 right_margin = 20;
+        i32 left_margin = 0;
+        i32 right_margin = 0;
+        
+        if (flow_element->type == FlowElement_Root)
+        {
+            top_margin = 20;
+            bottom_margin = 20;
+            
+            left_margin = 20;
+            right_margin = 20;
+        }
         
         i32 summed_children_height = 0;
-        i32 largest_child_width = 0;
+        i32 largest_child_width = 40; // TODO: using a minimum width by setting this variable beforehand
         
         FlowElement * child_element = flow_element->first_child;
         
