@@ -23,7 +23,13 @@ enum FlowElementType
     // Control flow elements
     FlowElement_Root,
     FlowElement_Function,
+    
     FlowElement_If,
+    FlowElement_IfStart,
+    FlowElement_IfThen,
+    FlowElement_IfElse,
+    FlowElement_IfEnd,
+    
     FlowElement_For,
     
     // Data flow elements
@@ -119,9 +125,39 @@ FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowEleme
     return new_flow_element;
 }
 
+FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
+{
+    FlowElement * new_child_element = 0;
+    
+    if (statement_node->type == Node_Stmt_Expr)
+    {
+        // FIXME: this is not always an FlowElement_Assignment!
+        FlowElementType element_type = FlowElement_Assignment;
+        if (statement_node->first_child && statement_node->first_child && statement_node->first_child->first_child)
+        {
+            if (statement_node->first_child->first_child->next_sibling)
+            {
+                if (statement_node->first_child->first_child->next_sibling->type == Node_Expr_PostInc)
+                {
+                    // FIXME: hack!
+                    element_type = FlowElement_BinaryOperator;
+                }
+            }
+        }
+        // TODO: we should flowify the expression! (for now we create a dummy element)
+        
+        new_child_element = new_flow_element(flowifier, statement_node, element_type);
+    }
+    else if (statement_node->type == Node_Stmt_If)
+    {
+        // TODO: implement this
+    }
+    
+    return new_child_element;
+}
+
 void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
 {
-    
     Node * parent_node = parent_element->ast_node;
     
     Node * child_node = parent_node->first_child;
@@ -131,43 +167,21 @@ void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
     {
         do
         {
-            if (child_node->type == Node_Stmt_Expr)
+            FlowElement * new_child_element = flowify_statement(flowifier, child_node);
+                
+            if (!parent_element->first_child)
             {
-            
-                // FIXME: this is not always an FlowElement_Assignment!
-                FlowElementType element_type = FlowElement_Assignment;
-                if (child_node->first_child && child_node->first_child && child_node->first_child->first_child)
-                {
-                    if (child_node->first_child->first_child->next_sibling)
-                    {
-                        if (child_node->first_child->first_child->next_sibling->type == Node_Expr_PostInc)
-                        {
-                            // FIXME: hack!
-                            element_type = FlowElement_BinaryOperator;
-                        }
-                    }
-                }
-                // TODO: we should flowify the expression! (for now we create a dummy element)
-                
-                FlowElement * new_child_element = new_flow_element(flowifier, child_node, element_type);
-                
-                if (!parent_element->first_child)
-                {
-                    parent_element->first_child = new_child_element;
-                }
-                else 
-                {
-                    previous_child_element->next_sibling = new_child_element;
-                    new_child_element->previous_sibling = previous_child_element;
-                }
-                previous_child_element = new_child_element;
+                parent_element->first_child = new_child_element;
             }
+            else 
+            {
+                previous_child_element->next_sibling = new_child_element;
+                new_child_element->previous_sibling = previous_child_element;
+            }
+            previous_child_element = new_child_element;
         }
         while((child_node = child_node->next_sibling));
     }
-    
-    log_int(flowifier->nr_of_flow_elements);
-    
 }
 
 void layout_elements(FlowElement * flow_element)
@@ -177,10 +191,14 @@ void layout_elements(FlowElement * flow_element)
         flow_element->size.width = 100;
         flow_element->size.height = 100;
     }
-    if (flow_element->type == FlowElement_BinaryOperator)
+    else if (flow_element->type == FlowElement_BinaryOperator)
     {
         flow_element->size.width = 200;
         flow_element->size.height = 100;
+    }
+    else if (flow_element->type == FlowElement_If)
+    {
+        // TODO: 
     }
     else if (flow_element->type == FlowElement_Root)
     {
