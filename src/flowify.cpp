@@ -115,7 +115,7 @@ extern "C" {
         WorldData * world = &global_world;
         
         world->iteration = 0;
-        world->selected_element_index = 0;
+        world->selected_element_index = 1;  // FIXME: HACK
         
         world->program_texts[0] = simple_assign_program_text;
         world->program_texts[1] = i_plus_plus_program_text;
@@ -170,7 +170,7 @@ extern "C" {
         }
         if (world->selected_element_index >= world->flowifier.nr_of_flow_elements)
         {
-            world->selected_element_index = 0;
+            world->selected_element_index = 1; // FIXME: HACK
         }
         world->flowifier.flow_elements[world->selected_element_index].is_selected = true;
         
