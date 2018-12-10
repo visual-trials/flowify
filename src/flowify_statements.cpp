@@ -66,7 +66,9 @@ struct FlowElement
     Node * ast_node;
     
     FlowElement * first_child;
+    
     FlowElement * next_sibling;
+    FlowElement * previous_sibling;
 
     b32 is_selected;
     
@@ -80,7 +82,7 @@ struct FlowElement
     Pos2d absolute_position;
     
     // TODO: what to do here?
-    LaneSegment line_segment;
+    LaneSegment lane_segment;
     
     // TODO: do we want to add position and size here this way?
     // LaneSegment * lane_segment;
@@ -111,6 +113,7 @@ FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowEleme
     new_flow_element->ast_node = ast_node;
     new_flow_element->first_child = 0;
     new_flow_element->next_sibling = 0;
+    new_flow_element->previous_sibling = 0;
     new_flow_element->type = flow_element_type;
     new_flow_element->is_selected = false;
     return new_flow_element;
@@ -155,6 +158,7 @@ void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
                 else 
                 {
                     previous_child_element->next_sibling = new_child_element;
+                    new_child_element->previous_sibling = previous_child_element;
                 }
                 previous_child_element = new_child_element;
             }
@@ -194,6 +198,7 @@ void layout_elements(FlowElement * flow_element)
         i32 largest_child_width = 0;
         
         FlowElement * child_element = flow_element->first_child;
+        
         if (child_element)
         {
             do
@@ -211,10 +216,9 @@ void layout_elements(FlowElement * flow_element)
                 {
                     largest_child_width = child_size.width;
                 }
-                
-                
             }
             while ((child_element = child_element->next_sibling));
+            
         }
     
         flow_element->size.width = left_margin + largest_child_width + right_margin;
@@ -239,25 +243,7 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
     // TODO: we probably want flags here!
     if (flow_element->type == FlowElement_Assignment || flow_element->type == FlowElement_BinaryOperator)
     {
-        Pos2d position = parent_position;
-        position.x += flow_element->position.x;
-        position.y += flow_element->position.y;
-        
-        Pos2d left_top = {};
-        Pos2d right_top = {};
-        Pos2d left_bottom = {};
-        Pos2d right_bottom = {};
-        
-        left_top = position;
-        right_top = left_top;
-        right_top.x += flow_element->size.width;
-        
-        left_bottom = left_top;
-        left_bottom.y += flow_element->size.height;
-        
-        right_bottom = left_bottom;
-        right_bottom.x += flow_element->size.width;
-        
+        // Colors
         Color4 fill_color = unselected_color;
         if (flow_element->is_selected)
         {
@@ -267,6 +253,60 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         fill_color.r -= 30;
         fill_color.g -= 30;
         fill_color.b -= 30;
+
+        // Size and positions
+        Size2d size = flow_element->size;
+        Size2d previous_size = size;
+        Size2d next_size = size;
+        if (flow_element->previous_sibling)
+        {
+            if (flow_element->previous_sibling->size.width >  size.width)
+            {
+                previous_size = flow_element->previous_sibling->size;
+            }
+        }
+        if (flow_element->next_sibling)
+        {
+            if (flow_element->next_sibling->size.width >  size.width)
+            {
+                next_size = flow_element->next_sibling->size;
+            }
+        }
+        
+        Pos2d position = parent_position;
+        position.x += flow_element->position.x;
+        position.y += flow_element->position.y;
+        
+        Pos2d left_top = {};
+        Pos2d right_top = {};
+        Pos2d left_bottom = {};
+        Pos2d right_bottom = {};
+
+        // Top lane segment
+        left_top = position;
+        right_top = left_top;
+        right_top.x += previous_size.width;
+        
+        left_bottom = left_top;
+        left_bottom.y += flow_element->size.height / 2;
+        
+        right_bottom = left_bottom;
+        right_bottom.x += flow_element->size.width;
+        
+        draw_lane_segment(left_top,  right_top, left_bottom, right_bottom, 
+                          20, line_color, fill_color, line_width);
+                          
+        // Bottom lane segment
+        
+        left_top = left_bottom;
+        right_top = right_bottom;
+        
+        left_bottom = position;
+        left_bottom.y += flow_element->size.height;
+        
+        right_bottom = left_bottom;
+        right_bottom.x += next_size.width;
+        
         draw_lane_segment(left_top,  right_top, left_bottom, right_bottom, 
                           20, line_color, fill_color, line_width);
     }
