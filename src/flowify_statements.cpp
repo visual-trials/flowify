@@ -112,6 +112,23 @@ FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowEleme
     return new_flow_element;
 }
 
+FlowElement * get_function_element(Flowifier * flowifier, String identifier)
+{
+    FlowElement * function_element = flowifier->first_function;
+    if (function_element)
+    {
+        do
+        {
+            if (equals(function_element->ast_node->identifier, identifier))
+            {
+                return function_element;
+            }
+        }
+        while((function_element = function_element->next_function));
+    }
+    return 0;
+}
+
 void flowify_statements(Flowifier * flowifier, FlowElement * parent_element);
 
 FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
@@ -136,7 +153,21 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
                     // FIXME: hack!
                     element_type = FlowElement_FunctionCall;
                     
-                    // FIXME: flowify the function itself!
+                    String identifier = statement_node->first_child->first_child->next_sibling->identifier;
+                    
+                    FlowElement * function_element = get_function_element(flowifier, identifier);
+                    
+                    if (function_element)
+                    {
+                        log("Found function:");
+                        log(identifier);
+                        // FIXME: flowify the function itself!
+                    }
+                    else {
+                        log("Unknown function:");
+                        log(identifier);
+                    }
+
                 }
             }
         }
@@ -184,6 +215,14 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         
         new_statement_element = if_element;
     }
+    else if (statement_node->type == Node_Stmt_Function)
+    {
+        FlowElement * function_element = new_flow_element(flowifier, statement_node, FlowElement_Function);
+        
+        // TODO: flowify body of function!
+        
+        new_statement_element = function_element;
+    }
     
     return new_statement_element;
 }
@@ -196,22 +235,25 @@ void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
     
     // Functions
     child_node = parent_node->first_child;
-    if (child_node && child_node->type == Node_Stmt_Function)
+    if (child_node)
     {
         do
         {
-            FlowElement * new_function_element = flowify_statement(flowifier, child_node);
-            
-            // TODO: right now we store functions in one (global) linked list
-            if (!flowifier->first_function)
+            if (child_node->type == Node_Stmt_Function)
             {
-                flowifier->first_function = new_function_element;
+                FlowElement * new_function_element = flowify_statement(flowifier, child_node);
+
+                // TODO: right now we store functions in one (global) linked list
+                if (!flowifier->first_function)
+                {
+                    flowifier->first_function = new_function_element;
+                }
+                else 
+                {
+                    flowifier->latest_function->next_function = new_function_element;
+                }
+                flowifier->latest_function = new_function_element;
             }
-            else 
-            {
-                flowifier->latest_function->next_function = new_function_element;
-            }
-            flowifier->latest_function = new_function_element;
         }
         while((child_node = child_node->next_sibling));
     }
@@ -219,22 +261,25 @@ void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
     // Non-functions
     child_node = parent_node->first_child;
     previous_child_element = 0;
-    if (child_node && child_node->type != Node_Stmt_Function)
+    if (child_node)
     {
         do
         {
-            FlowElement * new_child_element = flowify_statement(flowifier, child_node);
-                
-            if (!parent_element->first_child)
+            if (child_node->type != Node_Stmt_Function)
             {
-                parent_element->first_child = new_child_element;
+                FlowElement * new_child_element = flowify_statement(flowifier, child_node);
+                    
+                if (!parent_element->first_child)
+                {
+                    parent_element->first_child = new_child_element;
+                }
+                else 
+                {
+                    previous_child_element->next_sibling = new_child_element;
+                    new_child_element->previous_sibling = previous_child_element;
+                }
+                previous_child_element = new_child_element;
             }
-            else 
-            {
-                previous_child_element->next_sibling = new_child_element;
-                new_child_element->previous_sibling = previous_child_element;
-            }
-            previous_child_element = new_child_element;
         }
         while((child_node = child_node->next_sibling));
     }

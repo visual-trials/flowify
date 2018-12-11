@@ -159,6 +159,24 @@ void append_string(String * dest, String * src)
     dest->length = dest->length + src->length;
 }
 
+b32 equals(String string1, String string2)
+{
+    if (string1.length != string2.length)
+    {
+        return false;
+    }
+    
+    b32 equals = true;
+    for (i32 i = 0; i < string1.length; i++)
+    {
+        if (string1.data[i] != string2.data[i])
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 b32 equals(String string1, const char * cstring2)
 {
     i32 cstring2_length = cstring_length(cstring2);
