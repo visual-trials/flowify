@@ -420,10 +420,6 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
     }
     else if (flow_element->type == FlowElement_IfStart)
     {
-        Pos2d position = parent_position;
-        position.x += flow_element->position.x;
-        position.y += flow_element->position.y;
-        
         // Colors
         Color4 fill_color = unselected_color;
         if (flow_element->is_selected)
@@ -431,16 +427,19 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
             fill_color = selected_color;
         }
         
-        // Size and positions
+        // If-start position + size
+        Pos2d position = parent_position;
+        position.x += flow_element->position.x;
+        position.y += flow_element->position.y;
         Size2d size = flow_element->size;
         
-        // Then size (left)
+        // If-then position + size (left)
         Pos2d left_position = flow_element->next_sibling->position;
         left_position.x += parent_position.x;
         left_position.y += parent_position.y;
         i32 left_width = flow_element->next_sibling->size.width;
         
-        // Else size (right)
+        // If-else position + size (right)
         Pos2d right_position = flow_element->next_sibling->next_sibling->position;
         right_position.x += parent_position.x;
         right_position.y += parent_position.y;
