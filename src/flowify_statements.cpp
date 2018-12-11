@@ -67,6 +67,7 @@ const char * flow_element_type_names[] = {
     "Continue",
     
     // Data flow elements
+    "Hidden",
     "Assignment",
     "BinaryOperator",
     "FunctionCall",   // TODO: is this redundant?
