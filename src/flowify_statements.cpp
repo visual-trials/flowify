@@ -75,34 +75,18 @@ struct FlowElement
 
     b32 is_selected;
     
-    // TODO: i32 scale;
-    
-    // TODO: should we use this? Or something more subtle? Or add something?
     Size2d size;
     Pos2d position;
+    // TODO: i32 scale;
     
-    Size2d absolute_size;
-    Pos2d absolute_position;
-    
-    // TODO: what to do here?
-    LaneSegment lane_segment;
-    
-    // TODO: do we want to add position and size here this way?
-    // LaneSegment * lane_segment;
-    // Rectangle * rounded_rectangle;
-
-    // TODO: we could consist of several sub-shapes (like a if-statement consists of if-start, if-cond, if-then, if-else, if-end)
+    Pos2d left_top_absolute_position;
+    Pos2d bottom_right_absolute_position;
+    // TODO: i32 absolute_scale;
     
     // HitShape * hit_box;               or is this part of the shape(s)???
     
     HighlightedLinePart highlighted_line_part; // This is for highlighting in the dump
 };
-
-// TODO: maybe we should create a struct for each type of FlowElement?
-//    Function/Root (RoundedRectangle/Container)
-//    ExpressionStatement ((Sub)LaneSegment)
-//    IfStatement (Head/Split/2-Lanes/Join/Tail-Segments)
-//    ForStatement (...)
 
 struct Flowifier
 {
