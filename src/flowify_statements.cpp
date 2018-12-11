@@ -72,7 +72,9 @@ struct FlowElement
     
     FlowElement * next_sibling;
     FlowElement * previous_sibling;
-
+    
+    FlowElement * next_function; // TODO: we should probably not store this in FlowElement
+    
     b32 is_selected;
     
     Size2d size;
@@ -92,6 +94,9 @@ struct Flowifier
 {
     FlowElement flow_elements[100]; // TODO: allocate this properly
     i32 nr_of_flow_elements;
+    
+    FlowElement * first_function;
+    FlowElement * latest_function;
 };
 
 FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowElementType flow_element_type = FlowElement_Unknown)
@@ -101,6 +106,7 @@ FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowEleme
     new_flow_element->first_child = 0;
     new_flow_element->next_sibling = 0;
     new_flow_element->previous_sibling = 0;
+    new_flow_element->next_function = 0;
     new_flow_element->type = flow_element_type;
     new_flow_element->is_selected = false;
     return new_flow_element;
@@ -116,7 +122,7 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
     {
         // FIXME: this is not always an FlowElement_Assignment!
         FlowElementType element_type = FlowElement_Assignment;
-        if (statement_node->first_child && statement_node->first_child && statement_node->first_child->first_child)
+        if (statement_node->first_child && statement_node->first_child->first_child)
         {
             if (statement_node->first_child->first_child->next_sibling)
             {
@@ -125,8 +131,16 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
                     // FIXME: hack!
                     element_type = FlowElement_BinaryOperator;
                 }
+                else if (statement_node->first_child->first_child->next_sibling->type == Node_Expr_FuncCall)
+                {
+                    // FIXME: hack!
+                    element_type = FlowElement_FunctionCall;
+                    
+                    // FIXME: flowify the function itself!
+                }
             }
         }
+        
         // TODO: we should flowify the expression! (for now we create a dummy element)
         
         new_statement_element = new_flow_element(flowifier, statement_node, element_type);
@@ -177,11 +191,35 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
 void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
 {
     Node * parent_node = parent_element->ast_node;
-    
-    Node * child_node = parent_node->first_child;
+    Node * child_node = 0;
     FlowElement * previous_child_element = 0;
     
-    if (child_node)
+    // Functions
+    child_node = parent_node->first_child;
+    if (child_node && child_node->type == Node_Stmt_Function)
+    {
+        do
+        {
+            FlowElement * new_function_element = flowify_statement(flowifier, child_node);
+            
+            // TODO: right now we store functions in one (global) linked list
+            if (!flowifier->first_function)
+            {
+                flowifier->first_function = new_function_element;
+            }
+            else 
+            {
+                flowifier->latest_function->next_function = new_function_element;
+            }
+            flowifier->latest_function = new_function_element;
+        }
+        while((child_node = child_node->next_sibling));
+    }
+    
+    // Non-functions
+    child_node = parent_node->first_child;
+    previous_child_element = 0;
+    if (child_node && child_node->type != Node_Stmt_Function)
     {
         do
         {
@@ -249,6 +287,7 @@ void layout_elements(FlowElement * flow_element)
         // TODO: change/extend either the else- or the then- height
     }
     else if (flow_element->type == FlowElement_Root ||
+             flow_element->type == FlowElement_FunctionCall ||
              flow_element->type == FlowElement_IfThen ||
              flow_element->type == FlowElement_IfElse)
     {
@@ -262,7 +301,8 @@ void layout_elements(FlowElement * flow_element)
         i32 left_margin = 0;
         i32 right_margin = 0;
         
-        if (flow_element->type == FlowElement_Root)
+        if (flow_element->type == FlowElement_Root ||
+            flow_element->type == FlowElement_FunctionCall)
         {
             top_margin = 20;
             bottom_margin = 20;
@@ -556,12 +596,11 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         
     }
     else if (flow_element->type == FlowElement_Root ||
+             flow_element->type == FlowElement_FunctionCall ||
              flow_element->type == FlowElement_IfThen ||
              flow_element->type == FlowElement_IfElse)
     {
-        Pos2d position = parent_position;
-        position.x += flow_element->position.x;
-        position.y += flow_element->position.y;
+        Pos2d position = add_position_to_position(flow_element->position, parent_position);
         
         /*
         Color4 fill_color = unselected_color;
@@ -571,7 +610,8 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         }
         */
         
-        if (flow_element->type == FlowElement_Root)
+        if (flow_element->type == FlowElement_Root ||
+            flow_element->type == FlowElement_FunctionCall)
         {
             draw_rounded_rectangle(position, flow_element->size, 20, 
                                    function_line_color, function_fill_color, function_line_width);

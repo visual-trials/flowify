@@ -221,6 +221,9 @@ struct Node
 {
     NodeType type;
     
+    String identifier;
+    String value;
+    
     i32 first_token_index;
     i32 last_token_index;
     
@@ -717,10 +720,10 @@ Node * parse_sub_expression(Parser * parser)
         
         expect_token(parser, Token_VariableIdentifier);
         
-        // TODO: use token to set variable name inside the Node_Expr_Variable!
         Token * variable_token = get_latest_token(parser);
         
         sub_expression_node->type = Node_Expr_PreInc;
+        sub_expression_node->identifier = variable_token->text;
             
         Node * variable_node = new_node(parser);
         variable_node->type = Node_Expr_Variable;
@@ -740,8 +743,8 @@ Node * parse_sub_expression(Parser * parser)
         
         expect_token(parser, Token_VariableIdentifier);
         
-        // TODO: use token to set variable name inside the Node_Expr_Variable!
         Token * variable_token = get_latest_token(parser);
+        sub_expression_node->identifier = variable_token->text;
         
         sub_expression_node->type = Node_Expr_PreDec;
             
@@ -761,7 +764,6 @@ Node * parse_sub_expression(Parser * parser)
         
         sub_expression_node->first_token_index = parser->current_token_index - 1;
         
-        // TODO: use token to set variable name inside the Node_Expr_Variable!
         Token * variable_token = get_latest_token(parser);
         
         if (accept_token(parser, Token_PlusPlus))
@@ -820,6 +822,7 @@ Node * parse_sub_expression(Parser * parser)
             // If the variable was not followed by anything, we assume the expression only contains the variable
             sub_expression_node->type = Node_Expr_Variable;
         }
+        sub_expression_node->identifier = variable_token->text;
         
         sub_expression_node->last_token_index = parser->current_token_index - 1;
     }
@@ -829,10 +832,10 @@ Node * parse_sub_expression(Parser * parser)
         
         sub_expression_node->first_token_index = parser->current_token_index - 1;
         
-        // TODO: use token to set number inside Node!
         Token * token = get_latest_token(parser);
         
         sub_expression_node->type = Node_Scalar_Number;
+        sub_expression_node->value = token->text;
         
         sub_expression_node->last_token_index = parser->current_token_index - 1;
     }
@@ -842,10 +845,10 @@ Node * parse_sub_expression(Parser * parser)
         
         sub_expression_node->first_token_index = parser->current_token_index - 1;
         
-        // TODO: use token to set number inside Node!
         Token * token = get_latest_token(parser);
         
         sub_expression_node->type = Node_Scalar_Float;
+        sub_expression_node->value = token->text;
         
         sub_expression_node->last_token_index = parser->current_token_index - 1;
     }
@@ -855,10 +858,10 @@ Node * parse_sub_expression(Parser * parser)
         
         sub_expression_node->first_token_index = parser->current_token_index - 1;
         
-        // TODO: use token to set number inside Node!
         Token * token = get_latest_token(parser);
         
         sub_expression_node->type = Node_Scalar_String;
+        sub_expression_node->value = token->text;
         
         sub_expression_node->last_token_index = parser->current_token_index - 1;
     }
@@ -868,10 +871,10 @@ Node * parse_sub_expression(Parser * parser)
         
         sub_expression_node->first_token_index = parser->current_token_index - 1;
         
-        // TODO: use token to set function name inside the Node_Expr_FuncCall!
         Token * function_call_token = get_latest_token(parser);
 
         sub_expression_node->type = Node_Expr_FuncCall;
+        sub_expression_node->identifier = function_call_token->text;
         parse_arguments(parser, sub_expression_node);
         
         sub_expression_node->last_token_index = parser->current_token_index - 1;
@@ -1107,10 +1110,10 @@ Node * parse_statement(Parser * parser)
         
         if (expect_token(parser, Token_Identifier))
         {
-            // TODO: use token to set function name inside the Node_Expr_Function!
             Token * function_token = get_latest_token(parser);
 
             statement_node->type = Node_Stmt_Function;
+            statement_node->identifier = function_token->text;
             
             Node * function_arguments_node = new_node(parser);
             function_arguments_node->type = Node_Stmt_Function_Args;
