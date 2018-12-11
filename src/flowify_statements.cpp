@@ -429,14 +429,18 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         Size2d size = flow_element->size;
         Size2d previous_size = size; // TODO: do we need this here?
         previous_size.height = 0; // TODO: We now assume a flat rectangle as previous size
-        Size2d left_size = size;
-        Size2d right_size = size;
         
         // Then size (left)
-        left_size = flow_element->next_sibling->size;
+        Pos2d left_position = flow_element->next_sibling->position;
+        left_position.x += parent_position.x;
+        left_position.y += parent_position.y;
+        i32 left_width = flow_element->next_sibling->size.width;
         
         // Else size (right)
-        right_size = flow_element->next_sibling->next_sibling->size;
+        Pos2d right_position = flow_element->next_sibling->next_sibling->position;
+        right_position.x += parent_position.x;
+        right_position.y += parent_position.y;
+        i32 right_width = flow_element->next_sibling->next_sibling->size.width;
         
         Pos2d top_position = {};
         i32 top_width = 0;
@@ -444,12 +448,14 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         Pos2d bottom_position = {};
         i32 bottom_width = 0;
         
+        LaneSegment lane_segment = {};
         
-            Pos2d left_top = {};
-            Pos2d right_top = {};
-            Pos2d left_bottom = {};
-            Pos2d right_bottom = {};
-
+        // TODO: maybe we should not reverse engineer middle_margin this way
+        i32 middle_margin = size.width - (left_width + right_width);
+        
+        Pos2d split_point = position;
+        split_point.x += left_width + middle_margin / 2;
+        split_point.y += size.height / 2;
         
         // Top lane segment
         
@@ -460,51 +466,36 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         bottom_position.y += size.height / 2;
         bottom_width = size.width;
         
-        LaneSegment lane_segment = lane_segment_from_positions_and_widths(top_position, top_width, bottom_position, bottom_width);
+        lane_segment = lane_segment_from_positions_and_widths(top_position, top_width, bottom_position, bottom_width);
         draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
                           20, line_color, fill_color, line_width);
         
         // Left lane segment
-        
-        // TODO: maybe we should not reverse engineer middle_margin this way
-        i32 middle_margin = size.width - (left_size.width + right_size.width);
-            
-        // TODO: make more use of position of then-element
 
-        position = lane_segment.left_bottom;
+        top_position = position;
+        top_position.y += size.height / 2;
+        top_width = split_point.x - top_position.x;
         
-        left_top = position;
-        right_top = left_top;
-        right_top.x += left_size.width + middle_margin / 2;
-        
-        left_bottom = left_top;
-        left_bottom.y += flow_element->size.height / 2;
-        
-        right_bottom = left_bottom;
-        right_bottom.x += left_size.width;
-        
-        draw_lane_segment(left_top,  right_top, left_bottom, right_bottom, 
+        bottom_position = position;
+        bottom_position.y += size.height;
+        bottom_width = left_width;
+
+        lane_segment = lane_segment_from_positions_and_widths(top_position, top_width, bottom_position, bottom_width);
+        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
                           20, line_color, fill_color, line_width);
         
         // Right lane segment
         
-        // TODO: make more use of position of else-element
-         
-        left_top = position;
-        left_top.x += left_size.width + middle_margin / 2;
+        top_position = split_point;
+        top_width = right_position.x + right_width - split_point.x;
         
-        right_top = position;
-        right_top.x += flow_element->size.width;
+        bottom_position = right_position;
+        bottom_width = right_width;
         
-        left_bottom = position;
-        left_bottom.y += flow_element->size.height / 2;
-        left_bottom.x += left_size.width + middle_margin;
-        
-        right_bottom = position;
-        right_bottom.x += left_size.width + middle_margin + right_size.width;
-        
-        draw_lane_segment(left_top,  right_top, left_bottom, right_bottom, 
+        lane_segment = lane_segment_from_positions_and_widths(top_position, top_width, bottom_position, bottom_width);
+        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
                           20, line_color, fill_color, line_width);
+                          
     }
     else if (flow_element->type == FlowElement_IfEnd)
     {
