@@ -137,7 +137,7 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
     
     if (statement_node->type == Node_Stmt_Expr)
     {
-        // FIXME: this is not always an FlowElement_Assignment!
+        // TODO: we should flowify the expression! (for now we create a dummy element)
         FlowElementType element_type = FlowElement_Assignment;
         if (statement_node->first_child && statement_node->first_child->first_child)
         {
@@ -146,35 +146,47 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
                 if (statement_node->first_child->first_child->next_sibling->type == Node_Expr_PostInc)
                 {
                     // FIXME: hack!
-                    element_type = FlowElement_BinaryOperator;
+                    new_statement_element = new_flow_element(flowifier, statement_node, FlowElement_BinaryOperator);
                 }
                 else if (statement_node->first_child->first_child->next_sibling->type == Node_Expr_FuncCall)
                 {
-                    // FIXME: hack!
-                    element_type = FlowElement_FunctionCall;
-                    
                     String identifier = statement_node->first_child->first_child->next_sibling->identifier;
                     
                     FlowElement * function_element = get_function_element(flowifier, identifier);
                     
                     if (function_element)
                     {
-                        log("Found function:");
-                        log(identifier);
-                        // FIXME: flowify the function itself!
+                        new_statement_element = new_flow_element(flowifier, statement_node, FlowElement_FunctionCall);
+                        new_statement_element->first_child = function_element;
                     }
                     else {
                         log("Unknown function:");
                         log(identifier);
+                        
+                        // FIXME: hack!
+                        new_statement_element = new_flow_element(flowifier, statement_node, FlowElement_FunctionCall);
                     }
 
                 }
+                else
+                {
+                    // FIXME: hack!
+                    new_statement_element = new_flow_element(flowifier, statement_node, FlowElement_Assignment);
+                }
+            }
+            else
+            {
+                // FIXME: hack!
+                new_statement_element = new_flow_element(flowifier, statement_node, FlowElement_Assignment);
             }
         }
+        else
+        {
+            // FIXME: this is not always an FlowElement_Assignment!
+            new_statement_element = new_flow_element(flowifier, statement_node, FlowElement_Assignment);
+        }
         
-        // TODO: we should flowify the expression! (for now we create a dummy element)
         
-        new_statement_element = new_flow_element(flowifier, statement_node, element_type);
     }
     else if (statement_node->type == Node_Stmt_If)
     {
