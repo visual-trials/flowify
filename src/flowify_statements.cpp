@@ -33,6 +33,10 @@ enum FlowElementType
     
     FlowElement_For,
     
+    FlowElement_Return,
+    FlowElement_Break,
+    FlowElement_Continue,
+    
     // Data flow elements
     FlowElement_Assignment,
     FlowElement_BinaryOperator,
@@ -56,6 +60,10 @@ const char * flow_element_type_names[] = {
     "IfEnd",
     
     "For",
+    
+    "Return",
+    "Break",
+    "Continue",
     
     // Data flow elements
     "Assignment",
@@ -250,6 +258,30 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         
         new_statement_element = function_element;
     }
+    else if (statement_node->type == Node_Stmt_Return)
+    {
+        FlowElement * return_element = new_flow_element(flowifier, statement_node, FlowElement_Return);
+        
+        // TODO: flowify return statement
+        
+        new_statement_element = return_element;
+    }
+    else if (statement_node->type == Node_Stmt_Break)
+    {
+        FlowElement * break_element = new_flow_element(flowifier, statement_node, FlowElement_Break);
+        
+        // TODO: flowify break statement
+        
+        new_statement_element = break_element;
+    }
+    else if (statement_node->type == Node_Stmt_Continue)
+    {
+        FlowElement * continue_element = new_flow_element(flowifier, statement_node, FlowElement_Continue);
+        
+        // TODO: flowify continue statement
+        
+        new_statement_element = continue_element;
+    }
     
     return new_statement_element;
 }
@@ -323,6 +355,11 @@ void layout_elements(FlowElement * flow_element)
     {
         flow_element->size.width = 200;
         flow_element->size.height = 100;
+    }
+    else if (flow_element->type == FlowElement_Return)
+    {
+        flow_element->size.width = 100;
+        flow_element->size.height = 50;
     }
     else if (flow_element->type == FlowElement_If)
     {
@@ -448,7 +485,9 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
     i32 function_line_width = 2;
     
     // TODO: we probably want flags here!
-    if (flow_element->type == FlowElement_Assignment || flow_element->type == FlowElement_BinaryOperator)
+    if (flow_element->type == FlowElement_Assignment || 
+        flow_element->type == FlowElement_BinaryOperator ||
+        flow_element->type == FlowElement_Return)
     {
         // Colors
         Color4 fill_color = unselected_color;
