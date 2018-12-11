@@ -62,15 +62,6 @@ const char * flow_element_type_names[] = {
     "Scalar"
 };
 
-struct LaneSegment
-{
-    Pos2d left_top;
-    Pos2d right_top;
-    
-    Pos2d left_bottom;
-    Pos2d right_bottom;
-};
-
 struct FlowElement
 {
     FlowElementType type;
@@ -437,6 +428,7 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         // Size and positions
         Size2d size = flow_element->size;
         Size2d previous_size = size; // TODO: do we need this here?
+        previous_size.height = 0; // TODO: We now assume a flat rectangle as previous size
         Size2d left_size = size;
         Size2d right_size = size;
         
@@ -446,35 +438,40 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         // Else size (right)
         right_size = flow_element->next_sibling->next_sibling->size;
         
-        Pos2d left_top = {};
-        Pos2d right_top = {};
-        Pos2d left_bottom = {};
-        Pos2d right_bottom = {};
-
-        // TODO: maybe we should not reverse engineer middle_margin this way
-        i32 middle_margin = size.width - (left_size.width + right_size.width);
+        Pos2d top_position = {};
+        i32 top_width = 0;
         
-        // TODO: do we need to account for previous size? (the width of the part on top of the start-if?)
+        Pos2d bottom_position = {};
+        i32 bottom_width = 0;
+        
+        
+            Pos2d left_top = {};
+            Pos2d right_top = {};
+            Pos2d left_bottom = {};
+            Pos2d right_bottom = {};
+
         
         // Top lane segment
-        left_top = position;
-        right_top = left_top;
-        right_top.x += previous_size.width;
         
-        left_bottom = left_top;
-        left_bottom.y += flow_element->size.height / 2;
+        top_position = position;
+        top_width = previous_size.width; // TODO: do we need to account for previous size? (the width of the part on top of the start-if?)
         
-        right_bottom = left_bottom;
-        right_bottom.x += flow_element->size.width;
+        bottom_position = position;
+        bottom_position.y += size.height / 2;
+        bottom_width = size.width;
         
-        draw_lane_segment(left_top,  right_top, left_bottom, right_bottom, 
+        LaneSegment lane_segment = lane_segment_from_positions_and_widths(top_position, top_width, bottom_position, bottom_width);
+        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
                           20, line_color, fill_color, line_width);
         
         // Left lane segment
         
+        // TODO: maybe we should not reverse engineer middle_margin this way
+        i32 middle_margin = size.width - (left_size.width + right_size.width);
+            
         // TODO: make more use of position of then-element
 
-        position = left_bottom;
+        position = lane_segment.left_bottom;
         
         left_top = position;
         right_top = left_top;

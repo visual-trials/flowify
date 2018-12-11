@@ -127,7 +127,7 @@ extern "C" {
         world->program_texts[7] = fibonacci_recursive_early_return_program_text;
         world->nr_of_program_texts = 8;
         
-        world->current_program_text_index = 1;
+        world->current_program_text_index = 4;
         
         load_program_text(world->program_texts[world->current_program_text_index], world);
         

@@ -58,6 +58,35 @@ struct Size2dFloat
     f32 height;
 };
 
+struct LaneSegment
+{
+    Pos2d left_top;
+    Pos2d right_top;
+    
+    Pos2d left_bottom;
+    Pos2d right_bottom;
+};
+
+LaneSegment lane_segment_from_positions_and_widths(Pos2d top_position, i32 top_width, 
+                                                   Pos2d bottom_position, i32 bottom_width)
+
+{
+    LaneSegment lane_segment = {};
+    
+    lane_segment.left_top = top_position;
+    
+    lane_segment.right_top = top_position;
+    lane_segment.right_top.x += top_width;
+    
+    lane_segment.left_bottom = bottom_position;
+    
+    lane_segment.right_bottom = bottom_position;
+    lane_segment.right_bottom.x += bottom_width;
+    
+    return lane_segment;
+}
+
+
 #define MAX_LENGTH_SHORT_STRING 100
 
 struct ShortString
