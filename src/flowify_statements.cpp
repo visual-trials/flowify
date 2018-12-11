@@ -38,6 +38,7 @@ enum FlowElementType
     FlowElement_Continue,
     
     // Data flow elements
+    FlowElement_Hidden,         // TODO: using this to signify the contents of a function we don't know it's implementation of
     FlowElement_Assignment,
     FlowElement_BinaryOperator,
     FlowElement_FunctionCall,   // TODO: is this redundant?
@@ -180,6 +181,9 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
                         // log("Unknown function:");
                         // log(identifier);
                         new_statement_element = new_flow_element(flowifier, statement_node, FlowElement_FunctionCall);
+                        
+                        FlowElement * hidden_element = new_flow_element(flowifier, statement_node, FlowElement_Hidden);
+                        new_statement_element->first_child = hidden_element;
                     }
 
                 }
@@ -346,6 +350,11 @@ void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
 
 void layout_elements(FlowElement * flow_element)
 {
+    if (flow_element->type == FlowElement_Hidden)
+    {
+        flow_element->size.width = 100;
+        flow_element->size.height = 20;
+    }
     if (flow_element->type == FlowElement_Assignment)
     {
         flow_element->size.width = 100;
@@ -736,6 +745,73 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
     else if (flow_element->type == FlowElement_FunctionCall)
     {
         Pos2d position = add_position_to_position(flow_element->position, parent_position);
+        
+        // Colors
+        Color4 fill_color = unselected_color;
+        if (flow_element->is_selected)
+        {
+            fill_color = selected_color;
+        }
+        
+        // FIXME: HACK!
+        fill_color.r -= 30;
+        fill_color.g -= 30;
+        fill_color.b -= 30;
+        
+        // Size and positions
+        Size2d size = flow_element->size;
+        Size2d previous_size = size;
+        Size2d next_size = size;
+        if (flow_element->previous_sibling)
+        {
+            if (flow_element->previous_sibling->size.width >  size.width)
+            {
+                previous_size = flow_element->previous_sibling->size;
+            }
+        }
+        if (flow_element->next_sibling)
+        {
+            if (flow_element->next_sibling->size.width >  size.width)
+            {
+                next_size = flow_element->next_sibling->size;
+            }
+        }
+        
+        Pos2d left_top = {};
+        Pos2d right_top = {};
+        Pos2d left_bottom = {};
+        Pos2d right_bottom = {};
+
+        // Top lane segment
+        left_top = position;
+        right_top = left_top;
+        right_top.x += previous_size.width;
+        
+        left_bottom = left_top;
+        left_bottom.y += flow_element->size.height / 2;
+        
+        right_bottom = left_bottom;
+        right_bottom.x += flow_element->size.width;
+        
+        draw_lane_segment(left_top,  right_top, left_bottom, right_bottom, 
+                          20, line_color, fill_color, line_width);
+                          
+        // Bottom lane segment
+        
+        left_top = left_bottom;
+        right_top = right_bottom;
+        
+        left_bottom = position;
+        left_bottom.y += flow_element->size.height;
+        
+        right_bottom = left_bottom;
+        right_bottom.x += next_size.width;
+        
+        draw_lane_segment(left_top,  right_top, left_bottom, right_bottom, 
+                          20, line_color, fill_color, line_width);
+        
+        
+        // Drawing the function itself
         
         FlowElement * function_element = flow_element->first_child;
 
