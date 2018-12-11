@@ -86,6 +86,19 @@ LaneSegment lane_segment_from_positions_and_widths(Pos2d top_position, i32 top_w
     return lane_segment;
 }
 
+inline Pos2d add_size_to_position(Pos2d position, Size2d size)
+{
+    position.x += size.width;
+    position.y += size.height;
+    return position;
+}
+
+inline Pos2d add_position_to_position(Pos2d position, Pos2d added_position)
+{
+    position.x += added_position.x;
+    position.y += added_position.y;
+    return position;
+}
 
 #define MAX_LENGTH_SHORT_STRING 100
 
@@ -102,12 +115,12 @@ struct String
 };
 
 // TODO: can we make one common array_length here?
-i32 array_length(i32 * array)
+inline i32 array_length(i32 * array)
 {
     return sizeof(array)/sizeof(array[0]);
 }
 
-i32 array_length(u8 * array)
+inline i32 array_length(u8 * array)
 {
     return sizeof(array)/sizeof(array[0]);
 }
