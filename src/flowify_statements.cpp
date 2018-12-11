@@ -23,6 +23,7 @@ enum FlowElementType
     // Control flow elements
     FlowElement_Root,
     FlowElement_Function,
+    FlowElement_FunctionBody,
     
     FlowElement_If,
     FlowElement_IfStart,
@@ -46,6 +47,7 @@ const char * flow_element_type_names[] = {
     // Control flow elements
     "Root",
     "Function",
+    "FunctionBody",
     
     "If",
     "IfStart",
@@ -137,7 +139,9 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
     
     if (statement_node->type == Node_Stmt_Expr)
     {
+        
         // TODO: we should flowify the expression! (for now we create a dummy element)
+        
         FlowElementType element_type = FlowElement_Assignment;
         if (statement_node->first_child && statement_node->first_child->first_child)
         {
@@ -160,10 +164,8 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
                         new_statement_element->first_child = function_element;
                     }
                     else {
-                        log("Unknown function:");
-                        log(identifier);
-                        
-                        // FIXME: hack!
+                        // log("Unknown function:");
+                        // log(identifier);
                         new_statement_element = new_flow_element(flowifier, statement_node, FlowElement_FunctionCall);
                     }
 
@@ -231,7 +233,15 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
     {
         FlowElement * function_element = new_flow_element(flowifier, statement_node, FlowElement_Function);
         
-        // TODO: flowify body of function!
+        // TODO: flowify function arguments
+        
+        Node * function_body_node = statement_node->first_child->next_sibling;
+        
+        FlowElement * function_body_element = new_flow_element(flowifier, function_body_node, FlowElement_FunctionBody);
+        
+        flowify_statements(flowifier, function_body_element);
+        
+        function_element->first_child = function_body_element;
         
         new_statement_element = function_element;
     }
