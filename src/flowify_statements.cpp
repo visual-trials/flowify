@@ -487,15 +487,15 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
             fill_color = selected_color;
         }
         
-        // Size and positions
+        // If-end positions + size
         Pos2d position = add_position_to_position(flow_element->position, parent_position);
         Size2d size = flow_element->size;
         
-        // Then size (left)
+        // If-then position + size (left)
         Pos2d left_position = add_position_to_position(flow_element->previous_sibling->previous_sibling->position, parent_position);
         i32 left_width = flow_element->previous_sibling->previous_sibling->size.width;
         
-        // Else size (right)
+        // If-else position + size (right)
         Pos2d right_position = add_position_to_position(flow_element->previous_sibling->position, parent_position);
         i32 right_width = flow_element->previous_sibling->size.width;
         
