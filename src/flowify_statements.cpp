@@ -110,6 +110,11 @@ FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowEleme
     new_flow_element->previous_sibling = 0;
     new_flow_element->next_function = 0;
     new_flow_element->type = flow_element_type;
+    new_flow_element->position.x = 0;
+    new_flow_element->position.y = 0;
+    new_flow_element->size.width = 0;
+    new_flow_element->size.height = 0;
+
     new_flow_element->is_selected = false;
     return new_flow_element;
 }
