@@ -352,6 +352,7 @@ Token get_token(Tokenizer * tokenizer)
             {
                 tokenizer->at++;
                 token.type = Token_Equal;
+                token.text.length = tokenizer->at - token.text.data;
             }
             else
             {
@@ -467,6 +468,7 @@ Token get_token(Tokenizer * tokenizer)
                 tokenizer->at++;
                 // TODO: we assume that all tags that end with '?>' are EndPhp-tokens
                 token.type = Token_EndOfPhp;
+                token.text.length = tokenizer->at - token.text.data;
             }
             else
             {
