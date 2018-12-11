@@ -349,17 +349,17 @@ void layout_elements(FlowElement * flow_element)
     if (flow_element->type == FlowElement_Assignment)
     {
         flow_element->size.width = 100;
-        flow_element->size.height = 100;
+        flow_element->size.height = 80;
     }
     else if (flow_element->type == FlowElement_BinaryOperator)
     {
         flow_element->size.width = 200;
-        flow_element->size.height = 100;
+        flow_element->size.height = 80;
     }
     else if (flow_element->type == FlowElement_Return)
     {
         flow_element->size.width = 100;
-        flow_element->size.height = 50;
+        flow_element->size.height = 40;
     }
     else if (flow_element->type == FlowElement_If)
     {
@@ -399,9 +399,21 @@ void layout_elements(FlowElement * flow_element)
     {
         FlowElement * function_element = flow_element->first_child;
         
+        i32 top_margin = 20;
+        i32 bottom_margin = 20;
+        
+        i32 left_margin = 20;
+        i32 right_margin = 20;
+            
         layout_elements(function_element);
         
-        flow_element->size = function_element->size;
+        function_element->position.x = left_margin;
+        function_element->position.y = top_margin;
+        
+        flow_element->size.width = left_margin + function_element->size.width + right_margin;
+        flow_element->size.height = top_margin + function_element->size.height + bottom_margin; 
+        
+        // flow_element->size = function_element->size;
     }
     else if (flow_element->type == FlowElement_Function)
     {
