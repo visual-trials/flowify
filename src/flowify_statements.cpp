@@ -353,8 +353,24 @@ void layout_elements(FlowElement * flow_element)
         
         // TODO: change/extend either the else- or the then- height
     }
+    else if (flow_element->type == FlowElement_FunctionCall)
+    {
+        FlowElement * function_element = flow_element->first_child;
+        
+        layout_elements(function_element);
+        
+        flow_element->size = function_element->size;
+    }
+    else if (flow_element->type == FlowElement_Function)
+    {
+        FlowElement * function_body_element = flow_element->first_child;
+        
+        layout_elements(function_body_element);
+        
+        flow_element->size = function_body_element->size;
+    }
     else if (flow_element->type == FlowElement_Root ||
-             flow_element->type == FlowElement_FunctionCall ||
+             flow_element->type == FlowElement_FunctionBody ||
              flow_element->type == FlowElement_IfThen ||
              flow_element->type == FlowElement_IfElse)
     {
@@ -368,8 +384,7 @@ void layout_elements(FlowElement * flow_element)
         i32 left_margin = 0;
         i32 right_margin = 0;
         
-        if (flow_element->type == FlowElement_Root ||
-            flow_element->type == FlowElement_FunctionCall)
+        if (flow_element->type == FlowElement_Root)
         {
             top_margin = 20;
             bottom_margin = 20;
@@ -662,8 +677,24 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
                           20, line_color, fill_color, line_width);
         
     }
+    else if (flow_element->type == FlowElement_FunctionCall)
+    {
+        Pos2d position = add_position_to_position(flow_element->position, parent_position);
+        
+        FlowElement * function_element = flow_element->first_child;
+
+        draw_elements(function_element, position);
+    }
+    else if (flow_element->type == FlowElement_Function)
+    {
+        Pos2d position = add_position_to_position(flow_element->position, parent_position);
+        
+        FlowElement * function_body_element = flow_element->first_child;
+
+        draw_elements(function_body_element, position);
+    }
     else if (flow_element->type == FlowElement_Root ||
-             flow_element->type == FlowElement_FunctionCall ||
+             flow_element->type == FlowElement_FunctionBody ||
              flow_element->type == FlowElement_IfThen ||
              flow_element->type == FlowElement_IfElse)
     {
@@ -677,8 +708,7 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         }
         */
         
-        if (flow_element->type == FlowElement_Root ||
-            flow_element->type == FlowElement_FunctionCall)
+        if (flow_element->type == FlowElement_Root)
         {
             draw_rounded_rectangle(position, flow_element->size, 20, 
                                    function_line_color, function_fill_color, function_line_width);
