@@ -88,6 +88,7 @@ const char * simple_if_else_program_text =
     "\n"
     "if ($b > 50) {\n"
     "   $b = 50;\n"
+    "   $myVar += 10;\n"
     "}\n"
     "else {\n"
     "    $b = 30;\n"
