@@ -530,6 +530,8 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         flow_element->type == FlowElement_BinaryOperator ||
         flow_element->type == FlowElement_Return)
     {
+        Pos2d position = add_position_to_position(flow_element->position, parent_position);
+        
         // Colors
         Color4 fill_color = unselected_color;
         if (flow_element->is_selected)
@@ -555,10 +557,6 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
                 next_size = flow_element->next_sibling->size;
             }
         }
-        
-        Pos2d position = parent_position;
-        position.x += flow_element->position.x;
-        position.y += flow_element->position.y;
         
         Pos2d left_top = {};
         Pos2d right_top = {};
@@ -595,9 +593,7 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
     }
     else if (flow_element->type == FlowElement_If)
     {
-        Pos2d position = parent_position;
-        position.x += flow_element->position.x;
-        position.y += flow_element->position.y;
+        Pos2d position = add_position_to_position(flow_element->position, parent_position);
         
         FlowElement * if_start_element = flow_element->first_child;
         FlowElement * if_then_element = if_start_element->next_sibling;
