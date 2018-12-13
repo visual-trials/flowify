@@ -224,18 +224,24 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         FlowElement * if_start_element = new_flow_element(flowifier, if_cond_node, FlowElement_IfStart); 
         
         FlowElement * if_then_element = new_flow_element(flowifier, if_then_node, FlowElement_IfThen);
-        flowify_statements(flowifier, if_then_element);
+        if (if_then_node && if_then_node->first_child)
+        {
+            flowify_statements(flowifier, if_then_element);
+        }
+        else
+        {
+            FlowElement * then_passthrough_element = new_flow_element(flowifier, 0, FlowElement_PassThrough);
+            if_then_element->first_child = then_passthrough_element;
+        }
         
         FlowElement * if_else_element = new_flow_element(flowifier, if_else_node, FlowElement_IfElse);
-        if (if_else_node)
+        if (if_else_node && if_else_node->first_child)
         {
             flowify_statements(flowifier, if_else_element);
         }
         else
         {
-            // TODO: what to do with the if_else_element if no if_else_node is available?
             FlowElement * else_passthrough_element = new_flow_element(flowifier, 0, FlowElement_PassThrough);
-            
             if_else_element->first_child = else_passthrough_element;
         }
         
