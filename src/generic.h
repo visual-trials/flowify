@@ -52,6 +52,12 @@ struct Size2d
     i32 height;
 };
 
+struct Rectangle
+{
+    Pos2d position;
+    Size2d size;
+};
+
 struct Size2dFloat
 {
     f32 width;
@@ -65,6 +71,19 @@ struct LaneSegment
     
     Pos2d left_bottom;
     Pos2d right_bottom;
+};
+
+struct LaneSegment2
+{
+    LaneSegment top;
+    LaneSegment bottom;
+};
+
+struct LaneSegment3
+{
+    LaneSegment left;
+    LaneSegment right;
+    LaneSegment top_or_bottom;
 };
 
 LaneSegment lane_segment_from_positions_and_widths(Pos2d top_position, i32 top_width, 
@@ -84,6 +103,68 @@ LaneSegment lane_segment_from_positions_and_widths(Pos2d top_position, i32 top_w
     lane_segment.right_bottom.x += bottom_width;
     
     return lane_segment;
+}
+
+LaneSegment3 get_3_lane_segments_from_3_rectangles(Rectangle left_rect, 
+                                                   Rectangle right_rect, 
+                                                   Rectangle top_or_bottom_rect, 
+                                                   b32 is_top_rect)
+{
+    LaneSegment3 lane_segments = {};
+    
+    Pos2d top_position = {};
+    i32 top_width = 0;
+    
+    Pos2d bottom_position = {};
+    i32 bottom_width = 0;
+    
+    Pos2d position = top_or_bottom_rect.position;
+    Size2d size = top_or_bottom_rect.size;
+    
+    i32 left_width = left_rect.size.width;
+    i32 right_width = right_rect.size.width;
+    
+    // TODO: maybe we should not reverse engineer middle_margin this way
+    i32 middle_margin = size.width - (left_width + right_width);
+    
+    Pos2d split_point = position;
+    split_point.x += left_width + middle_margin / 2;
+    split_point.y += size.height / 2;
+    
+    // Top lane segment
+    
+    top_position = position;
+    top_width = size.width;
+    
+    bottom_position = position;
+    bottom_position.y += size.height / 2;
+    bottom_width = size.width;
+    
+    lane_segments.top_or_bottom = lane_segment_from_positions_and_widths(top_position, top_width, bottom_position, bottom_width);
+    
+    // Left lane segment
+
+    top_position = position;
+    top_position.y += size.height / 2;
+    top_width = split_point.x - top_position.x;
+    
+    bottom_position = position;
+    bottom_position.y += size.height;
+    bottom_width = left_width;
+
+    lane_segments.left = lane_segment_from_positions_and_widths(top_position, top_width, bottom_position, bottom_width);
+    
+    // Right lane segment
+    
+    top_position = split_point;
+    top_width = right_rect.position.x + right_width - split_point.x;
+    
+    bottom_position = right_rect.position;
+    bottom_width = right_width;
+    
+    lane_segments.right = lane_segment_from_positions_and_widths(top_position, top_width, bottom_position, bottom_width);
+    
+    return lane_segments;
 }
 
 inline Pos2d add_size_to_position(Pos2d position, Size2d size)
