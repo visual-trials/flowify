@@ -33,6 +33,8 @@ enum FlowElementType
     
     FlowElement_For,
     
+    FlowElement_PassThrough,
+    
     FlowElement_Return,
     FlowElement_Break,
     FlowElement_Continue,
@@ -42,7 +44,7 @@ enum FlowElementType
     FlowElement_Assignment,
     FlowElement_BinaryOperator,
     FlowElement_FunctionCall,   // TODO: is this redundant?
-    FlowElement_Scalar,
+    FlowElement_Scalar
 };
 // TODO: Keep this in sync with the enum above!
 // TODO: DON'T FORGET THE COMMAS!!
@@ -61,6 +63,8 @@ const char * flow_element_type_names[] = {
     "IfEnd",
     
     "For",
+    
+    "PassThrough",
     
     "Return",
     "Break",
@@ -230,6 +234,9 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         else
         {
             // TODO: what to do with the if_else_element if no if_else_node is available?
+            FlowElement * else_passthrough_element = new_flow_element(flowifier, 0, FlowElement_PassThrough);
+            
+            if_else_element->first_child = else_passthrough_element;
         }
         
         FlowElement * if_end_element = new_flow_element(flowifier, 0, FlowElement_IfEnd);
@@ -356,7 +363,12 @@ void layout_elements(FlowElement * flow_element)
         flow_element->size.width = 100;
         flow_element->size.height = 20;
     }
-    if (flow_element->type == FlowElement_Assignment)
+    else if (flow_element->type == FlowElement_PassThrough)
+    {
+        flow_element->size.width = 40;
+        flow_element->size.height = 80;
+    }
+    else if (flow_element->type == FlowElement_Assignment)
     {
         flow_element->size.width = 100;
         flow_element->size.height = 80;
@@ -458,7 +470,7 @@ void layout_elements(FlowElement * flow_element)
         }
         
         i32 summed_children_height = 0;
-        i32 largest_child_width = 40; // TODO: using a minimum width by setting this variable beforehand
+        i32 largest_child_width = 0;
         
         FlowElement * child_element = flow_element->first_child;
         
