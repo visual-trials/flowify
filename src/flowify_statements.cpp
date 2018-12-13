@@ -670,69 +670,33 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         FlowElement * if_start_element = if_then_element->previous_sibling;
         
         // If-end positions + size
-        Pos2d position = add_position_to_position(if_end_element->position, parent_position);
-        Size2d size = if_end_element->size;
+        Rectangle bottom_rect = {};
+        bottom_rect.position = add_position_to_position(if_end_element->position, parent_position);
+        bottom_rect.size = if_end_element->size;
         
         // If-then position + size (right)
-        Pos2d right_position = add_position_to_position(if_then_element->position, parent_position);
-        i32 right_width = if_then_element->size.width;
+        Rectangle right_rect = {};
+        right_rect.position = add_position_to_position(if_then_element->position, parent_position);
+        right_rect.size = if_then_element->size;
         
         // If-else position + size (left)
-        Pos2d left_position = add_position_to_position(if_else_element->position, parent_position);
-        i32 left_width = if_else_element->size.width;
+        Rectangle left_rect = {};
+        left_rect.position = add_position_to_position(if_else_element->position, parent_position);
+        left_rect.size = if_else_element->size;
         
-        Pos2d top_position = {};
-        i32 top_width = 0;
-        
-        Pos2d bottom_position = {};
-        i32 bottom_width = 0;
+        LaneSegment3 lane_segments = get_3_lane_segments_from_3_rectangles(left_rect, right_rect, bottom_rect, false);
         
         LaneSegment lane_segment = {};
         
-        // TODO: maybe we should not reverse engineer middle_margin this way
-        i32 middle_margin = size.width - (left_width + right_width);
-        
-        Pos2d join_point = position;
-        join_point.x += left_width + middle_margin / 2;
-        join_point.y += size.height / 2;
-
-        // Left lane segment
-
-        top_position = position;
-        top_width = left_width;
-        
-        bottom_position = position;
-        bottom_position.y += size.height / 2;
-        bottom_width = join_point.x - top_position.x;
-
-        lane_segment = lane_segment_from_positions_and_widths(top_position, top_width, bottom_position, bottom_width);
-        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
-                          20, line_color, fill_color, line_width);
-        
-        // Right lane segment
-        
-        top_position = position;
-        top_position.x += left_width + middle_margin;
-        top_width = right_width; // right_position.x + right_width - split_point.x;
-        
-        bottom_position = join_point;
-        bottom_width = right_position.x + right_width - join_point.x;
-        
-        lane_segment = lane_segment_from_positions_and_widths(top_position, top_width, bottom_position, bottom_width);
+        lane_segment = lane_segments.left;
         draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
                           20, line_color, fill_color, line_width);
                           
-        // Bottom lane segment
-        
-        top_position = position;
-        top_position.y += size.height / 2;
-        top_width = size.width;
-        
-        bottom_position = position;
-        bottom_position.y += size.height;
-        bottom_width = size.width;
-        
-        lane_segment = lane_segment_from_positions_and_widths(top_position, top_width, bottom_position, bottom_width);
+        lane_segment = lane_segments.right;
+        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
+                          20, line_color, fill_color, line_width);
+                          
+        lane_segment = lane_segments.top_or_bottom;
         draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
                           20, line_color, fill_color, line_width);
         

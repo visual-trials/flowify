@@ -118,51 +118,95 @@ LaneSegment3 get_3_lane_segments_from_3_rectangles(Rectangle left_rect,
     Pos2d bottom_position = {};
     i32 bottom_width = 0;
     
-    Pos2d position = top_or_bottom_rect.position;
-    Size2d size = top_or_bottom_rect.size;
-    
     i32 left_width = left_rect.size.width;
     i32 right_width = right_rect.size.width;
     
     // TODO: maybe we should not reverse engineer middle_margin this way
-    i32 middle_margin = size.width - (left_width + right_width);
+    i32 middle_margin = top_or_bottom_rect.size.width - (left_width + right_width);
     
-    Pos2d split_point = position;
-    split_point.x += left_width + middle_margin / 2;
-    split_point.y += size.height / 2;
-    
-    // Top lane segment
-    
-    top_position = position;
-    top_width = size.width;
-    
-    bottom_position = position;
-    bottom_position.y += size.height / 2;
-    bottom_width = size.width;
-    
-    lane_segments.top_or_bottom = lane_segment_from_positions_and_widths(top_position, top_width, bottom_position, bottom_width);
-    
-    // Left lane segment
+    if (is_top_rect)
+    {
+        Rectangle top_rect = top_or_bottom_rect;
+        
+        Pos2d split_point = top_rect.position;
+        split_point.x += left_width + middle_margin / 2;
+        split_point.y += top_rect.size.height / 2;
+        
+        // Top lane segment
+        
+        top_position = top_rect.position;
+        top_width = top_rect.size.width;
+        
+        bottom_position = top_rect.position;
+        bottom_position.y += top_rect.size.height / 2;
+        bottom_width = top_rect.size.width;
+        
+        lane_segments.top_or_bottom = lane_segment_from_positions_and_widths(top_position, top_width, bottom_position, bottom_width);
+        
+        // Left lane segment
 
-    top_position = position;
-    top_position.y += size.height / 2;
-    top_width = split_point.x - top_position.x;
-    
-    bottom_position = position;
-    bottom_position.y += size.height;
-    bottom_width = left_width;
+        top_position = top_rect.position;
+        top_position.y += top_rect.size.height / 2;
+        top_width = split_point.x - top_position.x;
+        
+        bottom_position = top_rect.position;
+        bottom_position.y += top_rect.size.height;
+        bottom_width = left_width;
 
-    lane_segments.left = lane_segment_from_positions_and_widths(top_position, top_width, bottom_position, bottom_width);
-    
-    // Right lane segment
-    
-    top_position = split_point;
-    top_width = right_rect.position.x + right_width - split_point.x;
-    
-    bottom_position = right_rect.position;
-    bottom_width = right_width;
-    
-    lane_segments.right = lane_segment_from_positions_and_widths(top_position, top_width, bottom_position, bottom_width);
+        lane_segments.left = lane_segment_from_positions_and_widths(top_position, top_width, bottom_position, bottom_width);
+        
+        // Right lane segment
+        
+        top_position = split_point;
+        top_width = right_rect.position.x + right_width - split_point.x;
+        
+        bottom_position = right_rect.position;
+        bottom_width = right_width;
+        
+        lane_segments.right = lane_segment_from_positions_and_widths(top_position, top_width, bottom_position, bottom_width);
+    }
+    else
+    {
+        Rectangle bottom_rect = top_or_bottom_rect;
+        
+        Pos2d join_point = bottom_rect.position;
+        join_point.x += left_width + middle_margin / 2;
+        join_point.y += bottom_rect.size.height / 2;
+
+        // Left lane segment
+
+        top_position = bottom_rect.position;
+        top_width = left_width;
+        
+        bottom_position = bottom_rect.position;
+        bottom_position.y += bottom_rect.size.height / 2;
+        bottom_width = join_point.x - top_position.x;
+
+        lane_segments.left = lane_segment_from_positions_and_widths(top_position, top_width, bottom_position, bottom_width);
+        
+        // Right lane segment
+        
+        top_position = bottom_rect.position;
+        top_position.x += left_width + middle_margin;
+        top_width = right_width; // right_position.x + right_width - split_point.x;
+        
+        bottom_position = join_point;
+        bottom_width = right_rect.position.x + right_width - join_point.x;
+        
+        lane_segments.right = lane_segment_from_positions_and_widths(top_position, top_width, bottom_position, bottom_width);
+                          
+        // Bottom lane segment
+        
+        top_position = bottom_rect.position;
+        top_position.y += bottom_rect.size.height / 2;
+        top_width = bottom_rect.size.width;
+        
+        bottom_position = bottom_rect.position;
+        bottom_position.y += bottom_rect.size.height;
+        bottom_width = bottom_rect.size.width;
+        
+        lane_segments.top_or_bottom = lane_segment_from_positions_and_widths(top_position, top_width, bottom_position, bottom_width);
+    }
     
     return lane_segments;
 }
