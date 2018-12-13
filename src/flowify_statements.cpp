@@ -525,7 +525,8 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
     i32 function_line_width = 2;
     
     // TODO: we probably want flags here!
-    if (flow_element->type == FlowElement_Assignment || 
+    if (flow_element->type == FlowElement_PassThrough || 
+        flow_element->type == FlowElement_Assignment || 
         flow_element->type == FlowElement_BinaryOperator ||
         flow_element->type == FlowElement_Return)
     {
