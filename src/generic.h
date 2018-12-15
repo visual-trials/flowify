@@ -105,6 +105,57 @@ LaneSegment lane_segment_from_positions_and_widths(Pos2d top_position, i32 top_w
     return lane_segment;
 }
 
+// TODO: rewrite this!
+LaneSegment2 get_2_lane_segments_from_3_rectangles(Size2d top_size, 
+                                                   Rectangle middle_rect, 
+                                                   Size2d bottom_size)
+{
+    LaneSegment2 lane_segments = {};
+    
+    Pos2d position = middle_rect.position;
+    Size2d size = middle_rect.size;
+    
+    Pos2d left_top = {};
+    Pos2d right_top = {};
+    Pos2d left_bottom = {};
+    Pos2d right_bottom = {};
+
+    // Top lane segment
+    left_top = position;
+    right_top = left_top;
+    right_top.x += top_size.width;
+    
+    left_bottom = left_top;
+    left_bottom.y += size.height / 2;
+    
+    right_bottom = left_bottom;
+    right_bottom.x += size.width;
+                
+    lane_segments.top.left_top = left_top;
+    lane_segments.top.right_top = right_top;
+    lane_segments.top.left_bottom = left_bottom;
+    lane_segments.top.right_bottom = right_bottom;
+                
+    // Bottom lane segment
+    
+    left_top = left_bottom;
+    right_top = right_bottom;
+    
+    left_bottom = position;
+    left_bottom.y += size.height;
+    
+    right_bottom = left_bottom;
+    right_bottom.x += bottom_size.width;
+    
+    lane_segments.bottom.left_top = left_top;
+    lane_segments.bottom.right_top = right_top;
+    lane_segments.bottom.left_bottom = left_bottom;
+    lane_segments.bottom.right_bottom = right_bottom;
+                
+    return lane_segments;
+}
+
+// TODO: rewrite this!
 LaneSegment3 get_3_lane_segments_from_3_rectangles(Rectangle left_rect, 
                                                    Rectangle right_rect, 
                                                    Rectangle top_or_bottom_rect, 

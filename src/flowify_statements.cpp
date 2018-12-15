@@ -558,37 +558,19 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
             }
         }
         
-        Pos2d left_top = {};
-        Pos2d right_top = {};
-        Pos2d left_bottom = {};
-        Pos2d right_bottom = {};
-
-        // Top lane segment
-        left_top = position;
-        right_top = left_top;
-        right_top.x += previous_size.width;
+        Rectangle middle_rect = {};
+        middle_rect.position = position;
+        middle_rect.size = size;
+        LaneSegment2 lane_segments = get_2_lane_segments_from_3_rectangles(previous_size, middle_rect, next_size);
+                             
+        LaneSegment lane_segment = {};
         
-        left_bottom = left_top;
-        left_bottom.y += flow_element->size.height / 2;
-        
-        right_bottom = left_bottom;
-        right_bottom.x += flow_element->size.width;
-        
-        draw_lane_segment(left_top,  right_top, left_bottom, right_bottom, 
+        lane_segment = lane_segments.top;
+        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
                           20, line_color, fill_color, line_width);
                           
-        // Bottom lane segment
-        
-        left_top = left_bottom;
-        right_top = right_bottom;
-        
-        left_bottom = position;
-        left_bottom.y += flow_element->size.height;
-        
-        right_bottom = left_bottom;
-        right_bottom.x += next_size.width;
-        
-        draw_lane_segment(left_top,  right_top, left_bottom, right_bottom, 
+        lane_segment = lane_segments.bottom;
+        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
                           20, line_color, fill_color, line_width);
     }
     else if (flow_element->type == FlowElement_If)
@@ -732,39 +714,20 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
             }
         }
         
-        Pos2d left_top = {};
-        Pos2d right_top = {};
-        Pos2d left_bottom = {};
-        Pos2d right_bottom = {};
-
-        // Top lane segment
-        left_top = position;
-        right_top = left_top;
-        right_top.x += previous_size.width;
+        Rectangle middle_rect = {};
+        middle_rect.position = position;
+        middle_rect.size = size;
+        LaneSegment2 lane_segments = get_2_lane_segments_from_3_rectangles(previous_size, middle_rect, next_size);
+                             
+        LaneSegment lane_segment = {};
         
-        left_bottom = left_top;
-        left_bottom.y += flow_element->size.height / 2;
-        
-        right_bottom = left_bottom;
-        right_bottom.x += flow_element->size.width;
-        
-        draw_lane_segment(left_top,  right_top, left_bottom, right_bottom, 
+        lane_segment = lane_segments.top;
+        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
                           20, line_color, fill_color, line_width);
                           
-        // Bottom lane segment
-        
-        left_top = left_bottom;
-        right_top = right_bottom;
-        
-        left_bottom = position;
-        left_bottom.y += flow_element->size.height;
-        
-        right_bottom = left_bottom;
-        right_bottom.x += next_size.width;
-        
-        draw_lane_segment(left_top,  right_top, left_bottom, right_bottom, 
+        lane_segment = lane_segments.bottom;
+        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
                           20, line_color, fill_color, line_width);
-        
         
         // Drawing the function itself
         
