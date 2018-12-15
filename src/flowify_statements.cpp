@@ -478,8 +478,11 @@ void layout_elements(FlowElement * flow_element)
         i32 summed_children_height = 0;
         i32 largest_child_width = 0;
         
+        i32 verical_margin = 0; // TODO: we need vertical margin when connections between elements have to run horizintal
+        
         FlowElement * child_element = flow_element->first_child;
         
+        b32 is_first_element = true;
         if (child_element)
         {
             do
@@ -489,6 +492,11 @@ void layout_elements(FlowElement * flow_element)
                 // TODO: the child can be wider or narrower at the bottom or top!
                 Size2d child_size = child_element->size;
                 
+                if (!is_first_element)
+                {
+                    summed_children_height += verical_margin;
+                }
+                
                 child_element->position.x = left_margin;
                 child_element->position.y = top_margin + summed_children_height;
                 
@@ -497,6 +505,8 @@ void layout_elements(FlowElement * flow_element)
                 {
                     largest_child_width = child_size.width;
                 }
+                
+                is_first_element = false;
             }
             while ((child_element = child_element->next_sibling));
             
