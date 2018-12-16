@@ -52,6 +52,7 @@ struct Rectangles3
     Rectangle top;
     Rectangle middle;
     Rectangle bottom;
+    b32 draw_bottom_rect;
 };
 
 const LaneSegmentExtended lane_segments[9] = {
@@ -165,13 +166,18 @@ extern "C" {
         i32 line_width = 2;
         i32 bending_radius = 10;
         
-        const Rectangles3 example_rectangles[4] = {
-            { {-1,-1,-1,-1},  {150, 100, 80, 150}, {100, 300, 100, 100} },
-            { {-1,-1,-1,-1},  {300, 100, 80, 150}, {350, 300, 100, 100} },
-            { {-1,-1,-1,-1},  {550, 100, 80, 150}, {500, 300, 180, 100} },
-            { {-1,-1,-1,-1},  {700, 100, 180, 80}, {750, 230, 80, 170} },
+        const Rectangles3 example_rectangles[8] = {
+            { {-1,-1,-1,-1},  {150, 100, 80, 150}, {100, 300, 100, 100}, true },
+            { {-1,-1,-1,-1},  {300, 100, 80, 150}, {350, 300, 100, 100}, true },
+            { {-1,-1,-1,-1},  {550, 100, 80, 150}, {500, 300, 180, 100}, true },
+            { {-1,-1,-1,-1},  {700, 100, 180, 80}, {750, 230, 80, 170}, true },
+            
+            { {-1,-1,-1,-1},  {150, 500, 80, 150}, {100, 650, 100, 100}, false },
+            { {-1,-1,-1,-1},  {300, 500, 80, 150}, {350, 650, 100, 100}, false },
+            { {-1,-1,-1,-1},  {550, 500, 80, 150}, {500, 650, 180, 100}, false },
+            { {-1,-1,-1,-1},  {700, 500, 180, 80}, {750, 580, 80, 170}, false },
         };
-        i32 nr_of_example_rectangles = 4;
+        i32 nr_of_example_rectangles = 8;
         
         for (i32 example_rectangles_index = 0; example_rectangles_index < nr_of_example_rectangles; example_rectangles_index++)
         {
@@ -182,8 +188,11 @@ extern "C" {
             // Not drawing the middle_rect:
             // draw_rectangle(middle_rect.position, middle_rect.size, no_color, unselected_color, line_width);
             
-            // Drawing the rectangle below it, to show where it would go
-            draw_rectangle(rects.bottom.position, rects.bottom.size, no_color, unselected_color, line_width);
+            if (rects.draw_bottom_rect)
+            {
+                // Drawing the rectangle below it, to show where it would go
+                draw_rectangle(rects.bottom.position, rects.bottom.size, no_color, unselected_color, line_width);
+            }
         }
 
     }
