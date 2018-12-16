@@ -133,35 +133,21 @@ extern "C" {
         
         i32 line_width = 4;
         
-        Rectangle top_rectangle = {400, 100, 300, 200};
-        Rectangle bottom_rectangle = {500, 400, 300, 200};
+        Rectangle top_rect = {-1,-1,-1,-1};
+        Rectangle middle_rect = {400, 100, 300, 200};
+        Rectangle bottom_rect = {500, 400, 300, 100};
         
-        draw_rectangle(top_rectangle.position, top_rectangle.size, no_color, unselected_color, line_width);
-        draw_rectangle(bottom_rectangle.position, top_rectangle.size, no_color, unselected_color, line_width);
+        draw_rectangle(middle_rect.position, middle_rect.size, no_color, unselected_color, line_width);
+        draw_rectangle(bottom_rect.position, bottom_rect.size, no_color, unselected_color, line_width);
 
-        
         i32 bending_radius = 20;
+
+        LaneSegment2 lane_segments = get_2_lane_segments_from_3_rectangles(top_rect, middle_rect, bottom_rect, bending_radius);
         
-        LaneSegment lane_segment = {};
-        
-        lane_segment.left_top.x = top_rectangle.position.x;
-        lane_segment.left_top.y = top_rectangle.position.y + top_rectangle.size.height;
-        
-        lane_segment.right_top.x = top_rectangle.position.x + top_rectangle.size.width;
-        lane_segment.right_top.y = top_rectangle.position.y + top_rectangle.size.height;
-        
-        lane_segment.left_bottom.x = bottom_rectangle.position.x;
-        lane_segment.left_bottom.y = bottom_rectangle.position.y;
-        
-        lane_segment.right_bottom.x = bottom_rectangle.position.x + bottom_rectangle.size.width;
-        lane_segment.right_bottom.y = bottom_rectangle.position.y;
-    
-        i32 left_middle_y = bottom_rectangle.position.y - bending_radius;
-        i32 right_middle_y = top_rectangle.position.y + top_rectangle.size.height + bending_radius;
-        
+        LaneSegment lane_segment = lane_segments.bottom;
         draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
                           lane_segment.left_bottom, lane_segment.right_bottom, 
-                          left_middle_y, right_middle_y, 20, 
+                          lane_segment.left_middle_y, lane_segment.right_middle_y, lane_segment.bending_radius, 
                           line_color, selected_color, line_width);
     }
     

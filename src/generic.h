@@ -74,6 +74,8 @@ struct LaneSegment
     
     i32 left_middle_y;
     i32 right_middle_y;
+    
+    i32 bending_radius;
 };
 
 struct LaneSegment2
@@ -106,6 +108,37 @@ LaneSegment lane_segment_from_positions_and_widths(Pos2d top_position, i32 top_w
     lane_segment.right_bottom.x += bottom_width;
     
     return lane_segment;
+}
+
+LaneSegment2 get_2_lane_segments_from_3_rectangles(Rectangle top_rect, 
+                                                   Rectangle middle_rect, 
+                                                   Rectangle bottom_rect,
+                                                   i32 bending_radius)
+{
+    LaneSegment2 lane_segments = {};
+    
+    LaneSegment lane_segment = {};
+    
+    lane_segment.left_top.x = middle_rect.position.x;
+    lane_segment.left_top.y = middle_rect.position.y + middle_rect.size.height;
+    
+    lane_segment.right_top.x = middle_rect.position.x + middle_rect.size.width;
+    lane_segment.right_top.y = middle_rect.position.y + middle_rect.size.height;
+    
+    lane_segment.left_bottom.x = bottom_rect.position.x;
+    lane_segment.left_bottom.y = bottom_rect.position.y;
+    
+    lane_segment.right_bottom.x = bottom_rect.position.x + bottom_rect.size.width;
+    lane_segment.right_bottom.y = bottom_rect.position.y;
+    
+    lane_segment.bending_radius = bending_radius;
+
+    lane_segment.left_middle_y = bottom_rect.position.y - bending_radius;
+    lane_segment.right_middle_y = middle_rect.position.y + middle_rect.size.height + bending_radius;
+    
+    lane_segments.bottom = lane_segment;
+    
+    return lane_segments;
 }
 
 // TODO: rewrite this!
