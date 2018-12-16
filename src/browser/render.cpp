@@ -77,7 +77,8 @@ void draw_rounded_rectangle(Pos2d position, Size2d size, i32 r,
 }
 
 void draw_lane_segment(Pos2d left_top_position, Pos2d right_top_position, 
-                       Pos2d left_bottom_position, Pos2d right_bottom_position, i32 radius,
+                       Pos2d left_bottom_position, Pos2d right_bottom_position, 
+                       i32 left_middle_y, i32 right_middle_y, i32 radius,
                        Color4 line_color, Color4 fill_color, i32 line_width)
 {
     i32 line_color_rgb = line_color.r + line_color.g * 256 + line_color.b * 256 * 256; 
@@ -86,10 +87,6 @@ void draw_lane_segment(Pos2d left_top_position, Pos2d right_top_position,
     i32 fill_color_rgb = fill_color.r + fill_color.g * 256 + fill_color.b * 256 * 256;
     i32 fill_color_alpha = (i32)fill_color.a;
     
-    // FIXME: we need left_middle_y and right_middle_y as arguments!
-    i32 left_middle_y = left_top_position.y + (i32)((f32)(left_bottom_position.y - left_top_position.y) / (f32)2 );
-    i32 right_middle_y = left_middle_y;
-
     jsDrawLaneSegment(left_top_position.x, right_top_position.x, left_top_position.y, 
                       left_bottom_position.x, right_bottom_position.x, left_bottom_position.y, 
                       left_middle_y, right_middle_y, radius,

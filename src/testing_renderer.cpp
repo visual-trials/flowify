@@ -156,9 +156,14 @@ extern "C" {
                     fill_color = unselected_color;
                 }
                 LaneSegmentExtended lane_segment = lane_segments[lane_segment_index];
+                
+                i32 left_middle_y = lane_segment.left_top.y + (i32)((f32)(lane_segment.left_bottom.y - lane_segment.left_top.y) / (f32)2 );
+                i32 right_middle_y = left_middle_y;
+
                 draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
                                   lane_segment.left_bottom, lane_segment.right_bottom, 
-                                  20, line_color, fill_color, line_width);
+                                  left_middle_y, right_middle_y, 20, 
+                                  line_color, fill_color, line_width);
             }
             
         }
