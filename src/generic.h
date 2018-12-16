@@ -135,14 +135,11 @@ LaneSegment2 get_2_lane_segments_from_3_rectangles(Rectangle top_rect,
     
     top_lane_segment.bending_radius = bending_radius;
     
-    
     i32 top_rect_bottom_y = top_rect.position.y + top_rect.size.height;
     i32 middle_rect_top_y = middle_rect.position.y;
     
     if (top_rect.size.height >= 0)
     {
-        // TODO: implement! The left_bottom.y and right_bottom.y might move up here!
-        
         i32 vertical_gap_between_top_and_middle_rects = middle_rect_top_y - top_rect_bottom_y;
         if (vertical_gap_between_top_and_middle_rects < bending_radius + bending_radius)
         {
