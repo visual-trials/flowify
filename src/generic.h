@@ -118,29 +118,27 @@ LaneSegment2 get_2_lane_segments_from_3_rectangles(Rectangle top_rect,
 {
     LaneSegment2 lane_segments = {};
     
-    if (top_rect.size.height < 0)
+    LaneSegment top_lane_segment = {};
+    LaneSegment bottom_lane_segment = {};
+    
+    top_lane_segment.left_top.x = middle_rect.position.x;
+    top_lane_segment.left_top.y = middle_rect.position.y;
+    
+    top_lane_segment.right_top.x = middle_rect.position.x + middle_rect.size.width;
+    top_lane_segment.right_top.y = middle_rect.position.y;
+    
+    top_lane_segment.left_bottom.x = middle_rect.position.x;
+    top_lane_segment.left_bottom.y = middle_rect.position.y + middle_rect.size.height;
+    
+    top_lane_segment.right_bottom.x = middle_rect.position.x + middle_rect.size.width;
+    top_lane_segment.right_bottom.y = middle_rect.position.y + middle_rect.size.height;
+    
+    top_lane_segment.bending_radius = bending_radius;
+    
+    
+    if (top_rect.size.height >= 0)
     {
-        LaneSegment lane_segment = {};
-        
-        lane_segment.left_top.x = middle_rect.position.x;
-        lane_segment.left_top.y = middle_rect.position.y;
-        
-        lane_segment.right_top.x = middle_rect.position.x + middle_rect.size.width;
-        lane_segment.right_top.y = middle_rect.position.y;
-        
-        lane_segment.left_bottom.x = middle_rect.position.x;
-        lane_segment.left_bottom.y = middle_rect.position.y + middle_rect.size.height;
-        
-        lane_segment.right_bottom.x = middle_rect.position.x + middle_rect.size.width;
-        lane_segment.right_bottom.y = middle_rect.position.y + middle_rect.size.height;
-        
-        lane_segment.bending_radius = bending_radius;
-        
-        lane_segments.top = lane_segment;
-    }
-    else
-    {
-        // TODO: implement! The left_bottom.y and right_bottom.y should move up here!
+        // TODO: implement! The left_bottom.y and right_bottom.y might move up here!
     }
     
     if (bottom_rect.size.height < 0)
@@ -149,43 +147,52 @@ LaneSegment2 get_2_lane_segments_from_3_rectangles(Rectangle top_rect,
     }
     else
     {
-        LaneSegment lane_segment = {};
+        if (bottom_rect.position.y - bending_radius - bending_radius < top_lane_segment.left_bottom.y)
+        {
+            // The top of the bottom rectangle is very close to (or is touching) the bottom of the top lane segment
+            // So we shorten the height of the top lane segment (by setting both its bottom y-positions)
+            i32 new_middle_rect_bottom_y = bottom_rect.position.y - bending_radius - bending_radius;
+            top_lane_segment.left_bottom.y = new_middle_rect_bottom_y;
+            top_lane_segment.right_bottom.y = new_middle_rect_bottom_y;
+        }
+    
+        bottom_lane_segment.left_top.x = middle_rect.position.x;
+        bottom_lane_segment.left_top.y = top_lane_segment.left_bottom.y; // middle_rect.position.y + middle_rect.size.height;
         
-        lane_segment.left_top.x = middle_rect.position.x;
-        lane_segment.left_top.y = middle_rect.position.y + middle_rect.size.height;
+        bottom_lane_segment.right_top.x = middle_rect.position.x + middle_rect.size.width;
+        bottom_lane_segment.right_top.y = top_lane_segment.right_bottom.y; // middle_rect.position.y + middle_rect.size.height;
         
-        lane_segment.right_top.x = middle_rect.position.x + middle_rect.size.width;
-        lane_segment.right_top.y = middle_rect.position.y + middle_rect.size.height;
+        bottom_lane_segment.left_bottom.x = bottom_rect.position.x;
+        bottom_lane_segment.left_bottom.y = bottom_rect.position.y;
         
-        lane_segment.left_bottom.x = bottom_rect.position.x;
-        lane_segment.left_bottom.y = bottom_rect.position.y;
+        bottom_lane_segment.right_bottom.x = bottom_rect.position.x + bottom_rect.size.width;
+        bottom_lane_segment.right_bottom.y = bottom_rect.position.y;
         
-        lane_segment.right_bottom.x = bottom_rect.position.x + bottom_rect.size.width;
-        lane_segment.right_bottom.y = bottom_rect.position.y;
-        
-        lane_segment.bending_radius = bending_radius;
+        bottom_lane_segment.bending_radius = bending_radius;
 
         if (bottom_rect.position.x < middle_rect.position.x)
         {
-            lane_segment.left_middle_y = middle_rect.position.y + middle_rect.size.height + bending_radius;
+            bottom_lane_segment.left_middle_y = bottom_lane_segment.left_top.y + bending_radius;
         }
         else
         {
-            lane_segment.left_middle_y = bottom_rect.position.y - bending_radius;
+            bottom_lane_segment.left_middle_y = bottom_lane_segment.left_bottom.y - bending_radius;
         }
         
         if (bottom_rect.position.x + bottom_rect.size.width < middle_rect.position.x + middle_rect.size.width)
         {
-            lane_segment.right_middle_y = bottom_rect.position.y - bending_radius;
+            bottom_lane_segment.right_middle_y = bottom_lane_segment.right_bottom.y - bending_radius;
         }
         else
         {
-            lane_segment.right_middle_y = middle_rect.position.y + middle_rect.size.height + bending_radius;
+            bottom_lane_segment.right_middle_y = bottom_lane_segment.right_top.y + bending_radius;
         }    
         
-        lane_segments.bottom = lane_segment;
         lane_segments.has_valid_bottom_segment = true;
     }
+    
+    lane_segments.top = top_lane_segment;
+    lane_segments.bottom = bottom_lane_segment;
     
     return lane_segments;
 }
