@@ -144,7 +144,15 @@ extern "C" {
 
         LaneSegment2 lane_segments = get_2_lane_segments_from_3_rectangles(top_rect, middle_rect, bottom_rect, bending_radius);
         
-        LaneSegment lane_segment = lane_segments.bottom;
+        LaneSegment lane_segment = {};
+        
+        lane_segment = lane_segments.top;
+        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
+                          lane_segment.left_bottom, lane_segment.right_bottom, 
+                          lane_segment.left_middle_y, lane_segment.right_middle_y, lane_segment.bending_radius, 
+                          line_color, unselected_color, line_width);
+                          
+        lane_segment = lane_segments.bottom;
         draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
                           lane_segment.left_bottom, lane_segment.right_bottom, 
                           lane_segment.left_middle_y, lane_segment.right_middle_y, lane_segment.bending_radius, 

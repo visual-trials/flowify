@@ -117,6 +117,31 @@ LaneSegment2 get_2_lane_segments_from_3_rectangles(Rectangle top_rect,
 {
     LaneSegment2 lane_segments = {};
     
+    if (top_rect.size.height < 0)
+    {
+        LaneSegment lane_segment = {};
+        
+        lane_segment.left_top.x = middle_rect.position.x;
+        lane_segment.left_top.y = middle_rect.position.y;
+        
+        lane_segment.right_top.x = middle_rect.position.x + middle_rect.size.width;
+        lane_segment.right_top.y = middle_rect.position.y;
+        
+        lane_segment.left_bottom.x = middle_rect.position.x;
+        lane_segment.left_bottom.y = middle_rect.position.y + middle_rect.size.height;
+        
+        lane_segment.right_bottom.x = middle_rect.position.x + middle_rect.size.width;
+        lane_segment.right_bottom.y = middle_rect.position.y + middle_rect.size.height;
+        
+        lane_segment.bending_radius = bending_radius;
+        
+        lane_segments.top = lane_segment;
+    }
+    else
+    {
+        // TODO: implement! The left_bottom.y and right_bottom.y should move up here!
+    }
+    
     LaneSegment lane_segment = {};
     
     lane_segment.left_top.x = middle_rect.position.x;
