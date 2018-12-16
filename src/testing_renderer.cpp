@@ -171,8 +171,8 @@ extern "C" {
         i32 line_width = 2;
         i32 bending_radius = 10;
         
-        i32 nr_of_example_rectangles = 11;
-        const Rectangles3 example_rectangles[11] = {
+        i32 nr_of_example_rectangles = 14;
+        const Rectangles3 example_rectangles[14] = {
             { {-1,-1,-1,-1}, true, {150, 100, 80, 150}, {100, 300, 100, 100}, true },
             { {-1,-1,-1,-1}, true, {300, 100, 80, 150}, {350, 300, 100, 100}, true },
             { {-1,-1,-1,-1}, true, {550, 100, 80, 150}, {500, 300, 180, 100}, true },
@@ -185,7 +185,10 @@ extern "C" {
             { {-1,-1,-1,-1}, true, {700, 500, 180, 80}, {750, 580, 80, 170}, true },
             
             { {-1,-1,-1,-1}, true, {1300, 100, 150, 80}, {1100, 250, 500, 10}, true },
-            { {-1,-1,-1,-1}, true, {1100, 250, 275, 0}, {1100, 300, 200, 200}, true },
+            { {-1,-1,-1,-1}, true, {1100, 250, 275, 0}, {1100, 300, 250, 200}, true },
+            { {-1,-1,-1,-1}, true, {1375, 250, 225, 0}, {1400, 350, 200, 100}, true },
+            { {-1,-1,-1,-1}, true, {1100, 300, 250, 200}, {1100, 500, 250, 200}, true },
+            { {-1,-1,-1,-1}, true, {1400, 350, 200, 100}, {1400, 500, 200, 100}, true },
         };
         
         for (i32 example_rectangles_index = 0; example_rectangles_index < nr_of_example_rectangles; example_rectangles_index++)
