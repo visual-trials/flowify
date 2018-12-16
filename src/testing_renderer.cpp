@@ -162,6 +162,7 @@ extern "C" {
         Color4 line_color       = {  0,   0,   0, 255};
         Color4 unselected_color = {180, 180, 255, 255};
         Color4 selected_color   = {180, 255, 180, 255};
+        Color4 rectangle_color  = {255, 0, 0, 255};
         Color4 no_color         = {};
         
         i32 line_width = 2;
@@ -169,16 +170,16 @@ extern "C" {
         
         i32 nr_of_example_rectangles = 9;
         const Rectangles3 example_rectangles[9] = {
-            { {-1,-1,-1,-1}, false, {150, 100, 80, 150}, {100, 300, 100, 100}, true },
-            { {-1,-1,-1,-1}, false, {300, 100, 80, 150}, {350, 300, 100, 100}, true },
-            { {-1,-1,-1,-1}, false, {550, 100, 80, 150}, {500, 300, 180, 100}, true },
-            { {-1,-1,-1,-1}, false, {700, 100, 180, 80}, {750, 230, 80, 170}, true },
+            { {-1,-1,-1,-1}, true, {150, 100, 80, 150}, {100, 300, 100, 100}, true },
+            { {-1,-1,-1,-1}, true, {300, 100, 80, 150}, {350, 300, 100, 100}, true },
+            { {-1,-1,-1,-1}, true, {550, 100, 80, 150}, {500, 300, 180, 100}, true },
+            { {-1,-1,-1,-1}, true, {700, 100, 180, 80}, {750, 230, 80, 170}, true },
             
-            { {-1,-1,-1,-1}, false, {150, 500, 80, 150}, {100, 650, 100, 100}, true },
-            { {-1,-1,-1,-1}, false, {300, 500, 80, 150}, {350, 650, 100, 100}, true },
-            { {-1,-1,-1,-1}, false, {550, 500, 80, 150}, {500, 650, 180, 100}, true },
-            { {-1,-1,-1,-1}, false, {750, 450, 80, 50}, {700, 500, 180, 80}, true },
-            { {-1,-1,-1,-1}, false, {700, 500, 180, 80}, {750, 580, 80, 170}, true },
+            { {-1,-1,-1,-1}, true, {150, 500, 80, 150}, {100, 650, 100, 100}, true },
+            { {-1,-1,-1,-1}, true, {300, 500, 80, 150}, {350, 650, 100, 100}, true },
+            { {-1,-1,-1,-1}, true, {550, 500, 80, 150}, {500, 650, 180, 100}, true },
+            { {-1,-1,-1,-1}, true, {750, 450, 80, 50}, {700, 500, 180, 80}, false },
+            { {-1,-1,-1,-1}, true, {700, 500, 180, 80}, {750, 580, 80, 170}, true },
         };
         
         for (i32 example_rectangles_index = 0; example_rectangles_index < nr_of_example_rectangles; example_rectangles_index++)
@@ -187,19 +188,23 @@ extern "C" {
             
             draw_lane_segments_for_3_rectangles(rects.top, rects.middle, rects.bottom, bending_radius, line_width, line_color, unselected_color, selected_color);
             
-            if (rects.draw_top_rect)
+            // TODO: make a button to toggle this
+            if (true)
             {
-                // Drawing the rectangle above it, to show where it would go
-                draw_rectangle(rects.top.position, rects.top.size, no_color, unselected_color, line_width);
-            }
-            
-            // Not drawing the middle_rect:
-            // draw_rectangle(middle_rect.position, middle_rect.size, no_color, unselected_color, line_width);
-            
-            if (rects.draw_bottom_rect)
-            {
-                // Drawing the rectangle below it, to show where it would go
-                draw_rectangle(rects.bottom.position, rects.bottom.size, no_color, unselected_color, line_width);
+                if (rects.draw_top_rect)
+                {
+                    // Drawing the rectangle above it, to show where it would go
+                    draw_rectangle(rects.top.position, rects.top.size, rectangle_color, no_color, 1);
+                }
+                
+                // Not drawing the middle_rect:
+                draw_rectangle(rects.middle.position, rects.middle.size, rectangle_color, no_color, 1);
+                
+                if (rects.draw_bottom_rect)
+                {
+                    // Drawing the rectangle below it, to show where it would go
+                    draw_rectangle(rects.bottom.position, rects.bottom.size, rectangle_color, no_color, 1);
+                }
             }
         }
 
