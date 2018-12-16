@@ -165,11 +165,13 @@ extern "C" {
         i32 line_width = 2;
         i32 bending_radius = 10;
         
-        const Rectangles3 example_rectangles[2] = {
+        const Rectangles3 example_rectangles[4] = {
             { {-1,-1,-1,-1},  {150, 100, 80, 150}, {100, 300, 100, 100} },
             { {-1,-1,-1,-1},  {300, 100, 80, 150}, {350, 300, 100, 100} },
+            { {-1,-1,-1,-1},  {550, 100, 80, 150}, {500, 300, 180, 100} },
+            { {-1,-1,-1,-1},  {700, 100, 180, 80}, {750, 230, 80, 170} },
         };
-        i32 nr_of_example_rectangles = 2;
+        i32 nr_of_example_rectangles = 4;
         
         for (i32 example_rectangles_index = 0; example_rectangles_index < nr_of_example_rectangles; example_rectangles_index++)
         {
