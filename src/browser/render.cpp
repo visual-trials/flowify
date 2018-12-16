@@ -29,7 +29,8 @@ extern "C" {
                                   i32 line_width);
                                   
     extern void jsDrawLaneSegment(i32 left_top_x, i32 right_top_x, i32 top_y, 
-                                  i32 left_bottom_x, i32 right_bottom_x, i32 bottom_y, i32 radius,
+                                  i32 left_bottom_x, i32 right_bottom_x, i32 bottom_y, 
+                                  i32 left_middle_y, i32 right_middle_y, i32 radius,
                                   i32 line_color_rgb, i32 line_color_alpha, 
                                   i32 fill_color_rgb, i32 fill_color_alpha, 
                                   i32 line_width);
@@ -85,8 +86,13 @@ void draw_lane_segment(Pos2d left_top_position, Pos2d right_top_position,
     i32 fill_color_rgb = fill_color.r + fill_color.g * 256 + fill_color.b * 256 * 256;
     i32 fill_color_alpha = (i32)fill_color.a;
     
+    // FIXME: we need left_middle_y and right_middle_y as arguments!
+    i32 left_middle_y = left_top_position.y + (i32)((f32)(left_bottom_position.y - left_top_position.y) / (f32)2 );
+    i32 right_middle_y = left_middle_y;
+
     jsDrawLaneSegment(left_top_position.x, right_top_position.x, left_top_position.y, 
-                      left_bottom_position.x, right_bottom_position.x, left_bottom_position.y, radius,
+                      left_bottom_position.x, right_bottom_position.x, left_bottom_position.y, 
+                      left_middle_y, right_middle_y, radius,
                       line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
 }
 

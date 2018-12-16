@@ -155,10 +155,7 @@ Flowify.canvas = function () {
                 }
             },
             
-            _jsDrawLaneSegment: function (leftTopX, rightTopX, topY, leftBottomX, rightBottomX, bottomY, radius, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
-                
-                // FIXME: shouldn't we have middleY as argument?
-                let middleY = topY + (bottomY - topY) / 2
+            _jsDrawLaneSegment: function (leftTopX, rightTopX, topY, leftBottomX, rightBottomX, bottomY, leftMiddleY, rightMiddleY, radius, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
                 
                 if (fillColorAlpha) {
                     // Draw background
@@ -169,14 +166,14 @@ Flowify.canvas = function () {
                     ctx.moveTo(leftTopX, topY)
                     if (leftBottomX < leftTopX) {
                         // bottom is to the left of the top
-                        ctx.arcTo(leftTopX, middleY, leftTopX - radius, middleY, radius)
-                        ctx.arcTo(leftBottomX, middleY, leftBottomX, middleY + radius, radius)
+                        ctx.arcTo(leftTopX, leftMiddleY, leftTopX - radius, leftMiddleY, radius)
+                        ctx.arcTo(leftBottomX, leftMiddleY, leftBottomX, leftMiddleY + radius, radius)
                         ctx.lineTo(leftBottomX, bottomY)
                     }
                     if (leftBottomX > leftTopX) {
                         // bottom is to the right of the top
-                        ctx.arcTo(leftTopX, middleY, leftTopX + radius, middleY, radius)
-                        ctx.arcTo(leftBottomX, middleY, leftBottomX, middleY + radius, radius)
+                        ctx.arcTo(leftTopX, leftMiddleY, leftTopX + radius, leftMiddleY, radius)
+                        ctx.arcTo(leftBottomX, leftMiddleY, leftBottomX, leftMiddleY + radius, radius)
                         ctx.lineTo(leftBottomX, bottomY)
                     }
                     else {
@@ -188,14 +185,14 @@ Flowify.canvas = function () {
                     ctx.lineTo(rightBottomX, bottomY)
                     if (rightBottomX < rightTopX) {
                         // bottom is to the left of the top
-                        ctx.arcTo(rightBottomX, middleY, rightBottomX + radius, middleY, radius)
-                        ctx.arcTo(rightTopX, middleY, rightTopX, middleY - radius, radius)
+                        ctx.arcTo(rightBottomX, rightMiddleY, rightBottomX + radius, rightMiddleY, radius)
+                        ctx.arcTo(rightTopX, rightMiddleY, rightTopX, rightMiddleY - radius, radius)
                         ctx.lineTo(rightTopX, topY)
                     }
                     if (rightBottomX > rightTopX) {
                         // bottom is to the right of the top
-                        ctx.arcTo(rightBottomX, middleY, rightBottomX - radius, middleY, radius)
-                        ctx.arcTo(rightTopX, middleY, rightTopX, middleY - radius, radius)
+                        ctx.arcTo(rightBottomX, rightMiddleY, rightBottomX - radius, rightMiddleY, radius)
+                        ctx.arcTo(rightTopX, rightMiddleY, rightTopX, rightMiddleY - radius, radius)
                         ctx.lineTo(rightTopX, topY)
                     }
                     else {
@@ -215,14 +212,14 @@ Flowify.canvas = function () {
                     ctx.moveTo(leftTopX, topY)
                     if (leftBottomX < leftTopX) {
                         // bottom is to the left of the top
-                        ctx.arcTo(leftTopX, middleY, leftTopX - radius, middleY, radius)
-                        ctx.arcTo(leftBottomX, middleY, leftBottomX, middleY + radius, radius)
+                        ctx.arcTo(leftTopX, leftMiddleY, leftTopX - radius, leftMiddleY, radius)
+                        ctx.arcTo(leftBottomX, leftMiddleY, leftBottomX, leftMiddleY + radius, radius)
                         ctx.lineTo(leftBottomX, bottomY)
                     }
                     if (leftBottomX > leftTopX) {
                         // bottom is to the right of the top
-                        ctx.arcTo(leftTopX, middleY, leftTopX + radius, middleY, radius)
-                        ctx.arcTo(leftBottomX, middleY, leftBottomX, middleY + radius, radius)
+                        ctx.arcTo(leftTopX, leftMiddleY, leftTopX + radius, leftMiddleY, radius)
+                        ctx.arcTo(leftBottomX, leftMiddleY, leftBottomX, leftMiddleY + radius, radius)
                         ctx.lineTo(leftBottomX, bottomY)
                     }
                     else {
@@ -239,14 +236,14 @@ Flowify.canvas = function () {
                     ctx.moveTo(rightTopX, topY)
                     if (rightBottomX < rightTopX) {
                         // bottom is to the left of the top
-                        ctx.arcTo(rightTopX, middleY, rightTopX - radius, middleY, radius)
-                        ctx.arcTo(rightBottomX, middleY, rightBottomX, middleY + radius, radius)
+                        ctx.arcTo(rightTopX, rightMiddleY, rightTopX - radius, rightMiddleY, radius)
+                        ctx.arcTo(rightBottomX, rightMiddleY, rightBottomX, rightMiddleY + radius, radius)
                         ctx.lineTo(rightBottomX, bottomY)
                     }
                     if (rightBottomX > rightTopX) {
                         // bottom is to the right of the top
-                        ctx.arcTo(rightTopX, middleY, rightTopX + radius, middleY, radius)
-                        ctx.arcTo(rightBottomX, middleY, rightBottomX, middleY + radius, radius)
+                        ctx.arcTo(rightTopX, rightMiddleY, rightTopX + radius, rightMiddleY, radius)
+                        ctx.arcTo(rightBottomX, rightMiddleY, rightBottomX, rightMiddleY + radius, radius)
                         ctx.lineTo(rightBottomX, bottomY)
                     }
                     else {
