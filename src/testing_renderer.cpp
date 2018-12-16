@@ -24,6 +24,8 @@ struct WorldData
 {
     i32 iteration;
     i32 selected_lane_segment_index;
+
+    i32 show_help_rectangles;
     
     i32 active_page_index;
     i32 nr_of_pages;
@@ -93,6 +95,7 @@ extern "C" {
         
         world->iteration = 0;
         world->selected_lane_segment_index = 0;
+        world->show_help_rectangles = true;
     }
     
     void update_frame()
@@ -189,7 +192,7 @@ extern "C" {
             draw_lane_segments_for_3_rectangles(rects.top, rects.middle, rects.bottom, bending_radius, line_width, line_color, unselected_color, selected_color);
             
             // TODO: make a button to toggle this
-            if (true)
+            if (world->show_help_rectangles)
             {
                 if (rects.draw_top_rect)
                 {
@@ -207,6 +210,27 @@ extern "C" {
                 }
             }
         }
+
+        // Button for toggling showing help rectangles
+        {
+            Size2d size_button = {50, 50};
+            Pos2d position_button = {};
+            position_button.x = global_input.screen.width - size_button.width - 20;
+            position_button.y = 400;
+            
+            ShortString label;
+            copy_cstring_to_short_string("Help", &label);
+            ShortString label_active;
+            copy_cstring_to_short_string("[   ]", &label_active);
+
+            b32 button_is_pressed = do_button(position_button, size_button, &label, world->show_help_rectangles, &global_input, &label_active);
+
+            if (button_is_pressed)
+            {
+                world->show_help_rectangles = !world->show_help_rectangles;
+            }
+        }
+        
 
     }
     
