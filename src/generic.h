@@ -165,8 +165,23 @@ LaneSegment2 get_2_lane_segments_from_3_rectangles(Rectangle top_rect,
         
         lane_segment.bending_radius = bending_radius;
 
-        lane_segment.left_middle_y = bottom_rect.position.y - bending_radius;
-        lane_segment.right_middle_y = middle_rect.position.y + middle_rect.size.height + bending_radius;
+        if (bottom_rect.position.x < middle_rect.position.x)
+        {
+            lane_segment.left_middle_y = middle_rect.position.y + middle_rect.size.height + bending_radius;
+        }
+        else
+        {
+            lane_segment.left_middle_y = bottom_rect.position.y - bending_radius;
+        }
+        
+        if (bottom_rect.position.x + bottom_rect.size.width < middle_rect.position.x + middle_rect.size.width)
+        {
+            lane_segment.right_middle_y = bottom_rect.position.y - bending_radius;
+        }
+        else
+        {
+            lane_segment.right_middle_y = middle_rect.position.y + middle_rect.size.height + bending_radius;
+        }    
         
         lane_segments.bottom = lane_segment;
         lane_segments.has_valid_bottom_segment = true;
