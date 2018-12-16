@@ -32,7 +32,7 @@ struct WorldData
 
 WorldData global_world = {};  // FIXME: allocate this properly!
 
-struct LaneSegment
+struct LaneSegmentExtended
 {
     i32 begin_text_character_index;
     i32 begin_text_line_number;
@@ -47,7 +47,7 @@ struct LaneSegment
     Pos2d right_bottom;
 };
 
-const LaneSegment lane_segments[9] = {
+const LaneSegmentExtended lane_segments[9] = {
   {0,0,14,1,  {250, 50}, {500, 50}, {150, 200}, {550, 200} },  // Start narrow and do widening
   {17,2,17,2, {400, 200}, {550, 200}, {450, 240}, {550, 240} }, // Going right
   {4,3,23,3,  {450, 240}, {550, 240}, {450, 280}, {600, 280} }, // Extending right 1
@@ -80,7 +80,7 @@ extern "C" {
         WorldData * world = &global_world;
         
         world->active_page_index = 1;
-        world->nr_of_pages = 3;
+        world->nr_of_pages = 4;
         
         world->iteration = 0;
         world->selected_lane_segment_index = 0;
@@ -124,6 +124,12 @@ extern "C" {
         draw_rounded_rectangle((Pos2d){500, 200}, (Size2d){200, 350}, 20, line_color_rounded, fill_color_rounded, 4);
     }
     
+    void draw_example_lanes(WorldData * world)
+    {
+        
+        
+    }
+    
     void draw_lanes(WorldData * world)
     {
         Color4 line_color       = {  0,   0,   0, 255};
@@ -149,7 +155,7 @@ extern "C" {
                 else {
                     fill_color = unselected_color;
                 }
-                LaneSegment lane_segment = lane_segments[lane_segment_index];
+                LaneSegmentExtended lane_segment = lane_segments[lane_segment_index];
                 draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
                                   lane_segment.left_bottom, lane_segment.right_bottom, 
                                   20, line_color, fill_color, line_width);
@@ -186,7 +192,7 @@ extern "C" {
             {
                 if (lane_segment_index == world->selected_lane_segment_index)
                 {
-                    LaneSegment lane_segment = lane_segments[lane_segment_index];
+                    LaneSegmentExtended lane_segment = lane_segments[lane_segment_index];
             
                     position.x = 750 + lane_segment.begin_text_character_index * white_space_size.width;
                     position.y = 200 + lane_segment.begin_text_line_number * line_height - white_space_size.height / 4;
@@ -297,9 +303,13 @@ extern "C" {
         }
         else if (world->active_page_index == 1)
         {
-            draw_lanes(world);
+            draw_example_lanes(world);
         }
         else if (world->active_page_index == 2)
+        {
+            draw_lanes(world);
+        }
+        else if (world->active_page_index == 3)
         {
             draw_pixel_borders();
         }
