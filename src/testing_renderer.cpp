@@ -47,6 +47,13 @@ struct LaneSegmentExtended
     Pos2d right_bottom;
 };
 
+struct Rectangles3
+{
+    Rectangle top;
+    Rectangle middle;
+    Rectangle bottom;
+};
+
 const LaneSegmentExtended lane_segments[9] = {
   {0,0,14,1,  {250, 50}, {500, 50}, {150, 200}, {550, 200} },  // Start narrow and do widening
   {17,2,17,2, {400, 200}, {550, 200}, {450, 240}, {550, 240} }, // Going right
@@ -155,14 +162,18 @@ extern "C" {
         Color4 selected_color   = {180, 255, 180, 255};
         Color4 no_color         = {};
         
-        i32 line_width = 4;
-        i32 bending_radius = 20;
+        i32 line_width = 2;
+        i32 bending_radius = 10;
         
-        Rectangle top_rect = {-1,-1,-1,-1};
-        Rectangle middle_rect = {400, 100, 300, 200};
-        Rectangle bottom_rect = {500, 400, 300, 100};
+        const Rectangles3 example_rectangles[1] = {
+            {{-1,-1,-1,-1},  {400, 100, 80, 150}, {450, 300, 100, 100} },
+        };
+
+        i32 example_rectangles_index = 0;
         
-        draw_lane_segments_for_3_rectangles(top_rect, middle_rect, bottom_rect, bending_radius, line_width, line_color, unselected_color, selected_color);
+        Rectangles3 rects = example_rectangles[example_rectangles_index];
+        
+        draw_lane_segments_for_3_rectangles(rects.top, rects.middle, rects.bottom, bending_radius, line_width, line_color, unselected_color, selected_color);
         
         // Not drawing the middle_rect:
         // draw_rectangle(middle_rect.position, middle_rect.size, no_color, unselected_color, line_width);
