@@ -82,6 +82,7 @@ struct LaneSegment2
 {
     LaneSegment top;
     LaneSegment bottom;
+    b32 has_valid_bottom_segment;
 };
 
 struct LaneSegment3
@@ -142,26 +143,34 @@ LaneSegment2 get_2_lane_segments_from_3_rectangles(Rectangle top_rect,
         // TODO: implement! The left_bottom.y and right_bottom.y should move up here!
     }
     
-    LaneSegment lane_segment = {};
-    
-    lane_segment.left_top.x = middle_rect.position.x;
-    lane_segment.left_top.y = middle_rect.position.y + middle_rect.size.height;
-    
-    lane_segment.right_top.x = middle_rect.position.x + middle_rect.size.width;
-    lane_segment.right_top.y = middle_rect.position.y + middle_rect.size.height;
-    
-    lane_segment.left_bottom.x = bottom_rect.position.x;
-    lane_segment.left_bottom.y = bottom_rect.position.y;
-    
-    lane_segment.right_bottom.x = bottom_rect.position.x + bottom_rect.size.width;
-    lane_segment.right_bottom.y = bottom_rect.position.y;
-    
-    lane_segment.bending_radius = bending_radius;
+    if (bottom_rect.size.height < 0)
+    {
+        lane_segments.has_valid_bottom_segment = false;
+    }
+    else
+    {
+        LaneSegment lane_segment = {};
+        
+        lane_segment.left_top.x = middle_rect.position.x;
+        lane_segment.left_top.y = middle_rect.position.y + middle_rect.size.height;
+        
+        lane_segment.right_top.x = middle_rect.position.x + middle_rect.size.width;
+        lane_segment.right_top.y = middle_rect.position.y + middle_rect.size.height;
+        
+        lane_segment.left_bottom.x = bottom_rect.position.x;
+        lane_segment.left_bottom.y = bottom_rect.position.y;
+        
+        lane_segment.right_bottom.x = bottom_rect.position.x + bottom_rect.size.width;
+        lane_segment.right_bottom.y = bottom_rect.position.y;
+        
+        lane_segment.bending_radius = bending_radius;
 
-    lane_segment.left_middle_y = bottom_rect.position.y - bending_radius;
-    lane_segment.right_middle_y = middle_rect.position.y + middle_rect.size.height + bending_radius;
-    
-    lane_segments.bottom = lane_segment;
+        lane_segment.left_middle_y = bottom_rect.position.y - bending_radius;
+        lane_segment.right_middle_y = middle_rect.position.y + middle_rect.size.height + bending_radius;
+        
+        lane_segments.bottom = lane_segment;
+        lane_segments.has_valid_bottom_segment = true;
+    }
     
     return lane_segments;
 }

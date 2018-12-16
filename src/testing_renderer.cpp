@@ -124,24 +124,10 @@ extern "C" {
         draw_rounded_rectangle((Pos2d){500, 200}, (Size2d){200, 350}, 20, line_color_rounded, fill_color_rounded, 4);
     }
     
-    void draw_example_lanes(WorldData * world)
+    void draw_lane_segments_for_3_rectangles(Rectangle top_rect, Rectangle middle_rect, Rectangle bottom_rect, i32 bending_radius, i32 line_width, Color4 line_color, Color4 rect_color, Color4 bend_color)
     {
-        Color4 line_color       = {  0,   0,   0, 255};
-        Color4 unselected_color = {180, 180, 255, 255};
-        Color4 selected_color   = {180, 255, 180, 255};
-        Color4 no_color         = {};
+        Color4 no_color = {};
         
-        i32 line_width = 4;
-        
-        Rectangle top_rect = {-1,-1,-1,-1};
-        Rectangle middle_rect = {400, 100, 300, 200};
-        Rectangle bottom_rect = {500, 400, 300, 100};
-        
-        draw_rectangle(middle_rect.position, middle_rect.size, no_color, unselected_color, line_width);
-        draw_rectangle(bottom_rect.position, bottom_rect.size, no_color, unselected_color, line_width);
-
-        i32 bending_radius = 20;
-
         LaneSegment2 lane_segments = get_2_lane_segments_from_3_rectangles(top_rect, middle_rect, bottom_rect, bending_radius);
         
         LaneSegment lane_segment = {};
@@ -150,13 +136,40 @@ extern "C" {
         draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
                           lane_segment.left_bottom, lane_segment.right_bottom, 
                           lane_segment.left_middle_y, lane_segment.right_middle_y, lane_segment.bending_radius, 
-                          line_color, unselected_color, line_width);
-                          
-        lane_segment = lane_segments.bottom;
-        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
-                          lane_segment.left_bottom, lane_segment.right_bottom, 
-                          lane_segment.left_middle_y, lane_segment.right_middle_y, lane_segment.bending_radius, 
-                          line_color, selected_color, line_width);
+                          line_color, rect_color, line_width);
+                    
+        if (lane_segments.has_valid_bottom_segment)
+        {
+            lane_segment = lane_segments.bottom;
+            draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
+                              lane_segment.left_bottom, lane_segment.right_bottom, 
+                              lane_segment.left_middle_y, lane_segment.right_middle_y, lane_segment.bending_radius, 
+                              line_color, bend_color, line_width);
+        }
+    }
+    
+    void draw_example_lanes(WorldData * world)
+    {
+        Color4 line_color       = {  0,   0,   0, 255};
+        Color4 unselected_color = {180, 180, 255, 255};
+        Color4 selected_color   = {180, 255, 180, 255};
+        Color4 no_color         = {};
+        
+        i32 line_width = 4;
+        i32 bending_radius = 20;
+        
+        Rectangle top_rect = {-1,-1,-1,-1};
+        Rectangle middle_rect = {400, 100, 300, 200};
+        Rectangle bottom_rect = {500, 400, 300, 100};
+        
+        draw_lane_segments_for_3_rectangles(top_rect, middle_rect, bottom_rect, bending_radius, line_width, line_color, unselected_color, selected_color);
+        
+        // Not drawing the middle_rect:
+        // draw_rectangle(middle_rect.position, middle_rect.size, no_color, unselected_color, line_width);
+        
+        // Drawing the rectangle below it, to show where it would go
+        draw_rectangle(bottom_rect.position, bottom_rect.size, no_color, unselected_color, line_width);
+
     }
     
     void draw_lanes(WorldData * world)
