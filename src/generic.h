@@ -71,6 +71,9 @@ struct LaneSegment
     
     Pos2d left_bottom;
     Pos2d right_bottom;
+    
+    i32 left_middle_y;
+    i32 right_middle_y;
 };
 
 struct LaneSegment2

@@ -126,8 +126,43 @@ extern "C" {
     
     void draw_example_lanes(WorldData * world)
     {
+        Color4 line_color       = {  0,   0,   0, 255};
+        Color4 unselected_color = {180, 180, 255, 255};
+        Color4 selected_color   = {180, 255, 180, 255};
+        Color4 no_color         = {};
         
+        i32 line_width = 4;
         
+        Rectangle top_rectangle = {400, 100, 300, 200};
+        Rectangle bottom_rectangle = {500, 400, 300, 200};
+        
+        draw_rectangle(top_rectangle.position, top_rectangle.size, no_color, unselected_color, line_width);
+        draw_rectangle(bottom_rectangle.position, top_rectangle.size, no_color, unselected_color, line_width);
+
+        
+        i32 bending_radius = 20;
+        
+        LaneSegment lane_segment = {};
+        
+        lane_segment.left_top.x = top_rectangle.position.x;
+        lane_segment.left_top.y = top_rectangle.position.y + top_rectangle.size.height;
+        
+        lane_segment.right_top.x = top_rectangle.position.x + top_rectangle.size.width;
+        lane_segment.right_top.y = top_rectangle.position.y + top_rectangle.size.height;
+        
+        lane_segment.left_bottom.x = bottom_rectangle.position.x;
+        lane_segment.left_bottom.y = bottom_rectangle.position.y;
+        
+        lane_segment.right_bottom.x = bottom_rectangle.position.x + bottom_rectangle.size.width;
+        lane_segment.right_bottom.y = bottom_rectangle.position.y;
+    
+        i32 left_middle_y = bottom_rectangle.position.y - bending_radius;
+        i32 right_middle_y = top_rectangle.position.y + top_rectangle.size.height + bending_radius;
+        
+        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
+                          lane_segment.left_bottom, lane_segment.right_bottom, 
+                          left_middle_y, right_middle_y, 20, 
+                          line_color, selected_color, line_width);
     }
     
     void draw_lanes(WorldData * world)
