@@ -168,18 +168,20 @@ extern "C" {
         const Rectangles3 example_rectangles[1] = {
             {{-1,-1,-1,-1},  {400, 100, 80, 150}, {450, 300, 100, 100} },
         };
-
-        i32 example_rectangles_index = 0;
+        i32 nr_of_example_rectangles = 1;
         
-        Rectangles3 rects = example_rectangles[example_rectangles_index];
-        
-        draw_lane_segments_for_3_rectangles(rects.top, rects.middle, rects.bottom, bending_radius, line_width, line_color, unselected_color, selected_color);
-        
-        // Not drawing the middle_rect:
-        // draw_rectangle(middle_rect.position, middle_rect.size, no_color, unselected_color, line_width);
-        
-        // Drawing the rectangle below it, to show where it would go
-        draw_rectangle(bottom_rect.position, bottom_rect.size, no_color, unselected_color, line_width);
+        for (i32 example_rectangles_index = 0; example_rectangles_index < nr_of_example_rectangles; example_rectangles_index++)
+        {
+            Rectangles3 rects = example_rectangles[example_rectangles_index];
+            
+            draw_lane_segments_for_3_rectangles(rects.top, rects.middle, rects.bottom, bending_radius, line_width, line_color, unselected_color, selected_color);
+            
+            // Not drawing the middle_rect:
+            // draw_rectangle(middle_rect.position, middle_rect.size, no_color, unselected_color, line_width);
+            
+            // Drawing the rectangle below it, to show where it would go
+            draw_rectangle(rects.bottom.position, rects.bottom.size, no_color, unselected_color, line_width);
+        }
 
     }
     
