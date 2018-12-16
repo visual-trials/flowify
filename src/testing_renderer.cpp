@@ -50,6 +50,7 @@ struct LaneSegmentExtended
 struct Rectangles3
 {
     Rectangle top;
+    b32 draw_top_rect;
     Rectangle middle;
     Rectangle bottom;
     b32 draw_bottom_rect;
@@ -167,15 +168,15 @@ extern "C" {
         i32 bending_radius = 10;
         
         const Rectangles3 example_rectangles[8] = {
-            { {-1,-1,-1,-1},  {150, 100, 80, 150}, {100, 300, 100, 100}, true },
-            { {-1,-1,-1,-1},  {300, 100, 80, 150}, {350, 300, 100, 100}, true },
-            { {-1,-1,-1,-1},  {550, 100, 80, 150}, {500, 300, 180, 100}, true },
-            { {-1,-1,-1,-1},  {700, 100, 180, 80}, {750, 230, 80, 170}, true },
+            { {-1,-1,-1,-1}, false, {150, 100, 80, 150}, {100, 300, 100, 100}, true },
+            { {-1,-1,-1,-1}, false, {300, 100, 80, 150}, {350, 300, 100, 100}, true },
+            { {-1,-1,-1,-1}, false, {550, 100, 80, 150}, {500, 300, 180, 100}, true },
+            { {-1,-1,-1,-1}, false, {700, 100, 180, 80}, {750, 230, 80, 170}, true },
             
-            { {-1,-1,-1,-1},  {150, 500, 80, 150}, {100, 650, 100, 100}, true },
-            { {-1,-1,-1,-1},  {300, 500, 80, 150}, {350, 650, 100, 100}, true },
-            { {-1,-1,-1,-1},  {550, 500, 80, 150}, {500, 650, 180, 100}, true },
-            { {-1,-1,-1,-1},  {700, 500, 180, 80}, {750, 580, 80, 170}, true },
+            { {-1,-1,-1,-1}, false, {150, 500, 80, 150}, {100, 650, 100, 100}, true },
+            { {-1,-1,-1,-1}, false, {300, 500, 80, 150}, {350, 650, 100, 100}, true },
+            { {-1,-1,-1,-1}, false, {550, 500, 80, 150}, {500, 650, 180, 100}, true },
+            { {750, 450, 80, 50}, true, {700, 500, 180, 80}, {750, 580, 80, 170}, true },
         };
         i32 nr_of_example_rectangles = 8;
         
@@ -184,6 +185,12 @@ extern "C" {
             Rectangles3 rects = example_rectangles[example_rectangles_index];
             
             draw_lane_segments_for_3_rectangles(rects.top, rects.middle, rects.bottom, bending_radius, line_width, line_color, unselected_color, selected_color);
+            
+            if (rects.draw_top_rect)
+            {
+                // Drawing the rectangle above it, to show where it would go
+                draw_rectangle(rects.top.position, rects.top.size, no_color, unselected_color, line_width);
+            }
             
             // Not drawing the middle_rect:
             // draw_rectangle(middle_rect.position, middle_rect.size, no_color, unselected_color, line_width);
