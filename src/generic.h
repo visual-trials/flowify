@@ -147,26 +147,33 @@ LaneSegment2 get_2_lane_segments_from_3_rectangles(Rectangle top_rect,
     }
     else
     {
-        if (bottom_rect.position.y - bending_radius - bending_radius < top_lane_segment.left_bottom.y)
+        i32 middle_rect_bottom_y = middle_rect.position.y + middle_rect.size.height;
+        i32 bottom_rect_top_y = bottom_rect.position.y;
+        
+        i32 vertical_gap_between_middle_and_bottom_rects = bottom_rect_top_y - middle_rect_bottom_y;
+        if (vertical_gap_between_middle_and_bottom_rects < bending_radius + bending_radius)
         {
-            // The top of the bottom rectangle is very close to (or is touching) the bottom of the top lane segment
-            // So we shorten the height of the top lane segment (by setting both its bottom y-positions)
-            i32 new_middle_rect_bottom_y = bottom_rect.position.y - bending_radius - bending_radius;
-            top_lane_segment.left_bottom.y = new_middle_rect_bottom_y;
-            top_lane_segment.right_bottom.y = new_middle_rect_bottom_y;
+            // The top of the bottom rectangle is very close to (or is touching) the bottom of the middle rectangle
+            // So determine the new middle rectangle bottom-y and new bottom rectanhle top-y
+            middle_rect_bottom_y = bottom_rect.position.y - bending_radius - bending_radius;
+            bottom_rect_top_y = middle_rect.position.y + middle_rect.size.height + bending_radius + bending_radius;
         }
+        
+        top_lane_segment.left_bottom.y = middle_rect_bottom_y;
+        top_lane_segment.right_bottom.y = middle_rect_bottom_y;
+        
     
         bottom_lane_segment.left_top.x = middle_rect.position.x;
-        bottom_lane_segment.left_top.y = top_lane_segment.left_bottom.y; // middle_rect.position.y + middle_rect.size.height;
+        bottom_lane_segment.left_top.y = middle_rect_bottom_y; // middle_rect.position.y + middle_rect.size.height;
         
         bottom_lane_segment.right_top.x = middle_rect.position.x + middle_rect.size.width;
-        bottom_lane_segment.right_top.y = top_lane_segment.right_bottom.y; // middle_rect.position.y + middle_rect.size.height;
+        bottom_lane_segment.right_top.y = middle_rect_bottom_y; // middle_rect.position.y + middle_rect.size.height;
         
         bottom_lane_segment.left_bottom.x = bottom_rect.position.x;
-        bottom_lane_segment.left_bottom.y = bottom_rect.position.y;
+        bottom_lane_segment.left_bottom.y = bottom_rect_top_y; //bottom_rect.position.y;
         
         bottom_lane_segment.right_bottom.x = bottom_rect.position.x + bottom_rect.size.width;
-        bottom_lane_segment.right_bottom.y = bottom_rect.position.y;
+        bottom_lane_segment.right_bottom.y = bottom_rect_top_y; // bottom_rect.position.y;
         
         bottom_lane_segment.bending_radius = bending_radius;
 
