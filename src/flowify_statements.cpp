@@ -400,26 +400,28 @@ void layout_elements(FlowElement * flow_element)
         layout_elements(if_else_element);
         
         i32 middle_margin = 80;
+        i32 vertical_margin = 50;
 
-        flow_element->size.width = if_then_element->size.width + middle_margin + if_else_element->size.width;
-        if_start_element->size.width = flow_element->size.width;
-        if_end_element->size.width = flow_element->size.width;
-        
-        if_start_element->size.height = 100;
-        if_end_element->size.height = 100;
-        // TODO: determine whether if_then_element or if_else_element is higher
-        flow_element->size.height = if_start_element->size.height + if_then_element->size.height + if_end_element->size.height;
-        
         if_start_element->position.x = 0;
-        if_then_element->position.x = if_else_element->size.width + middle_margin;
-        if_else_element->position.x = 0;
-        if_end_element->position.x = 0;
-        
         if_start_element->position.y = 0;
-        if_then_element->position.y = if_start_element->size.height;
-        if_else_element->position.y = if_start_element->size.height;
+        if_start_element->size.height = 50;
+        if_start_element->size.width = if_then_element->size.width + middle_margin + if_else_element->size.width;
+        
+        if_else_element->position.x = 0;
+        if_else_element->position.y = if_start_element->size.height + vertical_margin;
+        
+        if_then_element->position.x = if_else_element->size.width + middle_margin;
+        if_then_element->position.y = if_start_element->size.height + vertical_margin;
+        
+        if_end_element->position.x = 0;
         // TODO: determine whether if_then_element or if_else_element is higher
-        if_end_element->position.y = if_start_element->size.height + if_then_element->size.height;
+        if_end_element->position.y = if_start_element->size.height + vertical_margin + if_then_element->size.height + vertical_margin;
+        if_end_element->size.width = if_then_element->size.width + middle_margin + if_else_element->size.width;
+        if_end_element->size.height = 50;
+        
+        // TODO: determine whether if_then_element or if_else_element is higher
+        flow_element->size.height = if_start_element->size.height + vertical_margin + if_then_element->size.height + vertical_margin + if_end_element->size.height;
+        flow_element->size.width = if_then_element->size.width + middle_margin + if_else_element->size.width;
         
         // TODO: change/extend either the else- or the then- height
     }
@@ -527,8 +529,12 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
     Color4 line_color       = {  0,   0,   0, 255};
     Color4 unselected_color = {180, 180, 255, 255};
     Color4 selected_color   = {180, 255, 180, 255};
+    Color4 rectangle_color  = {255, 0, 0, 255};
     Color4 no_color         = {};
     i32 line_width = 4;
+    i32 bending_radius = 20;
+    
+    Rectangle no_rect = {-1,-1,-1,-1};
     
     Color4 function_line_color = { 200, 200, 200, 255};
     Color4 function_fill_color = { 240, 240, 240, 255};
@@ -540,52 +546,37 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         flow_element->type == FlowElement_BinaryOperator ||
         flow_element->type == FlowElement_Return)
     {
-        Pos2d position = add_position_to_position(flow_element->position, parent_position);
-        
         // Colors
         Color4 fill_color = unselected_color;
         if (flow_element->is_selected)
         {
             fill_color = selected_color;
         }
+
+        // Positions and sizes
+        Rectangle top_rect = {-1,-1,-1,-1};
+        Rectangle middle_rect = {-1,-1,-1,-1};
+        Rectangle bottom_rect = {-1,-1,-1,-1};
         
-        // Size and positions
+        Pos2d position = add_position_to_position(flow_element->position, parent_position);
         Size2d size = flow_element->size;
-        Size2d previous_size = size;
-        Size2d next_size = size;
+        middle_rect.position = position;
+        middle_rect.size = size;
+        
         if (flow_element->previous_sibling)
         {
-            if (flow_element->previous_sibling->size.width >  size.width)
-            {
-                previous_size = flow_element->previous_sibling->size;
-            }
+            top_rect.position = add_position_to_position(flow_element->previous_sibling->position, parent_position);
+            top_rect.size = flow_element->previous_sibling->size;
         }
         if (flow_element->next_sibling)
         {
-            if (flow_element->next_sibling->size.width >  size.width)
-            {
-                next_size = flow_element->next_sibling->size;
-            }
+            bottom_rect.position = add_position_to_position(flow_element->next_sibling->position, parent_position);
+            bottom_rect.size = flow_element->next_sibling->size;
         }
         
-        Rectangle middle_rect = {};
-        middle_rect.position = position;
-        middle_rect.size = size;
-        LaneSegment2 lane_segments = get_2_lane_segments_from_3_rectangles(previous_size, middle_rect, next_size);
-                             
-        LaneSegment lane_segment = {};
+        draw_lane_segments_for_3_rectangles(top_rect, middle_rect, bottom_rect, bending_radius, line_width, line_color, fill_color, fill_color);
         
-        lane_segment = lane_segments.top;
-        i32 left_middle_y = lane_segment.left_top.y + (i32)((f32)(lane_segment.left_bottom.y - lane_segment.left_top.y) / (f32)2 );
-        i32 right_middle_y = left_middle_y;
-        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
-                          left_middle_y, right_middle_y, 20, line_color, fill_color, line_width);
-                          
-        lane_segment = lane_segments.bottom;
-        left_middle_y = lane_segment.left_top.y + (i32)((f32)(lane_segment.left_bottom.y - lane_segment.left_top.y) / (f32)2 );
-        right_middle_y = left_middle_y;
-        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
-                          left_middle_y, right_middle_y, 20, line_color, fill_color, line_width);
+        draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
     }
     else if (flow_element->type == FlowElement_If)
     {
@@ -615,10 +606,12 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         FlowElement * if_else_element = if_then_element->next_sibling;
         FlowElement * if_end_element = if_else_element->next_sibling;
         
-        // If-start rectangle (top)
-        Rectangle top_rect = {};
-        top_rect.position = add_position_to_position(if_start_element->position, parent_position);
-        top_rect.size = if_start_element->size;
+        Rectangle top_rect = {-1,-1,-1,-1};
+        
+        // If-start rectangle (middle)
+        Rectangle middle_rect = {};
+        middle_rect.position = add_position_to_position(if_start_element->position, parent_position);
+        middle_rect.size = if_start_element->size;
         
         // If-then rectangle (right)
         Rectangle right_rect = {};
@@ -630,28 +623,11 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         left_rect.position = add_position_to_position(if_else_element->position, parent_position);
         left_rect.size = if_else_element->size;
 
-        LaneSegment3 lane_segments = get_3_lane_segments_from_3_rectangles(left_rect, right_rect, top_rect, true);
+        draw_lane_segments_for_4_rectangles(top_rect, true, left_rect, right_rect, middle_rect, bending_radius, line_width, line_color, fill_color, fill_color);
+        // FIXME: we somehow need the previous element, BEFORE the start-if as top_rect!
+        draw_lane_segments_for_3_rectangles(top_rect, middle_rect, no_rect, bending_radius, line_width, line_color, fill_color, fill_color);
         
-        LaneSegment lane_segment = {};
-        
-        lane_segment = lane_segments.left;
-        i32 left_middle_y = lane_segment.left_top.y + (i32)((f32)(lane_segment.left_bottom.y - lane_segment.left_top.y) / (f32)2 );
-        i32 right_middle_y = left_middle_y;
-        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
-                          left_middle_y, right_middle_y, 20, line_color, fill_color, line_width);
-                          
-        lane_segment = lane_segments.right;
-        left_middle_y = lane_segment.left_top.y + (i32)((f32)(lane_segment.left_bottom.y - lane_segment.left_top.y) / (f32)2 );
-        right_middle_y = left_middle_y;
-        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
-                          left_middle_y, right_middle_y, 20, line_color, fill_color, line_width);
-                          
-        lane_segment = lane_segments.top_or_bottom;
-        left_middle_y = lane_segment.left_top.y + (i32)((f32)(lane_segment.left_bottom.y - lane_segment.left_top.y) / (f32)2 );
-        right_middle_y = left_middle_y;
-        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
-                          left_middle_y, right_middle_y, 20, line_color, fill_color, line_width);
-        
+        draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
     }
     else if (flow_element->type == FlowElement_IfEnd)
     {
@@ -667,11 +643,6 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         FlowElement * if_then_element = if_else_element->previous_sibling;
         FlowElement * if_start_element = if_then_element->previous_sibling;
         
-        // If-end positions + size
-        Rectangle bottom_rect = {};
-        bottom_rect.position = add_position_to_position(if_end_element->position, parent_position);
-        bottom_rect.size = if_end_element->size;
-        
         // If-then position + size (right)
         Rectangle right_rect = {};
         right_rect.position = add_position_to_position(if_then_element->position, parent_position);
@@ -682,33 +653,21 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         left_rect.position = add_position_to_position(if_else_element->position, parent_position);
         left_rect.size = if_else_element->size;
         
-        LaneSegment3 lane_segments = get_3_lane_segments_from_3_rectangles(left_rect, right_rect, bottom_rect, false);
+        // If-end positions + size
+        Rectangle middle_rect = {};
+        middle_rect.position = add_position_to_position(if_end_element->position, parent_position);
+        middle_rect.size = if_end_element->size;
         
-        LaneSegment lane_segment = {};
+        Rectangle bottom_rect = {-1,-1,-1,-1};
         
-        lane_segment = lane_segments.left;
-        i32 left_middle_y = lane_segment.left_top.y + (i32)((f32)(lane_segment.left_bottom.y - lane_segment.left_top.y) / (f32)2 );
-        i32 right_middle_y = left_middle_y;
-        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
-                          left_middle_y, right_middle_y, 20, line_color, fill_color, line_width);
-                          
-        lane_segment = lane_segments.right;
-        left_middle_y = lane_segment.left_top.y + (i32)((f32)(lane_segment.left_bottom.y - lane_segment.left_top.y) / (f32)2 );
-        right_middle_y = left_middle_y;
-        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
-                          left_middle_y, right_middle_y, 20, line_color, fill_color, line_width);
-                          
-        lane_segment = lane_segments.top_or_bottom;
-        left_middle_y = lane_segment.left_top.y + (i32)((f32)(lane_segment.left_bottom.y - lane_segment.left_top.y) / (f32)2 );
-        right_middle_y = left_middle_y;
-        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
-                          left_middle_y, right_middle_y, 20, line_color, fill_color, line_width);
+        draw_lane_segments_for_4_rectangles(bottom_rect, false, left_rect, right_rect, middle_rect, bending_radius, line_width, line_color, fill_color, fill_color);
+        // FIXME: we somehow need the next element, AFTER the end-if as bottom_rect!
+        draw_lane_segments_for_3_rectangles(no_rect, middle_rect, bottom_rect, bending_radius, line_width, line_color, fill_color, fill_color);
         
+        draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
     }
     else if (flow_element->type == FlowElement_FunctionCall)
     {
-        Pos2d position = add_position_to_position(flow_element->position, parent_position);
-        
         // Colors
         Color4 fill_color = unselected_color;
         if (flow_element->is_selected)
@@ -721,43 +680,31 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         fill_color.g -= 30;
         fill_color.b -= 30;
         
-        // Size and positions
+        
+        // Positions and sizes
+        Rectangle top_rect = {-1,-1,-1,-1};
+        Rectangle middle_rect = {-1,-1,-1,-1};
+        Rectangle bottom_rect = {-1,-1,-1,-1};
+        
+        Pos2d position = add_position_to_position(flow_element->position, parent_position);
         Size2d size = flow_element->size;
-        Size2d previous_size = size;
-        Size2d next_size = size;
+        middle_rect.position = position;
+        middle_rect.size = size;
+        
         if (flow_element->previous_sibling)
         {
-            if (flow_element->previous_sibling->size.width >  size.width)
-            {
-                previous_size = flow_element->previous_sibling->size;
-            }
+            top_rect.position = add_position_to_position(flow_element->previous_sibling->position, parent_position);
+            top_rect.size = flow_element->previous_sibling->size;
         }
         if (flow_element->next_sibling)
         {
-            if (flow_element->next_sibling->size.width >  size.width)
-            {
-                next_size = flow_element->next_sibling->size;
-            }
+            bottom_rect.position = add_position_to_position(flow_element->next_sibling->position, parent_position);
+            bottom_rect.size = flow_element->next_sibling->size;
         }
         
-        Rectangle middle_rect = {};
-        middle_rect.position = position;
-        middle_rect.size = size;
-        LaneSegment2 lane_segments = get_2_lane_segments_from_3_rectangles(previous_size, middle_rect, next_size);
-                             
-        LaneSegment lane_segment = {};
+        draw_lane_segments_for_3_rectangles(top_rect, middle_rect, bottom_rect, bending_radius, line_width, line_color, fill_color, fill_color);
         
-        lane_segment = lane_segments.top;
-        i32 left_middle_y = lane_segment.left_top.y + (i32)((f32)(lane_segment.left_bottom.y - lane_segment.left_top.y) / (f32)2 );
-        i32 right_middle_y = left_middle_y;
-        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
-                          left_middle_y, right_middle_y, 20, line_color, fill_color, line_width);
-                          
-        lane_segment = lane_segments.bottom;
-        left_middle_y = lane_segment.left_top.y + (i32)((f32)(lane_segment.left_bottom.y - lane_segment.left_top.y) / (f32)2 );
-        right_middle_y = left_middle_y;
-        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
-                          left_middle_y, right_middle_y, 20, line_color, fill_color, line_width);
+        draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
         
         // Drawing the function itself
         
