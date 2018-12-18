@@ -52,6 +52,12 @@ struct Size2d
     i32 height;
 };
 
+struct HorLine
+{
+   Pos2d left_position;
+   i32 width;
+};
+
 struct Rectangle
 {
     Pos2d position;
@@ -62,6 +68,17 @@ struct Size2dFloat
 {
     f32 width;
     f32 height;
+};
+
+struct LaneSegment_New
+{
+    HorLine top_line;
+    HorLine bottom_line;
+    
+    i32 left_bend_y;
+    i32 right_bend_y;
+    
+    i32 bending_radius;
 };
 
 struct LaneSegment
@@ -145,9 +162,11 @@ LaneSegment2 get_2_lane_segments_from_3_rectangles(Rectangle top_rect,
 {
     LaneSegment2 lane_segments = {};
     
-    LaneSegment top_lane_segment = {};
-    LaneSegment bottom_lane_segment = {};
+    // Top lane segment
     
+    LaneSegment top_lane_segment = {};
+    
+    // The top lane follows the contours of the middle rectangle: its basically a rectangle
     top_lane_segment.left_top.x = middle_rect.position.x;
     top_lane_segment.left_top.y = middle_rect.position.y;
     
@@ -162,6 +181,9 @@ LaneSegment2 get_2_lane_segments_from_3_rectangles(Rectangle top_rect,
     
     top_lane_segment.bending_radius = bending_radius;
     
+    // We check if we should shorten the top lane at its *top*.
+    // If the top rectangle (almost) touches the middle rectangle, 
+    // then we shorten the top lane at its top
     i32 top_rect_bottom_y = top_rect.position.y + top_rect.size.height;
     i32 middle_rect_top_y = middle_rect.position.y;
     
@@ -171,16 +193,22 @@ LaneSegment2 get_2_lane_segments_from_3_rectangles(Rectangle top_rect,
         if (vertical_gap_between_top_and_middle_rects < bending_radius + bending_radius)
         {
             // The top of the middle rectangle is very close to (or is touching) the bottom of the top rectangle
-            // So determine the new top rectangle bottom-y and new middle rectanhle top-y
-            // bottom_rect_bottom_y = middle_rect.position.y - bending_radius - bending_radius;
+            // So determine the new middle rectangle top-y
             middle_rect_top_y = top_rect.position.y + top_rect.size.height + bending_radius + bending_radius;
         }
     }
     top_lane_segment.left_top.y = middle_rect_top_y;
     top_lane_segment.right_top.y = middle_rect_top_y;
     
+
+    // Bottom lane segment (and adjusting top lane segment)
+    
+    LaneSegment bottom_lane_segment = {};
+    
     if (bottom_rect.size.height < 0)
     {
+        // If there is no bottom rect, then we should not draw a bend towards it
+        // Meaning: no bottom segment
         lane_segments.has_valid_bottom_segment = false;
     }
     else
@@ -192,7 +220,7 @@ LaneSegment2 get_2_lane_segments_from_3_rectangles(Rectangle top_rect,
         if (vertical_gap_between_middle_and_bottom_rects < bending_radius + bending_radius)
         {
             // The top of the bottom rectangle is very close to (or is touching) the bottom of the middle rectangle
-            // So determine the new middle rectangle bottom-y and new bottom rectanhle top-y
+            // So determine the new middle rectangle bottom-y and new bottom rectangle top-y
             middle_rect_bottom_y = bottom_rect.position.y - bending_radius - bending_radius;
             bottom_rect_top_y = middle_rect.position.y + middle_rect.size.height + bending_radius + bending_radius;
         }
