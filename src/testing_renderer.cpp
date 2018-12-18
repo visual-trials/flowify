@@ -206,19 +206,23 @@ extern "C" {
             // TODO: make a button to toggle this
             if (world->show_help_rectangles)
             {
+                Rectangle top_rect = shrink_rect_by_size(rects.top, (Size2d){2,0});
+                Rectangle middle_rect = shrink_rect_by_size(rects.middle, (Size2d){2,0});
+                Rectangle bottom_rect = shrink_rect_by_size(rects.bottom, (Size2d){2,0});
+                
                 if (rects.draw_top_rect)
                 {
                     // Drawing the rectangle above it, to show where it would go
-                    draw_rectangle(rects.top.position, rects.top.size, rectangle_color, no_color, 1);
+                    draw_rectangle(top_rect.position, top_rect.size, rectangle_color, no_color, 2);
                 }
                 
-                // Not drawing the middle_rect:
-                draw_rectangle(rects.middle.position, rects.middle.size, rectangle_color, no_color, 1);
+                // Drawing the middle_rect
+                draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
                 
                 if (rects.draw_bottom_rect)
                 {
                     // Drawing the rectangle below it, to show where it would go
-                    draw_rectangle(rects.bottom.position, rects.bottom.size, rectangle_color, no_color, 1);
+                    draw_rectangle(bottom_rect.position, bottom_rect.size, rectangle_color, no_color, 2);
                 }
             }
         }

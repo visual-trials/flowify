@@ -111,6 +111,19 @@ LaneSegment lane_segment_from_positions_and_widths(Pos2d top_position, i32 top_w
     return lane_segment;
 }
 
+Rectangle shrink_rect_by_size(Rectangle rect, Size2d size)
+{
+    Rectangle shrunk_rect = rect;
+    
+    shrunk_rect.position.x += size.width;
+    shrunk_rect.position.y += size.height;
+    
+    shrunk_rect.size.width -= size.width + size.width;
+    shrunk_rect.size.height -= size.height + size.height;
+    
+    return shrunk_rect;
+}
+
 LaneSegment2 get_2_lane_segments_from_3_rectangles(Rectangle top_rect, 
                                                    Rectangle middle_rect, 
                                                    Rectangle bottom_rect,
