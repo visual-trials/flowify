@@ -155,7 +155,7 @@ extern "C" {
                           lane_segment.left_bottom, lane_segment.right_bottom, 
                           lane_segment.left_middle_y, lane_segment.right_middle_y, lane_segment.bending_radius, 
                           line_color, rect_color, line_width);
-                    
+
         if (lane_segments.has_valid_bottom_segment)
         {
             lane_segment = lane_segments.bottom;
