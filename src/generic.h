@@ -124,6 +124,20 @@ Rectangle shrink_rect_by_size(Rectangle rect, Size2d size)
     return shrunk_rect;
 }
 
+LaneSegment3 get_3_lane_segments_from_4_rectangles(Rectangle top_or_bottom_rect, 
+                                                   b32 is_top_rect, 
+                                                   Rectangle left_rect, 
+                                                   Rectangle right_rect, 
+                                                   Rectangle middle_rect, 
+                                                   i32 bending_radius)
+{
+    LaneSegment3 lane_segments = {};
+    
+    // TODO: implement this!
+    
+    return lane_segments;
+}
+
 LaneSegment2 get_2_lane_segments_from_3_rectangles(Rectangle top_rect, 
                                                    Rectangle middle_rect, 
                                                    Rectangle bottom_rect,
