@@ -85,6 +85,7 @@ struct FlowElement
     Node * ast_node;
     
     FlowElement * first_child;
+    FlowElement * parent;
     
     FlowElement * next_sibling;
     FlowElement * previous_sibling;
@@ -120,6 +121,7 @@ FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowEleme
     FlowElement * new_flow_element = &flowifier->flow_elements[flowifier->nr_of_flow_elements++];
     new_flow_element->ast_node = ast_node;
     new_flow_element->first_child = 0;
+    new_flow_element->parent = 0;
     new_flow_element->next_sibling = 0;
     new_flow_element->previous_sibling = 0;
     new_flow_element->next_function = 0;
@@ -181,6 +183,7 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
                     {
                         new_statement_element = new_flow_element(flowifier, statement_node, FlowElement_FunctionCall);
                         new_statement_element->first_child = function_element;
+                        // TODO: set parent?
                     }
                     else {
                         // log("Unknown function:");
@@ -189,6 +192,7 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
                         
                         FlowElement * hidden_element = new_flow_element(flowifier, statement_node, FlowElement_Hidden);
                         new_statement_element->first_child = hidden_element;
+                        // TODO: set parent?
                     }
 
                 }
@@ -232,6 +236,7 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         {
             FlowElement * then_passthrough_element = new_flow_element(flowifier, 0, FlowElement_PassThrough);
             if_then_element->first_child = then_passthrough_element;
+            then_passthrough_element->parent = if_then_element;
         }
         
         FlowElement * if_else_element = new_flow_element(flowifier, if_else_node, FlowElement_IfElse);
@@ -243,11 +248,13 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         {
             FlowElement * else_passthrough_element = new_flow_element(flowifier, 0, FlowElement_PassThrough);
             if_else_element->first_child = else_passthrough_element;
+            else_passthrough_element->parent = if_else_element;
         }
         
         FlowElement * if_end_element = new_flow_element(flowifier, 0, FlowElement_IfEnd);
         
         if_element->first_child = if_start_element;
+        if_start_element->parent = if_element;  // TODO: only setting parent on first_child?
         
         if_start_element->next_sibling = if_then_element;
         if_then_element->previous_sibling = if_start_element;
@@ -273,6 +280,7 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         flowify_statements(flowifier, function_body_element);
         
         function_element->first_child = function_body_element;
+        function_body_element->parent = function_element;
         
         new_statement_element = function_element;
     }
@@ -349,6 +357,7 @@ void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
                 if (!parent_element->first_child)
                 {
                     parent_element->first_child = new_child_element;
+                    new_child_element->parent = parent_element;  // TODO: only setting parent on first_child?
                 }
                 else 
                 {
@@ -608,6 +617,7 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         FlowElement * if_then_element = if_start_element->next_sibling;
         FlowElement * if_else_element = if_then_element->next_sibling;
         FlowElement * if_end_element = if_else_element->next_sibling;
+        FlowElement * if_element = if_start_element->parent;
         
         Rectangle top_rect = {-1,-1,-1,-1};
         
@@ -618,11 +628,13 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         
         // If-then rectangle (right)
         Rectangle right_rect = {};
+        // FIXME: we need the position and size of the FIRST statement in the then-element, NOT of the then-element itself!
         right_rect.position = add_position_to_position(if_then_element->position, parent_position);
         right_rect.size = if_then_element->size;
         
         // If-else rectangle (left)
         Rectangle left_rect = {};
+        // FIXME: we need the position and size of the FIRST statement in the else-element, NOT of the else-element itself!
         left_rect.position = add_position_to_position(if_else_element->position, parent_position);
         left_rect.size = if_else_element->size;
 
@@ -645,14 +657,17 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         FlowElement * if_else_element = if_end_element->previous_sibling;
         FlowElement * if_then_element = if_else_element->previous_sibling;
         FlowElement * if_start_element = if_then_element->previous_sibling;
+        FlowElement * if_element = if_start_element->parent;
         
         // If-then position + size (right)
         Rectangle right_rect = {};
+        // FIXME: we need the position and size of the LAST statement in the then-element, NOT of the then-element itself!
         right_rect.position = add_position_to_position(if_then_element->position, parent_position);
         right_rect.size = if_then_element->size;
         
         // If-else position + size (left)
         Rectangle left_rect = {};
+        // FIXME: we need the position and size of the LAST statement in the else-element, NOT of the else-element itself!
         left_rect.position = add_position_to_position(if_else_element->position, parent_position);
         left_rect.size = if_else_element->size;
         
@@ -662,6 +677,17 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         middle_rect.size = if_end_element->size;
         
         Rectangle bottom_rect = {-1,-1,-1,-1};
+        
+        // FIXME: workaround!? Trying to get the element where the if-end connects to!?
+        if (if_element->next_sibling)
+        {
+            // FIXME: SERIOUSLY BAD HACK!
+            Pos2d parent_of_parent_position = {};
+            parent_of_parent_position.x = parent_position.x - if_element->position.x;
+            parent_of_parent_position.y = parent_position.y - if_element->position.y;
+            bottom_rect.position = add_position_to_position(if_element->next_sibling->position, parent_of_parent_position);
+            bottom_rect.size = if_element->next_sibling->size;
+        }
         
         draw_lane_segments_for_4_rectangles(bottom_rect, false, left_rect, right_rect, middle_rect, bending_radius, line_width, line_color, fill_color, fill_color);
         // FIXME: we somehow need the next element, AFTER the end-if as bottom_rect!
