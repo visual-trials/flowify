@@ -101,7 +101,7 @@ extern "C" {
         
         world->iteration = 0;
         world->selected_lane_segment_index = 0;
-        world->show_help_rectangles = false;
+        world->show_help_rectangles = true;
     }
     
     void update_frame()
@@ -228,6 +228,34 @@ extern "C" {
             { {-1,-1,-1,-1}, {-1,-1,-1,-1}, {1100, 300, 250, 200}, {1100, 500, 250, 200} },
             { {-1,-1,-1,-1}, {-1,-1,-1,-1}, {1400, 350, 200, 100}, {1400, 500, 200, 100} },
         };
+        
+        for (i32 example_rectangles4_index = 0; example_rectangles4_index < nr_of_example_rectangles4; example_rectangles4_index++)
+        {
+            Rectangles4 rects = example_rectangles4[example_rectangles4_index];
+            
+            // TODO: draw_lane_segments_for_4_rectangles(rects.top_or_bottom, rects.left, rects.right, rects.bottom, bending_radius, line_width, line_color, unselected_color, selected_color);
+            
+            if (world->show_help_rectangles)
+            {
+                Rectangle top_or_bottom_rect = shrink_rect_by_size(rects.top_or_bottom, (Size2d){2,0});
+                Rectangle left_rect = shrink_rect_by_size(rects.left, (Size2d){2,0});
+                Rectangle right_rect = shrink_rect_by_size(rects.right, (Size2d){2,0});
+                Rectangle middle_rect = shrink_rect_by_size(rects.middle, (Size2d){2,0});
+                
+                // Drawing the rectangle above it, to show where it would go
+                draw_rectangle(top_or_bottom_rect.position, top_or_bottom_rect.size, rectangle_color, no_color, 2);
+                
+                // Drawing the left_rect
+                draw_rectangle(left_rect.position, left_rect.size, rectangle_color, no_color, 2);
+                
+                // Drawing the right_rect
+                draw_rectangle(right_rect.position, right_rect.size, rectangle_color, no_color, 2);
+                
+                // Drawing the center rectangle, to show where it would go
+                draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
+            }
+        }
+        
         
         // Button for toggling showing help rectangles
         {
