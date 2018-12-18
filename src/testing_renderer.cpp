@@ -102,7 +102,7 @@ extern "C" {
         
         world->iteration = 0;
         world->selected_lane_segment_index = 0;
-        world->show_help_rectangles = true;
+        world->show_help_rectangles = false;
     }
     
     void update_frame()
@@ -250,6 +250,8 @@ extern "C" {
             }
         }
 
+        line_width = 4;
+        
         i32 nr_of_example_rectangles4 = 2;
         const Rectangles4 example_rectangles4[2] = {
             { /* before-if: */ {1250, 50, 250, 80}, true, /* if-split: */ {1300, 200, 150, 50}, /* if-left: */ {1100, 350, 250, 200}, /* if-right: */ {1400, 400, 200, 100} }, 
