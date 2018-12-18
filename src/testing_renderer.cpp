@@ -52,10 +52,16 @@ struct LaneSegmentExtended
 struct Rectangles3
 {
     Rectangle top;
-    b32 draw_top_rect;
     Rectangle middle;
     Rectangle bottom;
-    b32 draw_bottom_rect;
+};
+
+struct Rectangles4
+{
+    Rectangle top_or_bottom;
+    Rectangle middle;
+    Rectangle left;
+    Rectangle right;
 };
 
 const LaneSegmentExtended lane_segments[9] = {
@@ -171,62 +177,58 @@ extern "C" {
         i32 line_width = 2;
         i32 bending_radius = 10;
         
-        i32 nr_of_example_rectangles = 17;
-        const Rectangles3 example_rectangles[17] = {
-            { {-1,-1,-1,-1}, true, {150, 100, 80, 150}, {100, 300, 100, 100}, true },
-            { {-1,-1,-1,-1}, true, {300, 100, 80, 150}, {350, 300, 100, 100}, true },
-            { {-1,-1,-1,-1}, true, {550, 100, 80, 150}, {500, 300, 180, 100}, true },
-            { {-1,-1,-1,-1}, true, {700, 100, 180, 80}, {750, 230, 80, 170}, true },
+        i32 nr_of_example_rectangles3 = 12;
+        const Rectangles3 example_rectangles3[12] = {
+            { {-1,-1,-1,-1}, {150, 100, 80, 150}, {100, 300, 100, 100} },
+            { {-1,-1,-1,-1}, {300, 100, 80, 150}, {350, 300, 100, 100} },
+            { {-1,-1,-1,-1}, {550, 100, 80, 150}, {500, 300, 180, 100} },
+            { {-1,-1,-1,-1}, {700, 100, 180, 80}, {750, 230, 80, 170} },
             
-            { {-1,-1,-1,-1}, true, {100, 450, 100, 50}, {150, 500, 80, 150}, true },
-            { {100, 450, 100, 50}, true, {150, 500, 80, 150}, {100, 650, 100, 100}, true },
+            { {-1,-1,-1,-1}, {100, 450, 100, 50}, {150, 500, 80, 150} },
+            { {100, 450, 100, 50}, {150, 500, 80, 150}, {100, 650, 100, 100} },
             
-            { {-1,-1,-1,-1}, true, {350, 450, 100, 50}, {300, 500, 80, 150}, true },
-            { {350, 450, 100, 50}, true, {300, 500, 80, 150}, {350, 650, 100, 100}, true },
+            { {-1,-1,-1,-1}, {350, 450, 100, 50}, {300, 500, 80, 150} },
+            { {350, 450, 100, 50}, {300, 500, 80, 150}, {350, 650, 100, 100} },
             
-            { {-1,-1,-1,-1}, true, {500, 450, 180, 50}, {550, 500, 80, 150}, true },
-            { {500, 450, 180, 50}, true, {550, 500, 80, 150}, {500, 650, 180, 100}, true },
+            { {-1,-1,-1,-1}, {500, 450, 180, 50}, {550, 500, 80, 150} },
+            { {500, 450, 180, 50}, {550, 500, 80, 150}, {500, 650, 180, 100} },
             
-            { {-1,-1,-1,-1}, true, {750, 450, 80, 50}, {700, 500, 180, 80}, false },
-            { {-1,-1,-1,-1}, true, {700, 500, 180, 80}, {750, 580, 80, 170}, true },
-            
-            { {-1,-1,-1,-1}, true, {1300, 100, 150, 80}, {1100, 250, 500, 10}, true },
-            { {-1,-1,-1,-1}, true, {1100, 250, 275, 0}, {1100, 300, 250, 200}, true },
-            { {-1,-1,-1,-1}, true, {1375, 250, 225, 0}, {1400, 350, 200, 100}, true },
-            { {-1,-1,-1,-1}, true, {1100, 300, 250, 200}, {1100, 500, 250, 200}, true },
-            { {-1,-1,-1,-1}, true, {1400, 350, 200, 100}, {1400, 500, 200, 100}, true },
+            { {-1,-1,-1,-1}, {750, 450, 80, 50}, {700, 500, 180, 80} },
+            { {-1,-1,-1,-1}, {700, 500, 180, 80}, {750, 580, 80, 170} },
         };
         
-        for (i32 example_rectangles_index = 0; example_rectangles_index < nr_of_example_rectangles; example_rectangles_index++)
+        for (i32 example_rectangles3_index = 0; example_rectangles3_index < nr_of_example_rectangles3; example_rectangles3_index++)
         {
-            Rectangles3 rects = example_rectangles[example_rectangles_index];
+            Rectangles3 rects = example_rectangles3[example_rectangles3_index];
             
             draw_lane_segments_for_3_rectangles(rects.top, rects.middle, rects.bottom, bending_radius, line_width, line_color, unselected_color, selected_color);
             
-            // TODO: make a button to toggle this
             if (world->show_help_rectangles)
             {
                 Rectangle top_rect = shrink_rect_by_size(rects.top, (Size2d){2,0});
                 Rectangle middle_rect = shrink_rect_by_size(rects.middle, (Size2d){2,0});
                 Rectangle bottom_rect = shrink_rect_by_size(rects.bottom, (Size2d){2,0});
                 
-                if (rects.draw_top_rect)
-                {
-                    // Drawing the rectangle above it, to show where it would go
-                    draw_rectangle(top_rect.position, top_rect.size, rectangle_color, no_color, 2);
-                }
+                // Drawing the rectangle above it, to show where it would go
+                draw_rectangle(top_rect.position, top_rect.size, rectangle_color, no_color, 2);
                 
                 // Drawing the middle_rect
                 draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
                 
-                if (rects.draw_bottom_rect)
-                {
-                    // Drawing the rectangle below it, to show where it would go
-                    draw_rectangle(bottom_rect.position, bottom_rect.size, rectangle_color, no_color, 2);
-                }
+                // Drawing the rectangle below it, to show where it would go
+                draw_rectangle(bottom_rect.position, bottom_rect.size, rectangle_color, no_color, 2);
             }
         }
 
+        i32 nr_of_example_rectangles4 = 5;
+        const Rectangles4 example_rectangles4[5] = {
+            { {-1,-1,-1,-1}, {-1,-1,-1,-1}, {1300, 100, 150, 80}, {1100, 250, 500, 10} },
+            { {-1,-1,-1,-1}, {-1,-1,-1,-1}, {1100, 250, 275, 0}, {1100, 300, 250, 200} },
+            { {-1,-1,-1,-1}, {-1,-1,-1,-1}, {1375, 250, 225, 0}, {1400, 350, 200, 100} },
+            { {-1,-1,-1,-1}, {-1,-1,-1,-1}, {1100, 300, 250, 200}, {1100, 500, 250, 200} },
+            { {-1,-1,-1,-1}, {-1,-1,-1,-1}, {1400, 350, 200, 100}, {1400, 500, 200, 100} },
+        };
+        
         // Button for toggling showing help rectangles
         {
             Size2d size_button = {50, 50};
