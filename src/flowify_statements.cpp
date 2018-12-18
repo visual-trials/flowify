@@ -399,6 +399,12 @@ void layout_elements(FlowElement * flow_element)
         layout_elements(if_then_element);
         layout_elements(if_else_element);
         
+        i32 then_else_height = if_then_element->size.height;
+        if (if_else_element->size.height > then_else_height)
+        {
+            then_else_height = if_else_element->size.height;
+        }
+        
         i32 middle_margin = 80;
         i32 vertical_margin = 50;
 
@@ -414,16 +420,13 @@ void layout_elements(FlowElement * flow_element)
         if_then_element->position.y = if_start_element->size.height + vertical_margin;
         
         if_end_element->position.x = 0;
-        // TODO: determine whether if_then_element or if_else_element is higher
-        if_end_element->position.y = if_start_element->size.height + vertical_margin + if_then_element->size.height + vertical_margin;
+        if_end_element->position.y = if_start_element->size.height + vertical_margin + then_else_height + vertical_margin;
         if_end_element->size.width = if_then_element->size.width + middle_margin + if_else_element->size.width;
         if_end_element->size.height = 50;
         
-        // TODO: determine whether if_then_element or if_else_element is higher
-        flow_element->size.height = if_start_element->size.height + vertical_margin + if_then_element->size.height + vertical_margin + if_end_element->size.height;
+        flow_element->size.height = if_start_element->size.height + vertical_margin + then_else_height + vertical_margin + if_end_element->size.height;
         flow_element->size.width = if_then_element->size.width + middle_margin + if_else_element->size.width;
         
-        // TODO: change/extend either the else- or the then- height
     }
     else if (flow_element->type == FlowElement_FunctionCall)
     {
