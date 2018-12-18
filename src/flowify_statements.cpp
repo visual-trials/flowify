@@ -576,12 +576,16 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         LaneSegment lane_segment = {};
         
         lane_segment = lane_segments.top;
+        i32 left_middle_y = lane_segment.left_top.y + (i32)((f32)(lane_segment.left_bottom.y - lane_segment.left_top.y) / (f32)2 );
+        i32 right_middle_y = left_middle_y;
         draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
-                          20, line_color, fill_color, line_width);
+                          left_middle_y, right_middle_y, 20, line_color, fill_color, line_width);
                           
         lane_segment = lane_segments.bottom;
+        left_middle_y = lane_segment.left_top.y + (i32)((f32)(lane_segment.left_bottom.y - lane_segment.left_top.y) / (f32)2 );
+        right_middle_y = left_middle_y;
         draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
-                          20, line_color, fill_color, line_width);
+                          left_middle_y, right_middle_y, 20, line_color, fill_color, line_width);
     }
     else if (flow_element->type == FlowElement_If)
     {
@@ -631,16 +635,22 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         LaneSegment lane_segment = {};
         
         lane_segment = lane_segments.left;
+        i32 left_middle_y = lane_segment.left_top.y + (i32)((f32)(lane_segment.left_bottom.y - lane_segment.left_top.y) / (f32)2 );
+        i32 right_middle_y = left_middle_y;
         draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
-                          20, line_color, fill_color, line_width);
+                          left_middle_y, right_middle_y, 20, line_color, fill_color, line_width);
                           
         lane_segment = lane_segments.right;
+        left_middle_y = lane_segment.left_top.y + (i32)((f32)(lane_segment.left_bottom.y - lane_segment.left_top.y) / (f32)2 );
+        right_middle_y = left_middle_y;
         draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
-                          20, line_color, fill_color, line_width);
+                          left_middle_y, right_middle_y, 20, line_color, fill_color, line_width);
                           
         lane_segment = lane_segments.top_or_bottom;
+        left_middle_y = lane_segment.left_top.y + (i32)((f32)(lane_segment.left_bottom.y - lane_segment.left_top.y) / (f32)2 );
+        right_middle_y = left_middle_y;
         draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
-                          20, line_color, fill_color, line_width);
+                          left_middle_y, right_middle_y, 20, line_color, fill_color, line_width);
         
     }
     else if (flow_element->type == FlowElement_IfEnd)
@@ -677,16 +687,22 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         LaneSegment lane_segment = {};
         
         lane_segment = lane_segments.left;
+        i32 left_middle_y = lane_segment.left_top.y + (i32)((f32)(lane_segment.left_bottom.y - lane_segment.left_top.y) / (f32)2 );
+        i32 right_middle_y = left_middle_y;
         draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
-                          20, line_color, fill_color, line_width);
+                          left_middle_y, right_middle_y, 20, line_color, fill_color, line_width);
                           
         lane_segment = lane_segments.right;
+        left_middle_y = lane_segment.left_top.y + (i32)((f32)(lane_segment.left_bottom.y - lane_segment.left_top.y) / (f32)2 );
+        right_middle_y = left_middle_y;
         draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
-                          20, line_color, fill_color, line_width);
+                          left_middle_y, right_middle_y, 20, line_color, fill_color, line_width);
                           
         lane_segment = lane_segments.top_or_bottom;
+        left_middle_y = lane_segment.left_top.y + (i32)((f32)(lane_segment.left_bottom.y - lane_segment.left_top.y) / (f32)2 );
+        right_middle_y = left_middle_y;
         draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
-                          20, line_color, fill_color, line_width);
+                          left_middle_y, right_middle_y, 20, line_color, fill_color, line_width);
         
     }
     else if (flow_element->type == FlowElement_FunctionCall)
@@ -732,12 +748,16 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         LaneSegment lane_segment = {};
         
         lane_segment = lane_segments.top;
+        i32 left_middle_y = lane_segment.left_top.y + (i32)((f32)(lane_segment.left_bottom.y - lane_segment.left_top.y) / (f32)2 );
+        i32 right_middle_y = left_middle_y;
         draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
-                          20, line_color, fill_color, line_width);
+                          left_middle_y, right_middle_y, 20, line_color, fill_color, line_width);
                           
         lane_segment = lane_segments.bottom;
+        left_middle_y = lane_segment.left_top.y + (i32)((f32)(lane_segment.left_bottom.y - lane_segment.left_top.y) / (f32)2 );
+        right_middle_y = left_middle_y;
         draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, lane_segment.left_bottom, lane_segment.right_bottom, 
-                          20, line_color, fill_color, line_width);
+                          left_middle_y, right_middle_y, 20, line_color, fill_color, line_width);
         
         // Drawing the function itself
         
