@@ -143,59 +143,6 @@ extern "C" {
         draw_rounded_rectangle((Pos2d){500, 200}, (Size2d){200, 350}, 20, line_color_rounded, fill_color_rounded, 4);
     }
     
-    void draw_lane_segments_for_3_rectangles(Rectangle top_rect, Rectangle middle_rect, Rectangle bottom_rect, i32 bending_radius, i32 line_width, Color4 line_color, Color4 rect_color, Color4 bend_color)
-    {
-        Color4 no_color = {};
-        
-        LaneSegment2 lane_segments = get_2_lane_segments_from_3_rectangles(top_rect, middle_rect, bottom_rect, bending_radius);
-        
-        LaneSegment lane_segment = {};
-        
-        lane_segment = lane_segments.top;
-        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
-                          lane_segment.left_bottom, lane_segment.right_bottom, 
-                          lane_segment.left_middle_y, lane_segment.right_middle_y, lane_segment.bending_radius, 
-                          line_color, rect_color, line_width);
-
-        if (lane_segments.has_valid_bottom_segment)
-        {
-            lane_segment = lane_segments.bottom;
-            draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
-                              lane_segment.left_bottom, lane_segment.right_bottom, 
-                              lane_segment.left_middle_y, lane_segment.right_middle_y, lane_segment.bending_radius, 
-                              line_color, bend_color, line_width);
-        }
-    }
-    
-    void draw_lane_segments_for_4_rectangles(Rectangle top_or_bottom_rect, b32 is_top_rect, Rectangle left_rect, Rectangle right_rect, Rectangle middle_rect, i32 bending_radius, i32 line_width, Color4 line_color, Color4 rect_color, Color4 bend_color)
-    {
-        Color4 no_color = {};
-        
-        LaneSegment3 lane_segments = get_3_lane_segments_from_4_rectangles(top_or_bottom_rect, is_top_rect, middle_rect, left_rect, right_rect, bending_radius);
-        
-        LaneSegment lane_segment = {};
-        
-        lane_segment = lane_segments.top_or_bottom;
-        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
-                          lane_segment.left_bottom, lane_segment.right_bottom, 
-                          lane_segment.left_middle_y, lane_segment.right_middle_y, lane_segment.bending_radius, 
-                          line_color, bend_color, line_width);
-
-        // TODO: should we always draw all 3 segments? Could one or some of them be invalid?
-                          
-        lane_segment = lane_segments.left;
-        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
-                          lane_segment.left_bottom, lane_segment.right_bottom, 
-                          lane_segment.left_middle_y, lane_segment.right_middle_y, lane_segment.bending_radius, 
-                          line_color, bend_color, line_width);
-                          
-        lane_segment = lane_segments.right;
-        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
-                          lane_segment.left_bottom, lane_segment.right_bottom, 
-                          lane_segment.left_middle_y, lane_segment.right_middle_y, lane_segment.bending_radius, 
-                          line_color, bend_color, line_width);
-    }
-    
     void draw_example_lanes(WorldData * world)
     {
         Color4 line_color       = {  0,   0,   0, 255};

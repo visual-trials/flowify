@@ -139,24 +139,6 @@ HorLine get_bottom_line_from_rect(Rectangle rect)
     return bottom_line;
 }
 
-LaneSegment lane_segment_from_positions_and_widths(Pos2d top_position, i32 top_width, 
-                                                   Pos2d bottom_position, i32 bottom_width)
-{
-    LaneSegment lane_segment = {};
-    
-    lane_segment.left_top = top_position;
-    
-    lane_segment.right_top = top_position;
-    lane_segment.right_top.x += top_width;
-    
-    lane_segment.left_bottom = bottom_position;
-    
-    lane_segment.right_bottom = bottom_position;
-    lane_segment.right_bottom.x += bottom_width;
-    
-    return lane_segment;
-}
-
 Rectangle shrink_rect_by_size(Rectangle rect, Size2d size)
 {
     Rectangle shrunk_rect = rect;
@@ -461,7 +443,26 @@ LaneSegment2 get_2_lane_segments_from_3_rectangles(Rectangle top_rect,
     return lane_segments;
 }
 
-// TODO: rewrite this!
+// TODO: remove this!
+LaneSegment lane_segment_from_positions_and_widths(Pos2d top_position, i32 top_width, 
+                                                   Pos2d bottom_position, i32 bottom_width)
+{
+    LaneSegment lane_segment = {};
+    
+    lane_segment.left_top = top_position;
+    
+    lane_segment.right_top = top_position;
+    lane_segment.right_top.x += top_width;
+    
+    lane_segment.left_bottom = bottom_position;
+    
+    lane_segment.right_bottom = bottom_position;
+    lane_segment.right_bottom.x += bottom_width;
+    
+    return lane_segment;
+}
+
+// TODO: remove this!
 LaneSegment2 get_2_lane_segments_from_3_rectangles(Size2d top_size, 
                                                    Rectangle middle_rect, 
                                                    Size2d bottom_size)
@@ -511,7 +512,7 @@ LaneSegment2 get_2_lane_segments_from_3_rectangles(Size2d top_size,
     return lane_segments;
 }
 
-// TODO: rewrite this!
+// TODO: remove this!
 LaneSegment3 get_3_lane_segments_from_3_rectangles(Rectangle left_rect, 
                                                    Rectangle right_rect, 
                                                    Rectangle top_or_bottom_rect, 
