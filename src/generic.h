@@ -162,6 +162,71 @@ Rectangle shrink_rect_by_size(Rectangle rect, Size2d size)
     return shrunk_rect;
 }
 
+LaneSegment lane_segment_from_horizontal_lines(HorLine top_line, HorLine bottom_line, b32 most_room_left, b32 most_room_right, i32 bending_radius)
+{
+    LaneSegment lane_segment = {};
+  
+    lane_segment.left_top = top_line.left_position;
+    
+    lane_segment.right_top = top_line.left_position;
+    lane_segment.right_top.x += top_line.width;
+    
+    lane_segment.left_bottom = bottom_line.left_position;
+    
+    lane_segment.right_bottom = bottom_line.left_position;
+    lane_segment.right_bottom.x += bottom_line.width;
+
+    lane_segment.bending_radius = bending_radius;
+
+    if (most_room_left)
+    {
+        if (bottom_line.left_position.x < top_line.left_position.x)
+        {
+            lane_segment.left_middle_y = lane_segment.left_top.y + bending_radius;
+        }
+        else
+        {
+            lane_segment.left_middle_y = lane_segment.left_bottom.y - bending_radius;
+        }
+    }
+    else
+    {
+        if (bottom_line.left_position.x < top_line.left_position.x)
+        {
+            lane_segment.left_middle_y = lane_segment.left_bottom.y - bending_radius;
+        }
+        else
+        {
+            lane_segment.left_middle_y = lane_segment.left_top.y + bending_radius;
+        }
+    }
+        
+    if (most_room_right)
+    {
+        if (bottom_line.left_position.x + bottom_line.width < top_line.left_position.x + top_line.width)
+        {
+            lane_segment.right_middle_y = lane_segment.right_bottom.y - bending_radius;
+        }
+        else
+        {
+            lane_segment.right_middle_y = lane_segment.right_top.y + bending_radius;
+        }
+    }
+    else
+    {
+        if (bottom_line.left_position.x + bottom_line.width < top_line.left_position.x + top_line.width)
+        {
+            lane_segment.right_middle_y = lane_segment.right_top.y + bending_radius;
+        }
+        else
+        {
+            lane_segment.right_middle_y = lane_segment.right_bottom.y - bending_radius;
+        }
+    }    
+  
+    return lane_segment;
+}
+
 LaneSegment3 get_3_lane_segments_from_4_rectangles(Rectangle top_or_bottom_rect, 
                                                    b32 is_top_rect, 
                                                    Rectangle left_rect, 
@@ -190,10 +255,6 @@ LaneSegment2 get_2_lane_segments_from_3_rectangles(Rectangle top_rect,
     
     HorLine bottom_rect_top_line = get_top_line_from_rect(bottom_rect);
     
-    // We check if we should shorten the top lane at its *top*.
-    // If the top rectangle (almost) touches the middle rectangle, 
-    // then we shorten the top lane at its top
-        
     // TODO: is there a better way of saying that the top_rect is invalid?
     if (top_rect.size.height >= 0)
     {
@@ -228,71 +289,13 @@ LaneSegment2 get_2_lane_segments_from_3_rectangles(Rectangle top_rect,
     }
         
     // Top lane segment
-    
-    LaneSegment top_lane_segment = {};
-
-    // The top lane follows the contours of the middle rectangle: its basically a rectangle
-    
-    /*
-        TODO: implement this!
-    top_lane_segment = lane_segment_from_horizontal_lines(middle_rect_top_line, middle_rect_bottom_line, 
-                                                          left_middle_y, right_middle_y, bending_radius);
-                                                          
-                                                          // maybe: NOT left_middle_y, right_middle_y,
-                                                          //        BUT: least_room_left, least_room_right? 
-    */                                                          
-
-    top_lane_segment.left_top = middle_rect_top_line.left_position;
-    
-    top_lane_segment.right_top = middle_rect_top_line.left_position;
-    top_lane_segment.right_top.x += middle_rect_top_line.width;
-    
-    top_lane_segment.left_bottom = middle_rect_bottom_line.left_position;
-    
-    top_lane_segment.right_bottom = middle_rect_bottom_line.left_position;
-    top_lane_segment.right_bottom.x += middle_rect_bottom_line.width;
-    
-    // TODO: we should set left_bend_y and right_bend_y of the top_lane_segment, right?
-    
-    top_lane_segment.bending_radius = bending_radius;
+    LaneSegment top_lane_segment = lane_segment_from_horizontal_lines(middle_rect_top_line, middle_rect_bottom_line, 
+                                                                      true, true, bending_radius);
     
     // Bottom lane segment (and adjusting top lane segment)
-    
-    LaneSegment bottom_lane_segment = {};
-    
-        
-        bottom_lane_segment.left_top = middle_rect_bottom_line.left_position;
-        
-        bottom_lane_segment.right_top = middle_rect_bottom_line.left_position;
-        bottom_lane_segment.right_top.x += middle_rect_bottom_line.width;
-        
-        bottom_lane_segment.left_bottom = bottom_rect_top_line.left_position;
-        
-        bottom_lane_segment.right_bottom = bottom_rect_top_line.left_position;
-        bottom_lane_segment.right_bottom.x += bottom_rect_top_line.width;
-
-        
-        
-        bottom_lane_segment.bending_radius = bending_radius;
-
-        if (bottom_rect.position.x < middle_rect.position.x)
-        {
-            bottom_lane_segment.left_middle_y = bottom_lane_segment.left_top.y + bending_radius;
-        }
-        else
-        {
-            bottom_lane_segment.left_middle_y = bottom_lane_segment.left_bottom.y - bending_radius;
-        }
-        
-        if (bottom_rect.position.x + bottom_rect.size.width < middle_rect.position.x + middle_rect.size.width)
-        {
-            bottom_lane_segment.right_middle_y = bottom_lane_segment.right_bottom.y - bending_radius;
-        }
-        else
-        {
-            bottom_lane_segment.right_middle_y = bottom_lane_segment.right_top.y + bending_radius;
-        }    
-    
+    LaneSegment bottom_lane_segment = lane_segment_from_horizontal_lines(middle_rect_bottom_line, bottom_rect_top_line, 
+                                                                         true, true, bending_radius);
+                                                                         
     lane_segments.top = top_lane_segment;
     lane_segments.bottom = bottom_lane_segment;
     
