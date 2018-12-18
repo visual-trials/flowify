@@ -220,9 +220,10 @@ extern "C" {
             }
         }
 
-        i32 nr_of_example_rectangles4 = 1;
-        const Rectangles4 example_rectangles4[1] = {
-            { {-1,-1,-1,-1}, {1300, 100, 150, 80}, {1100, 300, 250, 200}, {1400, 350, 200, 100} },
+        i32 nr_of_example_rectangles4 = 2;
+        const Rectangles4 example_rectangles4[2] = {
+            { /* before-if: */ {1250, 50, 250, 80}, /* if-split: */ {1300, 200, 150, 50}, /* if-left: */ {1100, 350, 250, 200}, /* if-right: */ {1400, 400, 200, 100} }, 
+            { /* after-if: */ {1250, 750, 250, 80}, /* if-join: */  {1300, 650, 150, 50}, /* if-left: */ {1100, 350, 250, 200}, /* if-right: */ {1400, 400, 200, 100} },
         };
         
         for (i32 example_rectangles4_index = 0; example_rectangles4_index < nr_of_example_rectangles4; example_rectangles4_index++)
