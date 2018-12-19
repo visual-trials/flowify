@@ -143,7 +143,7 @@ extern "C" {
         draw_rounded_rectangle((Pos2d){500, 200}, (Size2d){200, 350}, 20, line_color_rounded, fill_color_rounded, 4);
     }
     
-    void draw_example_lanes(WorldData * world)
+    void draw_example_lanes(WorldData * world, i32 lane_example_index)
     {
         Color4 line_color       = {  0,   0,   0, 255};
         Color4 unselected_color = {180, 180, 255, 255};
@@ -154,119 +154,126 @@ extern "C" {
         i32 line_width = 2;
         i32 bending_radius = 10;
         
-        i32 nr_of_example_rectangles3 = 12;
-        const Rectangles3 example_rectangles3[12] = {
-            { {-1,-1,-1,-1}, {150, 100, 80, 150}, {100, 300, 100, 100} },
-            { {-1,-1,-1,-1}, {300, 100, 80, 150}, {350, 300, 100, 100} },
-            { {-1,-1,-1,-1}, {550, 100, 80, 150}, {500, 300, 180, 100} },
-            { {-1,-1,-1,-1}, {700, 100, 180, 80}, {750, 230, 80, 170} },
-            
-            { {-1,-1,-1,-1}, {100, 450, 100, 50}, {150, 500, 80, 150} },
-            { {100, 450, 100, 50}, {150, 500, 80, 150}, {100, 650, 100, 100} },
-            
-            { {-1,-1,-1,-1}, {350, 450, 100, 50}, {300, 500, 80, 150} },
-            { {350, 450, 100, 50}, {300, 500, 80, 150}, {350, 650, 100, 100} },
-            
-            { {-1,-1,-1,-1}, {500, 450, 180, 50}, {550, 500, 80, 150} },
-            { {500, 450, 180, 50}, {550, 500, 80, 150}, {500, 650, 180, 100} },
-            
-            { {-1,-1,-1,-1}, {750, 450, 80, 50}, {700, 500, 180, 80} },
-            { {750, 450, 80, 50}, {700, 500, 180, 80}, {750, 580, 80, 170} },
-        };
-        
-        for (i32 example_rectangles3_index = 0; example_rectangles3_index < nr_of_example_rectangles3; example_rectangles3_index++)
+        if (lane_example_index == 0)
         {
-            Rectangles3 rects = example_rectangles3[example_rectangles3_index];
+            i32 nr_of_example_rectangles3 = 12;
+            const Rectangles3 example_rectangles3[12] = {
+                { {-1,-1,-1,-1}, {150, 100, 80, 150}, {100, 300, 100, 100} },
+                { {-1,-1,-1,-1}, {300, 100, 80, 150}, {350, 300, 100, 100} },
+                { {-1,-1,-1,-1}, {550, 100, 80, 150}, {500, 300, 180, 100} },
+                { {-1,-1,-1,-1}, {700, 100, 180, 80}, {750, 230, 80, 170} },
+                
+                { {-1,-1,-1,-1}, {100, 450, 100, 50}, {150, 500, 80, 150} },
+                { {100, 450, 100, 50}, {150, 500, 80, 150}, {100, 650, 100, 100} },
+                
+                { {-1,-1,-1,-1}, {350, 450, 100, 50}, {300, 500, 80, 150} },
+                { {350, 450, 100, 50}, {300, 500, 80, 150}, {350, 650, 100, 100} },
+                
+                { {-1,-1,-1,-1}, {500, 450, 180, 50}, {550, 500, 80, 150} },
+                { {500, 450, 180, 50}, {550, 500, 80, 150}, {500, 650, 180, 100} },
+                
+                { {-1,-1,-1,-1}, {750, 450, 80, 50}, {700, 500, 180, 80} },
+                { {750, 450, 80, 50}, {700, 500, 180, 80}, {750, 580, 80, 170} },
+            };
             
-            draw_lane_segments_for_3_rectangles(rects.top, rects.middle, rects.bottom, bending_radius, line_width, line_color, unselected_color, selected_color);
-            
-            if (world->show_help_rectangles)
+            for (i32 example_rectangles3_index = 0; example_rectangles3_index < nr_of_example_rectangles3; example_rectangles3_index++)
             {
-                Rectangle top_rect = shrink_rect_by_size(rects.top, (Size2d){2,0});
-                Rectangle middle_rect = shrink_rect_by_size(rects.middle, (Size2d){2,0});
-                Rectangle bottom_rect = shrink_rect_by_size(rects.bottom, (Size2d){2,0});
+                Rectangles3 rects = example_rectangles3[example_rectangles3_index];
                 
-                // Drawing the rectangle above it, to show where it would go
-                draw_rectangle(top_rect.position, top_rect.size, rectangle_color, no_color, 2);
+                draw_lane_segments_for_3_rectangles(rects.top, rects.middle, rects.bottom, bending_radius, line_width, line_color, unselected_color, selected_color);
                 
-                // Drawing the middle_rect
-                draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
-                
-                // Drawing the rectangle below it, to show where it would go
-                draw_rectangle(bottom_rect.position, bottom_rect.size, rectangle_color, no_color, 2);
+                if (world->show_help_rectangles)
+                {
+                    Rectangle top_rect = shrink_rect_by_size(rects.top, (Size2d){2,0});
+                    Rectangle middle_rect = shrink_rect_by_size(rects.middle, (Size2d){2,0});
+                    Rectangle bottom_rect = shrink_rect_by_size(rects.bottom, (Size2d){2,0});
+                    
+                    // Drawing the rectangle above it, to show where it would go
+                    draw_rectangle(top_rect.position, top_rect.size, rectangle_color, no_color, 2);
+                    
+                    // Drawing the middle_rect
+                    draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
+                    
+                    // Drawing the rectangle below it, to show where it would go
+                    draw_rectangle(bottom_rect.position, bottom_rect.size, rectangle_color, no_color, 2);
+                }
             }
         }
 
-        line_width = 4;
-        
-        i32 nr_of_example_rectangles4 = 2;
-        const Rectangles4 example_rectangles4[2] = {
-            { /* before-if: */ {1250, 50, 250, 80}, true, /* if-split: */ {1300, 200, 150, 50}, /* if-left: */ {1100, 350, 250, 200}, /* if-right: */ {1400, 400, 200, 100} }, 
-            { /* after-if: */ {1250, 750, 250, 80}, false, /* if-join: */  {1300, 650, 150, 50}, /* if-left: */ {1100, 350, 250, 200}, /* if-right: */ {1400, 400, 200, 100} },
-        };
-        
-        Rectangle no_rect = {-1,-1,-1,-1};
-        
-        i32 example_rectangles4_index = 0;
-        
-        Rectangles4 top_rects = example_rectangles4[example_rectangles4_index];
-        Rectangles4 bottom_rects = example_rectangles4[example_rectangles4_index + 1];
-        
-        // Before if
-        draw_lane_segments_for_3_rectangles(top_rects.top_or_bottom, top_rects.middle, no_rect, bending_radius, line_width, line_color, unselected_color, selected_color);
-        
-        // First part of if
-        draw_lane_segments_for_3_rectangles(no_rect, top_rects.top_or_bottom, top_rects.middle, bending_radius, line_width, line_color, unselected_color, selected_color);
-        draw_lane_segments_for_4_rectangles(top_rects.top_or_bottom, top_rects.is_top_rect, top_rects.left, top_rects.right, top_rects.middle, bending_radius, line_width, line_color, unselected_color, selected_color);
-
-        // Middle of if (then and else)
-        draw_lane_segments_for_3_rectangles(no_rect, top_rects.left, no_rect, bending_radius, line_width, line_color, unselected_color, selected_color);
-        draw_lane_segments_for_3_rectangles(no_rect, top_rects.right, no_rect, bending_radius, line_width, line_color, unselected_color, selected_color);
-
-        // Last part of if
-        draw_lane_segments_for_4_rectangles(bottom_rects.top_or_bottom, bottom_rects.is_top_rect, bottom_rects.left, bottom_rects.right, bottom_rects.middle, bending_radius, line_width, line_color, selected_color, selected_color);
-        draw_lane_segments_for_3_rectangles(no_rect, bottom_rects.middle, bottom_rects.top_or_bottom, bending_radius, line_width, line_color, unselected_color, selected_color);
-        
-        // After if
-        draw_lane_segments_for_3_rectangles(no_rect, bottom_rects.top_or_bottom, no_rect, bending_radius, line_width, line_color, unselected_color, selected_color);
-        
-        if (world->show_help_rectangles)
+        if (lane_example_index == 1)
         {
-            Rectangle top_or_bottom_rect = shrink_rect_by_size(top_rects.top_or_bottom, (Size2d){2,0});
-            Rectangle left_rect = shrink_rect_by_size(top_rects.left, (Size2d){2,0});
-            Rectangle right_rect = shrink_rect_by_size(top_rects.right, (Size2d){2,0});
-            Rectangle middle_rect = shrink_rect_by_size(top_rects.middle, (Size2d){2,0});
+
+            line_width = 4;
             
-            // Drawing the rectangle above it, to show where it would go
-            draw_rectangle(top_or_bottom_rect.position, top_or_bottom_rect.size, rectangle_color, no_color, 2);
+            i32 nr_of_example_rectangles4 = 2;
+            const Rectangles4 example_rectangles4[2] = {
+                { /* before-if: */ {250, 50, 250, 80}, true, /* if-split: */ {300, 200, 150, 50}, /* if-left: */ {100, 350, 250, 200}, /* if-right: */ {400, 400, 200, 100} }, 
+                { /* after-if: */ {250, 750, 250, 80}, false, /* if-join: */  {300, 650, 150, 50}, /* if-left: */ {100, 350, 250, 200}, /* if-right: */ {400, 400, 200, 100} },
+            };
             
-            // Drawing the left_rect
-            draw_rectangle(left_rect.position, left_rect.size, rectangle_color, no_color, 2);
+            Rectangle no_rect = {-1,-1,-1,-1};
             
-            // Drawing the right_rect
-            draw_rectangle(right_rect.position, right_rect.size, rectangle_color, no_color, 2);
+            i32 example_rectangles4_index = 0;
             
-            // Drawing the center rectangle, to show where it would go
-            draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
+            Rectangles4 top_rects = example_rectangles4[example_rectangles4_index];
+            Rectangles4 bottom_rects = example_rectangles4[example_rectangles4_index + 1];
             
+            // Before if
+            draw_lane_segments_for_3_rectangles(top_rects.top_or_bottom, top_rects.middle, no_rect, bending_radius, line_width, line_color, unselected_color, selected_color);
             
-            Rectangle top_or_bottom_rect2 = shrink_rect_by_size(bottom_rects.top_or_bottom, (Size2d){2,0});
-            Rectangle left_rect2 = shrink_rect_by_size(bottom_rects.left, (Size2d){2,0});
-            Rectangle right_rect2 = shrink_rect_by_size(bottom_rects.right, (Size2d){2,0});
-            Rectangle middle_rect2 = shrink_rect_by_size(bottom_rects.middle, (Size2d){2,0});
+            // First part of if
+            draw_lane_segments_for_3_rectangles(no_rect, top_rects.top_or_bottom, top_rects.middle, bending_radius, line_width, line_color, unselected_color, selected_color);
+            draw_lane_segments_for_4_rectangles(top_rects.top_or_bottom, top_rects.is_top_rect, top_rects.left, top_rects.right, top_rects.middle, bending_radius, line_width, line_color, unselected_color, selected_color);
+
+            // Middle of if (then and else)
+            draw_lane_segments_for_3_rectangles(no_rect, top_rects.left, no_rect, bending_radius, line_width, line_color, unselected_color, selected_color);
+            draw_lane_segments_for_3_rectangles(no_rect, top_rects.right, no_rect, bending_radius, line_width, line_color, unselected_color, selected_color);
+
+            // Last part of if
+            draw_lane_segments_for_4_rectangles(bottom_rects.top_or_bottom, bottom_rects.is_top_rect, bottom_rects.left, bottom_rects.right, bottom_rects.middle, bending_radius, line_width, line_color, selected_color, selected_color);
+            draw_lane_segments_for_3_rectangles(no_rect, bottom_rects.middle, bottom_rects.top_or_bottom, bending_radius, line_width, line_color, unselected_color, selected_color);
             
-            // Drawing the rectangle above it, to show where it would go
-            draw_rectangle(top_or_bottom_rect2.position, top_or_bottom_rect2.size, rectangle_color, no_color, 2);
+            // After if
+            draw_lane_segments_for_3_rectangles(no_rect, bottom_rects.top_or_bottom, no_rect, bending_radius, line_width, line_color, unselected_color, selected_color);
             
-            // Drawing the left_rect
-            draw_rectangle(left_rect2.position, left_rect2.size, rectangle_color, no_color, 2);
-            
-            // Drawing the right_rect
-            draw_rectangle(right_rect2.position, right_rect2.size, rectangle_color, no_color, 2);
-            
-            // Drawing the center rectangle, to show where it would go
-            draw_rectangle(middle_rect2.position, middle_rect2.size, rectangle_color, no_color, 2);
-            
+            if (world->show_help_rectangles)
+            {
+                Rectangle top_or_bottom_rect = shrink_rect_by_size(top_rects.top_or_bottom, (Size2d){2,0});
+                Rectangle left_rect = shrink_rect_by_size(top_rects.left, (Size2d){2,0});
+                Rectangle right_rect = shrink_rect_by_size(top_rects.right, (Size2d){2,0});
+                Rectangle middle_rect = shrink_rect_by_size(top_rects.middle, (Size2d){2,0});
+                
+                // Drawing the rectangle above it, to show where it would go
+                draw_rectangle(top_or_bottom_rect.position, top_or_bottom_rect.size, rectangle_color, no_color, 2);
+                
+                // Drawing the left_rect
+                draw_rectangle(left_rect.position, left_rect.size, rectangle_color, no_color, 2);
+                
+                // Drawing the right_rect
+                draw_rectangle(right_rect.position, right_rect.size, rectangle_color, no_color, 2);
+                
+                // Drawing the center rectangle, to show where it would go
+                draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
+                
+                
+                Rectangle top_or_bottom_rect2 = shrink_rect_by_size(bottom_rects.top_or_bottom, (Size2d){2,0});
+                Rectangle left_rect2 = shrink_rect_by_size(bottom_rects.left, (Size2d){2,0});
+                Rectangle right_rect2 = shrink_rect_by_size(bottom_rects.right, (Size2d){2,0});
+                Rectangle middle_rect2 = shrink_rect_by_size(bottom_rects.middle, (Size2d){2,0});
+                
+                // Drawing the rectangle above it, to show where it would go
+                draw_rectangle(top_or_bottom_rect2.position, top_or_bottom_rect2.size, rectangle_color, no_color, 2);
+                
+                // Drawing the left_rect
+                draw_rectangle(left_rect2.position, left_rect2.size, rectangle_color, no_color, 2);
+                
+                // Drawing the right_rect
+                draw_rectangle(right_rect2.position, right_rect2.size, rectangle_color, no_color, 2);
+                
+                // Drawing the center rectangle, to show where it would go
+                draw_rectangle(middle_rect2.position, middle_rect2.size, rectangle_color, no_color, 2);
+                
+            }
         }
         
         
@@ -471,13 +478,17 @@ extern "C" {
         }
         else if (world->active_page_index == 1)
         {
-            draw_example_lanes(world);
+            draw_example_lanes(world, 0);
         }
         else if (world->active_page_index == 2)
         {
-            draw_lanes(world);
+            draw_example_lanes(world, 1);
         }
         else if (world->active_page_index == 3)
+        {
+            draw_lanes(world);
+        }
+        else if (world->active_page_index == 4)
         {
             draw_pixel_borders();
         }

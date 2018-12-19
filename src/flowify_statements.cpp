@@ -682,6 +682,8 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         if (if_element->next_sibling)
         {
             // FIXME: SERIOUSLY BAD HACK!
+            // FIXME: SERIOUSLY BAD HACK!
+            // FIXME: SERIOUSLY BAD HACK!
             Pos2d parent_of_parent_position = {};
             parent_of_parent_position.x = parent_position.x - if_element->position.x;
             parent_of_parent_position.y = parent_position.y - if_element->position.y;
