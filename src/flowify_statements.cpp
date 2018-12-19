@@ -532,7 +532,7 @@ void layout_elements(FlowElement * flow_element)
     }
 }
 
-void draw_elements(FlowElement * flow_element, Pos2d parent_position)
+void draw_elements(FlowElement * flow_element, Pos2d parent_position, b32 show_help_rectangles)
 {
     // TODO: convert relative to absolute positions!
     // TODO: add is_position_of and position_originates_from
@@ -588,7 +588,10 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         
         draw_lane_segments_for_3_rectangles(top_rect, middle_rect, bottom_rect, bending_radius, line_width, line_color, fill_color, fill_color);
         
-        draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
+        if (show_help_rectangles)
+        {
+            draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
+        }
     }
     else if (flow_element->type == FlowElement_If)
     {
@@ -599,10 +602,10 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         FlowElement * if_else_element = if_then_element->next_sibling;
         FlowElement * if_end_element = if_else_element->next_sibling;
 
-        draw_elements(if_start_element, position);
-        draw_elements(if_then_element, position);
-        draw_elements(if_else_element, position);
-        draw_elements(if_end_element, position);
+        draw_elements(if_start_element, position, show_help_rectangles);
+        draw_elements(if_then_element, position, show_help_rectangles);
+        draw_elements(if_else_element, position, show_help_rectangles);
+        draw_elements(if_end_element, position, show_help_rectangles);
     }
     else if (flow_element->type == FlowElement_IfStart)
     {
@@ -642,7 +645,10 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         // FIXME: we somehow need the previous element, BEFORE the start-if as top_rect!
         draw_lane_segments_for_3_rectangles(top_rect, middle_rect, no_rect, bending_radius, line_width, line_color, fill_color, fill_color);
         
-        draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
+        if (show_help_rectangles)
+        {
+            draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
+        }
     }
     else if (flow_element->type == FlowElement_IfEnd)
     {
@@ -695,7 +701,10 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         // FIXME: we somehow need the next element, AFTER the end-if as bottom_rect!
         draw_lane_segments_for_3_rectangles(no_rect, middle_rect, bottom_rect, bending_radius, line_width, line_color, fill_color, fill_color);
         
-        draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
+        if (show_help_rectangles)
+        {
+            draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
+        }
     }
     else if (flow_element->type == FlowElement_FunctionCall)
     {
@@ -735,13 +744,16 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         
         draw_lane_segments_for_3_rectangles(top_rect, middle_rect, bottom_rect, bending_radius, line_width, line_color, fill_color, fill_color);
         
-        draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
+        if (show_help_rectangles)
+        {
+            draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
+        }
         
         // Drawing the function itself
         
         FlowElement * function_element = flow_element->first_child;
 
-        draw_elements(function_element, position);
+        draw_elements(function_element, position, show_help_rectangles);
     }
     else if (flow_element->type == FlowElement_Function)
     {
@@ -749,7 +761,7 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         
         FlowElement * function_body_element = flow_element->first_child;
 
-        draw_elements(function_body_element, position);
+        draw_elements(function_body_element, position, show_help_rectangles);
     }
     else if (flow_element->type == FlowElement_Root ||
              flow_element->type == FlowElement_FunctionBody ||
@@ -777,7 +789,7 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position)
         {
             do
             {
-                draw_elements(child_element, position);
+                draw_elements(child_element, position, show_help_rectangles);
             }
             while ((child_element = child_element->next_sibling));
         }

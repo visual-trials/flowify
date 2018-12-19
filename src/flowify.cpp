@@ -46,6 +46,8 @@ struct WorldData
     i32 iteration;
     i32 selected_element_index;
     
+    b32 show_help_rectangles;
+    
     b32 verbose_frame_times;
 };
 
@@ -210,7 +212,7 @@ extern "C" {
         Pos2d position;
         position.x = input->screen.width - root_element->size.width - 100;
         position.y = 50;
-        draw_elements(root_element, position);
+        draw_elements(root_element, position, world->show_help_rectangles);
         
     }
     
@@ -260,6 +262,26 @@ extern "C" {
         
         draw_and_update_button_menu(world);
 
+        // Button for toggling showing help rectangles
+        {
+            Size2d size_button = {50, 50};
+            Pos2d position_button = {};
+            position_button.x = global_input.screen.width - size_button.width - 20;
+            position_button.y = 400;
+            
+            ShortString label;
+            copy_cstring_to_short_string("Help", &label);
+            ShortString label_active;
+            copy_cstring_to_short_string("[   ]", &label_active);
+
+            b32 button_is_pressed = do_button(position_button, size_button, &label, world->show_help_rectangles, &global_input, &label_active);
+
+            if (button_is_pressed)
+            {
+                world->show_help_rectangles = !world->show_help_rectangles;
+            }
+        }
+        
         do_frame_timing(&global_input, &world->verbose_frame_times);
         do_physical_pixels_switch(&global_input);
     }
