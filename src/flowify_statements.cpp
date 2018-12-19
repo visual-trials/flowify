@@ -92,6 +92,7 @@ struct FlowElement
     
     FlowElement * next_function; // TODO: we should probably not store this in FlowElement
     
+    b32 has_lane_segments;
     b32 is_selected;
     
     Size2d size;
@@ -131,6 +132,7 @@ FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowEleme
     new_flow_element->size.width = 0;
     new_flow_element->size.height = 0;
 
+    new_flow_element->has_lane_segments = false;
     new_flow_element->is_selected = false;
     return new_flow_element;
 }
@@ -382,21 +384,25 @@ void layout_elements(FlowElement * flow_element)
     {
         flow_element->size.width = 40;
         flow_element->size.height = 80;
+        flow_element->has_lane_segments = true;
     }
     else if (flow_element->type == FlowElement_Assignment)
     {
         flow_element->size.width = 100;
         flow_element->size.height = 80;
+        flow_element->has_lane_segments = true;
     }
     else if (flow_element->type == FlowElement_BinaryOperator)
     {
         flow_element->size.width = 200;
         flow_element->size.height = 80;
+        flow_element->has_lane_segments = true;
     }
     else if (flow_element->type == FlowElement_Return)
     {
         flow_element->size.width = 100;
         flow_element->size.height = 40;
+        flow_element->has_lane_segments = true;
     }
     else if (flow_element->type == FlowElement_If)
     {
@@ -421,6 +427,7 @@ void layout_elements(FlowElement * flow_element)
         if_start_element->position.y = 0;
         if_start_element->size.height = 50;
         if_start_element->size.width = if_then_element->size.width + middle_margin + if_else_element->size.width;
+        if_start_element->has_lane_segments = true;
         
         if_else_element->position.x = 0;
         if_else_element->position.y = if_start_element->size.height + vertical_margin;
@@ -432,6 +439,7 @@ void layout_elements(FlowElement * flow_element)
         if_end_element->position.y = if_start_element->size.height + vertical_margin + then_else_height + vertical_margin;
         if_end_element->size.width = if_then_element->size.width + middle_margin + if_else_element->size.width;
         if_end_element->size.height = 50;
+        if_end_element->has_lane_segments = true;
         
         flow_element->size.height = if_start_element->size.height + vertical_margin + then_else_height + vertical_margin + if_end_element->size.height;
         flow_element->size.width = if_then_element->size.width + middle_margin + if_else_element->size.width;
@@ -454,6 +462,7 @@ void layout_elements(FlowElement * flow_element)
         
         flow_element->size.width = left_margin + function_element->size.width + right_margin;
         flow_element->size.height = top_margin + function_element->size.height + bottom_margin; 
+        flow_element->has_lane_segments = true;
         
         // flow_element->size = function_element->size;
     }

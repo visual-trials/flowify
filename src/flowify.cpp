@@ -168,11 +168,26 @@ extern "C" {
             
             world->flowifier.flow_elements[world->selected_element_index].is_selected = false;
             
-            world->selected_element_index++;
+            while (world->selected_element_index < world->flowifier.nr_of_flow_elements)
+            {
+                world->selected_element_index++;
+                if (world->flowifier.flow_elements[world->selected_element_index].has_lane_segments)
+                {
+                    break;
+                }
+            }
         }
         if (world->selected_element_index >= world->flowifier.nr_of_flow_elements)
         {
-            world->selected_element_index = 1; // FIXME: HACK
+            world->selected_element_index = 0;
+            while (world->selected_element_index < world->flowifier.nr_of_flow_elements)
+            {
+                if (world->flowifier.flow_elements[world->selected_element_index].has_lane_segments)
+                {
+                    break;
+                }
+                world->selected_element_index++;
+            }
         }
         world->flowifier.flow_elements[world->selected_element_index].is_selected = true;
         
