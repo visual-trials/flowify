@@ -102,7 +102,7 @@ extern "C" {
         
         world->iteration = 0;
         world->selected_lane_segment_index = 0;
-        world->show_help_rectangles = false;
+        world->show_help_rectangles = true;
     }
     
     void update_frame()

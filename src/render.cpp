@@ -39,11 +39,20 @@ void draw_lane_segments_for_3_rectangles(Rectangle top_rect, Rectangle middle_re
 {
     Color4 no_color = {};
     
-    LaneSegment2 lane_segments = get_2_lane_segments_from_3_rectangles(top_rect, middle_rect, bottom_rect, bending_radius);
+    LaneSegment3 lane_segments = get_3_lane_segments_from_3_rectangles(top_rect, middle_rect, bottom_rect, bending_radius);
     
     LaneSegment lane_segment = {};
     
-    lane_segment = lane_segments.top;
+    if (lane_segments.has_valid_top_segment)
+    {
+        lane_segment = lane_segments.top;
+        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
+                          lane_segment.left_bottom, lane_segment.right_bottom, 
+                          lane_segment.left_middle_y, lane_segment.right_middle_y, lane_segment.bending_radius, 
+                          line_color, rect_color, line_width);
+    }
+    
+    lane_segment = lane_segments.middle;
     draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
                       lane_segment.left_bottom, lane_segment.right_bottom, 
                       lane_segment.left_middle_y, lane_segment.right_middle_y, lane_segment.bending_radius, 
@@ -57,13 +66,14 @@ void draw_lane_segments_for_3_rectangles(Rectangle top_rect, Rectangle middle_re
                           lane_segment.left_middle_y, lane_segment.right_middle_y, lane_segment.bending_radius, 
                           line_color, bend_color, line_width);
     }
+    
 }
 
 void draw_lane_segments_for_4_rectangles(Rectangle top_or_bottom_rect, b32 is_top_rect, Rectangle left_rect, Rectangle right_rect, Rectangle middle_rect, i32 bending_radius, i32 line_width, Color4 line_color, Color4 rect_color, Color4 bend_color)
 {
     Color4 no_color = {};
     
-    LaneSegment3 lane_segments = get_3_lane_segments_from_4_rectangles(top_or_bottom_rect, is_top_rect, middle_rect, left_rect, right_rect, bending_radius);
+    LaneSegment3LR lane_segments = get_3_lane_segments_from_4_rectangles(top_or_bottom_rect, is_top_rect, middle_rect, left_rect, right_rect, bending_radius);
     
     LaneSegment lane_segment = {};
     

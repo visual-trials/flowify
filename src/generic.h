@@ -103,14 +103,18 @@ struct LaneSegment
     i32 bending_radius;
 };
 
-struct LaneSegment2
+struct LaneSegment3
 {
     LaneSegment top;
+    b32 has_valid_top_segment;
+    
+    LaneSegment middle;
+    
     LaneSegment bottom;
     b32 has_valid_bottom_segment;
 };
 
-struct LaneSegment3
+struct LaneSegment3LR
 {
     LaneSegment left;
     LaneSegment right;
@@ -162,7 +166,7 @@ HorLine2 get_hor_lines_between_rects(Rectangle top_rect, Rectangle bottom_rect)
     return horizontal_lines;
 }
 
-HorLine2 widen_horizontal_lines(HorLine2 horizontal_lines, i32 bending_radius)
+HorLine2 widen_horizontal_lines(HorLine2 horizontal_lines, i32 bending_radius, b32 move_down)
 {
     i32 vertical_gap_between_lines = horizontal_lines.bottom_line.position.y - horizontal_lines.top_line.position.y;
     
@@ -173,8 +177,49 @@ HorLine2 widen_horizontal_lines(HorLine2 horizontal_lines, i32 bending_radius)
         i32 extra_vertical_gap_needed_top_line = (i32)((f32)extra_vertical_gap_needed / (f32)2);
         i32 extra_vertical_gap_needed_bottom_line = extra_vertical_gap_needed - extra_vertical_gap_needed_top_line;
         
-        horizontal_lines.top_line.position.y -= extra_vertical_gap_needed_top_line;
-        horizontal_lines.bottom_line.position.y += extra_vertical_gap_needed_bottom_line;
+        if (move_down)
+        {
+            // We are moving the bottom line downwards. (btw this means our rect is downwards).
+            horizontal_lines.bottom_line.position.y += extra_vertical_gap_needed_bottom_line;
+            
+            // This also means we are *not* moving the top line upwards, so we have to move it to the side(s)
+            if (horizontal_lines.bottom_line.position.x + horizontal_lines.bottom_line.width > horizontal_lines.top_line.position.x + horizontal_lines.top_line.width)
+            {
+                // The right side of the bottom line is to the right of the right side of the of the top line. This means the bend is above the rect.
+                // So we should not bend. Meaning we should keep a straight line towards the top of the rect.
+                horizontal_lines.top_line.width += (horizontal_lines.bottom_line.position.x + horizontal_lines.bottom_line.width) - (horizontal_lines.top_line.position.x + horizontal_lines.top_line.width);
+            }
+            
+            if (horizontal_lines.bottom_line.position.x < horizontal_lines.top_line.position.x)
+            {
+                // The left side of the bottom line is to the left of the left side of the top line. This means the bend is above the rect.
+                // So we should not bend. Meaning we should keep a straight line towards the top of the rect.
+                horizontal_lines.top_line.width += horizontal_lines.top_line.position.x - horizontal_lines.bottom_line.position.x;
+                horizontal_lines.top_line.position.x = horizontal_lines.bottom_line.position.x;
+            }
+        }
+        else
+        {
+            // We are moving the top line upwards. (btw this means our rect is upwards).
+            horizontal_lines.top_line.position.y -= extra_vertical_gap_needed_top_line;
+            
+            // This also means we are *not* moving the bottom line downwards, so we have to move it to the side(s)
+            if (horizontal_lines.top_line.position.x + horizontal_lines.top_line.width > horizontal_lines.bottom_line.position.x + horizontal_lines.bottom_line.width)
+            {
+                // The right side of the top line is to the right of the right side of the of the bottom line. This means the bend is below the rect.
+                // So we should not bend. Meaning we should keep a straight line towards the bottom of the rect.
+                horizontal_lines.bottom_line.width += (horizontal_lines.top_line.position.x + horizontal_lines.top_line.width) - (horizontal_lines.bottom_line.position.x + horizontal_lines.bottom_line.width);
+            }
+            
+            if (horizontal_lines.top_line.position.x < horizontal_lines.bottom_line.position.x)
+            {
+                // The left side of the top line is to the left of the left side of the bottom line. This means the bend is below the rect.
+                // So we should not bend. Meaning we should keep a straight line towards the bottom of the rect.
+                horizontal_lines.bottom_line.width += horizontal_lines.bottom_line.position.x - horizontal_lines.top_line.position.x;
+                horizontal_lines.bottom_line.position.x = horizontal_lines.top_line.position.x;
+            }
+            
+        }
     }
     
     return horizontal_lines;
@@ -248,14 +293,14 @@ LaneSegment lane_segment_from_horizontal_lines(HorLine2 horizontal_lines, b32 mo
     return lane_segment;
 }
 
-LaneSegment3 get_3_lane_segments_from_4_rectangles(Rectangle top_or_bottom_rect, 
-                                                   b32 is_top_rect, 
-                                                   Rectangle middle_rect, 
-                                                   Rectangle left_rect, 
-                                                   Rectangle right_rect, 
-                                                   i32 bending_radius)
+LaneSegment3LR get_3_lane_segments_from_4_rectangles(Rectangle top_or_bottom_rect, 
+                                                     b32 is_top_rect, 
+                                                     Rectangle middle_rect, 
+                                                     Rectangle left_rect, 
+                                                     Rectangle right_rect, 
+                                                     i32 bending_radius)
 {
-    LaneSegment3 lane_segments = {};
+    LaneSegment3LR lane_segments = {};
     
     if (is_top_rect)
     {
@@ -266,7 +311,8 @@ LaneSegment3 get_3_lane_segments_from_4_rectangles(Rectangle top_or_bottom_rect,
         // TODO: is there a better way of saying that the top_rect is invalid?
         if (top_rect.size.height >= 0)
         {
-            lines_between_top_and_middle_rects = widen_horizontal_lines(lines_between_top_and_middle_rects, bending_radius);
+            b32 move_down = true;
+            lines_between_top_and_middle_rects = widen_horizontal_lines(lines_between_top_and_middle_rects, bending_radius, move_down);
         }
         
         HorLine left_plus_right_line = {};
@@ -362,7 +408,8 @@ LaneSegment3 get_3_lane_segments_from_4_rectangles(Rectangle top_or_bottom_rect,
         // TODO: is there a better way of saying that the bottom_rect is invalid?
         if (bottom_rect.size.height >= 0)
         {
-            lines_between_middle_and_bottom_rects = widen_horizontal_lines(lines_between_middle_and_bottom_rects, bending_radius);
+            b32 move_down = false;
+            lines_between_middle_and_bottom_rects = widen_horizontal_lines(lines_between_middle_and_bottom_rects, bending_radius, move_down);
             lane_segments.has_valid_bottom_segment = true;
         }
         else
@@ -397,12 +444,12 @@ LaneSegment3 get_3_lane_segments_from_4_rectangles(Rectangle top_or_bottom_rect,
     return lane_segments;
 }
 
-LaneSegment2 get_2_lane_segments_from_3_rectangles(Rectangle top_rect, 
+LaneSegment3 get_3_lane_segments_from_3_rectangles(Rectangle top_rect, 
                                                    Rectangle middle_rect, 
                                                    Rectangle bottom_rect,
                                                    i32 bending_radius)
 {
-    LaneSegment2 lane_segments = {};
+    LaneSegment3 lane_segments = {};
     
     HorLine2 lines_between_top_and_middle_rects = get_hor_lines_between_rects(top_rect, middle_rect);
     HorLine2 lines_between_middle_and_bottom_rects = get_hor_lines_between_rects(middle_rect, bottom_rect);
@@ -410,13 +457,20 @@ LaneSegment2 get_2_lane_segments_from_3_rectangles(Rectangle top_rect,
     // TODO: is there a better way of saying that the top_rect is invalid?
     if (top_rect.size.height >= 0)
     {
-        lines_between_top_and_middle_rects = widen_horizontal_lines(lines_between_top_and_middle_rects, bending_radius);
+        b32 move_down = true;
+        lines_between_top_and_middle_rects = widen_horizontal_lines(lines_between_top_and_middle_rects, bending_radius, move_down);
+        lane_segments.has_valid_top_segment = true;
+    }
+    else
+    {
+        lane_segments.has_valid_top_segment = false;
     }
     
     // TODO: is there a better way of saying that the bottom_rect is invalid?
     if (bottom_rect.size.height >= 0)
     {
-        lines_between_middle_and_bottom_rects = widen_horizontal_lines(lines_between_middle_and_bottom_rects, bending_radius);
+        b32 move_down = false;
+        lines_between_middle_and_bottom_rects = widen_horizontal_lines(lines_between_middle_and_bottom_rects, bending_radius, move_down);
         lane_segments.has_valid_bottom_segment = true;
     }
     else
@@ -426,16 +480,23 @@ LaneSegment2 get_2_lane_segments_from_3_rectangles(Rectangle top_rect,
     }
         
     HorLine2 top_segment_horizontal_lines = {};
+    HorLine2 middle_segment_horizontal_lines = {};
     HorLine2 bottom_segment_horizontal_lines = {};
     
-    top_segment_horizontal_lines.top_line = lines_between_top_and_middle_rects.bottom_line;
-    top_segment_horizontal_lines.bottom_line = lines_between_middle_and_bottom_rects.top_line;
+    top_segment_horizontal_lines.top_line = lines_between_top_and_middle_rects.top_line;
+    top_segment_horizontal_lines.bottom_line = lines_between_top_and_middle_rects.bottom_line;
+    
+    middle_segment_horizontal_lines.top_line = lines_between_top_and_middle_rects.bottom_line;
+    middle_segment_horizontal_lines.bottom_line = lines_between_middle_and_bottom_rects.top_line;
     
     bottom_segment_horizontal_lines.top_line = lines_between_middle_and_bottom_rects.top_line;
     bottom_segment_horizontal_lines.bottom_line = lines_between_middle_and_bottom_rects.bottom_line;
     
     // Top lane segment
     lane_segments.top = lane_segment_from_horizontal_lines(top_segment_horizontal_lines, true, true, bending_radius);
+    
+    // Middle lane segment
+    lane_segments.middle = lane_segment_from_horizontal_lines(middle_segment_horizontal_lines, true, true, bending_radius);
     
     // Bottom lane segment
     lane_segments.bottom = lane_segment_from_horizontal_lines(bottom_segment_horizontal_lines, true, true, bending_radius);
