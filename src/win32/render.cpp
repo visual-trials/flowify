@@ -63,14 +63,14 @@ void draw_rectangle(Pos2d position, Size2d size, Color4 line_color, Color4 fill_
     if (fill_color.a)
     {
         get_brush(fill_color, &fill_brush);
-        render_target->FillRect2d(&rectangle, fill_brush);
+        render_target->FillRectangle(&rectangle, fill_brush);
         release_brush(fill_brush);
     }
     
     if (line_color.a)
     {
         get_brush(line_color, &line_brush);
-        render_target->DrawRect2d(&rectangle, line_brush, line_width);
+        render_target->DrawRectangle(&rectangle, line_brush, line_width);
         release_brush(line_brush);
     }
 
@@ -105,21 +105,22 @@ void draw_rounded_rectangle(Pos2d position, Size2d size, i32 r, Color4 line_colo
     if (fill_color.a)
     {
         get_brush(fill_color, &fill_brush);
-        render_target->FillRoundedRect2d(&rounded_rectangle, fill_brush);
+        render_target->FillRoundedRectangle(&rounded_rectangle, fill_brush);
         release_brush(fill_brush);
     }
     
     if (line_color.a)
     {
         get_brush(line_color, &line_brush);
-        render_target->DrawRoundedRect2d(&rounded_rectangle, line_brush, line_width);
+        render_target->DrawRoundedRectangle(&rounded_rectangle, line_brush, line_width);
         release_brush(line_brush);
     }
     
 }
 
 void draw_lane_segment(Pos2d left_top_position, Pos2d right_top_position, 
-                       Pos2d left_bottom_position, Pos2d right_bottom_position, i32 radius,
+                       Pos2d left_bottom_position, Pos2d right_bottom_position, 
+                       i32 left_middle_y, i32 right_middle_y, i32 radius,
                        Color4 line_color, Color4 fill_color, i32 line_width)
 {
     ID2D1SolidColorBrush * line_brush = 0;
@@ -128,24 +129,21 @@ void draw_lane_segment(Pos2d left_top_position, Pos2d right_top_position,
     ID2D1PathGeometry * path_geometry = 0;
     ID2D1GeometrySink * sink = 0;
     
-    // FIXME: shouldn't we have middle_y as argument?
-    i32 middle_y = left_top_position.y + (left_bottom_position.y - left_top_position.y) / 2;
-    
     D2D1_POINT_2F left_top = D2D1::Point2F(left_top_position.x, left_top_position.y);
-    D2D1_POINT_2F left_top_down = D2D1::Point2F(left_top_position.x, middle_y - radius);
+    D2D1_POINT_2F left_top_down = D2D1::Point2F(left_top_position.x, left_middle_y - radius);
     D2D1_POINT_2F left_top_arc_end;
     D2D1_POINT_2F left_middle_line_end;
-    D2D1_POINT_2F left_bottom_arc_end = D2D1::Point2F(left_bottom_position.x, middle_y + radius);
+    D2D1_POINT_2F left_bottom_arc_end = D2D1::Point2F(left_bottom_position.x, left_middle_y + radius);
     D2D1_POINT_2F left_bottom = D2D1::Point2F(left_bottom_position.x, left_bottom_position.y);
     
     D2D1_ARC_SEGMENT left_top_arc_segment;
     D2D1_ARC_SEGMENT left_bottom_arc_segment;
     
     D2D1_POINT_2F right_bottom = D2D1::Point2F(right_bottom_position.x, left_bottom_position.y);
-    D2D1_POINT_2F right_bottom_up = D2D1::Point2F(right_bottom_position.x, middle_y + radius);
+    D2D1_POINT_2F right_bottom_up = D2D1::Point2F(right_bottom_position.x, right_middle_y + radius);
     D2D1_POINT_2F right_bottom_arc_end;
     D2D1_POINT_2F right_middle_line_end;
-    D2D1_POINT_2F right_top_arc_end = D2D1::Point2F(right_top_position.x, middle_y - radius);
+    D2D1_POINT_2F right_top_arc_end = D2D1::Point2F(right_top_position.x, right_middle_y - radius);
     D2D1_POINT_2F right_top = D2D1::Point2F(right_top_position.x, left_top_position.y);
     
     D2D1_ARC_SEGMENT right_top_arc_segment;
@@ -155,8 +153,8 @@ void draw_lane_segment(Pos2d left_top_position, Pos2d right_top_position,
     b32 right_side_is_straight = false;
     if (left_bottom_position.x < left_top_position.x)
     {
-        left_top_arc_end = D2D1::Point2F(left_top_position.x - radius, middle_y);
-        left_middle_line_end = D2D1::Point2F(left_bottom_position.x + radius, middle_y);
+        left_top_arc_end = D2D1::Point2F(left_top_position.x - radius, left_middle_y);
+        left_middle_line_end = D2D1::Point2F(left_bottom_position.x + radius, left_middle_y);
         left_top_arc_segment = D2D1::ArcSegment(
             left_top_arc_end,
             D2D1::SizeF(radius, radius),
@@ -174,8 +172,8 @@ void draw_lane_segment(Pos2d left_top_position, Pos2d right_top_position,
     }
     else if (left_bottom_position.x > left_top_position.x)
     {
-        left_top_arc_end = D2D1::Point2F(left_top_position.x + radius, middle_y);
-        left_middle_line_end = D2D1::Point2F(left_bottom_position.x - radius, middle_y);
+        left_top_arc_end = D2D1::Point2F(left_top_position.x + radius, left_middle_y);
+        left_middle_line_end = D2D1::Point2F(left_bottom_position.x - radius, left_middle_y);
         left_top_arc_segment = D2D1::ArcSegment(
             left_top_arc_end,
             D2D1::SizeF(radius, radius),
@@ -197,8 +195,8 @@ void draw_lane_segment(Pos2d left_top_position, Pos2d right_top_position,
     
     if (right_bottom_position.x < right_top_position.x)
     {
-        right_bottom_arc_end = D2D1::Point2F(right_bottom_position.x + radius, middle_y);
-        right_middle_line_end = D2D1::Point2F(right_top_position.x - radius, middle_y);
+        right_bottom_arc_end = D2D1::Point2F(right_bottom_position.x + radius, right_middle_y);
+        right_middle_line_end = D2D1::Point2F(right_top_position.x - radius, right_middle_y);
         right_bottom_arc_segment = D2D1::ArcSegment(
             right_bottom_arc_end,
             D2D1::SizeF(radius, radius),
@@ -216,8 +214,8 @@ void draw_lane_segment(Pos2d left_top_position, Pos2d right_top_position,
     }
     else if (right_bottom_position.x > right_top_position.x)
     {
-        right_bottom_arc_end = D2D1::Point2F(right_bottom_position.x - radius, middle_y);
-        right_middle_line_end = D2D1::Point2F(right_top_position.x + radius, middle_y);
+        right_bottom_arc_end = D2D1::Point2F(right_bottom_position.x - radius, right_middle_y);
+        right_middle_line_end = D2D1::Point2F(right_top_position.x + radius, right_middle_y);
         right_bottom_arc_segment = D2D1::ArcSegment(
             right_bottom_arc_end,
             D2D1::SizeF(radius, radius),
