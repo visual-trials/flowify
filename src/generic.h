@@ -64,7 +64,7 @@ struct HorLine2
    HorLine bottom_line;
 };
 
-struct Rectangle
+struct Rect2d
 {
     Pos2d position;
     Size2d size;
@@ -122,7 +122,7 @@ struct LaneSegment3LR
     b32 has_valid_bottom_segment;
 };
 
-HorLine get_top_line_from_rect(Rectangle rect)
+HorLine get_top_line_from_rect(Rect2d rect)
 {
     HorLine top_line = {};
     
@@ -132,7 +132,7 @@ HorLine get_top_line_from_rect(Rectangle rect)
     return top_line;
 }
 
-HorLine get_bottom_line_from_rect(Rectangle rect)
+HorLine get_bottom_line_from_rect(Rect2d rect)
 {
     HorLine bottom_line = {};
     
@@ -143,9 +143,9 @@ HorLine get_bottom_line_from_rect(Rectangle rect)
     return bottom_line;
 }
 
-Rectangle shrink_rect_by_size(Rectangle rect, Size2d size)
+Rect2d shrink_rect_by_size(Rect2d rect, Size2d size)
 {
-    Rectangle shrunk_rect = rect;
+    Rect2d shrunk_rect = rect;
     
     shrunk_rect.position.x += size.width;
     shrunk_rect.position.y += size.height;
@@ -156,7 +156,7 @@ Rectangle shrink_rect_by_size(Rectangle rect, Size2d size)
     return shrunk_rect;
 }
 
-HorLine2 get_hor_lines_between_rects(Rectangle top_rect, Rectangle bottom_rect)
+HorLine2 get_hor_lines_between_rects(Rect2d top_rect, Rect2d bottom_rect)
 {
     HorLine2 horizontal_lines = {};
     
@@ -293,18 +293,18 @@ LaneSegment lane_segment_from_horizontal_lines(HorLine2 horizontal_lines, b32 mo
     return lane_segment;
 }
 
-LaneSegment3LR get_3_lane_segments_from_4_rectangles(Rectangle top_or_bottom_rect, 
+LaneSegment3LR get_3_lane_segments_from_4_rectangles(Rect2d top_or_bottom_rect, 
                                                      b32 is_top_rect, 
-                                                     Rectangle middle_rect, 
-                                                     Rectangle left_rect, 
-                                                     Rectangle right_rect, 
+                                                     Rect2d middle_rect, 
+                                                     Rect2d left_rect, 
+                                                     Rect2d right_rect, 
                                                      i32 bending_radius)
 {
     LaneSegment3LR lane_segments = {};
     
     if (is_top_rect)
     {
-        Rectangle top_rect = top_or_bottom_rect;
+        Rect2d top_rect = top_or_bottom_rect;
 
         HorLine2 lines_between_top_and_middle_rects = get_hor_lines_between_rects(top_rect, middle_rect);
         
@@ -370,7 +370,7 @@ LaneSegment3LR get_3_lane_segments_from_4_rectangles(Rectangle top_or_bottom_rec
     }
     else
     {
-        Rectangle bottom_rect = top_or_bottom_rect;
+        Rect2d bottom_rect = top_or_bottom_rect;
         
         HorLine left_plus_right_line = {};
         HorLine left_line = {};
@@ -444,9 +444,9 @@ LaneSegment3LR get_3_lane_segments_from_4_rectangles(Rectangle top_or_bottom_rec
     return lane_segments;
 }
 
-LaneSegment3 get_3_lane_segments_from_3_rectangles(Rectangle top_rect, 
-                                                   Rectangle middle_rect, 
-                                                   Rectangle bottom_rect,
+LaneSegment3 get_3_lane_segments_from_3_rectangles(Rect2d top_rect, 
+                                                   Rect2d middle_rect, 
+                                                   Rect2d bottom_rect,
                                                    i32 bending_radius)
 {
     LaneSegment3 lane_segments = {};

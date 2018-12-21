@@ -63,14 +63,14 @@ void draw_rectangle(Pos2d position, Size2d size, Color4 line_color, Color4 fill_
     if (fill_color.a)
     {
         get_brush(fill_color, &fill_brush);
-        render_target->FillRectangle(&rectangle, fill_brush);
+        render_target->FillRect2d(&rectangle, fill_brush);
         release_brush(fill_brush);
     }
     
     if (line_color.a)
     {
         get_brush(line_color, &line_brush);
-        render_target->DrawRectangle(&rectangle, line_brush, line_width);
+        render_target->DrawRect2d(&rectangle, line_brush, line_width);
         release_brush(line_brush);
     }
 
@@ -105,14 +105,14 @@ void draw_rounded_rectangle(Pos2d position, Size2d size, i32 r, Color4 line_colo
     if (fill_color.a)
     {
         get_brush(fill_color, &fill_brush);
-        render_target->FillRoundedRectangle(&rounded_rectangle, fill_brush);
+        render_target->FillRoundedRect2d(&rounded_rectangle, fill_brush);
         release_brush(fill_brush);
     }
     
     if (line_color.a)
     {
         get_brush(line_color, &line_brush);
-        render_target->DrawRoundedRectangle(&rounded_rectangle, line_brush, line_width);
+        render_target->DrawRoundedRect2d(&rounded_rectangle, line_brush, line_width);
         release_brush(line_brush);
     }
     

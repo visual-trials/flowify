@@ -555,7 +555,7 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position, b32 show_h
     i32 line_width = 4;
     i32 bending_radius = 20;
     
-    Rectangle no_rect = {-1,-1,-1,-1};
+    Rect2d no_rect = {-1,-1,-1,-1};
     
     Color4 function_line_color = { 200, 200, 200, 255};
     Color4 function_fill_color = { 240, 240, 240, 255};
@@ -575,9 +575,9 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position, b32 show_h
         }
 
         // Positions and sizes
-        Rectangle top_rect = {-1,-1,-1,-1};
-        Rectangle middle_rect = {-1,-1,-1,-1};
-        Rectangle bottom_rect = {-1,-1,-1,-1};
+        Rect2d top_rect = {-1,-1,-1,-1};
+        Rect2d middle_rect = {-1,-1,-1,-1};
+        Rect2d bottom_rect = {-1,-1,-1,-1};
         
         Pos2d position = add_position_to_position(flow_element->position, parent_position);
         Size2d size = flow_element->size;
@@ -631,21 +631,21 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position, b32 show_h
         FlowElement * if_end_element = if_else_element->next_sibling;
         FlowElement * if_element = if_start_element->parent;
         
-        Rectangle top_rect = {-1,-1,-1,-1};
+        Rect2d top_rect = {-1,-1,-1,-1};
         
         // If-start rectangle (middle)
-        Rectangle middle_rect = {};
+        Rect2d middle_rect = {};
         middle_rect.position = add_position_to_position(if_start_element->position, parent_position);
         middle_rect.size = if_start_element->size;
         
         // If-then rectangle (right)
-        Rectangle right_rect = {};
+        Rect2d right_rect = {};
         // FIXME: we need the position and size of the FIRST statement in the then-element, NOT of the then-element itself!
         right_rect.position = add_position_to_position(if_then_element->position, parent_position);
         right_rect.size = if_then_element->size;
         
         // If-else rectangle (left)
-        Rectangle left_rect = {};
+        Rect2d left_rect = {};
         // FIXME: we need the position and size of the FIRST statement in the else-element, NOT of the else-element itself!
         left_rect.position = add_position_to_position(if_else_element->position, parent_position);
         left_rect.size = if_else_element->size;
@@ -675,23 +675,23 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position, b32 show_h
         FlowElement * if_element = if_start_element->parent;
         
         // If-then position + size (right)
-        Rectangle right_rect = {};
+        Rect2d right_rect = {};
         // FIXME: we need the position and size of the LAST statement in the then-element, NOT of the then-element itself!
         right_rect.position = add_position_to_position(if_then_element->position, parent_position);
         right_rect.size = if_then_element->size;
         
         // If-else position + size (left)
-        Rectangle left_rect = {};
+        Rect2d left_rect = {};
         // FIXME: we need the position and size of the LAST statement in the else-element, NOT of the else-element itself!
         left_rect.position = add_position_to_position(if_else_element->position, parent_position);
         left_rect.size = if_else_element->size;
         
         // If-end positions + size
-        Rectangle middle_rect = {};
+        Rect2d middle_rect = {};
         middle_rect.position = add_position_to_position(if_end_element->position, parent_position);
         middle_rect.size = if_end_element->size;
         
-        Rectangle bottom_rect = {-1,-1,-1,-1};
+        Rect2d bottom_rect = {-1,-1,-1,-1};
         
         // FIXME: workaround!? Trying to get the element where the if-end connects to!?
         if (if_element->next_sibling)
@@ -731,9 +731,9 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position, b32 show_h
         
         
         // Positions and sizes
-        Rectangle top_rect = {-1,-1,-1,-1};
-        Rectangle middle_rect = {-1,-1,-1,-1};
-        Rectangle bottom_rect = {-1,-1,-1,-1};
+        Rect2d top_rect = {-1,-1,-1,-1};
+        Rect2d middle_rect = {-1,-1,-1,-1};
+        Rect2d bottom_rect = {-1,-1,-1,-1};
         
         Pos2d position = add_position_to_position(flow_element->position, parent_position);
         Size2d size = flow_element->size;

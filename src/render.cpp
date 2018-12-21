@@ -35,7 +35,7 @@ struct Font
     #include "browser/render.cpp"
 #endif
 
-void draw_lane_segments_for_3_rectangles(Rectangle top_rect, Rectangle middle_rect, Rectangle bottom_rect, i32 bending_radius, i32 line_width, Color4 line_color, Color4 rect_color, Color4 bend_color)
+void draw_lane_segments_for_3_rectangles(Rect2d top_rect, Rect2d middle_rect, Rect2d bottom_rect, i32 bending_radius, i32 line_width, Color4 line_color, Color4 rect_color, Color4 bend_color)
 {
     Color4 no_color = {};
     
@@ -69,7 +69,7 @@ void draw_lane_segments_for_3_rectangles(Rectangle top_rect, Rectangle middle_re
     
 }
 
-void draw_lane_segments_for_4_rectangles(Rectangle top_or_bottom_rect, b32 is_top_rect, Rectangle left_rect, Rectangle right_rect, Rectangle middle_rect, i32 bending_radius, i32 line_width, Color4 line_color, Color4 rect_color, Color4 bend_color)
+void draw_lane_segments_for_4_rectangles(Rect2d top_or_bottom_rect, b32 is_top_rect, Rect2d left_rect, Rect2d right_rect, Rect2d middle_rect, i32 bending_radius, i32 line_width, Color4 line_color, Color4 rect_color, Color4 bend_color)
 {
     Color4 no_color = {};
     
