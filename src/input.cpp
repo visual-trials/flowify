@@ -106,12 +106,6 @@ struct Screen
     b32 using_physical_pixels;
 };
 
-struct Memory
-{
-    void * address;
-    i32 size;
-};
-
 struct Input
 {
     MouseInput     mouse;
@@ -120,7 +114,6 @@ struct Input
     FileUpload     file;
     Timing         timing;
     Screen         screen;
-    Memory         memory;
 };
 
 Input global_input = {};
@@ -252,13 +245,6 @@ extern "C" {
         global_input.screen.using_physical_pixels = using_physical_pixels;
     }
 
-    // Memory
-    void set_address_and_size_dynamic_memory(i32 memory_address, i32 memory_size)
-    {
-        global_input.memory.address = (void *)memory_address;
-        global_input.memory.size = memory_size;
-    }
-    
 }
 
 
