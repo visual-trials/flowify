@@ -51,6 +51,8 @@ struct Memory
     b32 blocks_used[512];
     MemoryBlock blocks[512];
     
+    MemoryArenas[50]; // TODO: we could visualize memory usage with these
+    
     i32 nr_of_memory_blocks;
     i32 memory_block_size;
 };
@@ -58,16 +60,12 @@ struct Memory
 
 struct MemoryArena
 {
-    u16 current_block_index;
+    ShortString name;
     
-};
-
-struct DynamicArrayMemory
-{
-    u16 current_block_index;
+    b32 consecutive_blocks;
     
-    i32 max_nr_of_elements;
-    i32 element_size;
+    u16 current_block_index;
+    u16 nr_of_blocks;
 };
 
 /*
@@ -77,7 +75,7 @@ struct FlowElementsArray
     FlowElement * flow_elements;
     i32 nr_of_elements;
     
-    DynamicArrayMemory memory;
+    MemoryArena memory_arena;
 }
 
 FlowElement * add_element(FlowElement element, FlowElementsArray flow_elements_array)
@@ -155,10 +153,15 @@ void free_memory_arena(MemoryArena * memory_arena)
 {
     // TODO: implement this!
     
-    // get the current block
-    // get the previous block
-    // free the current block
-    // if previous block exists, repeat
+    // Note: the memory arena might contain more than one non-consecutive blocks or consecutive blocks!
+    
+    // If !consecutive_blocks:
+    //     get the current block
+    //     get the previous block
+    //     free the current block
+    //     if previous block exists, repeat
+    // If consecutive_blocks:
+    //     free all consecutive blocks (and don't look are previous blocks)
 }
 
 
