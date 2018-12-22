@@ -39,6 +39,16 @@ struct MemoryBlock
     u16 previous_block_index;
 };
 
+struct MemoryArena
+{
+    ShortString name;
+    
+    b32 consecutive_blocks;
+    
+    u16 current_block_index;
+    u16 nr_of_blocks;
+};
+
 /*
 
 // FIXME: replace current Memory struct with the one below!
@@ -51,49 +61,11 @@ struct Memory
     b32 blocks_used[512];
     MemoryBlock blocks[512];
     
-    MemoryArenas[50]; // TODO: we could visualize memory usage with these
+    MemoryArenas[20]; // TODO: we could visualize memory usage with these
     
     i32 nr_of_memory_blocks;
     i32 memory_block_size;
 };
-*/
-
-struct MemoryArena
-{
-    ShortString name;
-    
-    b32 consecutive_blocks;
-    
-    u16 current_block_index;
-    u16 nr_of_blocks;
-};
-
-/*
-// BEGIN Usage code
-struct FlowElementsArray
-{
-    FlowElement * flow_elements;
-    i32 nr_of_elements;
-    
-    MemoryArena memory_arena;
-}
-
-FlowElement * add_element(FlowElement element, FlowElementsArray flow_elements_array)
-{
-    // TODO: implement this!
-    
-    // if not enough room
-    //     create new DynamicArrayMemory (double in size)
-    //     copy all data to new memory
-    //     free all blocks of old one
-    // add element to memory (at current index)
-}
-
-FlowElement * get_element(FlowElementsArray flow_elements_array, element_index)
-{
-    return &flow_elements_array.flow_elements[element_index];
-}
-// END Usage code
 */
 
 void free_memory_blocks(i32 block_index, i32 nr_of_blocks)
@@ -103,13 +75,13 @@ void free_memory_blocks(i32 block_index, i32 nr_of_blocks)
     // mark all blocks as unused
 }
 
-i32 get_memory_blocks(i32 nr_of_blocks)
+i32 reserve_memory_blocks(i32 nr_of_blocks)
 {
     // TODO: implement this!
     
     // set consecutive_count to 0
     // loop through blocks_used (until nr_of_memory_blocks)
-    // if consecutive_count ==0: 
+    // if consecutive_count == 0: 
     //     if block is not used, remember its index. set consecutive_count to 1
     // if consecutive_count > 0: 
     //     if block is used, set consecutive_count to 0
@@ -120,7 +92,7 @@ i32 get_memory_blocks(i32 nr_of_blocks)
     // return block index
 }
 
-i32 get_memory_block()
+i32 reserve_memory_block()
 {
     // TODO: implement this!
     
@@ -163,6 +135,34 @@ void free_memory_arena(MemoryArena * memory_arena)
     // If consecutive_blocks:
     //     free all consecutive blocks (and don't look are previous blocks)
 }
+
+/*
+// BEGIN Usage code
+struct FlowElementsArray
+{
+    FlowElement * flow_elements;
+    i32 nr_of_elements;
+    
+    MemoryArena memory_arena;
+}
+
+FlowElement * add_element(FlowElement element, FlowElementsArray flow_elements_array)
+{
+    // TODO: implement this!
+    
+    // if not enough room
+    //     create new DynamicArrayMemory (double in size)
+    //     copy all data to new memory
+    //     free all blocks of old one
+    // add element to memory (at current index)
+}
+
+FlowElement * get_element(FlowElementsArray flow_elements_array, element_index)
+{
+    return &flow_elements_array.flow_elements[element_index];
+}
+// END Usage code
+*/
 
 
 Memory global_memory;
