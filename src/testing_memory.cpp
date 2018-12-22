@@ -150,7 +150,9 @@ extern "C" {
         {
             if (memory->blocks_used[memory_block_index])
             {
-                draw_rectangle((Pos2d){100 + memory_block_index * 2, 400}, (Size2d){2,100}, no_color, dark_blue, 1);
+                MemoryArena * memory_arena = memory->blocks[memory_block_index].memory_arena;
+                
+                draw_rectangle((Pos2d){100 + memory_block_index * 2, 400}, (Size2d){2,100}, no_color, memory_arena->color, 1);
             }
             else {
                 draw_rectangle((Pos2d){100 + memory_block_index * 2, 400}, (Size2d){2,100}, no_color, light_blue, 1);
