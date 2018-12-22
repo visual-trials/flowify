@@ -18,6 +18,7 @@
 
 struct MemoryBlock
 {
+    // TODO: maybe add a size_in_bytes?
     i32 bytes_used;
     
     u16 next_block_index;
@@ -68,6 +69,7 @@ void init_memory(Memory * memory)
     memory->nr_of_arenas = 0;
 }
 
+// TODO: should this be called: reserve_consecutive_memory_blocks?
 i32 reserve_memory_blocks(Memory * memory, i32 nr_of_blocks)
 {
     // TODO: implement this!
@@ -180,13 +182,35 @@ void free_blocks_in_arena(MemoryArena * memory_arena)
 
 void * push_struct(MemoryArena * memory_arena, i32 size_struct)
 {
-    // TODO: implement this!
+    Memory * memory = memory_arena->memory;
     
-    // see if there is enough room in the current block
-    //     if so, advance the 'used' (and align), return the address
-    // if not, get a new block (TODO: maybe we should make this a function that takes the MemoryArena?)
-    //     set next_block_index and previous_block_index
-    //     advance the 'used' (and align?), return the address
+    if (!memory_arena->consecutive_blocks)
+    {
+        MemoryBlock * memory_block = &memory->blocks[memory_arena->current_block_index];
+        if (memory_block->bytes_used + size_struct > memory->block_size)
+        {
+            // Ff not enough room in the current block, then get a new block
+            u16 new_block_index = reserve_memory_block(memory, memory_arena->current_block_index);
+            memory_arena->current_block_index = new_block_index;
+            memory_block = &memory->blocks[memory_arena->current_block_index];
+        }
+        
+        // TODO: we assume we have a new block! (we should check this, or at least assert it)
+        
+        // FIXME: alignment!! (only align bytes_used, right?)
+        // FIXME: alignment!! (only align bytes_used, right?)
+        // FIXME: alignment!! (only align bytes_used, right?)
+        void * struct_address = (void *)((i32)memory->base_address + memory->block_size * memory_arena->current_block_index + memory_block->bytes_used);
+        memory_block->bytes_used += size_struct;
+        
+        return struct_address;
+    }
+    else
+    {
+        // TODO: implement this!
+    }
+
+    return 0;
 }
 
 extern "C" {

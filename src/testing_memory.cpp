@@ -56,6 +56,11 @@ FlowElement * get_element(FlowElementsArray flow_elements_array, element_index)
 
 WorldData global_world = {};  // FIXME: allocate this properly!
 
+struct LargeStruct
+{
+    ShortString lots_of_data[400];
+};
+
 extern "C" {
     
     void init_world()
@@ -66,7 +71,18 @@ extern "C" {
         world->recorded_memory = false;
         
         MemoryArena * memory_arena = new_memory_arena(memory, false, (Color4){0,255,0,255});
+        
+        LargeStruct * large_struct = (LargeStruct *)push_struct(memory_arena, sizeof(LargeStruct));
 
+        log_int(sizeof(LargeStruct));
+        
+        log_int((i32)large_struct);
+        
+        LargeStruct * large_struct2 = (LargeStruct *)push_struct(memory_arena, sizeof(LargeStruct));
+        
+        log_int((i32)large_struct2);
+        
+        /*
         // Filling with fake memory
         i32 * my_array = (i32 *)memory->base_address; // + memory->size
         i32 * my_array2 = (i32 *)((i32)memory->base_address + 10 * 1024 * 1024); // + memory->size
@@ -93,6 +109,8 @@ extern "C" {
                 }
             }
         }
+        */
+        
         world->recorded_memory = true;
     }
     
