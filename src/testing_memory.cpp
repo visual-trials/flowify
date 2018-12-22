@@ -24,13 +24,6 @@
 struct WorldData
 {
     b32 recorded_memory;
-    
-    i32 total_memory; // FIXME: deprecated?
-    i32 block_size; // FIXME: deprecated!
-    
-    b32 memory_usage[512]; // FIXME: deprecated!
-    i32 nr_of_memory_blocks; // FIXME: deprecated!
-    
 };
 
 /*
@@ -71,6 +64,8 @@ extern "C" {
         Memory * memory = &global_memory;
         
         world->recorded_memory = false;
+        
+        MemoryArena * memory_arena = new_memory_arena(memory, false, (Color4){0,255,0,255});
 
         // Filling with fake memory
         i32 * my_array = (i32 *)memory->base_address; // + memory->size

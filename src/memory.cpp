@@ -24,9 +24,13 @@ struct MemoryBlock
     u16 previous_block_index;
 };
 
+struct Memory;
+
 struct MemoryArena
 {
-    ShortString name;
+    Memory * memory;
+    
+    Color4 color;
     
     b32 consecutive_blocks;
     
@@ -53,25 +57,18 @@ struct Memory
 
 Memory global_memory = {};
 
-void init_memory()
+void init_memory(Memory * memory)
 {
-    global_memory.nr_of_blocks = NR_OF_MEMORY_BLOCKS;
-    global_memory.block_size = global_memory.size / global_memory.nr_of_blocks;
-    for (i32 block_index = 0; block_index <  global_memory.nr_of_blocks; block_index++)
+    memory->nr_of_blocks = NR_OF_MEMORY_BLOCKS;
+    memory->block_size = memory->size / memory->nr_of_blocks;
+    for (i32 block_index = 0; block_index <  memory->nr_of_blocks; block_index++)
     {
-        global_memory.blocks_used[block_index] = false;
+        memory->blocks_used[block_index] = false;
     }
-    global_memory.nr_of_arenas = 0;
+    memory->nr_of_arenas = 0;
 }
 
-void free_memory_blocks(i32 block_index, i32 nr_of_blocks)
-{
-    // TODO: implement this!
-    
-    // mark all blocks as unused
-}
-
-i32 reserve_memory_blocks(i32 nr_of_blocks)
+i32 reserve_memory_blocks(Memory * memory, i32 nr_of_blocks)
 {
     // TODO: implement this!
     
@@ -88,22 +85,97 @@ i32 reserve_memory_blocks(i32 nr_of_blocks)
     // return block index
 }
 
-i32 reserve_memory_block()
+void free_memory_blocks(i32 block_index, i32 nr_of_blocks)
 {
     // TODO: implement this!
     
-    // loop through blocks_used (until nr_of_memory_blocks)
-    // if block is not used, mark it as used
-    // set bytes_used to 0
-    // set next_block_index, previous_block_index
-    // return block index
+    // mark all blocks as unused
 }
 
-void free_memory_block(i32 block_index)
+u16 reserve_memory_block(Memory * memory, u16 previous_block_index)
 {
-    // TODO: implement this!
+    u16 block_index = 0;
+    // Note: we are not using index 0!
+    for (block_index = 1; block_index < memory->nr_of_blocks; block_index++)
+    {
+        if (!memory->blocks_used[block_index])
+        {
+            memory->blocks_used[block_index] = true;
+            memory->blocks[block_index].bytes_used = 0;
+            memory->blocks[block_index].previous_block_index = previous_block_index;
+            memory->blocks[block_index].next_block_index = 0;
+            if (previous_block_index)
+            {
+                memory->blocks[previous_block_index].next_block_index = block_index;
+            }
+            
+            return block_index;
+        }
+    }
     
-    // mark block as unused
+    return block_index;
+}
+
+void free_memory_block(Memory * memory, u16 block_index)
+{
+    memory->blocks_used[block_index] = false;
+    u16 previous_block_index = memory->blocks[block_index].previous_block_index;
+    if (previous_block_index)
+    {
+        memory->blocks[previous_block_index].next_block_index = 0;
+    }    
+}
+
+MemoryArena * new_memory_arena(Memory * memory, b32 consecutive_blocks, Color4 color)
+{
+    // TODO: check bounds!
+    MemoryArena * memory_arena = &memory->arenas[memory->nr_of_arenas++];
+    
+    memory_arena->memory = memory;
+    memory_arena->consecutive_blocks = consecutive_blocks;
+    memory_arena->color = color;
+    
+    memory_arena->nr_of_blocks = 0; // Only used when consecutive_blocks is true
+    if (!memory_arena->consecutive_blocks)
+    {
+        // We reserve the first block if consecutive_blocks is false
+        // TODO: what if current_block_index is 0? (meaning: no more free block)
+        memory_arena->current_block_index = reserve_memory_block(memory, 0);
+    }
+    else
+    {
+        // TODO: whould we reserve blocks it consecutive_blocks is false
+    }
+    
+    return memory_arena;
+}
+
+void free_blocks_in_arena(MemoryArena * memory_arena)
+{
+    Memory * memory = memory_arena->memory;
+    
+    // Note: the memory arena might contain more than one non-consecutive blocks or a sequence of consecutive blocks!
+    
+    if (!memory_arena->consecutive_blocks)
+    {
+        u16 current_block_index = memory_arena->current_block_index;
+        while (current_block_index)
+        {
+            MemoryBlock * memory_block = &memory->blocks[memory_arena->current_block_index];
+            
+            u16 previous_block_index = memory_block->previous_block_index;
+            
+            free_memory_block(memory, current_block_index);
+            
+            current_block_index = previous_block_index;
+        }
+        memory_arena->current_block_index = 0;
+    }
+    else
+    {
+        // TODO: implement this!
+        //     free all consecutive blocks (and don't look are previous blocks)
+    }
 }
 
 void * push_struct(MemoryArena * memory_arena, i32 size_struct)
@@ -117,21 +189,6 @@ void * push_struct(MemoryArena * memory_arena, i32 size_struct)
     //     advance the 'used' (and align?), return the address
 }
 
-void free_memory_arena(MemoryArena * memory_arena)
-{
-    // TODO: implement this!
-    
-    // Note: the memory arena might contain more than one non-consecutive blocks or consecutive blocks!
-    
-    // If !consecutive_blocks:
-    //     get the current block
-    //     get the previous block
-    //     free the current block
-    //     if previous block exists, repeat
-    // If consecutive_blocks:
-    //     free all consecutive blocks (and don't look are previous blocks)
-}
-
 extern "C" {
 
     // Memory
@@ -140,7 +197,7 @@ extern "C" {
         global_memory.base_address = (void *)base_address;
         global_memory.size = memory_size;
 
-        init_memory();
+        init_memory(&global_memory);
     }
 
 }
