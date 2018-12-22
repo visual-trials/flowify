@@ -78,6 +78,8 @@ extern "C" {
         
         log_int((i32)large_struct);
         
+        MemoryArena * consecutive_memory_arena = new_memory_arena(memory, true, (Color4){255,0,0,255}, 10);
+        
         LargeStruct * large_struct2 = (LargeStruct *)push_struct(memory_arena, sizeof(LargeStruct));
         
         log_int((i32)large_struct2);

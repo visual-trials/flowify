@@ -73,22 +73,70 @@ void init_memory(Memory * memory)
     memory->nr_of_arenas = 0;
 }
 
-// TODO: should this be called: reserve_consecutive_memory_blocks?
-i32 reserve_memory_blocks(Memory * memory, i32 nr_of_blocks)
+i32 increase_consecutive_memory_blocks(MemoryArena * memory_arena, i32 required_nr_of_blocks)
 {
-    // TODO: implement this!
+    Memory * memory = memory_arena->memory;
     
-    // set consecutive_count to 0
-    // loop through blocks_used (until nr_of_memory_blocks)
-    // if consecutive_count == 0: 
-    //     if block is not used, remember its index. set consecutive_count to 1
-    // if consecutive_count > 0: 
-    //     if block is used, set consecutive_count to 0
-    //     if block is unused, incrmeent consecutive_count;
-    // if consecutive_count == nr_of_blocks:
-    //     break and mark all blocks as used (and set set bytes_used to 0)
-    //     set next_block_index, previous_block_index
-    // return block index
+    u16 found_block_index = 0;
+    u16 consecutive_count = 0;
+    u16 block_index = 0;
+    // Note: we are not using index 0!
+    for (block_index = 1; block_index < memory->nr_of_blocks; block_index++)
+    {
+        if (!memory->blocks_used[block_index])
+        {
+            if (!found_block_index)
+            {
+                found_block_index = block_index; // We record the first free block that starts the series of free blocks
+            }
+            consecutive_count++;
+        }
+        else
+        {
+            consecutive_count = 0;
+            found_block_index = 0;
+        }
+        
+        if (consecutive_count == required_nr_of_blocks)
+        {
+            break;
+        }
+            
+    }
+    
+    if (found_block_index)
+    {
+        u16 previous_block_index = 0;
+        for (block_index = found_block_index; block_index < found_block_index + required_nr_of_blocks; block_index++)
+        {
+            // TODO: maybe put this in a helper function?
+            memory->blocks_used[block_index] = true;
+            memory->blocks[block_index].bytes_used = 0;
+            memory->blocks[block_index].previous_block_index = previous_block_index;
+            memory->blocks[block_index].next_block_index = 0;
+            memory->blocks[block_index].memory_arena = memory_arena;
+            if (previous_block_index)
+            {
+                memory->blocks[previous_block_index].next_block_index = block_index;
+            }
+            previous_block_index = block_index;
+        }
+        
+        // FIXME: check if we could simply EXTEND the old blocks!
+        // FIXME: copy all data from the old blocks to the new blocks (only if we could not extend!)
+        // FIXME: free all previous blocks! (only if we could not extend!)
+        
+        memory_arena->current_block_index = found_block_index;
+        memory_arena->nr_of_blocks = required_nr_of_blocks;
+        
+        return found_block_index;
+    }
+    else
+    {
+        // If we didn't found the room for the blocks, we return index = 0
+        return 0;
+    }
+
 }
 
 void free_memory_blocks(i32 block_index, i32 nr_of_blocks)
@@ -140,7 +188,7 @@ void free_memory_block(Memory * memory, u16 block_index)
     }    
 }
 
-MemoryArena * new_memory_arena(Memory * memory, b32 consecutive_blocks, Color4 color)
+MemoryArena * new_memory_arena(Memory * memory, b32 consecutive_blocks, Color4 color, i32 initial_nr_of_blocks = 1)
 {
     // TODO: check bounds!
     MemoryArena * memory_arena = &memory->arenas[memory->nr_of_arenas++];
@@ -155,11 +203,12 @@ MemoryArena * new_memory_arena(Memory * memory, b32 consecutive_blocks, Color4 c
     {
         // We reserve the first block if consecutive_blocks is false
         // TODO: what if new_block_index is 0? (meaning: no more free block)
+        // TODO: listen to initial_nr_of_blocks here too?
         u16 new_block_index = add_memory_block(memory_arena);
     }
     else
     {
-        // TODO: whould we reserve blocks it consecutive_blocks is false
+        increase_consecutive_memory_blocks(memory_arena, initial_nr_of_blocks);
     }
     
     return memory_arena;
