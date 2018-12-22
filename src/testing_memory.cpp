@@ -28,7 +28,141 @@ struct WorldData
     
     b32 memory_usage[512];
     i32 nr_of_memory_blocks;
+    
 };
+
+struct MemoryBlock
+{
+    i32 bytes_used;
+    
+    u16 next_block_index;
+    u16 previous_block_index;
+};
+
+/*
+
+// FIXME: replace current Memory struct with the one below!
+
+struct Memory
+{
+    void * base_address;
+    i32 memory_size; // Note: right now max memory size is 2GB
+    
+    b32 blocks_used[512];
+    MemoryBlock blocks[512];
+    
+    i32 nr_of_memory_blocks;
+    i32 memory_block_size;
+};
+*/
+
+struct MemoryArena
+{
+    u16 current_block_index;
+    
+};
+
+struct DynamicArrayMemory
+{
+    u16 current_block_index;
+    
+    i32 max_nr_of_elements;
+    i32 element_size;
+};
+
+/*
+// BEGIN Usage code
+struct FlowElementsArray
+{
+    FlowElement * flow_elements;
+    i32 nr_of_elements;
+    
+    DynamicArrayMemory memory;
+}
+
+FlowElement * add_element(FlowElement element, FlowElementsArray flow_elements_array)
+{
+    // TODO: implement this!
+    
+    // if not enough room
+    //     create new DynamicArrayMemory (double in size)
+    //     copy all data to new memory
+    //     free all blocks of old one
+    // add element to memory (at current index)
+}
+
+FlowElement * get_element(FlowElementsArray flow_elements_array, element_index)
+{
+    return &flow_elements_array.flow_elements[element_index];
+}
+// END Usage code
+*/
+
+void free_memory_blocks(i32 block_index, i32 nr_of_blocks)
+{
+    // TODO: implement this!
+    
+    // mark all blocks as unused
+}
+
+i32 get_memory_blocks(i32 nr_of_blocks)
+{
+    // TODO: implement this!
+    
+    // set consecutive_count to 0
+    // loop through blocks_used (until nr_of_memory_blocks)
+    // if consecutive_count ==0: 
+    //     if block is not used, remember its index. set consecutive_count to 1
+    // if consecutive_count > 0: 
+    //     if block is used, set consecutive_count to 0
+    //     if block is unused, incrmeent consecutive_count;
+    // if consecutive_count == nr_of_blocks:
+    //     break and mark all blocks as used (and set set bytes_used to 0)
+    //     set next_block_index, previous_block_index
+    // return block index
+}
+
+i32 get_memory_block()
+{
+    // TODO: implement this!
+    
+    // loop through blocks_used (until nr_of_memory_blocks)
+    // if block is not used, mark it as used
+    // set bytes_used to 0
+    // set next_block_index, previous_block_index
+    // return block index
+}
+
+void free_memory_block(i32 block_index)
+{
+    // TODO: implement this!
+    
+    // mark block as unused
+}
+
+void * push_struct(MemoryArena * memory_arena, i32 size_struct)
+{
+    // TODO: implement this!
+    
+    // see if there is enough room in the current block
+    //     if so, advance the 'used' (and align), return the address
+    // if not, get a new block (TODO: maybe we should make this a function that takes the MemoryArena?)
+    //     set next_block_index and previous_block_index
+    //     advance the 'used' (and align?), return the address
+}
+
+void free_memory_arena(MemoryArena * memory_arena)
+{
+    // TODO: implement this!
+    
+    // get the current block
+    // get the previous block
+    // free the current block
+    // if previous block exists, repeat
+}
+
+
+Memory global_memory;
 
 WorldData global_world = {};  // FIXME: allocate this properly!
 
