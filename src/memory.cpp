@@ -16,10 +16,14 @@
 
  */
 
+struct MemoryArena;
+
 struct MemoryBlock
 {
     // TODO: maybe add a size_in_bytes?
     i32 bytes_used;
+    
+    MemoryArena * memory_arena; // TODO: do we really want to do point back this way? We might better get the color via the Memory route?
     
     u16 next_block_index;
     u16 previous_block_index;
@@ -94,22 +98,30 @@ void free_memory_blocks(i32 block_index, i32 nr_of_blocks)
     // mark all blocks as unused
 }
 
-u16 reserve_memory_block(Memory * memory, u16 previous_block_index)
+u16 add_memory_block(MemoryArena * memory_arena)
 {
+    Memory * memory = memory_arena->memory;
+
+    u16 previous_block_index = memory_arena->current_block_index;
+    
     u16 block_index = 0;
     // Note: we are not using index 0!
     for (block_index = 1; block_index < memory->nr_of_blocks; block_index++)
     {
         if (!memory->blocks_used[block_index])
         {
+            // TODO: maybe put this in a helper function?
             memory->blocks_used[block_index] = true;
             memory->blocks[block_index].bytes_used = 0;
             memory->blocks[block_index].previous_block_index = previous_block_index;
             memory->blocks[block_index].next_block_index = 0;
+            memory->blocks[block_index].memory_arena = memory_arena;
             if (previous_block_index)
             {
                 memory->blocks[previous_block_index].next_block_index = block_index;
             }
+            
+            memory_arena->current_block_index = block_index;
             
             return block_index;
         }
@@ -136,13 +148,14 @@ MemoryArena * new_memory_arena(Memory * memory, b32 consecutive_blocks, Color4 c
     memory_arena->memory = memory;
     memory_arena->consecutive_blocks = consecutive_blocks;
     memory_arena->color = color;
+    memory_arena->current_block_index = 0;
     
     memory_arena->nr_of_blocks = 0; // Only used when consecutive_blocks is true
     if (!memory_arena->consecutive_blocks)
     {
         // We reserve the first block if consecutive_blocks is false
-        // TODO: what if current_block_index is 0? (meaning: no more free block)
-        memory_arena->current_block_index = reserve_memory_block(memory, 0);
+        // TODO: what if new_block_index is 0? (meaning: no more free block)
+        u16 new_block_index = add_memory_block(memory_arena);
     }
     else
     {
@@ -189,9 +202,8 @@ void * push_struct(MemoryArena * memory_arena, i32 size_struct)
         MemoryBlock * memory_block = &memory->blocks[memory_arena->current_block_index];
         if (memory_block->bytes_used + size_struct > memory->block_size)
         {
-            // Ff not enough room in the current block, then get a new block
-            u16 new_block_index = reserve_memory_block(memory, memory_arena->current_block_index);
-            memory_arena->current_block_index = new_block_index;
+            // If not enough room in the current block, then get a new block
+            u16 new_block_index = add_memory_block(memory_arena);
             memory_block = &memory->blocks[memory_arena->current_block_index];
         }
         
