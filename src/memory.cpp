@@ -73,10 +73,26 @@ void init_memory(Memory * memory)
     memory->nr_of_arenas = 0;
 }
 
+void move_block(Memory * memory, u16 from_block_index, u16 to_block_index)
+{
+    // FIXME: copy all data from the old blocks to the new blocks (only if we could not extend!)
+    
+    memory->blocks_used[to_block_index] = true;
+    memory->blocks[to_block_index].bytes_used = memory->blocks[from_block_index].bytes_used;
+    memory->blocks[to_block_index].previous_block_index = memory->blocks[from_block_index].previous_block_index;
+    memory->blocks[to_block_index].next_block_index = memory->blocks[from_block_index].next_block_index;
+    memory->blocks[to_block_index].memory_arena = memory->blocks[from_block_index].memory_arena;
+    
+    memory->blocks_used[from_block_index] = false;
+}
+
 i32 increase_consecutive_memory_blocks(MemoryArena * memory_arena, i32 required_nr_of_blocks)
 {
     Memory * memory = memory_arena->memory;
     
+    u16 original_block_index = memory_arena->current_block_index;
+    u16 original_nr_of_blocks = memory_arena->nr_of_blocks;
+        
     u16 found_block_index = 0;
     u16 consecutive_count = 0;
     u16 block_index = 0;
@@ -106,6 +122,7 @@ i32 increase_consecutive_memory_blocks(MemoryArena * memory_arena, i32 required_
     
     if (found_block_index)
     {
+        
         u16 previous_block_index = 0;
         for (block_index = found_block_index; block_index < found_block_index + required_nr_of_blocks; block_index++)
         {
@@ -122,9 +139,20 @@ i32 increase_consecutive_memory_blocks(MemoryArena * memory_arena, i32 required_
             previous_block_index = block_index;
         }
         
-        // FIXME: check if we could simply EXTEND the old blocks!
-        // FIXME: copy all data from the old blocks to the new blocks (only if we could not extend!)
-        // FIXME: free all previous blocks! (only if we could not extend!)
+        // TODO: check if we could simply EXTEND the old blocks!
+        b32 was_extend = false;
+        
+        if (!was_extend)
+        {
+            // Copy-ing the old data to the new blocks
+            u16 to_block_index = found_block_index;
+            u16 from_block_index = original_block_index;
+            for (u16 from_block_index = original_block_index; from_block_index < original_block_index + original_nr_of_blocks; from_block_index++)
+            {
+                move_block(memory, from_block_index, to_block_index);
+                to_block_index++;
+            }
+        }
         
         memory_arena->current_block_index = found_block_index;
         memory_arena->nr_of_blocks = required_nr_of_blocks;

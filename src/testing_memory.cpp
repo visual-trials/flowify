@@ -84,6 +84,7 @@ extern "C" {
         
         log_int((i32)large_struct2);
         
+        increase_consecutive_memory_blocks(consecutive_memory_arena, 20);
         // reset_memory_arena(memory_arena);
         
         /*
