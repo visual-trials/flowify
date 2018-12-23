@@ -302,11 +302,16 @@ void * push_struct(MemoryArena * memory_arena, i32 size_struct)
         
         // TODO: we assume we have a new block! (we should check this, or at least assert it)
         
-        // FIXME: alignment!! (only align bytes_used, right?)
-        // FIXME: alignment!! (only align bytes_used, right?)
-        // FIXME: alignment!! (only align bytes_used, right?)
         void * struct_address = (void *)((i32)memory->base_address + memory->block_size * memory_arena->current_block_index + memory_block->bytes_used);
         memory_block->bytes_used += size_struct;
+        
+        // Add alignment offset (if needed)
+        i32 alignment = 4;
+        i32 alignment_mask = alignment - 1; // 0x3
+        if (memory_block->bytes_used & alignment_mask) // meaning: if it isn't dividable by 4
+        {
+            memory_block->bytes_used += alignment - (memory_block->bytes_used & alignment_mask);
+        }
         
         return struct_address;
     }
