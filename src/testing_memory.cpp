@@ -157,7 +157,6 @@ extern "C" {
         draw_text((Pos2d){100,140}, &size, font, black);
         draw_text((Pos2d){100,180}, &pointer_length, font, black);
         
-        
         for (i32 memory_block_index = 0; memory_block_index < memory->nr_of_blocks; memory_block_index++)
         {
             if (memory->blocks_used[memory_block_index])
@@ -177,6 +176,8 @@ extern "C" {
             }
         }
         
+        
+        // Button to increase memory
         ShortString label;
         copy_char_to_string('=', &label);
         ShortString label_active;

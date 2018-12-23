@@ -75,7 +75,6 @@ void init_memory(Memory * memory)
 
 void move_block(Memory * memory, u16 from_block_index, u16 to_block_index)
 {
-    // FIXME: copy all data from the old blocks to the new blocks (only if we could not extend!)
     
     memory->blocks_used[to_block_index] = true;
     memory->blocks[to_block_index].bytes_used = memory->blocks[from_block_index].bytes_used;
@@ -83,6 +82,15 @@ void move_block(Memory * memory, u16 from_block_index, u16 to_block_index)
     memory->blocks[to_block_index].next_block_index = memory->blocks[from_block_index].next_block_index;
     memory->blocks[to_block_index].memory_arena = memory->blocks[from_block_index].memory_arena;
     
+    // Copy all block data from the old blocks to the new blocks
+    u8 * from_block_address = (u8 *)((i32)memory->base_address + memory->block_size * from_block_index);
+    u8 * to_block_address = (u8 *)((i32)memory->base_address + memory->block_size * to_block_index);
+    // TODO: copying bytes (u8) is very slow!
+    for (i32 byte_index = 0; byte_index < memory->blocks[from_block_index].bytes_used; byte_index++)
+    {
+        from_block_address[byte_index] = to_block_address[byte_index];
+    }
+        
     memory->blocks_used[from_block_index] = false;
 }
 
