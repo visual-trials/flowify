@@ -78,11 +78,13 @@ extern "C" {
         
         log_int((i32)large_struct);
         
-        MemoryArena * consecutive_memory_arena = new_memory_arena(memory, true, (Color4){255,0,0,255}, 10);
+        MemoryArena * consecutive_memory_arena = new_memory_arena(memory, true, (Color4){200,0,255,255}, 10);
         
         LargeStruct * large_struct2 = (LargeStruct *)push_struct(memory_arena, sizeof(LargeStruct));
         
         log_int((i32)large_struct2);
+        
+        // reset_memory_arena(memory_arena);
         
         /*
         // Filling with fake memory
@@ -152,9 +154,15 @@ extern "C" {
         {
             if (memory->blocks_used[memory_block_index])
             {
-                MemoryArena * memory_arena = memory->blocks[memory_block_index].memory_arena;
+                i32 bytes_used = memory->blocks[memory_block_index].bytes_used;
+                i32 block_size = memory->block_size;
                 
-                draw_rectangle((Pos2d){100 + memory_block_index * 2, 400}, (Size2d){2,100}, no_color, memory_arena->color, 1);
+                i32 percentage_used = (i32)(100 * (f32)((f32)bytes_used / (f32)block_size));
+                
+                Color4 color = memory->blocks[memory_block_index].memory_arena->color;
+                
+                draw_rectangle((Pos2d){100 + memory_block_index * 2, 400 + 100 - percentage_used}, (Size2d){2,percentage_used}, no_color, color, 1);
+                draw_rectangle((Pos2d){100 + memory_block_index * 2, 400}, (Size2d){2,100 - percentage_used}, no_color, light_blue, 1);
             }
             else {
                 draw_rectangle((Pos2d){100 + memory_block_index * 2, 400}, (Size2d){2,100}, no_color, light_blue, 1);

@@ -111,7 +111,7 @@ i32 increase_consecutive_memory_blocks(MemoryArena * memory_arena, i32 required_
         {
             // TODO: maybe put this in a helper function?
             memory->blocks_used[block_index] = true;
-            memory->blocks[block_index].bytes_used = 0;
+            memory->blocks[block_index].bytes_used = memory->block_size; // TODO: is this correct? Shouldn't the last block be partially used?
             memory->blocks[block_index].previous_block_index = previous_block_index;
             memory->blocks[block_index].next_block_index = 0;
             memory->blocks[block_index].memory_arena = memory_arena;
@@ -139,11 +139,18 @@ i32 increase_consecutive_memory_blocks(MemoryArena * memory_arena, i32 required_
 
 }
 
-void free_memory_blocks(i32 block_index, i32 nr_of_blocks)
+void free_consecutive_memory_blocks(Memory * memory, u16 start_block_index, i32 nr_of_blocks)
 {
-    // TODO: implement this!
-    
-    // mark all blocks as unused
+    u16 previous_block_index = 0;
+    for (u16 block_index = start_block_index; block_index < start_block_index + nr_of_blocks; block_index++)
+    {
+        memory->blocks_used[block_index] = false;
+        u16 previous_block_index = memory->blocks[block_index].previous_block_index;
+        if (previous_block_index)
+        {
+            memory->blocks[previous_block_index].next_block_index = 0;
+        }
+    }
 }
 
 u16 add_memory_block(MemoryArena * memory_arena)
@@ -214,7 +221,7 @@ MemoryArena * new_memory_arena(Memory * memory, b32 consecutive_blocks, Color4 c
     return memory_arena;
 }
 
-void free_blocks_in_arena(MemoryArena * memory_arena)
+void reset_memory_arena(MemoryArena * memory_arena)
 {
     Memory * memory = memory_arena->memory;
     
@@ -225,7 +232,7 @@ void free_blocks_in_arena(MemoryArena * memory_arena)
         u16 current_block_index = memory_arena->current_block_index;
         while (current_block_index)
         {
-            MemoryBlock * memory_block = &memory->blocks[memory_arena->current_block_index];
+            MemoryBlock * memory_block = &memory->blocks[current_block_index];
             
             u16 previous_block_index = memory_block->previous_block_index;
             
@@ -237,8 +244,9 @@ void free_blocks_in_arena(MemoryArena * memory_arena)
     }
     else
     {
-        // TODO: implement this!
-        //     free all consecutive blocks (and don't look are previous blocks)
+        free_consecutive_memory_blocks(memory, memory_arena->current_block_index, memory_arena->nr_of_blocks);
+        memory_arena->current_block_index = 0;
+        memory_arena->nr_of_blocks = 0;
     }
 }
 
