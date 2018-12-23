@@ -171,6 +171,9 @@ extern "C" {
             //        instead we should give each flow-element an identifier (e.g. incremented number)
             //        and walk through the elements by using some kind of sequence links
             //        e.g. .next_statement or something
+            // ALTERNATIVELY: we could create an index and find elements that way
+            //                this index should have a separate MemoryArena (from the MemoryArena of the
+            //                flow elements themselves)
             world->flowifier.flow_elements[world->selected_element_index].is_selected = false;
             
             while (world->selected_element_index < world->flowifier.nr_of_flow_elements)
