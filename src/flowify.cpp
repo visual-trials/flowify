@@ -166,6 +166,11 @@ extern "C" {
         {
             world->iteration = 0;
             
+            // FIXME: we should not access the array using selected_element_index here.
+            //        and we should not store .is_selected inside the element
+            //        instead we should give each flow-element an identifier (e.g. incremented number)
+            //        and walk through the elements by using some kind of sequence links
+            //        e.g. .next_statement or something
             world->flowifier.flow_elements[world->selected_element_index].is_selected = false;
             
             while (world->selected_element_index < world->flowifier.nr_of_flow_elements)
