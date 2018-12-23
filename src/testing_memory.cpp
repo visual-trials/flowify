@@ -24,6 +24,12 @@
 struct WorldData
 {
     b32 recorded_memory;
+    
+    b32 increased_memory;
+    
+    MemoryArena * consecutive_memory_arena;
+    
+    b32 verbose_frame_times;
 };
 
 /*
@@ -78,13 +84,12 @@ extern "C" {
         
         log_int((i32)large_struct);
         
-        MemoryArena * consecutive_memory_arena = new_memory_arena(memory, true, (Color4){200,0,255,255}, 10);
+        world->consecutive_memory_arena = new_memory_arena(memory, true, (Color4){200,0,255,255}, 10);
         
         LargeStruct * large_struct2 = (LargeStruct *)push_struct(memory_arena, sizeof(LargeStruct));
         
         log_int((i32)large_struct2);
         
-        increase_consecutive_memory_blocks(consecutive_memory_arena, 20);
         // reset_memory_arena(memory_arena);
         
         /*
@@ -127,7 +132,9 @@ extern "C" {
     void render_frame()
     {
         WorldData * world = &global_world;
+        Input * input = &global_input;
         Memory * memory = &global_memory;
+        Screen * screen = &input->screen;
         
         ShortString address;
         ShortString size;
@@ -169,5 +176,26 @@ extern "C" {
                 draw_rectangle((Pos2d){100 + memory_block_index * 2, 400}, (Size2d){2,100}, no_color, light_blue, 1);
             }
         }
+        
+        ShortString label;
+        copy_char_to_string('=', &label);
+        ShortString label_active;
+        copy_char_to_string('*', &label_active);
+        
+        Size2d size_button = {50,50};
+        Pos2d position_button = {};
+        position_button.x = screen->width - size_button.width - 20;
+        position_button.y = 100;
+        
+        b32 button_is_pressed = do_button(position_button, size_button, &label, world->increased_memory, input, &label_active);
+        
+        if (button_is_pressed && !world->increased_memory)
+        {
+            increase_consecutive_memory_blocks(world->consecutive_memory_arena, 20);
+            world->increased_memory = true;
+        }
+        
+        // Draw frame timing
+        do_frame_timing(&global_input, &world->verbose_frame_times);
     }
 }
