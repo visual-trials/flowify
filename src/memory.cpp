@@ -53,7 +53,7 @@ struct Memory
     b32 blocks_used[NR_OF_MEMORY_BLOCKS];
     MemoryBlock blocks[NR_OF_MEMORY_BLOCKS];
     
-    MemoryArena arenas[20]; // TODO: we could visualize memory usage with these
+    MemoryArena arenas[20]; // TODO: we should probably allocate these differently
     i32 nr_of_arenas;
     
     i32 nr_of_blocks;
@@ -317,7 +317,7 @@ void * push_struct(MemoryArena * memory_arena, i32 size_struct)
     }
     else
     {
-        // TODO: implement this!
+        // TODO: should we implement this? Or will you never push anything on a consecutive_blocks-arena?
     }
 
     return 0;
