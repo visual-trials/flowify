@@ -68,7 +68,7 @@ extern "C" {
     {
         // We throw away all old data from a previous load
         reset_memory_arena(world->memory_arena_file_load);
-        reset_memory_arena(world->memory_arena_flowifier_index, 4);
+        reset_memory_arena(world->memory_arena_flowifier_index, 0);
         
         ScrollableText * scrollable_program_text = &world->scrollable_program_text;
         init_scrollable_text(scrollable_program_text);
@@ -143,7 +143,7 @@ extern "C" {
         world->verbose_memory_usage = true;
 
         world->memory_arena_file_load = new_memory_arena(memory, false, (Color4){0,255,0,255});
-        world->memory_arena_flowifier_index = new_memory_arena(memory, true, (Color4){0,255,255,255}, 4);
+        world->memory_arena_flowifier_index = new_memory_arena(memory, true, (Color4){0,255,255,255}, 0);
         
         load_program_text(world->program_texts[world->current_program_text_index], world);
         
