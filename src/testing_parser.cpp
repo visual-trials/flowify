@@ -31,6 +31,7 @@ struct WorldData
     
     MemoryArena * memory_arena_file_load;
     MemoryArena * memory_arena_token_index;
+    MemoryArena * memory_arena_parser_index;
     
     Tokenizer tokenizer;
     Parser parser;
@@ -63,6 +64,7 @@ extern "C" {
         // We throw away all old data from a previous load
         reset_memory_arena(world->memory_arena_file_load);
         reset_memory_arena(world->memory_arena_token_index, 0);
+        reset_memory_arena(world->memory_arena_parser_index, 0);
         
         ScrollableText * scrollable_program_text = &world->scrollable_program_text;
         init_scrollable_text(scrollable_program_text);
@@ -76,19 +78,17 @@ extern "C" {
         scrollable_program_text->nr_of_lines = split_string_into_lines(world->program_text, scrollable_program_text->lines);
         scrollable_program_text->line_offset = 0;
 
+        // Tokenize
         Tokenizer * tokenizer = &world->tokenizer;
         init_tokenizer(tokenizer, world->memory_arena_file_load, world->memory_arena_token_index);
         tokenize(tokenizer, (u8 *)program_text);
 
-        // TODO: we need a ZeroStruct function/macro!
-        world->parser.current_token_index = 0;
-        world->parser.nr_of_nodes = 0;
-        world->parser.tokenizer = tokenizer;
-        
+        //Parse
         Parser * parser = &world->parser;
-        
+        init_parser(parser, tokenizer, world->memory_arena_file_load, world->memory_arena_parser_index);
         Node * root_node = parse_program(parser);
         
+        // Dump parse result
         world->dump_text.length = 0;
         world->dump_text.data = global_dump_text;
         dump_tree(root_node, &world->dump_text);
@@ -120,6 +120,7 @@ extern "C" {
         
         world->memory_arena_file_load = new_memory_arena(memory, false, (Color4){0,255,0,255});
         world->memory_arena_token_index = new_memory_arena(memory, true, (Color4){255,255,0,255}, 0);
+        world->memory_arena_parser_index = new_memory_arena(memory, true, (Color4){255,0,255,255}, 0);
         
         load_program_text(world->program_texts[world->current_program_text_index], world);
         
@@ -236,10 +237,10 @@ extern "C" {
         
         if (world->parser.nr_of_nodes > 0)
         {
-            Node node = world->parser.nodes[world->selected_node_index];
+            Node * node = (Node *)get_element_by_index(world->selected_node_index, world->memory_arena_parser_index);
             
             scrollable_program_text->nr_of_highlighted_parts = 0;
-            for (i32 token_index = node.first_token_index; token_index <= node.last_token_index; token_index++)
+            for (i32 token_index = node->first_token_index; token_index <= node->last_token_index; token_index++)
             {
                 Token * token = (Token *)get_element_by_index(token_index, world->memory_arena_token_index);
                 
@@ -257,7 +258,7 @@ extern "C" {
             }
             
             scrollable_ast_dump->nr_of_highlighted_parts = 1;
-            scrollable_ast_dump->highlighted_line_parts[0] = node.highlighted_line_part;
+            scrollable_ast_dump->highlighted_line_parts[0] = node->highlighted_line_part;
             
         }
         

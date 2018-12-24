@@ -645,9 +645,22 @@ struct Parser
     Tokenizer * tokenizer;
     i32 current_token_index;
 
-    Node nodes[1000]; // TODO: allocate this properly!
+    // Node nodes[1000]; // TODO: allocate this properly!
     i32 nr_of_nodes;
+    
+    MemoryArena * memory_arena;
+    MemoryArena * index_memory_arena;
 };
+
+void init_parser(Parser * parser, Tokenizer * tokenizer, MemoryArena * memory_arena, MemoryArena * index_memory_arena)
+{
+    parser->current_token_index = 0;
+    parser->nr_of_nodes = 0;
+    parser->tokenizer = tokenizer;
+
+    parser->memory_arena = memory_arena;
+    parser->index_memory_arena = index_memory_arena;
+}
 
 void next_token(Parser * parser)
 {
@@ -692,7 +705,10 @@ b32 expect_token(Parser * parser, i32 token_type)  // TODO: somehow we can't use
 
 Node * new_node(Parser * parser)
 {
-    Node * new_node = &parser->nodes[parser->nr_of_nodes++];
+    Node * new_node = (Node *)push_struct(parser->memory_arena, sizeof(Node));
+    put_element_in_index(parser->nr_of_nodes, new_node, parser->index_memory_arena);
+    parser->nr_of_nodes++;
+    
     new_node->first_child = 0;
     new_node->next_sibling = 0;
     new_node->type = Node_Unknown;
