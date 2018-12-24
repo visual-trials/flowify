@@ -162,6 +162,8 @@ extern "C" {
         
         update_scrollable_text(scrollable_flowify_dump, input);
         
+/*
+FIXME: turned off for now (we have no index for flow_elements atm)
         world->iteration++;
         if (world->iteration > 60) // every second
         {
@@ -199,6 +201,7 @@ extern "C" {
             }
         }
         world->flowifier.flow_elements[world->selected_element_index].is_selected = true;
+*/            
         
     }
     
@@ -254,6 +257,8 @@ extern "C" {
         Color4 black = {};
         black.a = 255;
         
+/*
+FIXME: turned off for now (we have no index for flow_elements atm)
         if (world->flowifier.nr_of_flow_elements > 0)
         {
             FlowElement element = world->flowifier.flow_elements[world->selected_element_index];
@@ -280,6 +285,7 @@ extern "C" {
             scrollable_flowify_dump->nr_of_highlighted_parts = 1;
             scrollable_flowify_dump->highlighted_line_parts[0] = element.highlighted_line_part;
         }
+*/
         
         draw_scrollable_text(scrollable_program_text);
         draw_scrollable_text(scrollable_flowify_dump);
