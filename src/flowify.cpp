@@ -32,6 +32,7 @@ struct WorldData
     ScrollableText scrollable_program_text;  // TODO: allocate this properly!
     
     MemoryArena * memory_arena_file_load;
+    MemoryArena * memory_arena_flowifier_index;
     
     Tokenizer tokenizer;
     Parser parser;
@@ -67,6 +68,7 @@ extern "C" {
     {
         // We throw away all old data from a previous load
         reset_memory_arena(world->memory_arena_file_load);
+        reset_memory_arena(world->memory_arena_flowifier_index, 4);
         
         ScrollableText * scrollable_program_text = &world->scrollable_program_text;
         init_scrollable_text(scrollable_program_text);
@@ -100,7 +102,7 @@ extern "C" {
         
         Flowifier * flowifier = &world->flowifier;
         
-        init_flowifier(flowifier, world->memory_arena_file_load);
+        init_flowifier(flowifier, world->memory_arena_file_load, world->memory_arena_flowifier_index);
         
         FlowElement * root_element = new_flow_element(flowifier, root_node, FlowElement_Root);
         
@@ -141,6 +143,7 @@ extern "C" {
         world->verbose_memory_usage = true;
 
         world->memory_arena_file_load = new_memory_arena(memory, false, (Color4){0,255,0,255});
+        world->memory_arena_flowifier_index = new_memory_arena(memory, true, (Color4){0,255,255,255}, 4);
         
         load_program_text(world->program_texts[world->current_program_text_index], world);
         
@@ -172,28 +175,26 @@ extern "C" {
         
         update_scrollable_text(scrollable_flowify_dump, input);
         
-/*
-FIXME: turned off for now (we have no index for flow_elements atm)
         world->iteration++;
+        
+        // FIXME: we should not set is_selected on the flow element itself. Instead we should keep a record of the *element identifier* we want to select
+        //        whenever we draw the element we check for a *match* between the  selected *element identifier* and the identifier of the element.
+        
         if (world->iteration > 60) // every second
         {
             world->iteration = 0;
             
-            // FIXME: we should not access the array using selected_element_index here.
-            //        and we should not store .is_selected inside the element
-            //        instead we should give each flow-element an identifier (e.g. incremented number)
-            //        and walk through the elements by using some kind of sequence links
-            //        e.g. .next_statement or something
-            // ALTERNATIVELY: we could create an index and find elements that way
-            //                this index should have a separate MemoryArena (from the MemoryArena of the
-            //                flow elements themselves)
-            world->flowifier.flow_elements[world->selected_element_index].is_selected = false;
+            FlowElement * selected_flow_element = (FlowElement *)get_element_by_index(world->selected_element_index, world->flowifier.index_memory_arena);
+            selected_flow_element->is_selected = false;
             
             while (world->selected_element_index < world->flowifier.nr_of_flow_elements)
             {
                 world->selected_element_index++;
-                if (world->flowifier.flow_elements[world->selected_element_index].has_lane_segments)
+                
+                FlowElement * newly_selected_flow_element = (FlowElement *)get_element_by_index(world->selected_element_index, world->flowifier.index_memory_arena);
+                if (newly_selected_flow_element->has_lane_segments)
                 {
+                    newly_selected_flow_element->is_selected = true;
                     break;
                 }
             }
@@ -203,15 +204,15 @@ FIXME: turned off for now (we have no index for flow_elements atm)
             world->selected_element_index = 0;
             while (world->selected_element_index < world->flowifier.nr_of_flow_elements)
             {
-                if (world->flowifier.flow_elements[world->selected_element_index].has_lane_segments)
+                FlowElement * newly_selected_flow_element = (FlowElement *)get_element_by_index(world->selected_element_index, world->flowifier.index_memory_arena);
+                if (newly_selected_flow_element->has_lane_segments)
                 {
+                    newly_selected_flow_element->is_selected = true;
                     break;
                 }
                 world->selected_element_index++;
             }
         }
-        world->flowifier.flow_elements[world->selected_element_index].is_selected = true;
-*/            
         
     }
     
@@ -269,12 +270,10 @@ FIXME: turned off for now (we have no index for flow_elements atm)
         Color4 black = {};
         black.a = 255;
         
-/*
-FIXME: turned off for now (we have no index for flow_elements atm)
         if (world->flowifier.nr_of_flow_elements > 0)
         {
-            FlowElement element = world->flowifier.flow_elements[world->selected_element_index];
-            Node * node = element.ast_node;
+            FlowElement * selected_flow_element = (FlowElement *)get_element_by_index(world->selected_element_index, world->flowifier.index_memory_arena);
+            Node * node = selected_flow_element->ast_node;
             
             scrollable_program_text->nr_of_highlighted_parts = 0;
             for (i32 token_index = node->first_token_index; token_index <= node->last_token_index; token_index++)
@@ -295,9 +294,8 @@ FIXME: turned off for now (we have no index for flow_elements atm)
             }
          
             scrollable_flowify_dump->nr_of_highlighted_parts = 1;
-            scrollable_flowify_dump->highlighted_line_parts[0] = element.highlighted_line_part;
+            scrollable_flowify_dump->highlighted_line_parts[0] = selected_flow_element->highlighted_line_part;
         }
-*/
         
         draw_scrollable_text(scrollable_program_text);
         draw_scrollable_text(scrollable_flowify_dump);

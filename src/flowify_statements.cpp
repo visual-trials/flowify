@@ -113,6 +113,7 @@ struct FlowElement
 struct Flowifier
 {
     MemoryArena * memory_arena;
+    MemoryArena * index_memory_arena;
     
     i32 nr_of_flow_elements;
     
@@ -120,18 +121,22 @@ struct Flowifier
     FlowElement * latest_function;
 };
 
-void init_flowifier(Flowifier * flowifier, MemoryArena * memory_arena)
+void init_flowifier(Flowifier * flowifier, MemoryArena * memory_arena, MemoryArena * index_memory_arena)
 {
     flowifier->nr_of_flow_elements = 0;
     flowifier->first_function = 0;
     flowifier->latest_function = 0;
     
     flowifier->memory_arena = memory_arena;
+    flowifier->index_memory_arena = index_memory_arena;
 }
 
 FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowElementType flow_element_type = FlowElement_Unknown)
 {
     FlowElement * new_flow_element = (FlowElement *)push_struct(flowifier->memory_arena, sizeof(FlowElement));
+    put_element_in_index(flowifier->nr_of_flow_elements, new_flow_element, flowifier->index_memory_arena);
+    
+    flowifier->nr_of_flow_elements++;
     
     new_flow_element->ast_node = ast_node;
     new_flow_element->first_child = 0;

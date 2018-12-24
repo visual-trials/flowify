@@ -257,7 +257,7 @@ MemoryArena * new_memory_arena(Memory * memory, b32 consecutive_blocks, Color4 c
     return memory_arena;
 }
 
-void reset_memory_arena(MemoryArena * memory_arena)
+void reset_memory_arena(MemoryArena * memory_arena, i32 initial_nr_of_blocks = 0)
 {
     Memory * memory = memory_arena->memory;
     
@@ -283,9 +283,37 @@ void reset_memory_arena(MemoryArena * memory_arena)
         free_consecutive_memory_blocks(memory, memory_arena->current_block_index, memory_arena->nr_of_blocks);
         memory_arena->current_block_index = 0;
         memory_arena->nr_of_blocks = 0;
+        increase_consecutive_memory_blocks(memory_arena, initial_nr_of_blocks);
     }
 }
 
+void * get_element_by_index(i32 element_index, MemoryArena * index_memory_arena)
+{
+    Memory * memory = index_memory_arena->memory;
+    
+    void ** element_index_table = (void **)((i32)memory->base_address + memory->block_size * index_memory_arena->current_block_index);
+    
+    void * element = element_index_table[element_index];
+    
+    return element;
+}
+
+void put_element_in_index(i32 element_index, void * element, MemoryArena * index_memory_arena)
+{
+    Memory * memory = index_memory_arena->memory;
+    
+    if ((element_index + 1) * sizeof(void *) > index_memory_arena->nr_of_blocks * memory->block_size)
+    {
+        // FIXME: calculate this properly! (make sure the required_nr_of_blocks is enough (for right now) AND make sure its going to last a while)
+        i32 required_nr_of_blocks = index_memory_arena->nr_of_blocks + 1;
+        increase_consecutive_memory_blocks(index_memory_arena, required_nr_of_blocks);
+    }
+
+    void ** element_index_table = (void **)((i32)memory->base_address + memory->block_size * index_memory_arena->current_block_index);
+    
+    element_index_table[element_index] = element;
+}
+    
 void * push_struct(MemoryArena * memory_arena, i32 size_struct)
 {
     Memory * memory = memory_arena->memory;
