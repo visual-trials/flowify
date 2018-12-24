@@ -89,159 +89,23 @@ struct Tokenizer
 {
     u8 * at;
     
-    Token tokens[1000]; // TODO: allocate this properly!
     i32 nr_of_tokens;
     
     i32 current_line_index;
+    
+    MemoryArena * memory_arena;
+    MemoryArena * index_memory_arena;
 };
 
-// TODO: Keep this in sync with node_type_names below!
-enum NodeType
+void init_tokenizer(Tokenizer * tokenizer, MemoryArena * memory_arena, MemoryArena * index_memory_arena)
 {
-    Node_Unknown,
- 
-    Node_Root, 
-    
-    // Statements
-    Node_Stmt_If,
-    Node_Stmt_If_Cond,
-    Node_Stmt_If_Then,
-    Node_Stmt_If_Else,
-    
-    Node_Stmt_For,
-    Node_Stmt_For_Init,
-    Node_Stmt_For_Cond,
-    Node_Stmt_For_Update,
-    Node_Stmt_For_Body,
-    
-    Node_Stmt_Function,
-    Node_Stmt_Function_Args,
-    Node_Stmt_Function_Body,
-    
-    Node_Stmt_Return,
-    Node_Stmt_Break,
-    Node_Stmt_Continue,
-    
-    Node_Stmt_Expr,
-    
-    // Expressions
-    Node_Expr_PreInc,
-    Node_Expr_PreDec,
-    Node_Expr_PostInc,
-    Node_Expr_PostDec,
-    
-    Node_Expr_AssignOp_Multiply,
-    Node_Expr_AssignOp_Divide,
-    Node_Expr_AssignOp_Plus,
-    Node_Expr_AssignOp_Minus,
-    Node_Expr_AssignOp_Concat,
-    
-    Node_Expr_BinaryOp_Multiply,
-    Node_Expr_BinaryOp_Divide,
-    Node_Expr_BinaryOp_Plus,
-    Node_Expr_BinaryOp_Minus,
-    Node_Expr_BinaryOp_Smaller,
-    Node_Expr_BinaryOp_Greater,
-    Node_Expr_BinaryOp_Equal,
-    
-    Node_Expr_Assign,
-    
-    Node_Expr_FuncCall,
-    
-    Node_Expr_Variable,
-    
-    // Scalars
-    Node_Scalar_Number,
-    Node_Scalar_Float,
-    Node_Scalar_String
-};
+    tokenizer->at = 0;
+    tokenizer->nr_of_tokens = 0;
+    tokenizer->current_line_index = 0;
 
-// TODO: Keep this in sync with the enum above!
-// TODO: DON'T FORGET THE COMMAS!!
-const char * node_type_names[] = {
-    "Unknown",
-    
-    "Root",
-    
-    // Statements
-    "Stmt_If",
-    "Stmt_If_Cond",
-    "Stmt_If_Then",
-    "Stmt_If_Else",
-    
-    "Stmt_For",
-    "Stmt_For_Init",
-    "Stmt_For_Cond",
-    "Stmt_For_Update",
-    "Stmt_For_Body",
-    
-    "Stmt_Function",
-    "Stmt_Function_Args",
-    "Stmt_Function_Body",
-    
-    "Stmt_Return",
-    "Stmt_Break",
-    "Stmt_Continue",
-    
-    "Stmt_Expr",
-    
-    // Expressions
-    "Expr_PreInc",
-    "Expr_PreDec",
-    "Expr_PostInc",
-    "Expr_PostDec",
-    
-    "Expr_AssignOp_Multiply",
-    "Expr_AssignOp_Divide",
-    "Expr_AssignOp_Plus",
-    "Expr_AssignOp_Minus",
-    "Expr_AssignOp_Concat",
-    
-    "Expr_BinaryOp_Multiply",
-    "Expr_BinaryOp_Divide",
-    "Expr_BinaryOp_Plus",
-    "Expr_BinaryOp_Minus",
-    "Expr_BinaryOp_Smaller",
-    "Expr_BinaryOp_Greater",
-    "Expr_BinaryOp_Equal",
-    
-    "Expr_Assign",
-    
-    "Expr_FuncCall",
-    
-    "Expr_Variable",
-    
-    // Scalars
-    "Scalar_Number",
-    "Scalar_Float",
-    "Scalar_String"
-};
-
-struct Node
-{
-    NodeType type;
-    
-    String identifier;
-    String value;
-    
-    i32 first_token_index;
-    i32 last_token_index;
-    
-    HighlightedLinePart highlighted_line_part;
-    
-    Node * next_sibling;
-    Node * first_child;
-};
-
-struct Parser
-{
-    Tokenizer * tokenizer;
-    i32 current_token_index;
-
-    Node nodes[1000]; // TODO: allocate this properly!
-    i32 nr_of_nodes;
-};
-
+    tokenizer->memory_arena = memory_arena;
+    tokenizer->index_memory_arena = index_memory_arena;
+}
 
 b32 is_end_of_line(char ch)
 {
@@ -562,15 +426,22 @@ Token get_token(Tokenizer * tokenizer)
     return token;
 };
 
-void tokenize (Tokenizer * tokenizer)
+void tokenize (Tokenizer * tokenizer, u8 * program_text)
 {
-    tokenizer->current_line_index = 0;
+    tokenizer->at = program_text;
+    
     b32 tokenizing = true;
     while(tokenizing)
     {
-        Token token = get_token(tokenizer);
-        tokenizer->tokens[tokenizer->nr_of_tokens++] = token;
-        if (token.type == Token_EndOfStream)
+        Token * new_token = (Token *)push_struct(tokenizer->memory_arena, sizeof(Token));
+        
+        *new_token = get_token(tokenizer);
+        
+        put_element_in_index(tokenizer->nr_of_tokens, new_token, tokenizer->index_memory_arena);
+        
+        tokenizer->nr_of_tokens++;
+        
+        if (new_token->type == Token_EndOfStream)
         {
             tokenizing = false;
         }
@@ -631,6 +502,153 @@ sub_expr :=
     
 */
 
+// TODO: Keep this in sync with node_type_names below!
+enum NodeType
+{
+    Node_Unknown,
+ 
+    Node_Root, 
+    
+    // Statements
+    Node_Stmt_If,
+    Node_Stmt_If_Cond,
+    Node_Stmt_If_Then,
+    Node_Stmt_If_Else,
+    
+    Node_Stmt_For,
+    Node_Stmt_For_Init,
+    Node_Stmt_For_Cond,
+    Node_Stmt_For_Update,
+    Node_Stmt_For_Body,
+    
+    Node_Stmt_Function,
+    Node_Stmt_Function_Args,
+    Node_Stmt_Function_Body,
+    
+    Node_Stmt_Return,
+    Node_Stmt_Break,
+    Node_Stmt_Continue,
+    
+    Node_Stmt_Expr,
+    
+    // Expressions
+    Node_Expr_PreInc,
+    Node_Expr_PreDec,
+    Node_Expr_PostInc,
+    Node_Expr_PostDec,
+    
+    Node_Expr_AssignOp_Multiply,
+    Node_Expr_AssignOp_Divide,
+    Node_Expr_AssignOp_Plus,
+    Node_Expr_AssignOp_Minus,
+    Node_Expr_AssignOp_Concat,
+    
+    Node_Expr_BinaryOp_Multiply,
+    Node_Expr_BinaryOp_Divide,
+    Node_Expr_BinaryOp_Plus,
+    Node_Expr_BinaryOp_Minus,
+    Node_Expr_BinaryOp_Smaller,
+    Node_Expr_BinaryOp_Greater,
+    Node_Expr_BinaryOp_Equal,
+    
+    Node_Expr_Assign,
+    
+    Node_Expr_FuncCall,
+    
+    Node_Expr_Variable,
+    
+    // Scalars
+    Node_Scalar_Number,
+    Node_Scalar_Float,
+    Node_Scalar_String
+};
+
+// TODO: Keep this in sync with the enum above!
+// TODO: DON'T FORGET THE COMMAS!!
+const char * node_type_names[] = {
+    "Unknown",
+    
+    "Root",
+    
+    // Statements
+    "Stmt_If",
+    "Stmt_If_Cond",
+    "Stmt_If_Then",
+    "Stmt_If_Else",
+    
+    "Stmt_For",
+    "Stmt_For_Init",
+    "Stmt_For_Cond",
+    "Stmt_For_Update",
+    "Stmt_For_Body",
+    
+    "Stmt_Function",
+    "Stmt_Function_Args",
+    "Stmt_Function_Body",
+    
+    "Stmt_Return",
+    "Stmt_Break",
+    "Stmt_Continue",
+    
+    "Stmt_Expr",
+    
+    // Expressions
+    "Expr_PreInc",
+    "Expr_PreDec",
+    "Expr_PostInc",
+    "Expr_PostDec",
+    
+    "Expr_AssignOp_Multiply",
+    "Expr_AssignOp_Divide",
+    "Expr_AssignOp_Plus",
+    "Expr_AssignOp_Minus",
+    "Expr_AssignOp_Concat",
+    
+    "Expr_BinaryOp_Multiply",
+    "Expr_BinaryOp_Divide",
+    "Expr_BinaryOp_Plus",
+    "Expr_BinaryOp_Minus",
+    "Expr_BinaryOp_Smaller",
+    "Expr_BinaryOp_Greater",
+    "Expr_BinaryOp_Equal",
+    
+    "Expr_Assign",
+    
+    "Expr_FuncCall",
+    
+    "Expr_Variable",
+    
+    // Scalars
+    "Scalar_Number",
+    "Scalar_Float",
+    "Scalar_String"
+};
+
+struct Node
+{
+    NodeType type;
+    
+    String identifier;
+    String value;
+    
+    i32 first_token_index;
+    i32 last_token_index;
+    
+    HighlightedLinePart highlighted_line_part;
+    
+    Node * next_sibling;
+    Node * first_child;
+};
+
+struct Parser
+{
+    Tokenizer * tokenizer;
+    i32 current_token_index;
+
+    Node nodes[1000]; // TODO: allocate this properly!
+    i32 nr_of_nodes;
+};
+
 void next_token(Parser * parser)
 {
     // FIXME: we should check if we reached the last token!
@@ -642,7 +660,8 @@ Token * get_latest_token(Parser * parser)
     Tokenizer * tokenizer = parser->tokenizer;
     
     // FIXME: check bounds!    
-    Token * token = &tokenizer->tokens[parser->current_token_index - 1];
+    Token * token = (Token *)get_element_by_index(parser->current_token_index - 1, tokenizer->index_memory_arena);
+    
     return token;
 }
 
@@ -650,8 +669,9 @@ b32 accept_token(Parser * parser, i32 token_type)  // TODO: somehow we can't use
 {
     Tokenizer * tokenizer = parser->tokenizer;
 
-    Token token = tokenizer->tokens[parser->current_token_index];
-    if (token.type == token_type)
+    Token * token = (Token *)get_element_by_index(parser->current_token_index, tokenizer->index_memory_arena);
+    
+    if (token->type == token_type)
     {
         next_token(parser);
         return true;
@@ -1183,9 +1203,9 @@ Node * parse_statement(Parser * parser)
             
             // TODO: create a helper-function that log the current position!
             Tokenizer * tokenizer = parser->tokenizer;
-            Token token = tokenizer->tokens[parser->current_token_index];
+            Token * token = (Token *)get_element_by_index(parser->current_token_index, tokenizer->index_memory_arena);
             log("Next token starts with:");
-            log(token.text);
+            log(token->text);
             
             statement_node = 0; // TODO: we should "free" this expression_node (but an error occured so it might nog matter)
             return statement_node;

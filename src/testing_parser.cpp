@@ -29,6 +29,9 @@ struct WorldData
     
     ScrollableText scrollable_program_text;  // TODO: allocate this properly!
     
+    MemoryArena * memory_arena_file_load;
+    MemoryArena * memory_arena_token_index;
+    
     Tokenizer tokenizer;
     Parser parser;
     
@@ -57,6 +60,10 @@ extern "C" {
     
     void load_program_text(const char * program_text, WorldData * world)
     {
+        // We throw away all old data from a previous load
+        reset_memory_arena(world->memory_arena_file_load);
+        reset_memory_arena(world->memory_arena_token_index, 0);
+        
         ScrollableText * scrollable_program_text = &world->scrollable_program_text;
         init_scrollable_text(scrollable_program_text);
 
@@ -69,14 +76,11 @@ extern "C" {
         scrollable_program_text->nr_of_lines = split_string_into_lines(world->program_text, scrollable_program_text->lines);
         scrollable_program_text->line_offset = 0;
 
-        // TODO: we need a ZeroStruct function/macro!
-        world->tokenizer.nr_of_tokens = 0;
-        world->tokenizer.current_line_index = 0;
-        world->tokenizer.at = (u8 *)program_text;
-        
         Tokenizer * tokenizer = &world->tokenizer;
+        
+        init_tokenizer(tokenizer, world->memory_arena_file_load, world->memory_arena_token_index);
 
-        tokenize(tokenizer);
+        tokenize(tokenizer, (u8 *)program_text);
 
         // TODO: we need a ZeroStruct function/macro!
         world->parser.current_token_index = 0;
@@ -98,6 +102,7 @@ extern "C" {
     void init_world()
     {
         WorldData * world = &global_world;
+        Memory * memory = &global_memory;
         
         world->iteration = 0;
         world->selected_token_index = 0;
@@ -114,6 +119,9 @@ extern "C" {
         world->nr_of_program_texts = 8;
         
         world->current_program_text_index = 0;
+        
+        world->memory_arena_file_load = new_memory_arena(memory, false, (Color4){0,255,0,255});
+        world->memory_arena_token_index = new_memory_arena(memory, true, (Color4){255,255,0,255}, 0);
         
         load_program_text(world->program_texts[world->current_program_text_index], world);
         
@@ -235,16 +243,16 @@ extern "C" {
             scrollable_program_text->nr_of_highlighted_parts = 0;
             for (i32 token_index = node.first_token_index; token_index <= node.last_token_index; token_index++)
             {
-                Token token = world->tokenizer.tokens[token_index];
+                Token * token = (Token *)get_element_by_index(token_index, world->memory_arena_token_index);
                 
-                if (token.type != Token_EndOfStream)
+                if (token->type != Token_EndOfStream)
                 {
-                    i32 character_in_line_index = (i32)token.text.data - (i32)scrollable_program_text->lines[token.line_index].data;
+                    i32 character_in_line_index = (i32)token->text.data - (i32)scrollable_program_text->lines[token->line_index].data;
 
                     HighlightedLinePart highlighted_line_part = {};
-                    highlighted_line_part.line_index = token.line_index;
+                    highlighted_line_part.line_index = token->line_index;
                     highlighted_line_part.start_character_index = (u16)character_in_line_index;
-                    highlighted_line_part.length = (u16)token.text.length;
+                    highlighted_line_part.length = (u16)token->text.length;
 
                     scrollable_program_text->highlighted_line_parts[scrollable_program_text->nr_of_highlighted_parts++] = highlighted_line_part;
                 }
