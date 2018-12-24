@@ -185,9 +185,9 @@ extern "C" {
             FlowElement * selected_flow_element = (FlowElement *)get_element_by_index(world->selected_element_index, world->flowifier.index_memory_arena);
             selected_flow_element->is_selected = false;
             
+            world->selected_element_index++;
             while (world->selected_element_index < world->flowifier.nr_of_flow_elements)
             {
-                world->selected_element_index++;
                 
                 FlowElement * newly_selected_flow_element = (FlowElement *)get_element_by_index(world->selected_element_index, world->flowifier.index_memory_arena);
                 if (newly_selected_flow_element->has_lane_segments)
@@ -195,6 +195,7 @@ extern "C" {
                     newly_selected_flow_element->is_selected = true;
                     break;
                 }
+                world->selected_element_index++;
             }
         }
         if (world->selected_element_index >= world->flowifier.nr_of_flow_elements)

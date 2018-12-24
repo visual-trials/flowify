@@ -80,8 +80,7 @@ const char * flow_element_type_names[] = {
 
 struct FlowElement
 {
-    // FIXME: Just testing memory!! Remove this!
-    ShortString dummy[10];
+    // FIXME: Just testing memory!! Remove this!    ShortString dummy[10];
     
     FlowElementType type;
     
