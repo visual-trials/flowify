@@ -522,6 +522,12 @@ void do_memory_usage(Memory * memory, Input * input, b32 * is_verbose)
         // TODO: make it small
     }
     
+    i32 bar_height = 100;
+    
+    Pos2d start_position = {};
+    start_position.x = 100;
+    start_position.y = screen->height - bar_height - 50;
+    
     for (i32 memory_block_index = 0; memory_block_index < memory->nr_of_blocks; memory_block_index++)
     {
         if (memory->blocks_used[memory_block_index])
@@ -529,15 +535,15 @@ void do_memory_usage(Memory * memory, Input * input, b32 * is_verbose)
             i32 bytes_used = memory->blocks[memory_block_index].bytes_used;
             i32 block_size = memory->block_size;
             
-            i32 percentage_used = (i32)(100 * (f32)((f32)bytes_used / (f32)block_size));
+            i32 percentage_used = (i32)(bar_height * (f32)((f32)bytes_used / (f32)block_size));
             
             Color4 color = memory->blocks[memory_block_index].memory_arena->color;
             
-            draw_rectangle((Pos2d){100 + memory_block_index * 2, 400 + 100 - percentage_used}, (Size2d){2,percentage_used}, no_color, color, 1);
-            draw_rectangle((Pos2d){100 + memory_block_index * 2, 400}, (Size2d){2,100 - percentage_used}, no_color, light_blue, 1);
+            draw_rectangle((Pos2d){start_position.x + memory_block_index * 2, start_position.y + bar_height - percentage_used}, (Size2d){2,percentage_used}, no_color, color, 1);
+            draw_rectangle((Pos2d){start_position.x + memory_block_index * 2, start_position.y}, (Size2d){2, bar_height - percentage_used}, no_color, light_blue, 1);
         }
         else {
-            draw_rectangle((Pos2d){100 + memory_block_index * 2, 400}, (Size2d){2,100}, no_color, light_blue, 1);
+            draw_rectangle((Pos2d){start_position.x + memory_block_index * 2, start_position.y}, (Size2d){2, bar_height}, no_color, light_blue, 1);
         }
     }
     
