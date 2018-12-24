@@ -17,6 +17,7 @@
  */
  
 #include "generic.h"
+#include "memory.cpp"
 #include "input.cpp"
 #include "render.cpp"
 
@@ -51,18 +52,18 @@ struct LaneSegmentExtended
 
 struct Rectangles3
 {
-    Rectangle top;
-    Rectangle middle;
-    Rectangle bottom;
+    Rect2d top;
+    Rect2d middle;
+    Rect2d bottom;
 };
 
 struct Rectangles4
 {
-    Rectangle top_or_bottom;
+    Rect2d top_or_bottom;
     b32 is_top_rect;
-    Rectangle middle;
-    Rectangle left;
-    Rectangle right;
+    Rect2d middle;
+    Rect2d left;
+    Rect2d right;
 };
 
 const LaneSegmentExtended lane_segments[9] = {
@@ -184,9 +185,9 @@ extern "C" {
                 
                 if (world->show_help_rectangles)
                 {
-                    Rectangle top_rect = shrink_rect_by_size(rects.top, (Size2d){2,0});
-                    Rectangle middle_rect = shrink_rect_by_size(rects.middle, (Size2d){2,0});
-                    Rectangle bottom_rect = shrink_rect_by_size(rects.bottom, (Size2d){2,0});
+                    Rect2d top_rect = shrink_rect_by_size(rects.top, (Size2d){2,0});
+                    Rect2d middle_rect = shrink_rect_by_size(rects.middle, (Size2d){2,0});
+                    Rect2d bottom_rect = shrink_rect_by_size(rects.bottom, (Size2d){2,0});
                     
                     // Drawing the rectangle above it, to show where it would go
                     draw_rectangle(top_rect.position, top_rect.size, rectangle_color, no_color, 2);
@@ -211,7 +212,7 @@ extern "C" {
                 { /* after-if: */ {250, 750, 250, 80}, false, /* if-join: */  {300, 650, 150, 50}, /* if-left: */ {100, 350, 250, 200}, /* if-right: */ {400, 400, 200, 100} },
             };
             
-            Rectangle no_rect = {-1,-1,-1,-1};
+            Rect2d no_rect = {-1,-1,-1,-1};
             
             i32 example_rectangles4_index = 0;
             
@@ -238,10 +239,10 @@ extern "C" {
             
             if (world->show_help_rectangles)
             {
-                Rectangle top_or_bottom_rect = shrink_rect_by_size(top_rects.top_or_bottom, (Size2d){2,0});
-                Rectangle left_rect = shrink_rect_by_size(top_rects.left, (Size2d){2,0});
-                Rectangle right_rect = shrink_rect_by_size(top_rects.right, (Size2d){2,0});
-                Rectangle middle_rect = shrink_rect_by_size(top_rects.middle, (Size2d){2,0});
+                Rect2d top_or_bottom_rect = shrink_rect_by_size(top_rects.top_or_bottom, (Size2d){2,0});
+                Rect2d left_rect = shrink_rect_by_size(top_rects.left, (Size2d){2,0});
+                Rect2d right_rect = shrink_rect_by_size(top_rects.right, (Size2d){2,0});
+                Rect2d middle_rect = shrink_rect_by_size(top_rects.middle, (Size2d){2,0});
                 
                 // Drawing the rectangle above it, to show where it would go
                 draw_rectangle(top_or_bottom_rect.position, top_or_bottom_rect.size, rectangle_color, no_color, 2);
@@ -256,10 +257,10 @@ extern "C" {
                 draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
                 
                 
-                Rectangle top_or_bottom_rect2 = shrink_rect_by_size(bottom_rects.top_or_bottom, (Size2d){2,0});
-                Rectangle left_rect2 = shrink_rect_by_size(bottom_rects.left, (Size2d){2,0});
-                Rectangle right_rect2 = shrink_rect_by_size(bottom_rects.right, (Size2d){2,0});
-                Rectangle middle_rect2 = shrink_rect_by_size(bottom_rects.middle, (Size2d){2,0});
+                Rect2d top_or_bottom_rect2 = shrink_rect_by_size(bottom_rects.top_or_bottom, (Size2d){2,0});
+                Rect2d left_rect2 = shrink_rect_by_size(bottom_rects.left, (Size2d){2,0});
+                Rect2d right_rect2 = shrink_rect_by_size(bottom_rects.right, (Size2d){2,0});
+                Rect2d middle_rect2 = shrink_rect_by_size(bottom_rects.middle, (Size2d){2,0});
                 
                 // Drawing the rectangle above it, to show where it would go
                 draw_rectangle(top_or_bottom_rect2.position, top_or_bottom_rect2.size, rectangle_color, no_color, 2);

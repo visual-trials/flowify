@@ -17,6 +17,7 @@
  */
  
 #include "generic.h"
+#include "memory.cpp"
 #include "input.cpp"
 #include "render.cpp"
 #include "parser.cpp"
