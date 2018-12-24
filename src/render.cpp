@@ -504,6 +504,47 @@ void do_physical_pixels_switch(Input * input)
     }
 }
 
+void do_memory_usage(Memory * memory, Input * input, b32 * is_verbose)
+{
+    Screen * screen = &input->screen;
+    
+    Font font;
+    font.family = Font_Arial;
+    font.height = 20;
+    
+    Color4 black = {0, 0, 0, 255};
+    Color4 dark_blue = {0, 0, 100, 255};
+    Color4 light_blue = {220, 220, 255, 255};
+    Color4 no_color = {};
+    
+    if (!*is_verbose)
+    {
+        // TODO: make it small
+    }
+    
+    for (i32 memory_block_index = 0; memory_block_index < memory->nr_of_blocks; memory_block_index++)
+    {
+        if (memory->blocks_used[memory_block_index])
+        {
+            i32 bytes_used = memory->blocks[memory_block_index].bytes_used;
+            i32 block_size = memory->block_size;
+            
+            i32 percentage_used = (i32)(100 * (f32)((f32)bytes_used / (f32)block_size));
+            
+            Color4 color = memory->blocks[memory_block_index].memory_arena->color;
+            
+            draw_rectangle((Pos2d){100 + memory_block_index * 2, 400 + 100 - percentage_used}, (Size2d){2,percentage_used}, no_color, color, 1);
+            draw_rectangle((Pos2d){100 + memory_block_index * 2, 400}, (Size2d){2,100 - percentage_used}, no_color, light_blue, 1);
+        }
+        else {
+            draw_rectangle((Pos2d){100 + memory_block_index * 2, 400}, (Size2d){2,100}, no_color, light_blue, 1);
+        }
+    }
+    
+    
+    
+}
+
 void do_frame_timing(Input * input, b32 * is_verbose)
 {
     Timing * timing = &input->timing;

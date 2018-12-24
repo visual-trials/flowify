@@ -80,6 +80,8 @@ const char * flow_element_type_names[] = {
 
 struct FlowElement
 {
+    // TODO: Testing memory: ShortString dummy[100];
+    
     FlowElementType type;
     
     Node * ast_node;
@@ -110,16 +112,27 @@ struct FlowElement
 
 struct Flowifier
 {
-    FlowElement flow_elements[100]; // TODO: allocate this properly
+    MemoryArena * memory_arena;
+    
     i32 nr_of_flow_elements;
     
     FlowElement * first_function;
     FlowElement * latest_function;
 };
 
+void init_flowifier(Flowifier * flowifier, MemoryArena * memory_arena)
+{
+    flowifier->nr_of_flow_elements = 0;
+    flowifier->first_function = 0;
+    flowifier->latest_function = 0;
+    
+    flowifier->memory_arena = memory_arena;
+}
+
 FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowElementType flow_element_type = FlowElement_Unknown)
 {
-    FlowElement * new_flow_element = &flowifier->flow_elements[flowifier->nr_of_flow_elements++];
+    FlowElement * new_flow_element = (FlowElement *)push_struct(flowifier->memory_arena, sizeof(FlowElement));
+    
     new_flow_element->ast_node = ast_node;
     new_flow_element->first_child = 0;
     new_flow_element->parent = 0;

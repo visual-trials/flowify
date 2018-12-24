@@ -128,7 +128,7 @@ i32 increase_consecutive_memory_blocks(MemoryArena * memory_arena, i32 required_
             
     }
     
-    if (found_block_index)
+    if (found_block_index && consecutive_count == required_nr_of_blocks)
     {
         
         u16 previous_block_index = 0;
@@ -292,13 +292,13 @@ void * push_struct(MemoryArena * memory_arena, i32 size_struct)
     
     if (!memory_arena->consecutive_blocks)
     {
-        MemoryBlock * memory_block = &memory->blocks[memory_arena->current_block_index];
-        if (memory_block->bytes_used + size_struct > memory->block_size)
+        MemoryBlock * memory_block = 0;
+        if (!memory_arena->current_block_index || memory->blocks[memory_arena->current_block_index].bytes_used + size_struct > memory->block_size)
         {
-            // If not enough room in the current block, then get a new block
-            u16 new_block_index = add_memory_block(memory_arena);
-            memory_block = &memory->blocks[memory_arena->current_block_index];
+            // If not enough room in the current block (or no block present), then get a new block
+            add_memory_block(memory_arena);
         }
+        memory_block = &memory->blocks[memory_arena->current_block_index];
         
         // TODO: we assume we have a new block! (we should check this, or at least assert it)
         

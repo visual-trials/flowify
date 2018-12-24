@@ -31,6 +31,8 @@ struct WorldData
     String program_text;
     ScrollableText scrollable_program_text;  // TODO: allocate this properly!
     
+    MemoryArena * memory_arena_file_load;
+    
     Tokenizer tokenizer;
     Parser parser;
     Flowifier flowifier;
@@ -49,6 +51,7 @@ struct WorldData
     
     b32 show_help_rectangles;
     
+    b32 verbose_memory_usage;
     b32 verbose_frame_times;
 };
 
@@ -62,6 +65,9 @@ extern "C" {
     
     void load_program_text(const char * program_text, WorldData * world)
     {
+        // We throw away all old data from a previous load
+        reset_memory_arena(world->memory_arena_file_load);
+        
         ScrollableText * scrollable_program_text = &world->scrollable_program_text;
         init_scrollable_text(scrollable_program_text);
 
@@ -92,10 +98,9 @@ extern "C" {
         
         Node * root_node = parse_program(parser);
         
-        // TODO: we need a ZeroStruct function/macro!
-        world->flowifier.nr_of_flow_elements = 0;
-        
         Flowifier * flowifier = &world->flowifier;
+        
+        init_flowifier(flowifier, world->memory_arena_file_load);
         
         FlowElement * root_element = new_flow_element(flowifier, root_node, FlowElement_Root);
         
@@ -116,6 +121,7 @@ extern "C" {
     void init_world()
     {
         WorldData * world = &global_world;
+        Memory * memory = &global_memory;
         
         world->iteration = 0;
         world->selected_element_index = 1;  // FIXME: HACK
@@ -131,6 +137,10 @@ extern "C" {
         world->nr_of_program_texts = 8;
         
         world->current_program_text_index = 4;
+        
+        world->verbose_memory_usage = true;
+
+        world->memory_arena_file_load = new_memory_arena(memory, false, (Color4){0,255,0,255});
         
         load_program_text(world->program_texts[world->current_program_text_index], world);
         
@@ -246,6 +256,8 @@ FIXME: turned off for now (we have no index for flow_elements atm)
     void render_frame()
     {
         WorldData * world = &global_world;
+        Input * input = &global_input;
+        Memory * memory = &global_memory;
         
         ScrollableText * scrollable_program_text = &world->scrollable_program_text;
         ScrollableText * scrollable_flowify_dump = &world->scrollable_flowify_dump;
@@ -312,6 +324,7 @@ FIXME: turned off for now (we have no index for flow_elements atm)
             }
         }
         
+        do_memory_usage(memory, input, &world->verbose_memory_usage);
         do_frame_timing(&global_input, &world->verbose_frame_times);
         do_physical_pixels_switch(&global_input);
     }

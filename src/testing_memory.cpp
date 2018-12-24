@@ -30,6 +30,7 @@ struct WorldData
     MemoryArena * consecutive_memory_arena;
     
     b32 verbose_frame_times;
+    b32 verbose_memory_usage;
 };
 
 /*
@@ -121,6 +122,8 @@ extern "C" {
         }
         */
         
+        world->verbose_memory_usage = true;
+        
         world->recorded_memory = true;
     }
     
@@ -149,32 +152,10 @@ extern "C" {
         font.height = 20;
         
         Color4 black = {0, 0, 0, 255};
-        Color4 dark_blue = {0, 0, 100, 255};
-        Color4 light_blue = {220, 220, 255, 255};
-        Color4 no_color = {};
         
         draw_text((Pos2d){100,100}, &address, font, black);
         draw_text((Pos2d){100,140}, &size, font, black);
         draw_text((Pos2d){100,180}, &pointer_length, font, black);
-        
-        for (i32 memory_block_index = 0; memory_block_index < memory->nr_of_blocks; memory_block_index++)
-        {
-            if (memory->blocks_used[memory_block_index])
-            {
-                i32 bytes_used = memory->blocks[memory_block_index].bytes_used;
-                i32 block_size = memory->block_size;
-                
-                i32 percentage_used = (i32)(100 * (f32)((f32)bytes_used / (f32)block_size));
-                
-                Color4 color = memory->blocks[memory_block_index].memory_arena->color;
-                
-                draw_rectangle((Pos2d){100 + memory_block_index * 2, 400 + 100 - percentage_used}, (Size2d){2,percentage_used}, no_color, color, 1);
-                draw_rectangle((Pos2d){100 + memory_block_index * 2, 400}, (Size2d){2,100 - percentage_used}, no_color, light_blue, 1);
-            }
-            else {
-                draw_rectangle((Pos2d){100 + memory_block_index * 2, 400}, (Size2d){2,100}, no_color, light_blue, 1);
-            }
-        }
         
         
         // Button to increase memory
@@ -195,6 +176,9 @@ extern "C" {
             increase_consecutive_memory_blocks(world->consecutive_memory_arena, 20);
             world->increased_memory = true;
         }
+        
+        // Draw memory usage
+        do_memory_usage(memory, input, &world->verbose_memory_usage);
         
         // Draw frame timing
         do_frame_timing(&global_input, &world->verbose_frame_times);
