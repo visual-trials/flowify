@@ -33,6 +33,7 @@ struct WorldData
     
     MemoryArena * memory_arena_file_load;
     MemoryArena * memory_arena_token_index;
+    MemoryArena * memory_arena_parser_index;
     MemoryArena * memory_arena_flowifier_index;
     
     Tokenizer tokenizer;
@@ -70,6 +71,7 @@ extern "C" {
         // We throw away all old data from a previous load
         reset_memory_arena(world->memory_arena_file_load);
         reset_memory_arena(world->memory_arena_token_index, 0);
+        reset_memory_arena(world->memory_arena_parser_index, 0);
         reset_memory_arena(world->memory_arena_flowifier_index, 0);
         
         ScrollableText * scrollable_program_text = &world->scrollable_program_text;
@@ -88,13 +90,9 @@ extern "C" {
         init_tokenizer(tokenizer, world->memory_arena_file_load, world->memory_arena_token_index);
         tokenize(tokenizer, (u8 *)program_text);
 
-        // TODO: we need a ZeroStruct function/macro!
-        world->parser.current_token_index = 0;
-        world->parser.nr_of_nodes = 0;
-        world->parser.tokenizer = tokenizer;
-        
+        //Parse
         Parser * parser = &world->parser;
-        
+        init_parser(parser, tokenizer, world->memory_arena_file_load, world->memory_arena_parser_index);
         Node * root_node = parse_program(parser);
         
         Flowifier * flowifier = &world->flowifier;
@@ -141,6 +139,7 @@ extern "C" {
 
         world->memory_arena_file_load = new_memory_arena(memory, false, (Color4){0,255,0,255});
         world->memory_arena_token_index = new_memory_arena(memory, true, (Color4){255,255,0,255}, 0);
+        world->memory_arena_parser_index = new_memory_arena(memory, true, (Color4){255,0,255,255}, 0);
         world->memory_arena_flowifier_index = new_memory_arena(memory, true, (Color4){0,255,255,255}, 0);
         
         load_program_text(world->program_texts[world->current_program_text_index], world);
