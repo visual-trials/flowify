@@ -77,9 +77,7 @@ extern "C" {
         scrollable_program_text->line_offset = 0;
 
         Tokenizer * tokenizer = &world->tokenizer;
-        
         init_tokenizer(tokenizer, world->memory_arena_file_load, world->memory_arena_token_index);
-
         tokenize(tokenizer, (u8 *)program_text);
 
         // TODO: we need a ZeroStruct function/macro!
