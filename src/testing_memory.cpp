@@ -23,8 +23,6 @@
 
 struct WorldData
 {
-    b32 recorded_memory;
-    
     b32 increased_memory;
     
     MemoryArena * consecutive_memory_arena;
@@ -32,34 +30,6 @@ struct WorldData
     b32 verbose_frame_times;
     b32 verbose_memory_usage;
 };
-
-/*
-// BEGIN Usage code
-struct FlowElementsArray
-{
-    FlowElement * flow_elements;
-    i32 nr_of_elements;
-    
-    MemoryArena memory_arena;
-}
-
-FlowElement * add_element(FlowElement element, FlowElementsArray flow_elements_array)
-{
-    // TODO: implement this!
-    
-    // if not enough room
-    //     create new DynamicArrayMemory (double in size)
-    //     copy all data to new memory
-    //     free all blocks of old one
-    // add element to memory (at current index)
-}
-
-FlowElement * get_element(FlowElementsArray flow_elements_array, element_index)
-{
-    return &flow_elements_array.flow_elements[element_index];
-}
-// END Usage code
-*/
 
 WorldData global_world = {};  // FIXME: allocate this properly!
 
@@ -74,8 +44,6 @@ extern "C" {
     {
         WorldData * world = &global_world;
         Memory * memory = &global_memory;
-        
-        world->recorded_memory = false;
         
         MemoryArena * memory_arena = new_memory_arena(memory, false, (Color4){0,255,0,255});
         
@@ -93,38 +61,7 @@ extern "C" {
         
         // reset_memory_arena(memory_arena);
         
-        /*
-        // Filling with fake memory
-        i32 * my_array = (i32 *)memory->base_address; // + memory->size
-        i32 * my_array2 = (i32 *)((i32)memory->base_address + 10 * 1024 * 1024); // + memory->size
-        
-        i32 number = 1;
-        for (i32 i = 0; i < 70000; i++)
-        {
-            my_array[i] = number++;
-        }
-        for (i32 i = 0; i < 30000; i++)
-        {
-            my_array2[i] = number++;
-        }
-        
-        // TODO: do this (once) when triggered by the user
-        for (i32 memory_block_index = 0; memory_block_index < memory->nr_of_blocks; memory_block_index++)
-        {
-            u8 * first_memory_address_in_block = (u8*)((i32)memory->base_address + memory_block_index * memory->block_size);
-            for (i32 memory_index_within_block = 0; memory_index_within_block < memory->block_size; memory_index_within_block++)
-            {
-                if (first_memory_address_in_block[memory_index_within_block])
-                {
-                    memory->blocks_used[memory_block_index] = true;
-                }
-            }
-        }
-        */
-        
         world->verbose_memory_usage = true;
-        
-        world->recorded_memory = true;
     }
     
     void update_frame()
