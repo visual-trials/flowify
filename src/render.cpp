@@ -230,7 +230,6 @@ struct ScrollableText
 {
     b32 is_active;  // TODO: implement this
     
-    // String lines[1000];
     MemoryArena * lines_memory_arena;
     i32 nr_of_lines;
     
