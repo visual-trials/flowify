@@ -662,7 +662,6 @@ struct Parser
     Tokenizer * tokenizer;
     i32 current_token_index;
 
-    // Node nodes[1000]; // TODO: allocate this properly!
     i32 nr_of_nodes;
     
     MemoryArena * memory_arena;
