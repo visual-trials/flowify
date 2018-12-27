@@ -259,7 +259,7 @@ extern "C" {
             FlowElement * selected_flow_element = (FlowElement *)get_element_by_index(world->selected_element_index, world->flowifier.index_memory_arena);
             Node * node = selected_flow_element->ast_node;
             
-            scrollable_program_text->nr_of_highlighted_parts = 0;
+            scrollable_program_text->first_highlighted_line_part = 0;
             for (i32 token_index = node->first_token_index; token_index <= node->last_token_index; token_index++)
             {
                 Token * token = (Token *)get_element_by_index(token_index, world->tokenizer.index_memory_arena);
@@ -270,17 +270,20 @@ extern "C" {
                     
                     i32 character_in_line_index = (i32)token->text.data - (i32)program_line_text.data;
 
-                    HighlightedLinePart highlighted_line_part = {};
-                    highlighted_line_part.line_index = token->line_index;
-                    highlighted_line_part.start_character_index = (u16)character_in_line_index;
-                    highlighted_line_part.length = (u16)token->text.length;
+                    HighlightedLinePart * highlighted_line_part = add_new_highlighted_line_part(scrollable_program_text);
 
-                    scrollable_program_text->highlighted_line_parts[scrollable_program_text->nr_of_highlighted_parts++] = highlighted_line_part;
+                    highlighted_line_part->line_index = token->line_index;
+                    highlighted_line_part->start_character_index = (u16)character_in_line_index;
+                    highlighted_line_part->length = (u16)token->text.length;
                 }
             }
          
-            scrollable_flowify_dump->nr_of_highlighted_parts = 1;
-            scrollable_flowify_dump->highlighted_line_parts[0] = selected_flow_element->highlighted_line_part;
+            scrollable_flowify_dump->first_highlighted_line_part = 0;
+            
+            HighlightedLinePart * highlighted_line_part = add_new_highlighted_line_part(scrollable_flowify_dump);
+            highlighted_line_part->line_index = selected_flow_element->highlighted_line_part.line_index;
+            highlighted_line_part->start_character_index = selected_flow_element->highlighted_line_part.start_character_index;
+            highlighted_line_part->length = selected_flow_element->highlighted_line_part.length;
         }
         
         draw_scrollable_text(scrollable_program_text);

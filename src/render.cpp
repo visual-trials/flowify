@@ -222,8 +222,10 @@ b32 do_integer_button(Pos2d position, Size2d size, i32 number, b32 is_active, In
 struct HighlightedLinePart
 {
     i32 line_index;
-    u16 start_character_index;
-    u16 length;
+    i32 start_character_index;
+    i32 length;
+    
+    HighlightedLinePart * next_highlighted_line_part;
 };
 
 struct ScrollableText
@@ -235,8 +237,8 @@ struct ScrollableText
     
     i32 line_offset;
     
-    HighlightedLinePart highlighted_line_parts[1000];
-    i32 nr_of_highlighted_parts;
+    MemoryArena * highlighted_line_parts_memory_arena;
+    HighlightedLinePart * first_highlighted_line_part;
     
     Font font;
     i32 line_margin;
@@ -256,6 +258,23 @@ struct ScrollableText
     i32 max_line_width_in_characters;
 };
 
+HighlightedLinePart * add_new_highlighted_line_part(ScrollableText * scrollable_text)
+{
+    HighlightedLinePart * new_highlighted_line_part = (HighlightedLinePart *)push_struct(scrollable_text->highlighted_line_parts_memory_arena, sizeof(HighlightedLinePart));
+    
+    new_highlighted_line_part->line_index = 0;
+    new_highlighted_line_part->start_character_index = 0;
+    new_highlighted_line_part->length = 0;
+    new_highlighted_line_part->next_highlighted_line_part = 0;
+    
+    HighlightedLinePart * old_first_line_part = scrollable_text->first_highlighted_line_part;
+    new_highlighted_line_part->next_highlighted_line_part = old_first_line_part;
+    scrollable_text->first_highlighted_line_part = new_highlighted_line_part;
+    
+    return new_highlighted_line_part;
+}
+
+// TODO: we should probably create a function to de-allocate all memory inside the scrollable_text
 void init_scrollable_text(ScrollableText * scrollable_text, b32 draw_line_numbers = true)
 {
     if (!scrollable_text->lines_memory_arena)
@@ -268,6 +287,16 @@ void init_scrollable_text(ScrollableText * scrollable_text, b32 draw_line_number
     }
     scrollable_text->nr_of_lines = 0;
     scrollable_text->line_offset = 0;
+    
+    if (!scrollable_text->highlighted_line_parts_memory_arena)
+    {
+        scrollable_text->highlighted_line_parts_memory_arena = new_memory_arena(&global_memory, false, (Color4){100,255,100,255}, 0);
+    }
+    else
+    {
+        reset_memory_arena(scrollable_text->highlighted_line_parts_memory_arena);
+    }
+    scrollable_text->first_highlighted_line_part = 0;
     
     Font font = {};
     font.height = 20;
@@ -298,7 +327,6 @@ void init_scrollable_text(ScrollableText * scrollable_text, b32 draw_line_number
     
     scrollable_text->size.width = 100;
     scrollable_text->size.height = 100;
-
 }
 
 void split_string_into_scrollable_lines(String string, ScrollableText * scrollable_text)
@@ -468,14 +496,13 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
     
     if (scrollable_text->nr_of_lines > 0)
     {
-        for (i32 highlighted_line_part_index = 0; highlighted_line_part_index < scrollable_text->nr_of_highlighted_parts; highlighted_line_part_index++)
+        HighlightedLinePart * line_part = scrollable_text->first_highlighted_line_part;
+        while(line_part) 
         {
-            HighlightedLinePart line_part = scrollable_text->highlighted_line_parts[highlighted_line_part_index]; 
+            i32 x_position_part = (i32)line_part->start_character_index * white_space_size.width;
+            i32 x_width_part = (i32)line_part->length * white_space_size.width;
             
-            i32 x_position_part = (i32)line_part.start_character_index * white_space_size.width;
-            i32 x_width_part = (i32)line_part.length * white_space_size.width;
-            
-            i32 line_on_screen_index = line_part.line_index - scrollable_text->line_offset;
+            i32 line_on_screen_index = line_part->line_index - scrollable_text->line_offset;
             // FIXME: check if line_part is on screen! (vertical AND horizontal!)
             if (true)
             {
@@ -490,6 +517,8 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
                 
                 draw_rectangle(position, size, no_color, selected_color, 1);
             }
+            
+            line_part = line_part->next_highlighted_line_part;
         }
         
         ShortString line_nr_text;
