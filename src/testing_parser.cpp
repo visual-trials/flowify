@@ -224,7 +224,7 @@ extern "C" {
         {
             Node * node = (Node *)get_element_by_index(world->selected_node_index, world->parser.index_memory_arena);
             
-            scrollable_program_text->nr_of_highlighted_parts = 0;
+            scrollable_program_text->first_highlighted_line_part = 0;
             for (i32 token_index = node->first_token_index; token_index <= node->last_token_index; token_index++)
             {
                 Token * token = (Token *)get_element_by_index(token_index, world->tokenizer.index_memory_arena);
@@ -234,18 +234,19 @@ extern "C" {
                     String program_line_text = get_string_by_index(token->line_index, scrollable_program_text->lines_memory_arena);
                     i32 character_in_line_index = (i32)token->text.data - (i32)program_line_text.data;
 
-                    HighlightedLinePart highlighted_line_part = {};
-                    highlighted_line_part.line_index = token->line_index;
-                    highlighted_line_part.start_character_index = (u16)character_in_line_index;
-                    highlighted_line_part.length = (u16)token->text.length;
-
-                    scrollable_program_text->highlighted_line_parts[scrollable_program_text->nr_of_highlighted_parts++] = highlighted_line_part;
+                    HighlightedLinePart * highlighted_line_part = add_new_highlighted_line_part(scrollable_program_text);
+                    highlighted_line_part->line_index = token->line_index;
+                    highlighted_line_part->start_character_index = (u16)character_in_line_index;
+                    highlighted_line_part->length = (u16)token->text.length;
                 }
             }
             
-            scrollable_ast_dump->nr_of_highlighted_parts = 1;
-            scrollable_ast_dump->highlighted_line_parts[0] = node->highlighted_line_part;
+            scrollable_ast_dump->first_highlighted_line_part = 0;
             
+            HighlightedLinePart * highlighted_line_part = add_new_highlighted_line_part(scrollable_ast_dump);
+            highlighted_line_part->line_index = node->highlighted_line_part.line_index;
+            highlighted_line_part->start_character_index = node->highlighted_line_part.start_character_index;
+            highlighted_line_part->length = node->highlighted_line_part.length;
         }
         
         draw_scrollable_text(scrollable_program_text);
