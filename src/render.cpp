@@ -230,8 +230,10 @@ struct ScrollableText
 {
     b32 is_active;  // TODO: implement this
     
-    String lines[1000];
+    // String lines[1000];
+    MemoryArena * lines_memory_arena;
     i32 nr_of_lines;
+    
     i32 line_offset;
     
     HighlightedLinePart highlighted_line_parts[1000];
@@ -257,6 +259,14 @@ struct ScrollableText
 
 void init_scrollable_text(ScrollableText * scrollable_text, b32 draw_line_numbers = true)
 {
+    if (!scrollable_text->lines_memory_arena)
+    {
+        scrollable_text->lines_memory_arena = new_memory_arena(&global_memory, true, (Color4){255,100,100,255}, 0);
+    }
+    else
+    {
+        reset_memory_arena(scrollable_text->lines_memory_arena, 0);
+    }
     scrollable_text->nr_of_lines = 0;
     scrollable_text->line_offset = 0;
     
@@ -289,6 +299,45 @@ void init_scrollable_text(ScrollableText * scrollable_text, b32 draw_line_number
     
     scrollable_text->size.width = 100;
     scrollable_text->size.height = 100;
+
+}
+
+void split_string_into_scrollable_lines(String string, ScrollableText * scrollable_text)
+{
+    i32 file_line_index = 0;
+    
+    String line_string = {};
+    line_string.data = string.data; // first line starts at beginning of the string
+    line_string.length = 0;
+    
+    i32 position = 0;
+    i32 start_of_line = 0;
+    while (position < string.length)
+    {
+        char ch = string.data[position++];
+        
+        if (ch == '\n')
+        {
+            // TODO: somewhere we need to remove the newline from either start_of_line or length!
+            line_string.length = (position - 1) - start_of_line; // the -1 is because we do not include the newline to the line-text
+            
+            // We put the line into the array (aka index) of lines (note: the index is dynamically sized)
+            put_string_in_index(file_line_index, line_string, scrollable_text->lines_memory_arena);
+            
+            // Starting a new line string
+            start_of_line = position;
+            
+            file_line_index++;
+            
+            line_string.data = (u8 *)((i32)string.data + start_of_line);
+            line_string.length = 0;
+        }
+    }
+    line_string.length = position - start_of_line;
+    put_string_in_index(file_line_index, line_string, scrollable_text->lines_memory_arena);
+    
+    scrollable_text->nr_of_lines = file_line_index + 1;
+    scrollable_text->line_offset = 0;
 }
 
 void update_scrollable_text(ScrollableText * scrollable_text, Input * input)
@@ -457,7 +506,8 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
                 position.x = scrollable_text->position.x + scrollable_text->left_margin + scrollable_text->line_numbers_width;
                 position.y = scrollable_text->position.y + scrollable_text->top_margin + line_on_screen_index * (font.height + line_margin);
                 
-                String line_text = scrollable_text->lines[file_line_index];
+                String line_text = get_string_by_index(file_line_index, scrollable_text->lines_memory_arena);
+                
                 if (line_text.length > scrollable_text->max_line_width_in_characters)
                 {
                     line_text.length = scrollable_text->max_line_width_in_characters;

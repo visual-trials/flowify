@@ -129,8 +129,7 @@ void init_flowifier(Flowifier * flowifier)
     
     if(!flowifier->memory_arena)
     {
-        MemoryArena * memory_arena = new_memory_arena(&global_memory, false, (Color4){0,255,0,255});
-        flowifier->memory_arena = memory_arena;
+        flowifier->memory_arena = new_memory_arena(&global_memory, false, (Color4){0,255,0,255});
     }
     else
     {
@@ -139,8 +138,7 @@ void init_flowifier(Flowifier * flowifier)
     
     if (!flowifier->index_memory_arena)
     {
-        MemoryArena * index_memory_arena = new_memory_arena(&global_memory, true, (Color4){0,255,255,255}, 0);
-        flowifier->index_memory_arena = index_memory_arena;
+        flowifier->index_memory_arena = new_memory_arena(&global_memory, true, (Color4){0,255,255,255}, 0);
     }
     else
     {

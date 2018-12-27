@@ -70,33 +70,28 @@ extern "C" {
     
     void load_program_text(const char * program_text, WorldData * world)
     {
+        Tokenizer * tokenizer = &world->tokenizer;
+        Parser * parser = &world->parser;
+        Flowifier * flowifier = &world->flowifier;
         ScrollableText * scrollable_program_text = &world->scrollable_program_text;
-        init_scrollable_text(scrollable_program_text);
-
         ScrollableText * scrollable_flowify_dump = &world->scrollable_flowify_dump;
-        init_scrollable_text(scrollable_flowify_dump, false);
         
         world->program_text.data = (u8 *)program_text;
         world->program_text.length = cstring_length(program_text);
         
-        scrollable_program_text->nr_of_lines = split_string_into_lines(world->program_text, scrollable_program_text->lines);
-        scrollable_program_text->line_offset = 0;
+        init_scrollable_text(scrollable_program_text);
+        split_string_into_scrollable_lines(world->program_text, scrollable_program_text);
 
-        Tokenizer * tokenizer = &world->tokenizer;
         init_tokenizer(tokenizer);
         tokenize(tokenizer, (u8 *)program_text);
 
         //Parse
-        Parser * parser = &world->parser;
         init_parser(parser, tokenizer);
         Node * root_node = parse_program(parser);
         
-        Flowifier * flowifier = &world->flowifier;
-        
+        // Flowify
         init_flowifier(flowifier);
-        
         FlowElement * root_element = new_flow_element(flowifier, root_node, FlowElement_Root);
-        
         flowify_statements(flowifier, root_element);
         
         // TODO: should we do this in update_frame?
@@ -107,8 +102,8 @@ extern "C" {
         world->flowify_dump_text.data = global_dump_text;
         dump_element_tree(root_element, &world->flowify_dump_text);
         
-        scrollable_flowify_dump->nr_of_lines = split_string_into_lines(world->flowify_dump_text, scrollable_flowify_dump->lines);
-        scrollable_flowify_dump->line_offset = 0;
+        init_scrollable_text(scrollable_flowify_dump, false);
+        split_string_into_scrollable_lines(world->flowify_dump_text, scrollable_flowify_dump);
     }
     
     void init_world()
@@ -271,7 +266,9 @@ extern "C" {
                 
                 if (token->type != Token_EndOfStream)
                 {
-                    i32 character_in_line_index = (i32)token->text.data - (i32)scrollable_program_text->lines[token->line_index].data;
+                    String program_line_text = get_string_by_index(token->line_index, scrollable_program_text->lines_memory_arena);
+                    
+                    i32 character_in_line_index = (i32)token->text.data - (i32)program_line_text.data;
 
                     HighlightedLinePart highlighted_line_part = {};
                     highlighted_line_part.line_index = token->line_index;

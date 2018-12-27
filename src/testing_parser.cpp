@@ -27,14 +27,14 @@ struct WorldData
 {
     String program_text;
     
-    ScrollableText scrollable_program_text;  // TODO: allocate this properly!
+    ScrollableText scrollable_program_text;
     
     Tokenizer tokenizer;
     Parser parser;
     
     String dump_text;
     
-    ScrollableText scrollable_ast_dump;  // TODO: allocate this properly!
+    ScrollableText scrollable_ast_dump;
     
     const char * program_texts[10];
     i32 nr_of_program_texts;
@@ -58,25 +58,22 @@ extern "C" {
     void load_program_text(const char * program_text, WorldData * world)
     {
         
+        Tokenizer * tokenizer = &world->tokenizer;
+        Parser * parser = &world->parser;
         ScrollableText * scrollable_program_text = &world->scrollable_program_text;
-        init_scrollable_text(scrollable_program_text);
-
         ScrollableText * scrollable_ast_dump = &world->scrollable_ast_dump;
-        init_scrollable_text(scrollable_ast_dump, false);
         
         world->program_text.data = (u8 *)program_text;
         world->program_text.length = cstring_length(program_text);
         
-        scrollable_program_text->nr_of_lines = split_string_into_lines(world->program_text, scrollable_program_text->lines);
-        scrollable_program_text->line_offset = 0;
+        init_scrollable_text(scrollable_program_text);
+        split_string_into_scrollable_lines(world->program_text, scrollable_program_text);
 
         // Tokenize
-        Tokenizer * tokenizer = &world->tokenizer;
         init_tokenizer(tokenizer);
         tokenize(tokenizer, (u8 *)program_text);
 
         //Parse
-        Parser * parser = &world->parser;
         init_parser(parser, tokenizer);
         Node * root_node = parse_program(parser);
         
@@ -85,8 +82,8 @@ extern "C" {
         world->dump_text.data = global_dump_text;
         dump_tree(root_node, &world->dump_text);
         
-        scrollable_ast_dump->nr_of_lines = split_string_into_lines(world->dump_text, scrollable_ast_dump->lines);
-        scrollable_ast_dump->line_offset = 0;
+        init_scrollable_text(scrollable_ast_dump, false);
+        split_string_into_scrollable_lines(world->dump_text, scrollable_ast_dump);
     }
     
     void init_world()
@@ -234,7 +231,8 @@ extern "C" {
                 
                 if (token->type != Token_EndOfStream)
                 {
-                    i32 character_in_line_index = (i32)token->text.data - (i32)scrollable_program_text->lines[token->line_index].data;
+                    String program_line_text = get_string_by_index(token->line_index, scrollable_program_text->lines_memory_arena);
+                    i32 character_in_line_index = (i32)token->text.data - (i32)program_line_text.data;
 
                     HighlightedLinePart highlighted_line_part = {};
                     highlighted_line_part.line_index = token->line_index;

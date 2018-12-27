@@ -81,7 +81,7 @@ struct Token
     String text;
     
     i32 line_index;
-    // TODO: maybe we can calculate this once using split_string_into_lines(): 
+    // TODO: maybe we can calculate this once using split_string_into_scrollable_lines(): 
     // i32 character_in_line_index;
 };
 
@@ -105,8 +105,7 @@ void init_tokenizer(Tokenizer * tokenizer)
     
     if(!tokenizer->memory_arena)
     {
-        MemoryArena * memory_arena = new_memory_arena(&global_memory, false, (Color4){0,255,0,255});
-        tokenizer->memory_arena = memory_arena;
+        tokenizer->memory_arena = new_memory_arena(&global_memory, false, (Color4){0,255,0,255});
     }
     else
     {
@@ -115,8 +114,7 @@ void init_tokenizer(Tokenizer * tokenizer)
     
     if (!tokenizer->index_memory_arena)
     {
-        MemoryArena * index_memory_arena = new_memory_arena(&global_memory, true, (Color4){255,255,0,255}, 0);
-        tokenizer->index_memory_arena = index_memory_arena;
+        tokenizer->index_memory_arena = new_memory_arena(&global_memory, true, (Color4){255,255,0,255}, 0);
     }
     else
     {
@@ -676,8 +674,7 @@ void init_parser(Parser * parser, Tokenizer * tokenizer)
 
     if(!parser->memory_arena)
     {
-        MemoryArena * memory_arena = new_memory_arena(&global_memory, false, (Color4){0,255,0,255});
-        parser->memory_arena = memory_arena;
+        parser->memory_arena = new_memory_arena(&global_memory, false, (Color4){0,255,0,255});
     }
     else
     {
@@ -686,8 +683,7 @@ void init_parser(Parser * parser, Tokenizer * tokenizer)
     
     if (!parser->index_memory_arena)
     {
-        MemoryArena * index_memory_arena = new_memory_arena(&global_memory, true, (Color4){255,0,255,255}, 0);
-        parser->index_memory_arena = index_memory_arena;
+        parser->index_memory_arena = new_memory_arena(&global_memory, true, (Color4){255,0,255,255}, 0);
     }
     else
     {

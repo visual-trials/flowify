@@ -61,7 +61,7 @@ extern "C" {
             world->file_length = file_contents.length;
             world->file_name = input->file.file_name;
             
-            scrollable_file->nr_of_lines = split_string_into_lines(file_contents, scrollable_file->lines);
+            split_string_into_scrollable_lines(file_contents, scrollable_file);
             
             // If file has just loaded, show it from the start
             scrollable_file->line_offset = 0;
