@@ -224,7 +224,7 @@ extern "C" {
         {
             Node * node = (Node *)get_element_by_index(world->selected_node_index, world->parser.index_memory_arena);
             
-            scrollable_program_text->first_highlighted_line_part = 0;
+            remove_highlighted_line_parts(scrollable_program_text);
             for (i32 token_index = node->first_token_index; token_index <= node->last_token_index; token_index++)
             {
                 Token * token = (Token *)get_element_by_index(token_index, world->tokenizer.index_memory_arena);
@@ -241,7 +241,7 @@ extern "C" {
                 }
             }
             
-            scrollable_ast_dump->first_highlighted_line_part = 0;
+            remove_highlighted_line_parts(scrollable_ast_dump);
             
             HighlightedLinePart * highlighted_line_part = add_new_highlighted_line_part(scrollable_ast_dump);
             highlighted_line_part->line_index = node->highlighted_line_part.line_index;

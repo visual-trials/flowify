@@ -274,6 +274,12 @@ HighlightedLinePart * add_new_highlighted_line_part(ScrollableText * scrollable_
     return new_highlighted_line_part;
 }
 
+void remove_highlighted_line_parts(ScrollableText * scrollable_text)
+{
+    reset_memory_arena(scrollable_text->highlighted_line_parts_memory_arena);
+    scrollable_text->first_highlighted_line_part = 0;
+}
+
 // TODO: we should probably create a function to de-allocate all memory inside the scrollable_text
 void init_scrollable_text(ScrollableText * scrollable_text, b32 draw_line_numbers = true)
 {
@@ -291,12 +297,12 @@ void init_scrollable_text(ScrollableText * scrollable_text, b32 draw_line_number
     if (!scrollable_text->highlighted_line_parts_memory_arena)
     {
         scrollable_text->highlighted_line_parts_memory_arena = new_memory_arena(&global_memory, false, (Color4){100,255,100,255}, 0);
+        scrollable_text->first_highlighted_line_part = 0;
     }
     else
     {
-        reset_memory_arena(scrollable_text->highlighted_line_parts_memory_arena);
+        remove_highlighted_line_parts(scrollable_text);
     }
-    scrollable_text->first_highlighted_line_part = 0;
     
     Font font = {};
     font.height = 20;

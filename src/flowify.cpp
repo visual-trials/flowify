@@ -29,21 +29,14 @@
 struct WorldData
 {
     String program_text;
-    ScrollableText scrollable_program_text;  // TODO: allocate this properly!
+    ScrollableText scrollable_program_text;
 
-/*    
-    MemoryArena * memory_arena_file_load;
-    MemoryArena * memory_arena_token_index;
-    MemoryArena * memory_arena_parser_index;
-    MemoryArena * memory_arena_flowifier_index;
-*/
-    
     Tokenizer tokenizer;
     Parser parser;
     Flowifier flowifier;
     
     String flowify_dump_text;
-    ScrollableText scrollable_flowify_dump;  // TODO: allocate this properly!
+    ScrollableText scrollable_flowify_dump;
     
     FlowElement * root_element;
     
@@ -264,8 +257,8 @@ extern "C" {
         {
             FlowElement * selected_flow_element = (FlowElement *)get_element_by_index(world->selected_element_index, world->flowifier.index_memory_arena);
             Node * node = selected_flow_element->ast_node;
-            
-            scrollable_program_text->first_highlighted_line_part = 0;
+
+            remove_highlighted_line_parts(scrollable_program_text);
             for (i32 token_index = node->first_token_index; token_index <= node->last_token_index; token_index++)
             {
                 Token * token = (Token *)get_element_by_index(token_index, world->tokenizer.index_memory_arena);
@@ -283,8 +276,8 @@ extern "C" {
                     highlighted_line_part->length = (u16)token->text.length;
                 }
             }
-         
-            scrollable_flowify_dump->first_highlighted_line_part = 0;
+
+            remove_highlighted_line_parts(scrollable_flowify_dump); 
             
             HighlightedLinePart * highlighted_line_part = add_new_highlighted_line_part(scrollable_flowify_dump);
             highlighted_line_part->line_index = selected_flow_element->highlighted_line_part.line_index;
