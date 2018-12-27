@@ -97,14 +97,31 @@ struct Tokenizer
     MemoryArena * index_memory_arena;
 };
 
-void init_tokenizer(Tokenizer * tokenizer, MemoryArena * memory_arena, MemoryArena * index_memory_arena)
+void init_tokenizer(Tokenizer * tokenizer)
 {
     tokenizer->at = 0;
     tokenizer->nr_of_tokens = 0;
     tokenizer->current_line_index = 0;
-
-    tokenizer->memory_arena = memory_arena;
-    tokenizer->index_memory_arena = index_memory_arena;
+    
+    if(!tokenizer->memory_arena)
+    {
+        MemoryArena * memory_arena = new_memory_arena(&global_memory, false, (Color4){0,255,0,255});
+        tokenizer->memory_arena = memory_arena;
+    }
+    else
+    {
+        reset_memory_arena(tokenizer->memory_arena);
+    }
+    
+    if (!tokenizer->index_memory_arena)
+    {
+        MemoryArena * index_memory_arena = new_memory_arena(&global_memory, true, (Color4){255,255,0,255}, 0);
+        tokenizer->index_memory_arena = index_memory_arena;
+    }
+    else
+    {
+        reset_memory_arena(tokenizer->index_memory_arena, 0);
+    }
 }
 
 b32 is_end_of_line(char ch)
@@ -652,14 +669,31 @@ struct Parser
     MemoryArena * index_memory_arena;
 };
 
-void init_parser(Parser * parser, Tokenizer * tokenizer, MemoryArena * memory_arena, MemoryArena * index_memory_arena)
+void init_parser(Parser * parser, Tokenizer * tokenizer)
 {
     parser->current_token_index = 0;
     parser->nr_of_nodes = 0;
     parser->tokenizer = tokenizer;
 
-    parser->memory_arena = memory_arena;
-    parser->index_memory_arena = index_memory_arena;
+    if(!parser->memory_arena)
+    {
+        MemoryArena * memory_arena = new_memory_arena(&global_memory, false, (Color4){0,255,0,255});
+        parser->memory_arena = memory_arena;
+    }
+    else
+    {
+        reset_memory_arena(parser->memory_arena);
+    }
+    
+    if (!parser->index_memory_arena)
+    {
+        MemoryArena * index_memory_arena = new_memory_arena(&global_memory, true, (Color4){255,0,255,255}, 0);
+        parser->index_memory_arena = index_memory_arena;
+    }
+    else
+    {
+        reset_memory_arena(parser->index_memory_arena, 0);
+    }
 }
 
 void next_token(Parser * parser)

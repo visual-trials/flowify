@@ -121,14 +121,31 @@ struct Flowifier
     FlowElement * latest_function;
 };
 
-void init_flowifier(Flowifier * flowifier, MemoryArena * memory_arena, MemoryArena * index_memory_arena)
+void init_flowifier(Flowifier * flowifier)
 {
     flowifier->nr_of_flow_elements = 0;
     flowifier->first_function = 0;
     flowifier->latest_function = 0;
     
-    flowifier->memory_arena = memory_arena;
-    flowifier->index_memory_arena = index_memory_arena;
+    if(!flowifier->memory_arena)
+    {
+        MemoryArena * memory_arena = new_memory_arena(&global_memory, false, (Color4){0,255,0,255});
+        flowifier->memory_arena = memory_arena;
+    }
+    else
+    {
+        reset_memory_arena(flowifier->memory_arena);
+    }
+    
+    if (!flowifier->index_memory_arena)
+    {
+        MemoryArena * index_memory_arena = new_memory_arena(&global_memory, true, (Color4){0,255,255,255}, 0);
+        flowifier->index_memory_arena = index_memory_arena;
+    }
+    else
+    {
+        reset_memory_arena(flowifier->index_memory_arena, 0);
+    }
 }
 
 FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowElementType flow_element_type = FlowElement_Unknown)

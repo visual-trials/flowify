@@ -30,11 +30,13 @@ struct WorldData
 {
     String program_text;
     ScrollableText scrollable_program_text;  // TODO: allocate this properly!
-    
+
+/*    
     MemoryArena * memory_arena_file_load;
     MemoryArena * memory_arena_token_index;
     MemoryArena * memory_arena_parser_index;
     MemoryArena * memory_arena_flowifier_index;
+*/
     
     Tokenizer tokenizer;
     Parser parser;
@@ -68,12 +70,6 @@ extern "C" {
     
     void load_program_text(const char * program_text, WorldData * world)
     {
-        // We throw away all old data from a previous load
-        reset_memory_arena(world->memory_arena_file_load);
-        reset_memory_arena(world->memory_arena_token_index, 0);
-        reset_memory_arena(world->memory_arena_parser_index, 0);
-        reset_memory_arena(world->memory_arena_flowifier_index, 0);
-        
         ScrollableText * scrollable_program_text = &world->scrollable_program_text;
         init_scrollable_text(scrollable_program_text);
 
@@ -87,17 +83,17 @@ extern "C" {
         scrollable_program_text->line_offset = 0;
 
         Tokenizer * tokenizer = &world->tokenizer;
-        init_tokenizer(tokenizer, world->memory_arena_file_load, world->memory_arena_token_index);
+        init_tokenizer(tokenizer);
         tokenize(tokenizer, (u8 *)program_text);
 
         //Parse
         Parser * parser = &world->parser;
-        init_parser(parser, tokenizer, world->memory_arena_file_load, world->memory_arena_parser_index);
+        init_parser(parser, tokenizer);
         Node * root_node = parse_program(parser);
         
         Flowifier * flowifier = &world->flowifier;
         
-        init_flowifier(flowifier, world->memory_arena_file_load, world->memory_arena_flowifier_index);
+        init_flowifier(flowifier);
         
         FlowElement * root_element = new_flow_element(flowifier, root_node, FlowElement_Root);
         
@@ -137,11 +133,6 @@ extern "C" {
         
         world->verbose_memory_usage = true;
 
-        world->memory_arena_file_load = new_memory_arena(memory, false, (Color4){0,255,0,255});
-        world->memory_arena_token_index = new_memory_arena(memory, true, (Color4){255,255,0,255}, 0);
-        world->memory_arena_parser_index = new_memory_arena(memory, true, (Color4){255,0,255,255}, 0);
-        world->memory_arena_flowifier_index = new_memory_arena(memory, true, (Color4){0,255,255,255}, 0);
-        
         load_program_text(world->program_texts[world->current_program_text_index], world);
         
     }
@@ -276,7 +267,7 @@ extern "C" {
             scrollable_program_text->nr_of_highlighted_parts = 0;
             for (i32 token_index = node->first_token_index; token_index <= node->last_token_index; token_index++)
             {
-                Token * token = (Token *)get_element_by_index(token_index, world->memory_arena_token_index);
+                Token * token = (Token *)get_element_by_index(token_index, world->tokenizer.index_memory_arena);
                 
                 if (token->type != Token_EndOfStream)
                 {
