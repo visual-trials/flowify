@@ -312,6 +312,8 @@ DynamicArray create_dynamic_array(i32 item_size)
     // create a memory_arena with consecutive blocks. set max_nr_of_items accordingly.
     
     // set item_size (in .array) and set pointer .items (in .array)? set nr_of_items to 0 (should we always allocate 1 block?)
+    
+    // return dynamic_array;
 }
 
 // TODO: maybe a free_dynamic_array()
@@ -345,6 +347,8 @@ DynamicString create_dynamic_string()
     // create a memory_arena with consecutive blocks. set max_length accordingly.
     
     // set set pointer .data (in .string)? set length to 0 (should we always allocate 1 block?)
+    
+    // return dynamic_string;
 }
 
 // TODO: maybe a free_dynamic_string()
