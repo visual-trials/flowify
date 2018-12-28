@@ -287,6 +287,80 @@ void reset_memory_arena(MemoryArena * memory_arena, i32 initial_nr_of_blocks = 0
     }
 }
 
+// TODO: check this
+struct Array
+{
+    void * items;
+    i32 item_size; // nr of bytes per item
+    
+    i32 nr_of_items;
+};
+
+// TODO: check this
+struct DynamicArray
+{
+    Array array; // Contains .items (void *) and .nr_of_items (i32)
+    
+    MemoryArena memory_arena;
+    i32 max_nr_of_items;
+};
+
+DynamicArray create_dynamic_array(i32 item_size)
+{
+    // TODO: implement this
+    
+    // create a memory_arena with consecutive blocks. set max_nr_of_items accordingly.
+    
+    // set item_size (in .array) and set pointer .items (in .array)? set nr_of_items to 0 (should we always allocate 1 block?)
+}
+
+// TODO: maybe a free_dynamic_array()
+
+void * array_add(DynamicArray * dynamic_array, void * item)
+{
+    // TODO: implement this
+    
+    // check if enough room in memory_arena (= dynamic_array->array.item_size * (dynamic_array->array.nr_of_items + 1))
+    //     if not, create more (consecutive) room
+    
+    // add item (copy contents to newly created room)
+    // increment nr_of_items
+    
+    // return nr_of_items - 1 or pointer to newly created room?
+}
+
+// TODO: check this
+struct DynamicString
+{
+    String string; // Contains .data (u8 *) and .length (i32)
+    
+    MemoryArena memory_arena;
+    i32 max_length;
+};
+
+DynamicString create_dynamic_string()
+{
+    // TODO: implement this
+    
+    // create a memory_arena with consecutive blocks. set max_length accordingly.
+    
+    // set set pointer .data (in .string)? set length to 0 (should we always allocate 1 block?)
+}
+
+// TODO: maybe a free_dynamic_string()
+
+void append_string(DynamicString * dynamic_string, String * string)
+{
+    // TODO: implement this
+    
+    // check if enough room in memory_arena (= sizeof(u8) * (dynamic_string->string.length + string.length))
+    //     if not, create more (consecutive) room
+    
+    // call append_string(&dynamic_string.string, string); // TODO: or the other way around
+    
+    // TODO: what should we return (if anything)?
+}
+
 // TODO: this is a duplicate of get_element_by_index
 String get_string_by_index(i32 element_index, MemoryArena * index_memory_arena)
 {
