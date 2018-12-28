@@ -318,7 +318,7 @@ DynamicArray create_dynamic_array(i32 item_size)
 
 // TODO: maybe a free_dynamic_array()
 
-void * array_add(DynamicArray * dynamic_array, void * item)
+void * array_add(DynamicArray * dynamic_array, void * item) // TODO: maybe: add_to_array()
 {
     // TODO: implement this
     
