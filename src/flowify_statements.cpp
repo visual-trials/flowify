@@ -112,10 +112,7 @@ struct FlowElement
 
 struct Flowifier
 {
-    MemoryArena * memory_arena;
-    MemoryArena * index_memory_arena;
-    
-    i32 nr_of_flow_elements;
+    DynamicArray flow_elements;
     
     FlowElement * first_function;
     FlowElement * latest_function;
@@ -123,35 +120,23 @@ struct Flowifier
 
 void init_flowifier(Flowifier * flowifier)
 {
-    flowifier->nr_of_flow_elements = 0;
     flowifier->first_function = 0;
     flowifier->latest_function = 0;
     
-    if(!flowifier->memory_arena)
+    if (!flowifier->flow_elements.memory_arena)
     {
-        flowifier->memory_arena = new_memory_arena(&global_memory, false, (Color4){0,255,0,255});
+        flowifier->flow_elements = create_dynamic_array(sizeof(FlowElement), (Color4){0,255,255,255});
     }
     else
     {
-        reset_memory_arena(flowifier->memory_arena);
-    }
-    
-    if (!flowifier->index_memory_arena)
-    {
-        flowifier->index_memory_arena = new_memory_arena(&global_memory, true, (Color4){0,255,255,255}, 0);
-    }
-    else
-    {
-        reset_memory_arena(flowifier->index_memory_arena, 0);
+        reset_dynamic_array(&flowifier->flow_elements);
     }
 }
 
 FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowElementType flow_element_type = FlowElement_Unknown)
 {
-    FlowElement * new_flow_element = (FlowElement *)push_struct(flowifier->memory_arena, sizeof(FlowElement));
-    put_element_in_index(flowifier->nr_of_flow_elements, new_flow_element, flowifier->index_memory_arena);
-    
-    flowifier->nr_of_flow_elements++;
+    FlowElement empty_flow_element = {};
+    FlowElement * new_flow_element = (FlowElement *)add_to_array(&flowifier->flow_elements, &empty_flow_element);
     
     new_flow_element->ast_node = ast_node;
     new_flow_element->first_child = 0;

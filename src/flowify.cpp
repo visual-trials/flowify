@@ -162,18 +162,21 @@ extern "C" {
         // FIXME: we should not set is_selected on the flow element itself. Instead we should keep a record of the *element identifier* we want to select
         //        whenever we draw the element we check for a *match* between the  selected *element identifier* and the identifier of the element.
         
+        FlowElement * flow_elements = (FlowElement *)world->flowifier.flow_elements.items;
+        i32 nr_of_flow_elements = world->flowifier.flow_elements.nr_of_items;
+        
         if (world->iteration > 60) // every second
         {
             world->iteration = 0;
             
-            FlowElement * selected_flow_element = (FlowElement *)get_element_by_index(world->selected_element_index, world->flowifier.index_memory_arena);
+            FlowElement * selected_flow_element = &flow_elements[world->selected_element_index];
             selected_flow_element->is_selected = false;
             
             world->selected_element_index++;
-            while (world->selected_element_index < world->flowifier.nr_of_flow_elements)
+            while (world->selected_element_index < nr_of_flow_elements)
             {
                 
-                FlowElement * newly_selected_flow_element = (FlowElement *)get_element_by_index(world->selected_element_index, world->flowifier.index_memory_arena);
+                FlowElement * newly_selected_flow_element = &flow_elements[world->selected_element_index];
                 if (newly_selected_flow_element->has_lane_segments)
                 {
                     newly_selected_flow_element->is_selected = true;
@@ -182,12 +185,12 @@ extern "C" {
                 world->selected_element_index++;
             }
         }
-        if (world->selected_element_index >= world->flowifier.nr_of_flow_elements)
+        if (world->selected_element_index >= nr_of_flow_elements)
         {
             world->selected_element_index = 0;
-            while (world->selected_element_index < world->flowifier.nr_of_flow_elements)
+            while (world->selected_element_index < nr_of_flow_elements)
             {
-                FlowElement * newly_selected_flow_element = (FlowElement *)get_element_by_index(world->selected_element_index, world->flowifier.index_memory_arena);
+                FlowElement * newly_selected_flow_element = &flow_elements[world->selected_element_index];
                 if (newly_selected_flow_element->has_lane_segments)
                 {
                     newly_selected_flow_element->is_selected = true;
@@ -255,9 +258,12 @@ extern "C" {
         
         Token * tokens = (Token *)world->tokenizer.tokens.items;
         
-        if (world->flowifier.nr_of_flow_elements > 0)
+        FlowElement * flow_elements = (FlowElement *)world->flowifier.flow_elements.items;
+        i32 nr_of_flow_elements = world->flowifier.flow_elements.nr_of_items;
+        
+        if (nr_of_flow_elements > 0)
         {
-            FlowElement * selected_flow_element = (FlowElement *)get_element_by_index(world->selected_element_index, world->flowifier.index_memory_arena);
+            FlowElement * selected_flow_element = &flow_elements[world->selected_element_index];
             Node * node = selected_flow_element->ast_node;
             
             remove_highlighted_line_parts(scrollable_program_text);
