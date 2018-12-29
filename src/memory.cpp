@@ -287,16 +287,10 @@ void reset_memory_arena(MemoryArena * memory_arena, i32 initial_nr_of_blocks = 0
     }
 }
 
-struct Array
+struct DynamicArray
 {
     void * items;
     i32 nr_of_items;
-};
-
-struct DynamicArray
-{
-    Array array; // Contains .items (void *) and .nr_of_items (i32)
-    
     i32 item_size; // nr of bytes per item
     
     MemoryArena * memory_arena;
@@ -312,8 +306,8 @@ DynamicArray create_dynamic_array(i32 item_size, Color4 color)
     // TODO: maybe we want to reserve 1 block or allow an initial amount of items and reserve memory for those
     dynamic_array.memory_arena = new_memory_arena(&global_memory, true, color, 0); 
     
-    dynamic_array.array.nr_of_items = 0;
-    dynamic_array.array.items = 0;  // TODO: this needs to be set if memory is reserved (now nothing is reserved)
+    dynamic_array.nr_of_items = 0;
+    dynamic_array.items = 0;  // TODO: this needs to be set if memory is reserved (now nothing is reserved)
     
     return dynamic_array;
 }
@@ -323,8 +317,8 @@ void reset_dynamic_array(DynamicArray * dynamic_array)
     // TODO: maybe we want to reserve 1 block or allow an initial amount of items and reserve memory for those (and set max_nr_of_items accordingly)
     reset_memory_arena(dynamic_array->memory_arena);
     
-    dynamic_array->array.nr_of_items = 0;
-    dynamic_array->array.items = 0;  // TODO: this needs to be set if memory is reserved (now nothing is reserved)
+    dynamic_array->nr_of_items = 0;
+    dynamic_array->items = 0;  // TODO: this needs to be set if memory is reserved (now nothing is reserved)
 }
 
 void * memory_copy(void * destination, void * source, i32 nr_of_bytes)
@@ -345,7 +339,7 @@ void * add_to_array(DynamicArray * dynamic_array, void * item)
     Memory * memory = memory_arena->memory;
     
     i32 available_memory_size = memory_arena->nr_of_blocks * memory->block_size;
-    i32 required_memory_size = dynamic_array->item_size * (dynamic_array->array.nr_of_items + 1);
+    i32 required_memory_size = dynamic_array->item_size * (dynamic_array->nr_of_items + 1);
     if (required_memory_size > available_memory_size)
     {
         // TODO: maybe its better to give increase_consecutive_memory_blocks the nr_of_required_bytes instead of the nr_of_required_blocks?
@@ -355,14 +349,14 @@ void * add_to_array(DynamicArray * dynamic_array, void * item)
         
         void * items = (void *)((i32)memory->base_address + memory->block_size * memory_arena->current_block_index);
         
-        dynamic_array->array.items = items;
+        dynamic_array->items = items;
     }
     
     // TODO: should we increase .bytes_used on the memory block?
     
-    void * destination = (void *)((i32)dynamic_array->array.items + (dynamic_array->array.nr_of_items * dynamic_array->item_size));
+    void * destination = (void *)((i32)dynamic_array->items + (dynamic_array->nr_of_items * dynamic_array->item_size));
     memory_copy(destination, item, dynamic_array->item_size);
-    dynamic_array->array.nr_of_items++;
+    dynamic_array->nr_of_items++;
     
     return destination;
 }

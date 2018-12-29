@@ -253,7 +253,7 @@ extern "C" {
         Color4 black = {};
         black.a = 255;
         
-        Token * tokens = (Token *)world->tokenizer.tokens.array.items;
+        Token * tokens = (Token *)world->tokenizer.tokens.items;
         
         if (world->flowifier.nr_of_flow_elements > 0)
         {

@@ -716,7 +716,7 @@ Token * get_latest_token(Parser * parser)
     Tokenizer * tokenizer = parser->tokenizer;
     
     // FIXME: check bounds!    
-    Token * tokens = (Token *)tokenizer->tokens.array.items;
+    Token * tokens = (Token *)tokenizer->tokens.items;
     Token * token = &tokens[parser->current_token_index - 1];
     // FIXME: remove this! Token * token = (Token *)get_element_by_index(parser->current_token_index - 1, tokenizer->index_memory_arena);
     
@@ -727,7 +727,7 @@ b32 accept_token(Parser * parser, i32 token_type)  // TODO: somehow we can't use
 {
     Tokenizer * tokenizer = parser->tokenizer;
 
-    Token * tokens = (Token *)tokenizer->tokens.array.items;
+    Token * tokens = (Token *)tokenizer->tokens.items;
     Token * token = &tokens[parser->current_token_index];
     // FIXME: remove this! Token * token = (Token *)get_element_by_index(parser->current_token_index, tokenizer->index_memory_arena);
     
@@ -1266,7 +1266,7 @@ Node * parse_statement(Parser * parser)
             
             // TODO: create a helper-function that log the current position!
             Tokenizer * tokenizer = parser->tokenizer;
-            Token * tokens = (Token *)tokenizer->tokens.array.items;
+            Token * tokens = (Token *)tokenizer->tokens.items;
             Token * token = &tokens[parser->current_token_index];
             // FIXME: remove this! Token * token = (Token *)get_element_by_index(parser->current_token_index, tokenizer->index_memory_arena);
             log("Next token starts with:");
