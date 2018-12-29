@@ -264,7 +264,6 @@ extern "C" {
             for (i32 token_index = node->first_token_index; token_index <= node->last_token_index; token_index++)
             {
                 Token token = tokens[token_index];
-                // FIXME: remove this! Token * token = (Token *)get_element_by_index(token_index, world->tokenizer.index_memory_arena);
                 
                 if (token.type != Token_EndOfStream)
                 {

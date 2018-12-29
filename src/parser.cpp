@@ -90,12 +90,8 @@ struct Tokenizer
     u8 * at;
     
     DynamicArray tokens;
-    // FIXME: remove this: i32 nr_of_tokens;
     
     i32 current_line_index;
-    
-    // FIXME: remove this: MemoryArena * memory_arena;
-    // FIXME: remove this: MemoryArena * index_memory_arena;
 };
 
 void init_tokenizer(Tokenizer * tokenizer)
@@ -111,28 +107,6 @@ void init_tokenizer(Tokenizer * tokenizer)
     {
         reset_dynamic_array(&tokenizer->tokens);
     }
-    
-    /*
-    // FIXME: remove this!
-    tokenizer->nr_of_tokens = 0;
-    if(!tokenizer->memory_arena)
-    {
-        tokenizer->memory_arena = new_memory_arena(&global_memory, false, (Color4){0,255,0,255});
-    }
-    else
-    {
-        reset_memory_arena(tokenizer->memory_arena);
-    }
-    
-    if (!tokenizer->index_memory_arena)
-    {
-        tokenizer->index_memory_arena = new_memory_arena(&global_memory, true, (Color4){255,255,0,255}, 0);
-    }
-    else
-    {
-        reset_memory_arena(tokenizer->index_memory_arena, 0);
-    }
-    */
 }
 
 b32 is_end_of_line(char ch)
@@ -461,14 +435,9 @@ void tokenize (Tokenizer * tokenizer, u8 * program_text)
     b32 tokenizing = true;
     while(tokenizing)
     {
-        Token new_token = {};
-        // FIXME: remove this: Token * new_token = (Token *)push_struct(tokenizer->memory_arena, sizeof(Token));
-        new_token = get_token(tokenizer);
+        Token new_token = get_token(tokenizer);
         
-        // FIXME: remove this: put_element_in_index(tokenizer->nr_of_tokens, new_token, tokenizer->index_memory_arena);
         add_to_array(&tokenizer->tokens, &new_token);
-        
-        // FIXME: remove this: tokenizer->nr_of_tokens++;
         
         if (new_token.type == Token_EndOfStream)
         {

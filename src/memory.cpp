@@ -97,6 +97,7 @@ void move_block(Memory * memory, u16 from_block_index, u16 to_block_index)
     // Copy all block data from the old blocks to the new blocks
     u8 * from_block_address = (u8 *)((i32)memory->base_address + memory->block_size * from_block_index);
     u8 * to_block_address = (u8 *)((i32)memory->base_address + memory->block_size * to_block_index);
+    // FIXME: use memory_copy!
     // TODO: copying bytes (u8) is very slow!
     for (i32 byte_index = 0; byte_index < memory->blocks[from_block_index].bytes_used; byte_index++)
     {
@@ -395,6 +396,7 @@ void append_string(DynamicString * dynamic_string, String * string)
     // TODO: what should we return (if anything)?
 }
 
+// FIXME: remove this!
 // TODO: this is a duplicate of get_element_by_index
 String get_string_by_index(i32 element_index, MemoryArena * index_memory_arena)
 {
@@ -407,6 +409,7 @@ String get_string_by_index(i32 element_index, MemoryArena * index_memory_arena)
     return element;
 }
 
+// FIXME: remove this!
 // TODO: this is a duplicate of put_element_in_index
 void put_string_in_index(i32 element_index, String string, MemoryArena * index_memory_arena)
 {
@@ -424,6 +427,7 @@ void put_string_in_index(i32 element_index, String string, MemoryArena * index_m
     string_index_table[element_index] = string;
 }
 
+// FIXME: remove this!
 void * get_element_by_index(i32 element_index, MemoryArena * index_memory_arena)
 {
     Memory * memory = index_memory_arena->memory;
@@ -435,6 +439,7 @@ void * get_element_by_index(i32 element_index, MemoryArena * index_memory_arena)
     return element;
 }
 
+// FIXME: remove this!
 void put_element_in_index(i32 element_index, void * element, MemoryArena * index_memory_arena)
 {
     Memory * memory = index_memory_arena->memory;
