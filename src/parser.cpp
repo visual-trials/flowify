@@ -1310,7 +1310,7 @@ Node * parse_program(Parser * parser)
     return root_node;
 }
 
-i32 dump_tree(Node * node, String * dump_text, i32 dump_line_index = 0, i32 depth = 0)
+i32 dump_tree(Node * node, DynamicString * dump_text, i32 dump_line_index = 0, i32 depth = 0)
 {
     u8 temp_string[100]; // TODO: use a temp-memory buffer instead
     
@@ -1329,8 +1329,11 @@ i32 dump_tree(Node * node, String * dump_text, i32 dump_line_index = 0, i32 dept
     
     append_string(dump_text, &node_type_string);
     
-    dump_text->data[dump_text->length] = '\n';
-    dump_text->length++;
+    String newline_string = {};
+    newline_string.data = temp_string;
+    copy_cstring_to_string("\n", &newline_string);
+    
+    append_string(dump_text, &newline_string);
     
     node->highlighted_line_part.line_index = dump_line_index++;
     node->highlighted_line_part.start_character_index = (u16)(depth * 4);

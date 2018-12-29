@@ -32,7 +32,7 @@ struct WorldData
     Tokenizer tokenizer;
     Parser parser;
     
-    String dump_text;
+    DynamicString dump_text;
     
     ScrollableText scrollable_ast_dump;
     
@@ -48,9 +48,6 @@ struct WorldData
 };
 
 WorldData global_world = {};  // FIXME: allocate this properly!
-
-// FIXME: CAREFUL WE ARE AT THE LIMIT!!!
-u8 global_dump_text[2000]; // TODO: allocate this properly!
 
 extern "C" {
     
@@ -77,13 +74,21 @@ extern "C" {
         init_parser(parser, tokenizer);
         Node * root_node = parse_program(parser);
         
+        // TODO: we probably want reset_dynamic_string to create the dynamic string if the arena doesn't exist. But how to deal with the color?
+        if (!world->dump_text.memory_arena)
+        {
+            world->dump_text = create_dynamic_string((Color4){70,150,255,255});
+        }
+        else
+        {
+            reset_dynamic_string(&world->dump_text);
+        }
+        
         // Dump parse result
-        world->dump_text.length = 0;
-        world->dump_text.data = global_dump_text;
         dump_tree(root_node, &world->dump_text);
         
         init_scrollable_text(scrollable_ast_dump, false);
-        split_string_into_scrollable_lines(world->dump_text, scrollable_ast_dump);
+        split_string_into_scrollable_lines(world->dump_text.string, scrollable_ast_dump);
     }
     
     void init_world()

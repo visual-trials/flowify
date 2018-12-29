@@ -568,6 +568,7 @@ void append_string(ShortString * dest, ShortString * src)
     dest->length = dest->length + nr_of_characters_to_append;
 }
 
+// TODO: we don't need a pointer to the source here. Better not to take the pointer, we don't want to change the source anyway!
 void append_string(String * dest, String * src)
 {
     for (i32 i = 0; i < src->length; i++)

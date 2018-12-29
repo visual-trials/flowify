@@ -392,6 +392,7 @@ void reset_dynamic_string(DynamicString * dynamic_string)
     dynamic_string->string.data = 0;  // TODO: this needs to be set if memory is reserved (now nothing is reserved)
 }
 
+// TODO: we don't need a pointer to the string here. Better not to take the pointer, we don't want to change the string anyway!
 void append_string(DynamicString * dynamic_string, String * string)
 {
     MemoryArena * memory_arena = dynamic_string->memory_arena;
