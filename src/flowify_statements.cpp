@@ -824,7 +824,7 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position, b32 show_h
     }
 }
 
-i32 dump_element_tree(FlowElement * element, String * dump_text, i32 dump_line_index = 0, i32 depth = 0)
+i32 dump_element_tree(FlowElement * element, DynamicString * dump_text, i32 dump_line_index = 0, i32 depth = 0)
 {
     u8 temp_string[100]; // TODO: use a temp-memory buffer instead
     
@@ -843,8 +843,11 @@ i32 dump_element_tree(FlowElement * element, String * dump_text, i32 dump_line_i
     
     append_string(dump_text, &element_type_string);
     
-    dump_text->data[dump_text->length] = '\n';
-    dump_text->length++;
+    String newline_string = {};
+    newline_string.data = temp_string;
+    copy_cstring_to_string("\n", &newline_string);
+    
+    append_string(dump_text, &newline_string);
     
     element->highlighted_line_part.line_index = dump_line_index++;
     element->highlighted_line_part.start_character_index = (u16)(depth * 4);

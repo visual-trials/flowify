@@ -35,7 +35,7 @@ struct WorldData
     Parser parser;
     Flowifier flowifier;
     
-    String flowify_dump_text;
+    DynamicString flowify_dump_text;
     ScrollableText scrollable_flowify_dump;
     
     FlowElement * root_element;
@@ -54,9 +54,6 @@ struct WorldData
 };
 
 WorldData global_world = {};  // FIXME: allocate this properly!
-
-// FIXME: CAREFUL WE ARE AT THE LIMIT!!!
-u8 global_dump_text[2000]; // TODO: allocate this properly!
 
 extern "C" {
     
@@ -91,18 +88,19 @@ extern "C" {
         layout_elements(root_element);
         world->root_element = root_element;
         
-        // FIXME: use a DynamicString, which is a struct containing
-        //        the max_length, a MemoryArena and a String
-        //        the String contains the .data and .length
-        //        When you want to append characters to a DynamicString
-        //        you should check if the max_length will be too long.
-        //        if so, allocate more consecutive blocks.
-        world->flowify_dump_text.length = 0;
-        world->flowify_dump_text.data = global_dump_text;
+        // TODO: we probably want reset_dynamic_string to create the dynamic string if the arena doesn't exist. But how to deal with the color?
+        if (!world->flowify_dump_text.memory_arena)
+        {
+            world->flowify_dump_text = create_dynamic_string((Color4){70,150,255,255});
+        }
+        else
+        {
+            reset_dynamic_string(&world->flowify_dump_text);
+        }
         dump_element_tree(root_element, &world->flowify_dump_text);
         
         init_scrollable_text(scrollable_flowify_dump, false);
-        split_string_into_scrollable_lines(world->flowify_dump_text, scrollable_flowify_dump);
+        split_string_into_scrollable_lines(world->flowify_dump_text.string, scrollable_flowify_dump);
     }
     
     void init_world()
