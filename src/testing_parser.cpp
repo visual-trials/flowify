@@ -221,6 +221,7 @@ extern "C" {
         */
         Token * tokens = (Token *)world->tokenizer.tokens.items;
         Node * nodes = (Node *)world->parser.nodes.items;
+        String * lines = (String *)scrollable_program_text->lines.items;
         
         if (world->parser.nodes.nr_of_items > 0)
         {
@@ -233,7 +234,7 @@ extern "C" {
                 
                 if (token.type != Token_EndOfStream)
                 {
-                    String program_line_text = get_string_by_index(token.line_index, scrollable_program_text->lines_memory_arena);
+                    String program_line_text = lines[token.line_index];
                     i32 character_in_line_index = (i32)token.text.data - (i32)program_line_text.data;
 
                     HighlightedLinePart * highlighted_line_part = add_new_highlighted_line_part(scrollable_program_text);

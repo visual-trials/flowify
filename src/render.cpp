@@ -232,8 +232,7 @@ struct ScrollableText
 {
     b32 is_active;  // TODO: implement this
     
-    MemoryArena * lines_memory_arena;
-    i32 nr_of_lines;
+    DynamicArray lines;
     
     i32 line_offset;
     
@@ -283,15 +282,15 @@ void remove_highlighted_line_parts(ScrollableText * scrollable_text)
 // TODO: we should probably create a function to de-allocate all memory inside the scrollable_text
 void init_scrollable_text(ScrollableText * scrollable_text, b32 draw_line_numbers = true)
 {
-    if (!scrollable_text->lines_memory_arena)
+    if (!scrollable_text->lines.memory_arena)
     {
-        scrollable_text->lines_memory_arena = new_memory_arena(&global_memory, true, (Color4){255,100,100,255}, 0);
+        scrollable_text->lines = create_dynamic_array(sizeof(String), (Color4){255,100,100,255});
     }
     else
     {
-        reset_memory_arena(scrollable_text->lines_memory_arena, 0);
+        reset_dynamic_array(&scrollable_text->lines);
     }
-    scrollable_text->nr_of_lines = 0;
+    
     scrollable_text->line_offset = 0;
     
     if (!scrollable_text->highlighted_line_parts_memory_arena)
@@ -335,13 +334,14 @@ void init_scrollable_text(ScrollableText * scrollable_text, b32 draw_line_number
     scrollable_text->size.height = 100;
 }
 
+// TODO: we might want to pass a pointer to the DynamicArray instead (not ScrollableText)
 void split_string_into_scrollable_lines(String string, ScrollableText * scrollable_text)
 {
-    i32 file_line_index = 0;
-    
     String line_string = {};
     line_string.data = string.data; // first line starts at beginning of the string
     line_string.length = 0;
+    
+    reset_dynamic_array(&scrollable_text->lines);
     
     i32 position = 0;
     i32 start_of_line = 0;
@@ -355,21 +355,18 @@ void split_string_into_scrollable_lines(String string, ScrollableText * scrollab
             line_string.length = (position - 1) - start_of_line; // the -1 is because we do not include the newline to the line-text
             
             // We put the line into the array (aka index) of lines (note: the index is dynamically sized)
-            put_string_in_index(file_line_index, line_string, scrollable_text->lines_memory_arena);
+            add_to_array(&scrollable_text->lines, &line_string);
             
             // Starting a new line string
             start_of_line = position;
-            
-            file_line_index++;
             
             line_string.data = (u8 *)((i32)string.data + start_of_line);
             line_string.length = 0;
         }
     }
     line_string.length = position - start_of_line;
-    put_string_in_index(file_line_index, line_string, scrollable_text->lines_memory_arena);
+    add_to_array(&scrollable_text->lines, &line_string);
     
-    scrollable_text->nr_of_lines = file_line_index + 1;
     scrollable_text->line_offset = 0;
 }
 
@@ -464,9 +461,9 @@ void update_scrollable_text(ScrollableText * scrollable_text, Input * input)
         scrollable_text->line_offset -= scrollable_text->nr_of_lines_to_show - 2;
     }
     
-    if (scrollable_text->line_offset > scrollable_text->nr_of_lines - scrollable_text->nr_of_lines_to_show)
+    if (scrollable_text->line_offset > scrollable_text->lines.nr_of_items - scrollable_text->nr_of_lines_to_show)
     {
-        scrollable_text->line_offset = scrollable_text->nr_of_lines - scrollable_text->nr_of_lines_to_show;
+        scrollable_text->line_offset = scrollable_text->lines.nr_of_items - scrollable_text->nr_of_lines_to_show;
     }
     
     if (scrollable_text->line_offset < 0)
@@ -500,7 +497,7 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
     copy_char_to_string(' ', &white_space_text);
     Size2d white_space_size = get_text_size(&white_space_text, font);
     
-    if (scrollable_text->nr_of_lines > 0)
+    if (scrollable_text->lines.nr_of_items > 0)
     {
         HighlightedLinePart * line_part = scrollable_text->first_highlighted_line_part;
         while(line_part) 
@@ -529,18 +526,20 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
         
         ShortString line_nr_text;
         
+        String * lines = (String *)scrollable_text->lines.items;
+        
         for (i32 line_on_screen_index = 0; line_on_screen_index < nr_of_lines_to_show; line_on_screen_index++)
         {
             i32 file_line_index = scrollable_text->line_offset + line_on_screen_index;
             
-            if (file_line_index >= 0 && file_line_index < scrollable_text->nr_of_lines)
+            if (file_line_index >= 0 && file_line_index < scrollable_text->lines.nr_of_items)
             {
                 // Line text
                 Pos2d position;
                 position.x = scrollable_text->position.x + scrollable_text->left_margin + scrollable_text->line_numbers_width;
                 position.y = scrollable_text->position.y + scrollable_text->top_margin + line_on_screen_index * (font.height + line_margin);
                 
-                String line_text = get_string_by_index(file_line_index, scrollable_text->lines_memory_arena);
+                String line_text = lines[file_line_index];
                 
                 if (line_text.length > scrollable_text->max_line_width_in_characters)
                 {

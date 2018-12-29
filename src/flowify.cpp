@@ -261,6 +261,8 @@ extern "C" {
         FlowElement * flow_elements = (FlowElement *)world->flowifier.flow_elements.items;
         i32 nr_of_flow_elements = world->flowifier.flow_elements.nr_of_items;
         
+        String * lines = (String *)scrollable_program_text->lines.items;
+
         if (nr_of_flow_elements > 0)
         {
             FlowElement * selected_flow_element = &flow_elements[world->selected_element_index];
@@ -273,7 +275,7 @@ extern "C" {
                 
                 if (token.type != Token_EndOfStream)
                 {
-                    String program_line_text = get_string_by_index(token.line_index, scrollable_program_text->lines_memory_arena);
+                    String program_line_text = lines[token.line_index];
                     
                     i32 character_in_line_index = (i32)token.text.data - (i32)program_line_text.data;
 
