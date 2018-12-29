@@ -643,34 +643,21 @@ struct Parser
     Tokenizer * tokenizer;
     i32 current_token_index;
 
-    i32 nr_of_nodes;
-    
-    MemoryArena * memory_arena;
-    MemoryArena * index_memory_arena;
+    DynamicArray nodes;
 };
 
 void init_parser(Parser * parser, Tokenizer * tokenizer)
 {
     parser->current_token_index = 0;
-    parser->nr_of_nodes = 0;
     parser->tokenizer = tokenizer;
 
-    if(!parser->memory_arena)
+    if (!parser->nodes.memory_arena)
     {
-        parser->memory_arena = new_memory_arena(&global_memory, false, (Color4){0,255,0,255});
+        parser->nodes = create_dynamic_array(sizeof(Node), (Color4){255,0,255,255});
     }
     else
     {
-        reset_memory_arena(parser->memory_arena);
-    }
-    
-    if (!parser->index_memory_arena)
-    {
-        parser->index_memory_arena = new_memory_arena(&global_memory, true, (Color4){255,0,255,255}, 0);
-    }
-    else
-    {
-        reset_memory_arena(parser->index_memory_arena, 0);
+        reset_dynamic_array(&parser->nodes);
     }
 }
 
@@ -687,7 +674,6 @@ Token * get_latest_token(Parser * parser)
     // FIXME: check bounds!    
     Token * tokens = (Token *)tokenizer->tokens.items;
     Token * token = &tokens[parser->current_token_index - 1];
-    // FIXME: remove this! Token * token = (Token *)get_element_by_index(parser->current_token_index - 1, tokenizer->index_memory_arena);
     
     return token;
 }
@@ -698,7 +684,6 @@ b32 accept_token(Parser * parser, i32 token_type)  // TODO: somehow we can't use
 
     Token * tokens = (Token *)tokenizer->tokens.items;
     Token * token = &tokens[parser->current_token_index];
-    // FIXME: remove this! Token * token = (Token *)get_element_by_index(parser->current_token_index, tokenizer->index_memory_arena);
     
     if (token->type == token_type)
     {
@@ -721,9 +706,8 @@ b32 expect_token(Parser * parser, i32 token_type)  // TODO: somehow we can't use
 
 Node * new_node(Parser * parser)
 {
-    Node * new_node = (Node *)push_struct(parser->memory_arena, sizeof(Node));
-    put_element_in_index(parser->nr_of_nodes, new_node, parser->index_memory_arena);
-    parser->nr_of_nodes++;
+    Node empty_node = {};
+    Node * new_node = (Node *)add_to_array(&parser->nodes, &empty_node);
     
     new_node->first_child = 0;
     new_node->next_sibling = 0;
@@ -1237,7 +1221,6 @@ Node * parse_statement(Parser * parser)
             Tokenizer * tokenizer = parser->tokenizer;
             Token * tokens = (Token *)tokenizer->tokens.items;
             Token * token = &tokens[parser->current_token_index];
-            // FIXME: remove this! Token * token = (Token *)get_element_by_index(parser->current_token_index, tokenizer->index_memory_arena);
             log("Next token starts with:");
             log(token->text);
             
