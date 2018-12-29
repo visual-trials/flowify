@@ -373,13 +373,15 @@ struct DynamicString
 
 DynamicString create_dynamic_string()
 {
+    DynamicString dynamic_string = {};
+    
     // TODO: implement this
     
     // create a memory_arena with consecutive blocks. set max_length accordingly.
     
     // set set pointer .data (in .string)? set length to 0 (should we always allocate 1 block?)
     
-    // return dynamic_string;
+    return dynamic_string;
 }
 
 // TODO: maybe a free_dynamic_string()
