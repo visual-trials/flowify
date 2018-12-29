@@ -73,6 +73,18 @@ void init_memory(Memory * memory)
     memory->nr_of_arenas = 0;
 }
 
+void * memory_copy(void * destination, void * source, i32 nr_of_bytes)
+{
+    // TODO: copying byte-by-byte is slow!
+    u8 * destination_bytes = (u8 *)destination;
+    u8 * source_bytes = (u8 *)source;
+    for (i32 bytes_copied = 0; bytes_copied < nr_of_bytes; bytes_copied++)
+    {
+        destination_bytes[bytes_copied] = source_bytes[bytes_copied];
+    }
+    return destination;
+}
+
 void move_block(Memory * memory, u16 from_block_index, u16 to_block_index)
 {
     
@@ -319,18 +331,6 @@ void reset_dynamic_array(DynamicArray * dynamic_array)
     
     dynamic_array->nr_of_items = 0;
     dynamic_array->items = 0;  // TODO: this needs to be set if memory is reserved (now nothing is reserved)
-}
-
-void * memory_copy(void * destination, void * source, i32 nr_of_bytes)
-{
-    // TODO: copying byte-by-byte is slow!
-    u8 * destination_bytes = (u8 *)destination;
-    u8 * source_bytes = (u8 *)source;
-    for (i32 bytes_copied = 0; bytes_copied < nr_of_bytes; bytes_copied++)
-    {
-        destination_bytes[bytes_copied] = source_bytes[bytes_copied];
-    }
-    return destination;
 }
 
 void * add_to_array(DynamicArray * dynamic_array, void * item)
