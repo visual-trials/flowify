@@ -145,11 +145,11 @@ extern "C" {
             world->selected_token_index++;
             world->selected_node_index++;
         }
-        if (world->selected_token_index >= world->tokenizer.nr_of_tokens)
+        if (world->selected_token_index >= world->tokenizer.tokens.nr_of_items)
         {
             world->selected_token_index = 0;
         }        
-        if (world->selected_node_index >= world->parser.nr_of_nodes)
+        if (world->selected_node_index >= world->parser.nodes.nr_of_items)
         {
             world->selected_node_index = 0;
         }
@@ -219,25 +219,27 @@ extern "C" {
             // TODO: we might want to draw the TokenType
         }
         */
+        Token * tokens = (Token *)world->tokenizer.tokens.items;
+        Node * nodes = (Node *)world->parser.nodes.items;
         
-        if (world->parser.nr_of_nodes > 0)
+        if (world->parser.nodes.nr_of_items > 0)
         {
-            Node * node = (Node *)get_element_by_index(world->selected_node_index, world->parser.index_memory_arena);
+            Node * node = &nodes[world->selected_node_index];
             
             remove_highlighted_line_parts(scrollable_program_text);
             for (i32 token_index = node->first_token_index; token_index <= node->last_token_index; token_index++)
             {
-                Token * token = (Token *)get_element_by_index(token_index, world->tokenizer.index_memory_arena);
+                Token token = tokens[token_index];
                 
-                if (token->type != Token_EndOfStream)
+                if (token.type != Token_EndOfStream)
                 {
-                    String program_line_text = get_string_by_index(token->line_index, scrollable_program_text->lines_memory_arena);
-                    i32 character_in_line_index = (i32)token->text.data - (i32)program_line_text.data;
+                    String program_line_text = get_string_by_index(token.line_index, scrollable_program_text->lines_memory_arena);
+                    i32 character_in_line_index = (i32)token.text.data - (i32)program_line_text.data;
 
                     HighlightedLinePart * highlighted_line_part = add_new_highlighted_line_part(scrollable_program_text);
-                    highlighted_line_part->line_index = token->line_index;
+                    highlighted_line_part->line_index = token.line_index;
                     highlighted_line_part->start_character_index = (u16)character_in_line_index;
-                    highlighted_line_part->length = (u16)token->text.length;
+                    highlighted_line_part->length = (u16)token.text.length;
                 }
             }
             
