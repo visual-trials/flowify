@@ -253,27 +253,30 @@ extern "C" {
         Color4 black = {};
         black.a = 255;
         
+        Token * tokens = (Token *)world->tokenizer.tokens.array.items;
+        
         if (world->flowifier.nr_of_flow_elements > 0)
         {
             FlowElement * selected_flow_element = (FlowElement *)get_element_by_index(world->selected_element_index, world->flowifier.index_memory_arena);
             Node * node = selected_flow_element->ast_node;
-
+            
             remove_highlighted_line_parts(scrollable_program_text);
             for (i32 token_index = node->first_token_index; token_index <= node->last_token_index; token_index++)
             {
-                Token * token = (Token *)get_element_by_index(token_index, world->tokenizer.index_memory_arena);
+                Token token = tokens[token_index];
+                // FIXME: remove this! Token * token = (Token *)get_element_by_index(token_index, world->tokenizer.index_memory_arena);
                 
-                if (token->type != Token_EndOfStream)
+                if (token.type != Token_EndOfStream)
                 {
-                    String program_line_text = get_string_by_index(token->line_index, scrollable_program_text->lines_memory_arena);
+                    String program_line_text = get_string_by_index(token.line_index, scrollable_program_text->lines_memory_arena);
                     
-                    i32 character_in_line_index = (i32)token->text.data - (i32)program_line_text.data;
+                    i32 character_in_line_index = (i32)token.text.data - (i32)program_line_text.data;
 
                     HighlightedLinePart * highlighted_line_part = add_new_highlighted_line_part(scrollable_program_text);
 
-                    highlighted_line_part->line_index = token->line_index;
+                    highlighted_line_part->line_index = token.line_index;
                     highlighted_line_part->start_character_index = (u16)character_in_line_index;
-                    highlighted_line_part->length = (u16)token->text.length;
+                    highlighted_line_part->length = (u16)token.text.length;
                 }
             }
 
