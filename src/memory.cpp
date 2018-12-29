@@ -327,7 +327,7 @@ DynamicArray create_dynamic_array(i32 item_size, Color4 color)
 
 void reset_dynamic_array(DynamicArray * dynamic_array)
 {
-    // TODO: maybe we want to reserve 1 block or allow an initial amount of items and reserve memory for those (and set max_nr_of_items accordingly)
+    // TODO: maybe we want to reserve 1 block or allow an initial amount of items and reserve memory for those
     reset_memory_arena(dynamic_array->memory_arena);
     
     dynamic_array->nr_of_items = 0;
@@ -362,7 +362,6 @@ void * add_to_array(DynamicArray * dynamic_array, void * item)
     return destination;
 }
 
-// TODO: check this
 struct DynamicString
 {
     String string; // Contains .data (u8 *) and .length (i32)
@@ -371,31 +370,53 @@ struct DynamicString
     i32 max_length;
 };
 
-DynamicString create_dynamic_string()
+DynamicString create_dynamic_string(Color4 color)
 {
     DynamicString dynamic_string = {};
     
-    // TODO: implement this
+    // TODO: maybe we want to reserve 1 block or allow an initial amount of items and reserve memory for those
+    dynamic_string.memory_arena = new_memory_arena(&global_memory, true, color, 0); 
     
-    // create a memory_arena with consecutive blocks. set max_length accordingly.
-    
-    // set set pointer .data (in .string)? set length to 0 (should we always allocate 1 block?)
+    dynamic_string.string.length = 0;
+    dynamic_string.string.data = 0;  // TODO: this needs to be set if memory is reserved (now nothing is reserved)
     
     return dynamic_string;
 }
 
-// TODO: maybe a free_dynamic_string()
+void reset_dynamic_string(DynamicString * dynamic_string)
+{
+    // TODO: maybe we want to reserve 1 block or allow an initial amount of items and reserve memory for those
+    reset_memory_arena(dynamic_string->memory_arena);
+    
+    dynamic_string->string.length = 0;
+    dynamic_string->string.data = 0;  // TODO: this needs to be set if memory is reserved (now nothing is reserved)
+}
 
 void append_string(DynamicString * dynamic_string, String * string)
 {
-    // TODO: implement this
+    MemoryArena * memory_arena = dynamic_string->memory_arena;
+    Memory * memory = memory_arena->memory;
     
-    // check if enough room in memory_arena (= sizeof(u8) * (dynamic_string->string.length + string.length))
-    //     if not, create more (consecutive) room
+    i32 available_memory_size = memory_arena->nr_of_blocks * memory->block_size;
+    i32 required_memory_size = dynamic_string->string.length + string->length;
+    if (required_memory_size > available_memory_size)
+    {
+        // TODO: maybe its better to give increase_consecutive_memory_blocks the nr_of_required_bytes instead of the nr_of_required_blocks?
+        // TODO: and also let it return the pointer to the start of the first block
+        i32 required_nr_of_blocks = (i32)((f32)required_memory_size / (f32)memory->block_size) + 1; // first round down, then add one
+        increase_consecutive_memory_blocks(memory_arena, required_nr_of_blocks);
+        
+        u8 * data = (u8 *)((i32)memory->base_address + memory->block_size * memory_arena->current_block_index);
+        
+        dynamic_string->string.data = data;
+    }
     
-    // call append_string(&dynamic_string.string, string); // TODO: or the other way around
+    // TODO: should we increase .bytes_used on the memory block?
     
-    // TODO: what should we return (if anything)?
+    // TODO: maybe use the existing append_string(String * dest, String * src) ?
+    u8 * destination = (u8 *)((i32)dynamic_string->string.data + dynamic_string->string.length);
+    memory_copy(destination, string->data, string->length);
+    dynamic_string->string.length += string->length;
 }
 
 void * push_struct(MemoryArena * memory_arena, i32 size_struct)
