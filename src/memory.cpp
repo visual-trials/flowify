@@ -247,19 +247,19 @@ struct FragmentedMemoryArena
     Color4 color;
     ShortString description;
     
-    u16 first_block_index;
+    u16 last_block_index;
 };
 
 u16 add_memory_block(FragmentedMemoryArena * memory_arena);
 
-FragmentedMemoryArena new_fragmented_memory_arena(Memory * memory, Color4 color, String description, b32 create_initial_block = true)
+FragmentedMemoryArena new_fragmented_memory_arena(Memory * memory, Color4 color, String description, b32 create_initial_block = false)
 {
     FragmentedMemoryArena memory_arena = {};
     
     memory_arena.memory = memory;
     memory_arena.color = color;
     copy_string(description, &memory_arena.description);
-    memory_arena.first_block_index = 0;
+    memory_arena.last_block_index = 0;
     
     if (create_initial_block)
     {
@@ -274,7 +274,7 @@ u16 add_memory_block(FragmentedMemoryArena * memory_arena)
 {
     Memory * memory = memory_arena->memory;
 
-    u16 previous_block_index = memory_arena->first_block_index;
+    u16 last_block_index = memory_arena->last_block_index;
     
     u16 block_index = 0;
     // Note: we are not using block index 0!
@@ -284,16 +284,16 @@ u16 add_memory_block(FragmentedMemoryArena * memory_arena)
         {
             memory->blocks_used[block_index] = true;
             memory->blocks[block_index].bytes_used = 0;
-            memory->blocks[block_index].previous_block_index = previous_block_index;
+            memory->blocks[block_index].previous_block_index = last_block_index;
             memory->blocks[block_index].next_block_index = 0;
             memory->blocks[block_index].color = memory_arena->color;
             memory->blocks[block_index].description = shortstring_to_string(&memory_arena->description);
-            if (previous_block_index)
+            if (last_block_index)
             {
-                memory->blocks[previous_block_index].next_block_index = block_index;
+                memory->blocks[last_block_index].next_block_index = block_index;
             }
             
-            memory_arena->first_block_index = block_index;
+            memory_arena->last_block_index = block_index;
             
             return block_index;
         }
@@ -307,16 +307,16 @@ void * push_struct(FragmentedMemoryArena * memory_arena, i32 size_struct)
     Memory * memory = memory_arena->memory;
     
     MemoryBlock * memory_block = 0;
-    if (!memory_arena->first_block_index || memory->blocks[memory_arena->first_block_index].bytes_used + size_struct > memory->block_size)
+    if (!memory_arena->last_block_index || memory->blocks[memory_arena->last_block_index].bytes_used + size_struct > memory->block_size)
     {
         // If not enough room in the current block (or no block present), then get a new block
         add_memory_block(memory_arena);
     }
-    memory_block = &memory->blocks[memory_arena->first_block_index];
+    memory_block = &memory->blocks[memory_arena->last_block_index];
     
     // TODO: we assume we have a new block! (we should check this, or at least assert it)
     
-    void * struct_address = (void *)((i32)memory->base_address + memory->block_size * memory_arena->first_block_index + memory_block->bytes_used);
+    void * struct_address = (void *)((i32)memory->base_address + memory->block_size * memory_arena->last_block_index + memory_block->bytes_used);
     memory_block->bytes_used += size_struct;
     
     // Add alignment offset (if needed)
@@ -330,11 +330,11 @@ void * push_struct(FragmentedMemoryArena * memory_arena, i32 size_struct)
     return struct_address;
 }
 
-void reset_fragmented_memory_arena(FragmentedMemoryArena * memory_arena, b32 create_initial_block = true)
+void reset_fragmented_memory_arena(FragmentedMemoryArena * memory_arena, b32 create_initial_block = false)
 {
     Memory * memory = memory_arena->memory;
     
-    u16 current_block_index = memory_arena->first_block_index;
+    u16 current_block_index = memory_arena->last_block_index;
     while (current_block_index)
     {
         MemoryBlock * memory_block = &memory->blocks[current_block_index];
@@ -346,7 +346,7 @@ void reset_fragmented_memory_arena(FragmentedMemoryArena * memory_arena, b32 cre
         current_block_index = previous_block_index;
     }
     
-    memory_arena->first_block_index = 0;
+    memory_arena->last_block_index = 0;
     
     if (create_initial_block)
     {

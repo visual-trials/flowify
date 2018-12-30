@@ -66,28 +66,10 @@ extern "C" {
         ScrollableText * scrollable_program_text = &world->scrollable_program_text;
         ScrollableText * scrollable_flowify_dump = &world->scrollable_flowify_dump;
         
-        world->program_text.data = (u8 *)program_text;
-        world->program_text.length = cstring_length(program_text);
-        
         init_scrollable_text(scrollable_program_text);
-        split_string_into_scrollable_lines(world->program_text, scrollable_program_text);
-
         init_tokenizer(tokenizer);
-        tokenize(tokenizer, (u8 *)program_text);
-
-        //Parse
         init_parser(parser, tokenizer);
-        Node * root_node = parse_program(parser);
-        
-        // Flowify
         init_flowifier(flowifier);
-        FlowElement * root_element = new_flow_element(flowifier, root_node, FlowElement_Root);
-        flowify_statements(flowifier, root_element);
-        
-        // TODO: should we do this in update_frame?
-        layout_elements(root_element);
-        world->root_element = root_element;
-        
         // TODO: we probably want reset_dynamic_string to create the dynamic string if the arena doesn't exist. But how to deal with the color?
         // TODO: use/implement init_dynamic_string
         if (!world->flowify_dump_text.memory_arena.memory)
@@ -98,9 +80,29 @@ extern "C" {
         {
             reset_dynamic_string(&world->flowify_dump_text);
         }
+        init_scrollable_text(scrollable_flowify_dump, false);
+        
+        world->program_text.data = (u8 *)program_text;
+        world->program_text.length = cstring_length(program_text);
+        
+        split_string_into_scrollable_lines(world->program_text, scrollable_program_text);
+
+        // Tokenize
+        tokenize(tokenizer, (u8 *)program_text);
+
+        //Parse
+        Node * root_node = parse_program(parser);
+        
+        // Flowify
+        FlowElement * root_element = new_flow_element(flowifier, root_node, FlowElement_Root);
+        flowify_statements(flowifier, root_element);
+        
+        // TODO: should we do this in update_frame?
+        layout_elements(root_element);
+        world->root_element = root_element;
+        
         dump_element_tree(root_element, &world->flowify_dump_text);
         
-        init_scrollable_text(scrollable_flowify_dump, false);
         split_string_into_scrollable_lines(world->flowify_dump_text.string, scrollable_flowify_dump);
     }
     

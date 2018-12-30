@@ -300,7 +300,7 @@ void init_scrollable_text(ScrollableText * scrollable_text, b32 draw_line_number
     
     if (!scrollable_text->highlighted_line_parts_memory_arena.memory)
     {
-        scrollable_text->highlighted_line_parts_memory_arena = new_fragmented_memory_arena(&global_memory, (Color4){100,255,100,255}, cstring_to_string("Highlighted parts"), false);
+        scrollable_text->highlighted_line_parts_memory_arena = new_fragmented_memory_arena(&global_memory, (Color4){100,255,100,255}, cstring_to_string("Highlighted parts"));
         scrollable_text->first_highlighted_line_part = 0;
     }
     else
@@ -611,6 +611,7 @@ void do_memory_usage(Memory * memory, Input * input, b32 * is_verbose)
     }
     
     i32 bar_height = 100;
+    i32 bar_width = 10;
     
     Pos2d start_position = {};
     start_position.x = 100;
@@ -627,15 +628,16 @@ void do_memory_usage(Memory * memory, Input * input, b32 * is_verbose)
             
             Color4 color = memory->blocks[memory_block_index].color;
             
-            draw_rectangle((Pos2d){start_position.x + memory_block_index * 2, start_position.y + bar_height - percentage_used}, (Size2d){2,percentage_used}, no_color, color, 1);
-            draw_rectangle((Pos2d){start_position.x + memory_block_index * 2, start_position.y}, (Size2d){2, bar_height - percentage_used}, no_color, light_blue, 1);
+            Color4 light_color = color;
+            light_color.a /= 3;
+            
+            draw_rectangle((Pos2d){start_position.x + memory_block_index * bar_width, start_position.y + bar_height - percentage_used}, (Size2d){bar_width,percentage_used}, no_color, color, 1);
+            draw_rectangle((Pos2d){start_position.x + memory_block_index * bar_width, start_position.y}, (Size2d){bar_width, bar_height - percentage_used}, no_color, light_color, 1);
         }
         else {
-            draw_rectangle((Pos2d){start_position.x + memory_block_index * 2, start_position.y}, (Size2d){2, bar_height}, no_color, light_blue, 1);
+            draw_rectangle((Pos2d){start_position.x + memory_block_index * bar_width, start_position.y}, (Size2d){bar_width, bar_height}, no_color, light_blue, 1);
         }
     }
-    
-    
     
 }
 
