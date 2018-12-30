@@ -75,9 +75,9 @@ extern "C" {
         Node * root_node = parse_program(parser);
         
         // TODO: we probably want reset_dynamic_string to create the dynamic string if the arena doesn't exist. But how to deal with the color?
-        if (!world->dump_text.memory_arena)
+        if (!world->dump_text.memory_arena.memory)
         {
-            world->dump_text = create_dynamic_string((Color4){70,150,255,255});
+            world->dump_text = create_dynamic_string((Color4){70,150,255,255}, cstring_to_string("Ast dump text"));
         }
         else
         {
