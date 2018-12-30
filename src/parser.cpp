@@ -99,15 +99,7 @@ void init_tokenizer(Tokenizer * tokenizer)
     tokenizer->at = 0;
     tokenizer->current_line_index = 0;
 
-    // TODO: use init_dynamic_array
-    if (!tokenizer->tokens.memory_arena.memory)
-    {
-        tokenizer->tokens = create_dynamic_array(sizeof(Token), (Color4){0,255,0,255}, cstring_to_string("Tokenizer"));
-    }
-    else
-    {
-        reset_dynamic_array(&tokenizer->tokens);
-    }
+    init_dynamic_array(&tokenizer->tokens, sizeof(Token), (Color4){0,255,0,255}, cstring_to_string("Tokenizer"));
 }
 
 b32 is_end_of_line(char ch)
@@ -652,15 +644,7 @@ void init_parser(Parser * parser, Tokenizer * tokenizer)
     parser->current_token_index = 0;
     parser->tokenizer = tokenizer;
 
-    // TODO: use init_dynamic_array
-    if (!parser->nodes.memory_arena.memory)
-    {
-        parser->nodes = create_dynamic_array(sizeof(Node), (Color4){255,0,255,255}, cstring_to_string("Parser"));
-    }
-    else
-    {
-        reset_dynamic_array(&parser->nodes);
-    }
+    init_dynamic_array(&parser->nodes, sizeof(Node), (Color4){255,0,255,255}, cstring_to_string("Parser"));
 }
 
 void next_token(Parser * parser)

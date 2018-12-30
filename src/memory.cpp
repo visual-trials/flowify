@@ -391,6 +391,18 @@ void reset_dynamic_array(DynamicArray * dynamic_array)
     dynamic_array->items = 0;  // TODO: this needs to be set if memory is reserved (now nothing is reserved)
 }
 
+void init_dynamic_array(DynamicArray * dynamic_array, i32 item_size, Color4 color, String description)
+{
+    if (!dynamic_array->memory_arena.memory)
+    {
+        *dynamic_array = create_dynamic_array(item_size, color, description);
+    }
+    else
+    {
+        reset_dynamic_array(dynamic_array);
+    }
+}
+
 void * add_to_array(DynamicArray * dynamic_array, void * item)
 {
     ConsecutiveMemoryArena * memory_arena = &dynamic_array->memory_arena;
@@ -449,6 +461,18 @@ void reset_dynamic_string(DynamicString * dynamic_string)
     
     dynamic_string->string.length = 0;
     dynamic_string->string.data = 0;  // TODO: this needs to be set if memory is reserved (now nothing is reserved)
+}
+
+void init_dynamic_string(DynamicString * dynamic_string, Color4 color, String description)
+{
+    if (!dynamic_string->memory_arena.memory)
+    {
+        *dynamic_string = create_dynamic_string(color, description);
+    }
+    else
+    {
+        reset_dynamic_string(dynamic_string);
+    }
 }
 
 void append_string(DynamicString * dynamic_string, String string)

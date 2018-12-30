@@ -123,15 +123,7 @@ void init_flowifier(Flowifier * flowifier)
     flowifier->first_function = 0;
     flowifier->latest_function = 0;
     
-    // TODO: use init_dynamic_array
-    if (!flowifier->flow_elements.memory_arena.memory)
-    {
-        flowifier->flow_elements = create_dynamic_array(sizeof(FlowElement), (Color4){0,255,255,255}, cstring_to_string("Flowifier"));
-    }
-    else
-    {
-        reset_dynamic_array(&flowifier->flow_elements);
-    }
+    init_dynamic_array(&flowifier->flow_elements, sizeof(FlowElement), (Color4){0,255,255,255}, cstring_to_string("Flowifier"));
 }
 
 FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowElementType flow_element_type = FlowElement_Unknown)

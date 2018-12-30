@@ -65,21 +65,13 @@ extern "C" {
         Flowifier * flowifier = &world->flowifier;
         ScrollableText * scrollable_program_text = &world->scrollable_program_text;
         ScrollableText * scrollable_flowify_dump = &world->scrollable_flowify_dump;
+        DynamicString * flowify_dump_text = &world->flowify_dump_text;
         
         init_scrollable_text(scrollable_program_text);
         init_tokenizer(tokenizer);
         init_parser(parser, tokenizer);
         init_flowifier(flowifier);
-        // TODO: we probably want reset_dynamic_string to create the dynamic string if the arena doesn't exist. But how to deal with the color?
-        // TODO: use/implement init_dynamic_string
-        if (!world->flowify_dump_text.memory_arena.memory)
-        {
-            world->flowify_dump_text = create_dynamic_string((Color4){70,150,255,255}, cstring_to_string("Flowify dump text"));
-        }
-        else
-        {
-            reset_dynamic_string(&world->flowify_dump_text);
-        }
+        init_dynamic_string(flowify_dump_text, (Color4){70,150,255,255}, cstring_to_string("Flowify dump text"));
         init_scrollable_text(scrollable_flowify_dump, false);
         
         world->program_text.data = (u8 *)program_text;

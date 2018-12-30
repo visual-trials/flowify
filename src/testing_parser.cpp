@@ -60,34 +60,27 @@ extern "C" {
         ScrollableText * scrollable_program_text = &world->scrollable_program_text;
         ScrollableText * scrollable_ast_dump = &world->scrollable_ast_dump;
         
+        init_scrollable_text(scrollable_program_text);
+        init_tokenizer(tokenizer);
+        init_parser(parser, tokenizer);
+        init_dynamic_string(&world->dump_text, (Color4){70,150,255,255}, cstring_to_string("Ast dump text"));
+        init_scrollable_text(scrollable_ast_dump, false);
+        
         world->program_text.data = (u8 *)program_text;
         world->program_text.length = cstring_length(program_text);
         
-        init_scrollable_text(scrollable_program_text);
         split_string_into_scrollable_lines(world->program_text, scrollable_program_text);
 
         // Tokenize
-        init_tokenizer(tokenizer);
         tokenize(tokenizer, (u8 *)program_text);
 
         //Parse
-        init_parser(parser, tokenizer);
         Node * root_node = parse_program(parser);
         
-        // TODO: we probably want reset_dynamic_string to create the dynamic string if the arena doesn't exist. But how to deal with the color?
-        if (!world->dump_text.memory_arena.memory)
-        {
-            world->dump_text = create_dynamic_string((Color4){70,150,255,255}, cstring_to_string("Ast dump text"));
-        }
-        else
-        {
-            reset_dynamic_string(&world->dump_text);
-        }
         
         // Dump parse result
         dump_tree(root_node, &world->dump_text);
         
-        init_scrollable_text(scrollable_ast_dump, false);
         split_string_into_scrollable_lines(world->dump_text.string, scrollable_ast_dump);
     }
     

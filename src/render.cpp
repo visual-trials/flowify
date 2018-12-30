@@ -286,15 +286,7 @@ void init_scrollable_text(ScrollableText * scrollable_text, b32 draw_line_number
     
     // TODO: get a description and color as parameter and pass it to create_dynamic_array!
     
-    // TODO: use this: init_dynamic_array(&scrollable_text->lines, sizeof(String), (Color4){255,100,100,255}, cstring_to_string("Scrollable Text"));
-    if (!scrollable_text->lines.memory_arena.memory)
-    {
-        scrollable_text->lines = create_dynamic_array(sizeof(String), (Color4){255,100,100,255}, cstring_to_string("Scrollable Text"));
-    }
-    else
-    {
-        reset_dynamic_array(&scrollable_text->lines);
-    }
+    init_dynamic_array(&scrollable_text->lines, sizeof(String), (Color4){255,100,100,255}, cstring_to_string("Scrollable Text"));
     
     scrollable_text->line_offset = 0;
     
