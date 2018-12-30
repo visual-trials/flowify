@@ -236,7 +236,8 @@ struct ScrollableText
     
     i32 line_offset;
     
-    MemoryArena * highlighted_line_parts_memory_arena;
+    // TODO: we probably want to use a DynamicArray here too!
+    FragmentedMemoryArena highlighted_line_parts_memory_arena;
     HighlightedLinePart * first_highlighted_line_part;
     
     Font font;
@@ -259,7 +260,7 @@ struct ScrollableText
 
 HighlightedLinePart * add_new_highlighted_line_part(ScrollableText * scrollable_text)
 {
-    HighlightedLinePart * new_highlighted_line_part = (HighlightedLinePart *)push_struct(scrollable_text->highlighted_line_parts_memory_arena, sizeof(HighlightedLinePart));
+    HighlightedLinePart * new_highlighted_line_part = (HighlightedLinePart *)push_struct(&scrollable_text->highlighted_line_parts_memory_arena, sizeof(HighlightedLinePart));
     
     new_highlighted_line_part->line_index = 0;
     new_highlighted_line_part->start_character_index = 0;
@@ -275,16 +276,20 @@ HighlightedLinePart * add_new_highlighted_line_part(ScrollableText * scrollable_
 
 void remove_highlighted_line_parts(ScrollableText * scrollable_text)
 {
-    reset_memory_arena(scrollable_text->highlighted_line_parts_memory_arena);
+    reset_fragmented_memory_arena(&scrollable_text->highlighted_line_parts_memory_arena);
     scrollable_text->first_highlighted_line_part = 0;
 }
 
 // TODO: we should probably create a function to de-allocate all memory inside the scrollable_text
 void init_scrollable_text(ScrollableText * scrollable_text, b32 draw_line_numbers = true)
 {
-    if (!scrollable_text->lines.memory_arena)
+    
+    // TODO: get a description and color as parameter and pass it to create_dynamic_array!
+    
+    // TODO: use this: init_dynamic_array(&scrollable_text->lines, sizeof(String), (Color4){255,100,100,255}, cstring_to_string("Scrollable Text"));
+    if (!scrollable_text->lines.memory_arena.memory)
     {
-        scrollable_text->lines = create_dynamic_array(sizeof(String), (Color4){255,100,100,255});
+        scrollable_text->lines = create_dynamic_array(sizeof(String), (Color4){255,100,100,255}, cstring_to_string("Scrollable Text"));
     }
     else
     {
@@ -293,9 +298,9 @@ void init_scrollable_text(ScrollableText * scrollable_text, b32 draw_line_number
     
     scrollable_text->line_offset = 0;
     
-    if (!scrollable_text->highlighted_line_parts_memory_arena)
+    if (!scrollable_text->highlighted_line_parts_memory_arena.memory)
     {
-        scrollable_text->highlighted_line_parts_memory_arena = new_memory_arena(&global_memory, false, (Color4){100,255,100,255}, 0);
+        scrollable_text->highlighted_line_parts_memory_arena = new_fragmented_memory_arena(&global_memory, (Color4){100,255,100,255}, cstring_to_string("Highlighted parts"), false);
         scrollable_text->first_highlighted_line_part = 0;
     }
     else
@@ -620,7 +625,7 @@ void do_memory_usage(Memory * memory, Input * input, b32 * is_verbose)
             
             i32 percentage_used = (i32)(bar_height * (f32)((f32)bytes_used / (f32)block_size));
             
-            Color4 color = memory->blocks[memory_block_index].memory_arena->color;
+            Color4 color = memory->blocks[memory_block_index].color;
             
             draw_rectangle((Pos2d){start_position.x + memory_block_index * 2, start_position.y + bar_height - percentage_used}, (Size2d){2,percentage_used}, no_color, color, 1);
             draw_rectangle((Pos2d){start_position.x + memory_block_index * 2, start_position.y}, (Size2d){2, bar_height - percentage_used}, no_color, light_blue, 1);

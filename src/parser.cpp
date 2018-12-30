@@ -99,9 +99,10 @@ void init_tokenizer(Tokenizer * tokenizer)
     tokenizer->at = 0;
     tokenizer->current_line_index = 0;
 
-    if (!tokenizer->tokens.memory_arena)
+    // TODO: use init_dynamic_array
+    if (!tokenizer->tokens.memory_arena.memory)
     {
-        tokenizer->tokens = create_dynamic_array(sizeof(Token), (Color4){0,255,0,255});
+        tokenizer->tokens = create_dynamic_array(sizeof(Token), (Color4){0,255,0,255}, cstring_to_string("Tokenizer"));
     }
     else
     {
@@ -651,9 +652,10 @@ void init_parser(Parser * parser, Tokenizer * tokenizer)
     parser->current_token_index = 0;
     parser->tokenizer = tokenizer;
 
-    if (!parser->nodes.memory_arena)
+    // TODO: use init_dynamic_array
+    if (!parser->nodes.memory_arena.memory)
     {
-        parser->nodes = create_dynamic_array(sizeof(Node), (Color4){255,0,255,255});
+        parser->nodes = create_dynamic_array(sizeof(Node), (Color4){255,0,255,255}, cstring_to_string("Parser"));
     }
     else
     {
@@ -1312,28 +1314,13 @@ Node * parse_program(Parser * parser)
 
 i32 dump_tree(Node * node, DynamicString * dump_text, i32 dump_line_index = 0, i32 depth = 0)
 {
-    u8 temp_string[100]; // TODO: use a temp-memory buffer instead
-    
-    String indent_string = {};
-    indent_string.data = temp_string;
-    copy_cstring_to_string("    ", &indent_string);
-    
+    String node_type_string = cstring_to_string(node_type_names[node->type]);
     for (i32 indentation_index = 0; indentation_index < depth; indentation_index++)
     {
-        append_string(dump_text, &indent_string);
+        append_string(dump_text, cstring_to_string("    "));
     }
-    
-    String node_type_string = {};
-    node_type_string.data = temp_string;
-    copy_cstring_to_string(node_type_names[node->type], &node_type_string);
-    
-    append_string(dump_text, &node_type_string);
-    
-    String newline_string = {};
-    newline_string.data = temp_string;
-    copy_cstring_to_string("\n", &newline_string);
-    
-    append_string(dump_text, &newline_string);
+    append_string(dump_text, node_type_string);
+    append_string(dump_text, cstring_to_string("\n"));
     
     node->highlighted_line_part.line_index = dump_line_index++;
     node->highlighted_line_part.start_character_index = (u16)(depth * 4);

@@ -123,9 +123,10 @@ void init_flowifier(Flowifier * flowifier)
     flowifier->first_function = 0;
     flowifier->latest_function = 0;
     
-    if (!flowifier->flow_elements.memory_arena)
+    // TODO: use init_dynamic_array
+    if (!flowifier->flow_elements.memory_arena.memory)
     {
-        flowifier->flow_elements = create_dynamic_array(sizeof(FlowElement), (Color4){0,255,255,255});
+        flowifier->flow_elements = create_dynamic_array(sizeof(FlowElement), (Color4){0,255,255,255}, cstring_to_string("Flowifier"));
     }
     else
     {
@@ -826,28 +827,13 @@ void draw_elements(FlowElement * flow_element, Pos2d parent_position, b32 show_h
 
 i32 dump_element_tree(FlowElement * element, DynamicString * dump_text, i32 dump_line_index = 0, i32 depth = 0)
 {
-    u8 temp_string[100]; // TODO: use a temp-memory buffer instead
-    
-    String indent_string = {};
-    indent_string.data = temp_string;
-    copy_cstring_to_string("    ", &indent_string);
-    
+    String element_type_string = cstring_to_string(flow_element_type_names[element->type]);
     for (i32 indentation_index = 0; indentation_index < depth; indentation_index++)
     {
-        append_string(dump_text, &indent_string);
+        append_string(dump_text, cstring_to_string("    "));
     }
-    
-    String element_type_string = {};
-    element_type_string.data = temp_string;
-    copy_cstring_to_string(flow_element_type_names[element->type], &element_type_string);
-    
-    append_string(dump_text, &element_type_string);
-    
-    String newline_string = {};
-    newline_string.data = temp_string;
-    copy_cstring_to_string("\n", &newline_string);
-    
-    append_string(dump_text, &newline_string);
+    append_string(dump_text, element_type_string);
+    append_string(dump_text, cstring_to_string("\n"));
     
     element->highlighted_line_part.line_index = dump_line_index++;
     element->highlighted_line_part.start_character_index = (u16)(depth * 4);

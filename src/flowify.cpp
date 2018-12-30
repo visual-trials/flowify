@@ -89,9 +89,10 @@ extern "C" {
         world->root_element = root_element;
         
         // TODO: we probably want reset_dynamic_string to create the dynamic string if the arena doesn't exist. But how to deal with the color?
-        if (!world->flowify_dump_text.memory_arena)
+        // TODO: use/implement init_dynamic_string
+        if (!world->flowify_dump_text.memory_arena.memory)
         {
-            world->flowify_dump_text = create_dynamic_string((Color4){70,150,255,255});
+            world->flowify_dump_text = create_dynamic_string((Color4){70,150,255,255}, cstring_to_string("Flowify dump text"));
         }
         else
         {

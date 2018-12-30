@@ -625,6 +625,23 @@ void copy_string(ShortString * src, ShortString * dest)
     dest->length = src->length;
 }
 
+void copy_string(String src, ShortString * dest)
+{
+    for (i32 i = 0; i < src.length; i++)
+    {
+        dest->data[i] = src.data[i];
+    }
+    dest->length = src.length;
+}
+
+String shortstring_to_string(ShortString * shortstring)
+{
+    String string = {};
+    string.data = shortstring->data;
+    string.length = shortstring->length;
+    return string;
+}
+
 i32 copy_cstring(const char * src, u8 * dest, i32 max_length = -1)
 {
     i32 count = 0;
@@ -649,12 +666,13 @@ ShortString * copy_cstring_to_short_string(const char * src, ShortString * dest)
     return dest;
 }
 
-String * copy_cstring_to_string(const char * src, String * dest)
+String cstring_to_string(const char * src)
 {
-    i32 length = copy_cstring(src, dest->data);
-    dest->length = length;
+    String string = {};
+    string.length = cstring_length(src);
+    string.data = (u8*)src;
     
-    return dest;
+    return string;
 }
 
 ShortString * copy_char_to_string(char ch, ShortString * dest)
