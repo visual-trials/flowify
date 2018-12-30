@@ -25,7 +25,7 @@ struct WorldData
 {
     b32 increased_memory;
     
-    MemoryArena * consecutive_memory_arena;
+    ConsecutiveMemoryArena consecutive_memory_arena;
     
     b32 verbose_frame_times;
     b32 verbose_memory_usage;
@@ -45,21 +45,21 @@ extern "C" {
         WorldData * world = &global_world;
         Memory * memory = &global_memory;
         
-        MemoryArena * memory_arena = new_memory_arena(memory, false, (Color4){0,255,0,255});
+        FragmentedMemoryArena memory_arena = new_fragmented_memory_arena(memory, (Color4){0,255,0,255}, cstring_to_string("Fragmented"), true);
         
-        LargeStruct * large_struct = (LargeStruct *)push_struct(memory_arena, sizeof(LargeStruct));
+        LargeStruct * large_struct = (LargeStruct *)push_struct(&memory_arena, sizeof(LargeStruct));
 
         log_int(sizeof(LargeStruct));
         
         log_int((i32)large_struct);
         
-        world->consecutive_memory_arena = new_memory_arena(memory, true, (Color4){200,0,255,255}, 10);
+        world->consecutive_memory_arena = new_consecutive_memory_arena(memory, (Color4){200,0,255,255}, cstring_to_string("Consecutive"), 10);
         
-        LargeStruct * large_struct2 = (LargeStruct *)push_struct(memory_arena, sizeof(LargeStruct));
+        LargeStruct * large_struct2 = (LargeStruct *)push_struct(&memory_arena, sizeof(LargeStruct));
         
         log_int((i32)large_struct2);
         
-        // reset_memory_arena(memory_arena);
+        // reset_fragmented_memory_arena(&memory_arena);
         
         world->verbose_memory_usage = true;
     }
@@ -110,7 +110,7 @@ extern "C" {
         
         if (button_is_pressed && !world->increased_memory)
         {
-            increase_consecutive_memory_blocks(world->consecutive_memory_arena, 20);
+            increase_consecutive_memory_blocks(&world->consecutive_memory_arena, 20);
             world->increased_memory = true;
         }
         

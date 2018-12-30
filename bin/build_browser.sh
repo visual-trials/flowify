@@ -4,8 +4,8 @@ source /home/emscripten/emsdk/emsdk_env.sh
 
 #PROJECT_NAME=flowify
 #PROJECT_NAME=testing_file
-PROJECT_NAME=testing_parser
-#PROJECT_NAME=testing_memory
+#PROJECT_NAME=testing_parser
+PROJECT_NAME=testing_memory
 #PROJECT_NAME=testing_text
 #PROJECT_NAME=testing_animation
 #PROJECT_NAME=testing_keyboard
