@@ -606,7 +606,7 @@ void do_memory_usage(Memory * memory, Input * input, b32 * is_verbose)
     i32 bar_width = 10;
     
     i32 left_margin = 100;
-    i32 right_margin = 200;
+    i32 right_margin = 450;
     
     Pos2d start_position = {};
     start_position.x = left_margin;

@@ -280,6 +280,19 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         
         new_statement_element = if_element;
     }
+    else if (statement_node->type == Node_Stmt_For)
+    {
+        FlowElement * for_element = new_flow_element(flowifier, statement_node, FlowElement_For);
+        
+        Node * for_init_node = statement_node->first_child;
+        Node * for_cond_node = for_init_node->next_sibling;
+        Node * for_update_node = for_cond_node->next_sibling;
+        Node * for_body_node = for_update_node->next_sibling;
+        
+        // TODO: implement this!
+        
+        new_statement_element = for_element;
+    }
     else if (statement_node->type == Node_Stmt_Function)
     {
         FlowElement * function_element = new_flow_element(flowifier, statement_node, FlowElement_Function);
@@ -328,18 +341,17 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
 void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
 {
     Node * parent_node = parent_element->ast_node;
-    Node * child_node = 0;
-    FlowElement * previous_child_element = 0;
+    Node * statement_node = 0;
     
     // Functions
-    child_node = parent_node->first_child;
-    if (child_node)
+    statement_node = parent_node->first_child;
+    if (statement_node)
     {
         do
         {
-            if (child_node->type == Node_Stmt_Function)
+            if (statement_node->type == Node_Stmt_Function)
             {
-                FlowElement * new_function_element = flowify_statement(flowifier, child_node);
+                FlowElement * new_function_element = flowify_statement(flowifier, statement_node);
 
                 // TODO: right now we store functions in one (global) linked list
                 if (!flowifier->first_function)
@@ -353,34 +365,34 @@ void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
                 flowifier->latest_function = new_function_element;
             }
         }
-        while((child_node = child_node->next_sibling));
+        while((statement_node = statement_node->next_sibling));
     }
     
     // Non-functions
-    child_node = parent_node->first_child;
-    previous_child_element = 0;
-    if (child_node)
+    statement_node = parent_node->first_child;
+    FlowElement * previous_statement_element = 0;
+    if (statement_node) // There are statements (in the parent)
     {
-        do
+        do // Loop through all statements (in the parent)
         {
-            if (child_node->type != Node_Stmt_Function)
+            if (statement_node->type != Node_Stmt_Function)
             {
-                FlowElement * new_child_element = flowify_statement(flowifier, child_node);
+                FlowElement * new_statement_element = flowify_statement(flowifier, statement_node);
                     
                 if (!parent_element->first_child)
                 {
-                    parent_element->first_child = new_child_element;
-                    new_child_element->parent = parent_element;  // TODO: only setting parent on first_child?
+                    parent_element->first_child = new_statement_element;
+                    new_statement_element->parent = parent_element;  // TODO: only setting parent on first_child?
                 }
                 else 
                 {
-                    previous_child_element->next_sibling = new_child_element;
-                    new_child_element->previous_sibling = previous_child_element;
+                    previous_statement_element->next_sibling = new_statement_element;
+                    new_statement_element->previous_sibling = previous_statement_element;
                 }
-                previous_child_element = new_child_element;
+                previous_statement_element = new_statement_element;
             }
         }
-        while((child_node = child_node->next_sibling));
+        while((statement_node = statement_node->next_sibling));
     }
 }
 
@@ -432,12 +444,12 @@ void layout_elements(FlowElement * flow_element)
         }
         
         i32 middle_margin = 80;
-        i32 vertical_margin = 50;
+        i32 vertical_margin = 150;
 
         if_start_element->position.x = 0;
         if_start_element->position.y = 0;
-        if_start_element->size.height = 50;
-        if_start_element->size.width = if_then_element->size.width + middle_margin + if_else_element->size.width;
+        if_start_element->size.height = 20;
+        if_start_element->size.width = 100; // if_then_element->size.width + middle_margin + if_else_element->size.width;
         if_start_element->has_lane_segments = true;
         
         if_else_element->position.x = 0;
@@ -448,8 +460,8 @@ void layout_elements(FlowElement * flow_element)
         
         if_end_element->position.x = 0;
         if_end_element->position.y = if_start_element->size.height + vertical_margin + then_else_height + vertical_margin;
-        if_end_element->size.width = if_then_element->size.width + middle_margin + if_else_element->size.width;
-        if_end_element->size.height = 50;
+        if_end_element->size.width = 100; //if_then_element->size.width + middle_margin + if_else_element->size.width;
+        if_end_element->size.height = 20;
         if_end_element->has_lane_segments = true;
         
         flow_element->size.height = if_start_element->size.height + vertical_margin + then_else_height + vertical_margin + if_end_element->size.height;
