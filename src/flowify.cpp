@@ -117,7 +117,7 @@ extern "C" {
         world->program_texts[7] = fibonacci_recursive_early_return_program_text;
         world->nr_of_program_texts = 8;
         
-        world->current_program_text_index = 5;
+        world->current_program_text_index = 4;
         
         world->verbose_memory_usage = true;
 
@@ -224,13 +224,17 @@ extern "C" {
             }
         }
         
-        // FIXME: hack!
+        
         FlowElement * root_element = world->root_element;
         Input * input = &global_input;
-        Pos2d position;
-        position.x = input->screen.width - root_element->size.width - 100;
-        position.y = 50;
-        draw_elements(root_element, position, world->show_help_rectangles);
+        
+        Pos2d absolute_position;
+        // FIXME: hack!
+        absolute_position.x = input->screen.width - root_element->size.width - 100; 
+        absolute_position.y = 50; 
+        absolute_layout_elements(root_element, absolute_position);
+        
+        draw_elements(root_element, world->show_help_rectangles);
         
     }
     
