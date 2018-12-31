@@ -605,11 +605,20 @@ void do_memory_usage(Memory * memory, Input * input, b32 * is_verbose)
     i32 bar_height = 100;
     i32 bar_width = 10;
     
+    i32 left_margin = 100;
+    i32 right_margin = 200;
+    
     Pos2d start_position = {};
-    start_position.x = 100;
+    start_position.x = left_margin;
     start_position.y = screen->height - bar_height - 50;
     
-    for (i32 memory_block_index = 0; memory_block_index < memory->nr_of_blocks; memory_block_index++)
+    i32 nr_of_bars_to_show = memory->nr_of_blocks;
+    if (left_margin + nr_of_bars_to_show * bar_width + right_margin > screen->width)
+    {
+        nr_of_bars_to_show = (screen->width - left_margin - right_margin) / bar_width;
+    }
+    
+    for (i32 memory_block_index = 0; memory_block_index < nr_of_bars_to_show; memory_block_index++)
     {
         if (memory->blocks_used[memory_block_index])
         {
