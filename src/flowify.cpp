@@ -111,12 +111,13 @@ extern "C" {
         world->program_texts[2] = simple_functions_program_text;
         world->program_texts[3] = simple_if_program_text;
         world->program_texts[4] = simple_if_else_program_text;
-        world->program_texts[5] = simple_for_continue_break_program_text;
+        world->program_texts[5] = simple_for;
+        // TODO: in the end, we probably want this example instead: world->program_texts[5] = simple_for_continue_break_program_text;
         world->program_texts[6] = fibonacci_iterative_program_text;
         world->program_texts[7] = fibonacci_recursive_early_return_program_text;
         world->nr_of_program_texts = 8;
         
-        world->current_program_text_index = 4;
+        world->current_program_text_index = 5;
         
         world->verbose_memory_usage = true;
 

@@ -97,6 +97,16 @@ const char * simple_if_else_program_text =
     "$c = $myVar + $b;\n"
 ;
 
+const char * simple_for = 
+    "<?php\n"
+    "\n"
+    "$b = 76;\n"
+    "\n"
+    "for ($i = 0; $i < 10; $i = $i + 1) {\n"
+    "    $b = $b - 5;\n"
+    "}\n"
+;
+
 const char * simple_for_continue_break_program_text = 
     "<?php\n"
     "\n"
