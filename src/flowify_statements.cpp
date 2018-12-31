@@ -86,12 +86,18 @@ struct FlowElement
     
     Node * ast_node;
     
+    // These 4 FlowElements represent a parental and sibling "hierarchy" (mostly used for "looping" through all elements)
     FlowElement * first_child;
     FlowElement * parent;
     
     FlowElement * next_sibling;
     FlowElement * previous_sibling;
     
+    // These 2 FlowElements represent the control-flow between elements (only used by non-split and non-join elements)
+    FlowElement * next_in_flow;
+    FlowElement * previous_in_flow;
+    
+    // This FlowElement represents a chained-list of all functions
     FlowElement * next_function; // TODO: we should probably not store this in FlowElement
     
     b32 has_lane_segments;
@@ -129,22 +135,33 @@ void init_flowifier(Flowifier * flowifier)
 FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowElementType flow_element_type = FlowElement_Unknown)
 {
     FlowElement empty_flow_element = {};
+    
     FlowElement * new_flow_element = (FlowElement *)add_to_array(&flowifier->flow_elements, &empty_flow_element);
     
     new_flow_element->ast_node = ast_node;
+    
     new_flow_element->first_child = 0;
     new_flow_element->parent = 0;
     new_flow_element->next_sibling = 0;
     new_flow_element->previous_sibling = 0;
+    
+    new_flow_element->next_in_flow = 0;
+    new_flow_element->previous_in_flow = 0;
+    
     new_flow_element->next_function = 0;
+    
     new_flow_element->type = flow_element_type;
+    
     new_flow_element->position.x = 0;
     new_flow_element->position.y = 0;
+    
     new_flow_element->size.width = 0;
     new_flow_element->size.height = 0;
 
     new_flow_element->has_lane_segments = false;
+    
     new_flow_element->is_selected = false;
+    
     return new_flow_element;
 }
 
