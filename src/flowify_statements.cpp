@@ -547,6 +547,12 @@ void layout_elements(FlowElement * flow_element)
         flow_element->size.height = 80;
         flow_element->has_lane_segments = true;
     }
+    else if (flow_element->type == FlowElement_PassBack)
+    {
+        flow_element->size.width = 40;
+        flow_element->size.height = 80;
+        flow_element->has_lane_segments = true;
+    }
     else if (flow_element->type == FlowElement_Assignment)
     {
         flow_element->size.width = 100;
@@ -606,6 +612,62 @@ void layout_elements(FlowElement * flow_element)
         flow_element->size.width = if_then_element->size.width + middle_margin + if_else_element->size.width;
         
     }
+    else if (flow_element->type == FlowElement_For)
+    {
+        FlowElement * for_init_element = flow_element->first_child;
+        FlowElement * for_join_element = for_init_element->next_sibling;
+        FlowElement * for_cond_element = for_join_element->next_sibling;
+        FlowElement * for_split_element = for_cond_element->next_sibling;
+        FlowElement * for_body_element = for_split_element->next_sibling;
+        FlowElement * for_update_element = for_body_element->next_sibling;
+        FlowElement * for_passback_element = for_update_element->next_sibling;
+        FlowElement * for_passthrough_element = for_passback_element->next_sibling;
+        FlowElement * for_done_element = for_passthrough_element->next_sibling;
+        
+        layout_elements(for_body_element);
+        
+        i32 for_body_height = for_body_element->size.height;
+        
+        i32 middle_margin = 80;
+        i32 vertical_margin = 150;
+
+        for_init_element->position.x = 0;
+        for_init_element->position.y = 0;
+        for_init_element->size.height = 20;
+        for_init_element->size.width = 100;
+        for_init_element->has_lane_segments = true;
+        
+        /*
+        if_split_element->position.x = 0;
+        if_split_element->position.y = 0;
+        if_split_element->size.height = 20;
+        if_split_element->size.width = 100; // if_then_element->size.width + middle_margin + if_else_element->size.width;
+        if_split_element->has_lane_segments = true;
+        */
+        
+        /*
+        if_else_element->position.x = 0;
+        if_else_element->position.y = if_split_element->size.height + vertical_margin;
+        */
+        
+        for_body_element->position.x = /*if_else_element->size.width*/ 0 + middle_margin;
+        for_body_element->position.y = /* if_split_element->size.height + vertical_margin */ 0;
+        
+        /*
+        if_join_element->position.x = 0;
+        if_join_element->position.y = if_split_element->size.height + vertical_margin + then_else_height + vertical_margin;
+        if_join_element->size.width = 100; //if_then_element->size.width + middle_margin + if_else_element->size.width;
+        if_join_element->size.height = 20;
+        if_join_element->has_lane_segments = true;
+        */
+        
+        flow_element->size.height = for_body_element->size.height;
+        flow_element->size.width = middle_margin + for_body_element->size.width;
+        /*
+        flow_element->size.height = if_split_element->size.height + vertical_margin + then_else_height + vertical_margin + if_join_element->size.height;
+        flow_element->size.width = if_then_element->size.width + middle_margin + if_else_element->size.width;
+        */
+    }
     else if (flow_element->type == FlowElement_FunctionCall)
     {
         FlowElement * function_element = flow_element->first_child;
@@ -638,7 +700,8 @@ void layout_elements(FlowElement * flow_element)
     else if (flow_element->type == FlowElement_Root ||
              flow_element->type == FlowElement_FunctionBody ||
              flow_element->type == FlowElement_IfThen ||
-             flow_element->type == FlowElement_IfElse)
+             flow_element->type == FlowElement_IfElse ||
+             flow_element->type == FlowElement_ForBody)
     {
         // FIXME: position shouldnt be set here!
         flow_element->position.x = 0;
@@ -705,6 +768,7 @@ void layout_elements(FlowElement * flow_element)
 void absolute_layout_elements(FlowElement * flow_element, Pos2d absolute_parent_position)
 {
     if (flow_element->type == FlowElement_PassThrough || 
+        flow_element->type == FlowElement_PassBack || 
         flow_element->type == FlowElement_Assignment || 
         flow_element->type == FlowElement_BinaryOperator ||
         flow_element->type == FlowElement_Return)
@@ -725,11 +789,43 @@ void absolute_layout_elements(FlowElement * flow_element, Pos2d absolute_parent_
         absolute_layout_elements(if_else_element, flow_element->absolute_position);
         absolute_layout_elements(if_join_element, flow_element->absolute_position);
     }
-    else if (flow_element->type == FlowElement_IfSplit)
+    else if (flow_element->type == FlowElement_IfSplit ||
+             flow_element->type == FlowElement_IfJoin
+             )
     {
         flow_element->absolute_position = add_position_to_position(flow_element->position, absolute_parent_position);
     }
-    else if (flow_element->type == FlowElement_IfJoin)
+    else if (flow_element->type == FlowElement_For)
+    {
+        flow_element->absolute_position = add_position_to_position(flow_element->position, absolute_parent_position);
+        
+        FlowElement * for_init_element = flow_element->first_child;
+        FlowElement * for_join_element = for_init_element->next_sibling;
+        FlowElement * for_cond_element = for_join_element->next_sibling;
+        FlowElement * for_split_element = for_cond_element->next_sibling;
+        FlowElement * for_body_element = for_split_element->next_sibling;
+        FlowElement * for_update_element = for_body_element->next_sibling;
+        FlowElement * for_passback_element = for_update_element->next_sibling;
+        FlowElement * for_passthrough_element = for_passback_element->next_sibling;
+        FlowElement * for_done_element = for_passthrough_element->next_sibling;
+
+        absolute_layout_elements(for_init_element, flow_element->absolute_position);
+        absolute_layout_elements(for_join_element, flow_element->absolute_position);
+        absolute_layout_elements(for_cond_element, flow_element->absolute_position);
+        absolute_layout_elements(for_split_element, flow_element->absolute_position);
+        absolute_layout_elements(for_body_element, flow_element->absolute_position);
+        absolute_layout_elements(for_update_element, flow_element->absolute_position);
+        absolute_layout_elements(for_passback_element, flow_element->absolute_position);
+        absolute_layout_elements(for_passthrough_element, flow_element->absolute_position);
+        absolute_layout_elements(for_done_element, flow_element->absolute_position);
+    }
+    else if (flow_element->type == FlowElement_ForInit ||
+             flow_element->type == FlowElement_ForJoin ||
+             flow_element->type == FlowElement_ForCond ||
+             flow_element->type == FlowElement_ForSplit ||
+             flow_element->type == FlowElement_ForUpdate ||
+             flow_element->type == FlowElement_ForDone
+             )
     {
         flow_element->absolute_position = add_position_to_position(flow_element->position, absolute_parent_position);
     }
@@ -752,7 +848,9 @@ void absolute_layout_elements(FlowElement * flow_element, Pos2d absolute_parent_
     else if (flow_element->type == FlowElement_Root ||
              flow_element->type == FlowElement_FunctionBody ||
              flow_element->type == FlowElement_IfThen ||
-             flow_element->type == FlowElement_IfElse)
+             flow_element->type == FlowElement_IfElse ||
+             flow_element->type == FlowElement_ForBody
+             )
     {
         flow_element->absolute_position = add_position_to_position(flow_element->position, absolute_parent_position);
         
@@ -790,6 +888,7 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
     
     // TODO: we probably want flags here!
     if (flow_element->type == FlowElement_PassThrough || 
+        flow_element->type == FlowElement_PassBack || 
         flow_element->type == FlowElement_Assignment || 
         flow_element->type == FlowElement_BinaryOperator ||
         flow_element->type == FlowElement_Return)
@@ -933,6 +1032,28 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
             draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
         }
     }
+    else if (flow_element->type == FlowElement_For)
+    {
+        FlowElement * for_init_element = flow_element->first_child;
+        FlowElement * for_join_element = for_init_element->next_sibling;
+        FlowElement * for_cond_element = for_join_element->next_sibling;
+        FlowElement * for_split_element = for_cond_element->next_sibling;
+        FlowElement * for_body_element = for_split_element->next_sibling;
+        FlowElement * for_update_element = for_body_element->next_sibling;
+        FlowElement * for_passback_element = for_update_element->next_sibling;
+        FlowElement * for_passthrough_element = for_passback_element->next_sibling;
+        FlowElement * for_done_element = for_passthrough_element->next_sibling;
+
+        draw_elements(for_init_element, show_help_rectangles);
+        draw_elements(for_join_element, show_help_rectangles);
+        draw_elements(for_cond_element, show_help_rectangles);
+        draw_elements(for_split_element, show_help_rectangles);
+        draw_elements(for_body_element, show_help_rectangles);
+        draw_elements(for_update_element, show_help_rectangles);
+        draw_elements(for_passback_element, show_help_rectangles);
+        draw_elements(for_passthrough_element, show_help_rectangles);
+        draw_elements(for_done_element, show_help_rectangles);
+    }
     else if (flow_element->type == FlowElement_FunctionCall)
     {
         // Colors
@@ -993,7 +1114,9 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
     else if (flow_element->type == FlowElement_Root ||
              flow_element->type == FlowElement_FunctionBody ||
              flow_element->type == FlowElement_IfThen ||
-             flow_element->type == FlowElement_IfElse)
+             flow_element->type == FlowElement_IfElse ||
+             flow_element->type == FlowElement_ForBody
+             )
     {
         Pos2d position = flow_element->absolute_position;
         
