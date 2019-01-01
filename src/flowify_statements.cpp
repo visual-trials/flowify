@@ -867,10 +867,119 @@ void absolute_layout_elements(FlowElement * flow_element, Pos2d absolute_parent_
     
 }
 
+void draw_joining_element(FlowElement * left_element, FlowElement * right_element, 
+                          FlowElement * joining_element, FlowElement * element_next_in_flow, 
+                          b32 show_help_rectangles)
+{
+    // TODO: maybe we want to have a drawer-variable (Drawer-struct), containing all color/line_width/bending_radius settings)
+
+    // Colors
+    Color4 line_color       = {  0,   0,   0, 255};
+    Color4 unselected_color = {180, 180, 255, 255};
+    Color4 selected_color   = {180, 255, 180, 255};
+    Color4 rectangle_color  = {255, 0, 0, 255};
+    Color4 no_color         = {};
+    Color4 fill_color = unselected_color;
+    if (joining_element->is_selected)
+    {
+        fill_color = selected_color;
+    }
+        
+    i32 line_width = 4;
+    i32 bending_radius = 20;
+    Rect2d no_rect = {-1,-1,-1,-1};
+    
+    // Right element position + size
+    Rect2d right_rect = {};
+    // FIXME: we need the position and size of the LAST statement in the then-element, NOT of the then-element itself!
+    right_rect.position = right_element->absolute_position;
+    right_rect.size = right_element->size;
+    
+    // Left element position + size
+    Rect2d left_rect = {};
+    // FIXME: we need the position and size of the LAST statement in the else-element, NOT of the else-element itself!
+    left_rect.position = left_element->absolute_position;
+    left_rect.size = left_element->size;
+    
+    // Joining element positions + size
+    Rect2d middle_rect = {};
+    middle_rect.position = joining_element->absolute_position;
+    middle_rect.size = joining_element->size;
+    
+    Rect2d bottom_rect = {-1,-1,-1,-1};
+    
+    if (element_next_in_flow)
+    {
+        bottom_rect.position = element_next_in_flow->absolute_position;
+        bottom_rect.size = element_next_in_flow->size;
+    }
+    
+    draw_lane_segments_for_4_rectangles(bottom_rect, false, left_rect, right_rect, middle_rect, bending_radius, line_width, line_color, fill_color, fill_color);
+    draw_lane_segments_for_3_rectangles(no_rect, middle_rect, bottom_rect, bending_radius, line_width, line_color, fill_color, fill_color);
+    
+    if (show_help_rectangles)
+    {
+        draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
+    }
+}
+
+void draw_splitting_element(FlowElement * left_element, FlowElement * right_element, FlowElement * splitting_element, b32 show_help_rectangles)
+{
+    // TODO: maybe we want to have a drawer-variable (Drawer-struct), containing all color/line_width/bending_radius settings)
+
+    // Colors
+    Color4 line_color       = {  0,   0,   0, 255};
+    Color4 unselected_color = {180, 180, 255, 255};
+    Color4 selected_color   = {180, 255, 180, 255};
+    Color4 rectangle_color  = {255, 0, 0, 255};
+    Color4 no_color         = {};
+    Color4 fill_color = unselected_color;
+    if (splitting_element->is_selected)
+    {
+        fill_color = selected_color;
+    }
+        
+    i32 line_width = 4;
+    i32 bending_radius = 20;
+    Rect2d no_rect = {-1,-1,-1,-1};
+
+        
+    Rect2d top_rect = no_rect;
+    
+    // If-start rectangle (middle)
+    Rect2d middle_rect = {};
+    middle_rect.position = splitting_element->absolute_position;
+    middle_rect.size = splitting_element->size;
+    
+    // If-then rectangle (right)
+    Rect2d right_rect = {};
+    // FIXME: we need the position and size of the FIRST statement in the then-element, NOT of the then-element itself!
+    right_rect.position = right_element->absolute_position;
+    right_rect.size = right_element->size;
+    
+    // If-else rectangle (left)
+    Rect2d left_rect = {};
+    // FIXME: we need the position and size of the FIRST statement in the else-element, NOT of the else-element itself!
+    left_rect.position = left_element->absolute_position;
+    left_rect.size = left_element->size;
+
+    draw_lane_segments_for_4_rectangles(top_rect, true, left_rect, right_rect, middle_rect, bending_radius, line_width, line_color, fill_color, fill_color);
+    // FIXME: we somehow need the previous element, BEFORE the start-if as top_rect!
+    draw_lane_segments_for_3_rectangles(top_rect, middle_rect, no_rect, bending_radius, line_width, line_color, fill_color, fill_color);
+    
+    if (show_help_rectangles)
+    {
+        draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
+    }
+}
+
+
 void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
 {
     // TODO: add is_position_of and position_originates_from
     // TODO: set colors properly
+    
+    // TODO: maybe we want to have a drawer-variable (Drawer-struct), containing all color/line_width/bending_radius settings)
     
     Color4 line_color       = {  0,   0,   0, 255};
     Color4 unselected_color = {180, 180, 255, 255};
@@ -942,95 +1051,23 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
     }
     else if (flow_element->type == FlowElement_IfSplit)
     {
-        // Colors
-        Color4 fill_color = unselected_color;
-        if (flow_element->is_selected)
-        {
-            fill_color = selected_color;
-        }
-        
         FlowElement * if_split_element = flow_element;
         FlowElement * if_then_element = if_split_element->next_sibling;
         FlowElement * if_else_element = if_then_element->next_sibling;
         FlowElement * if_join_element = if_else_element->next_sibling;
         FlowElement * if_element = if_split_element->parent;
         
-        Rect2d top_rect = {-1,-1,-1,-1};
-        
-        // If-start rectangle (middle)
-        Rect2d middle_rect = {};
-        middle_rect.position = if_split_element->absolute_position;
-        middle_rect.size = if_split_element->size;
-        
-        // If-then rectangle (right)
-        Rect2d right_rect = {};
-        // FIXME: we need the position and size of the FIRST statement in the then-element, NOT of the then-element itself!
-        right_rect.position = if_then_element->absolute_position;
-        right_rect.size = if_then_element->size;
-        
-        // If-else rectangle (left)
-        Rect2d left_rect = {};
-        // FIXME: we need the position and size of the FIRST statement in the else-element, NOT of the else-element itself!
-        left_rect.position = if_else_element->absolute_position;
-        left_rect.size = if_else_element->size;
-
-        draw_lane_segments_for_4_rectangles(top_rect, true, left_rect, right_rect, middle_rect, bending_radius, line_width, line_color, fill_color, fill_color);
-        // FIXME: we somehow need the previous element, BEFORE the start-if as top_rect!
-        draw_lane_segments_for_3_rectangles(top_rect, middle_rect, no_rect, bending_radius, line_width, line_color, fill_color, fill_color);
-        
-        if (show_help_rectangles)
-        {
-            draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
-        }
+        draw_splitting_element(if_else_element, if_then_element, if_split_element, show_help_rectangles);
     }
     else if (flow_element->type == FlowElement_IfJoin)
     {
-        // Colors
-        Color4 fill_color = unselected_color;
-        if (flow_element->is_selected)
-        {
-            fill_color = selected_color;
-        }
-        
         FlowElement * if_join_element = flow_element;
         FlowElement * if_else_element = if_join_element->previous_sibling;
         FlowElement * if_then_element = if_else_element->previous_sibling;
         FlowElement * if_split_element = if_then_element->previous_sibling;
         FlowElement * if_element = if_split_element->parent;
         
-        // If-then position + size (right)
-        Rect2d right_rect = {};
-        // FIXME: we need the position and size of the LAST statement in the then-element, NOT of the then-element itself!
-        right_rect.position = if_then_element->absolute_position;
-        right_rect.size = if_then_element->size;
-        
-        // If-else position + size (left)
-        Rect2d left_rect = {};
-        // FIXME: we need the position and size of the LAST statement in the else-element, NOT of the else-element itself!
-        left_rect.position = if_else_element->absolute_position;
-        left_rect.size = if_else_element->size;
-        
-        // If-end positions + size
-        Rect2d middle_rect = {};
-        middle_rect.position = if_join_element->absolute_position;
-        middle_rect.size = if_join_element->size;
-        
-        Rect2d bottom_rect = {-1,-1,-1,-1};
-        
-        if (if_element->next_in_flow)
-        {
-            bottom_rect.position = if_element->next_in_flow->absolute_position;
-            bottom_rect.size = if_element->next_in_flow->size;
-        }
-        
-        draw_lane_segments_for_4_rectangles(bottom_rect, false, left_rect, right_rect, middle_rect, bending_radius, line_width, line_color, fill_color, fill_color);
-        // FIXME: we somehow need the next element, AFTER the end-if as bottom_rect!
-        draw_lane_segments_for_3_rectangles(no_rect, middle_rect, bottom_rect, bending_radius, line_width, line_color, fill_color, fill_color);
-        
-        if (show_help_rectangles)
-        {
-            draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
-        }
+        draw_joining_element(if_else_element, if_then_element, if_join_element, if_element->next_in_flow, show_help_rectangles);
     }
     else if (flow_element->type == FlowElement_For)
     {
