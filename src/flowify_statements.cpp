@@ -629,9 +629,12 @@ void layout_elements(FlowElement * flow_element)
         i32 for_body_height = for_body_element->size.height;
         
         i32 middle_margin = 80;
+        i32 right_margin = 100;
         i32 vertical_margin = 50;
+
+        Pos2d start_position = {0,0};
         
-        Pos2d current_position = {0,0};
+        Pos2d current_position = start_position;
 
         for_init_element->position = current_position;
         for_init_element->size.height = 80;
@@ -679,7 +682,10 @@ void layout_elements(FlowElement * flow_element)
         
         current_position_right.y += for_update_element->size.height + vertical_margin;
         
-        // TODO: add for_passback_element
+        for_passback_element->position.y = for_passthrough_element->position.y;
+        for_passback_element->position.x = current_position_right.x + for_body_element->size.width + right_margin;
+        for_passback_element->size.height = 20;
+        for_passback_element->size.width = 50;
         
         // FIXME: we are assuming the body + update is always vertically larger than the for_passthrough_element
         current_position_left.y = current_position_right.y;
@@ -690,17 +696,11 @@ void layout_elements(FlowElement * flow_element)
         
         current_position_left.y += for_done_element->size.height;
         
-        // TODO: these need some work still
-        i32 total_height = current_position_left.y - 0; // TODO: we assume a start-y of 0 here!
-        i32 total_width = current_position_right.x + for_body_element->size.width - 0; // TODO: we assume a start-x of 0 here!
+        i32 total_height = current_position_left.y - start_position.y;
+        i32 total_width = for_passback_element->position.x + for_passback_element->size.width - start_position.x;
         
-        // TODO: fix these
         flow_element->size.height = total_height;
         flow_element->size.width = total_width;
-        /*
-        flow_element->size.height = if_split_element->size.height + vertical_margin + then_else_height + vertical_margin + if_join_element->size.height;
-        flow_element->size.width = if_then_element->size.width + middle_margin + if_else_element->size.width;
-        */
     }
     else if (flow_element->type == FlowElement_FunctionCall)
     {
@@ -1128,9 +1128,7 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
         // TODO: The previous_in_flow and next_in_flow of the update_element are not correct (previous should be last statement in for-body, next should be?)
         draw_straight_element(for_update_element, for_body_element, 0, show_help_rectangles);
         // TODO: we need a special drawer for this! (need to connect from update -> passback -> joiner
-        /*
         draw_straight_element(for_passback_element, 0, 0, show_help_rectangles);
-        */
         draw_straight_element(for_passthrough_element, 0, for_done_element, show_help_rectangles);
         draw_straight_element(for_done_element, for_passthrough_element, for_done_element->next_in_flow, show_help_rectangles);
     }
