@@ -629,38 +629,60 @@ void layout_elements(FlowElement * flow_element)
         i32 for_body_height = for_body_element->size.height;
         
         i32 middle_margin = 80;
-        i32 vertical_margin = 150;
+        i32 vertical_margin = 100;
+        
+        Pos2d current_position = {0,0};
 
-        for_init_element->position.x = 0;
-        for_init_element->position.y = 0;
+        for_init_element->position = current_position;
         for_init_element->size.height = 20;
-        for_init_element->size.width = 100;
+        for_init_element->size.width = 200;
         for_init_element->has_lane_segments = true;
         
-        /*
-        if_split_element->position.x = 0;
-        if_split_element->position.y = 0;
-        if_split_element->size.height = 20;
-        if_split_element->size.width = 100; // if_then_element->size.width + middle_margin + if_else_element->size.width;
-        if_split_element->has_lane_segments = true;
-        */
+        current_position.y += for_init_element->size.height + vertical_margin;
+        
+        for_join_element->position = current_position;
+        for_join_element->size.height = 20;
+        for_join_element->size.width = 100;
+        for_join_element->has_lane_segments = true;
+        
+        current_position.y += for_join_element->size.height + vertical_margin;
+        
+        for_cond_element->position = current_position;
+        for_cond_element->size.height = 80;
+        for_cond_element->size.width = 100;
+        for_cond_element->has_lane_segments = true;
+        
+        current_position.y += for_cond_element->size.height + vertical_margin;
+        
+        for_split_element->position = current_position;
+        for_split_element->size.height = 20;
+        for_split_element->size.width = 100;
+        for_split_element->has_lane_segments = true;
         
         /*
         if_else_element->position.x = 0;
         if_else_element->position.y = if_split_element->size.height + vertical_margin;
         */
         
-        for_body_element->position.x = /*if_else_element->size.width*/ 0 + middle_margin;
-        for_body_element->position.y = /* if_split_element->size.height + vertical_margin */ 0;
+        current_position.y += for_split_element->size.height + vertical_margin;
         
-        /*
-        if_join_element->position.x = 0;
-        if_join_element->position.y = if_split_element->size.height + vertical_margin + then_else_height + vertical_margin;
-        if_join_element->size.width = 100; //if_then_element->size.width + middle_margin + if_else_element->size.width;
-        if_join_element->size.height = 20;
-        if_join_element->has_lane_segments = true;
-        */
+        Pos2d current_position_right = current_position;
+        Pos2d current_position_left = current_position;
         
+        for_passthrough_element->position = current_position_left;
+        for_passthrough_element->size.height = 20;
+        for_passthrough_element->size.width = 50;
+        
+        current_position_right.x += middle_margin;
+        for_body_element->position = current_position_right;
+        
+        
+        // TODO: add for_update_element
+        // TODO: add for_passback_element
+        
+        // TODO: add for_done_element
+        
+        // TODO: fix these
         flow_element->size.height = for_body_element->size.height;
         flow_element->size.width = middle_margin + for_body_element->size.width;
         /*
@@ -1078,7 +1100,11 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
         FlowElement * for_done_element = for_passthrough_element->next_sibling;
 
         draw_straight_element(for_init_element, show_help_rectangles);
-        // TODO: we probably need a special draw of this joining element: draw_joining_element(if_else_element, if_then_element, if_join_element, if_element->next_in_flow, show_help_rectangles);
+        
+        // TODO: we probably need a special draw of this joining element: 
+        // TODO: draw_joining_element(for_init_element, for_passback_element?, for_join_element, for_cond_element?, show_help_rectangles);
+        draw_straight_element(for_join_element, show_help_rectangles); // TODO: replace this!
+        
         draw_straight_element(for_cond_element, show_help_rectangles);
         draw_splitting_element(for_passthrough_element, for_body_element, for_split_element, show_help_rectangles);
         draw_elements(for_body_element, show_help_rectangles);
