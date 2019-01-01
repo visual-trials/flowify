@@ -687,11 +687,16 @@ void layout_elements(FlowElement * flow_element)
         for_done_element->position = current_position_left;
         for_done_element->size.height = 20;
         for_done_element->size.width = 100;
-        // TODO: add for_done_element
+        
+        current_position_left.y += for_done_element->size.height;
+        
+        // TODO: these need some work still
+        i32 total_height = current_position_left.y - 0; // TODO: we assume a start-y of 0 here!
+        i32 total_width = current_position_right.x + for_body_element->size.width - 0; // TODO: we assume a start-x of 0 here!
         
         // TODO: fix these
-        flow_element->size.height = for_body_element->size.height;
-        flow_element->size.width = middle_margin + for_body_element->size.width;
+        flow_element->size.height = total_height;
+        flow_element->size.width = total_width;
         /*
         flow_element->size.height = if_split_element->size.height + vertical_margin + then_else_height + vertical_margin + if_join_element->size.height;
         flow_element->size.width = if_then_element->size.width + middle_margin + if_else_element->size.width;
