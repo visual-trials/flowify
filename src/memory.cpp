@@ -371,6 +371,7 @@ DynamicArray create_dynamic_array(i32 item_size, Color4 color, String descriptio
     DynamicArray dynamic_array = {};
     
     // TODO: we should check if the item_size is not larger than the block_size!
+    // TODO: we should adjust the item_size to be aligned by 4 or 8 bytes!
     dynamic_array.item_size = item_size;
     
     // TODO: maybe we want to reserve 1 block or allow an initial amount of items and reserve memory for those
