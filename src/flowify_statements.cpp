@@ -1039,34 +1039,15 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
     }
     else if (flow_element->type == FlowElement_If)
     {
+        FlowElement * if_element = flow_element;
         FlowElement * if_split_element = flow_element->first_child;
         FlowElement * if_then_element = if_split_element->next_sibling;
         FlowElement * if_else_element = if_then_element->next_sibling;
         FlowElement * if_join_element = if_else_element->next_sibling;
 
-        draw_elements(if_split_element, show_help_rectangles);
+        draw_splitting_element(if_else_element, if_then_element, if_split_element, show_help_rectangles);
         draw_elements(if_then_element, show_help_rectangles);
         draw_elements(if_else_element, show_help_rectangles);
-        draw_elements(if_join_element, show_help_rectangles);
-    }
-    else if (flow_element->type == FlowElement_IfSplit)
-    {
-        FlowElement * if_split_element = flow_element;
-        FlowElement * if_then_element = if_split_element->next_sibling;
-        FlowElement * if_else_element = if_then_element->next_sibling;
-        FlowElement * if_join_element = if_else_element->next_sibling;
-        FlowElement * if_element = if_split_element->parent;
-        
-        draw_splitting_element(if_else_element, if_then_element, if_split_element, show_help_rectangles);
-    }
-    else if (flow_element->type == FlowElement_IfJoin)
-    {
-        FlowElement * if_join_element = flow_element;
-        FlowElement * if_else_element = if_join_element->previous_sibling;
-        FlowElement * if_then_element = if_else_element->previous_sibling;
-        FlowElement * if_split_element = if_then_element->previous_sibling;
-        FlowElement * if_element = if_split_element->parent;
-        
         draw_joining_element(if_else_element, if_then_element, if_join_element, if_element->next_in_flow, show_help_rectangles);
     }
     else if (flow_element->type == FlowElement_For)
