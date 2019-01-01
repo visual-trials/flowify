@@ -641,7 +641,7 @@ void layout_elements(FlowElement * flow_element)
         for_init_element->size.width = 200;
         for_init_element->has_lane_segments = true;
         
-        current_position.y += for_init_element->size.height;
+        current_position.y += for_init_element->size.height + vertical_margin + vertical_margin;
         
         for_join_element->position = current_position;
         for_join_element->size.height = 20;
@@ -682,7 +682,7 @@ void layout_elements(FlowElement * flow_element)
         
         current_position_right.y += for_update_element->size.height + vertical_margin;
         
-        for_passback_element->position.y = for_passthrough_element->position.y;
+        for_passback_element->position.y = for_join_element->position.y;
         for_passback_element->position.x = current_position_right.x + for_body_element->size.width + right_margin;
         for_passback_element->size.height = 20;
         for_passback_element->size.width = 50;
