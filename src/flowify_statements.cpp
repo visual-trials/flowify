@@ -296,6 +296,20 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         
         // TODO: not sure if if_split_element correponds to if_cond_node
         //       No, it doesn't. We need a if_split_element AND a if_cond_element. The if_cond_element corresponds to the if_cond_node.
+        FlowElement * if_cond_element = new_flow_element(flowifier, if_cond_node, FlowElement_IfCond); 
+        if (if_cond_node && if_cond_node->first_child)
+        {
+            FlowElement * cond_expression_element = flowify_expression(flowifier, if_cond_node->first_child);
+            if_cond_element->first_child = cond_expression_element;
+            cond_expression_element->parent = if_cond_element;
+        }
+        else
+        {
+            FlowElement * cond_passthrough_element = new_flow_element(flowifier, 0, FlowElement_PassThrough);
+            if_cond_element->first_child = cond_passthrough_element;
+            cond_passthrough_element->parent = if_cond_element;
+        }
+        
         FlowElement * if_split_element = new_flow_element(flowifier, if_cond_node, FlowElement_IfSplit); 
         
         FlowElement * if_then_element = new_flow_element(flowifier, if_then_node, FlowElement_IfThen);
@@ -324,8 +338,11 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         
         FlowElement * if_join_element = new_flow_element(flowifier, 0, FlowElement_IfJoin);
         
-        if_element->first_child = if_split_element;
-        if_split_element->parent = if_element;  // TODO: only setting parent on first_child?
+        if_element->first_child = if_cond_element;
+        if_cond_element->parent = if_element;  // TODO: only setting parent on first_child?
+        
+        if_cond_element->next_sibling = if_split_element;
+        if_split_element->previous_sibling = if_cond_element;
         
         if_split_element->next_sibling = if_then_element;
         if_then_element->previous_sibling = if_split_element;
@@ -336,7 +353,7 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         if_else_element->next_sibling = if_join_element;
         if_join_element->previous_sibling = if_else_element;
         
-        if_element->first_in_flow = if_split_element;
+        if_element->first_in_flow = if_cond_element;
         if_element->last_in_flow = if_join_element;
         
         new_statement_element = if_element;
@@ -396,7 +413,6 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
             body_passthrough_element->parent = for_body_element;
         }
         
-        // TODO: flowify the for_update_node!
         FlowElement * for_update_element = new_flow_element(flowifier, for_update_node, FlowElement_ForUpdate); 
         if (for_update_node && for_update_node->first_child)
         {
@@ -618,7 +634,8 @@ void layout_elements(FlowElement * flow_element)
     }
     else if (flow_element->type == FlowElement_If)
     {
-        FlowElement * if_split_element = flow_element->first_child;
+        FlowElement * if_cond_element = flow_element->first_child;
+        FlowElement * if_split_element = if_cond_element->next_sibling;
         FlowElement * if_then_element = if_split_element->next_sibling;
         FlowElement * if_else_element = if_then_element->next_sibling;
         FlowElement * if_join_element = if_else_element->next_sibling;
@@ -635,27 +652,47 @@ void layout_elements(FlowElement * flow_element)
         i32 middle_margin = 80;
         i32 vertical_margin = 150;
 
-        if_split_element->position.x = 0;
-        if_split_element->position.y = 0;
+        Pos2d start_position = {0,0};
+        
+        Pos2d current_position = start_position;
+        
+        if_cond_element->position = current_position;
+        if_cond_element->size.height = 80;
+        if_cond_element->size.width = 100;
+        if_cond_element->has_lane_segments = true;
+        
+        current_position.y += if_cond_element->size.height;
+        
+        if_split_element->position = current_position;
         if_split_element->size.height = 20;
         if_split_element->size.width = 100; // if_then_element->size.width + middle_margin + if_else_element->size.width;
         if_split_element->has_lane_segments = true;
         
-        if_else_element->position.x = 0;
-        if_else_element->position.y = if_split_element->size.height + vertical_margin;
+        current_position.y += if_split_element->size.height + vertical_margin;
         
-        if_then_element->position.x = if_else_element->size.width + middle_margin;
-        if_then_element->position.y = if_split_element->size.height + vertical_margin;
+        Pos2d current_position_right = current_position;
+        Pos2d current_position_left = current_position;
         
-        if_join_element->position.x = 0;
-        if_join_element->position.y = if_split_element->size.height + vertical_margin + then_else_height + vertical_margin;
+        current_position_right.x += if_else_element->size.width + middle_margin;
+        
+        if_else_element->position = current_position_left;
+        
+        if_then_element->position = current_position_right;
+        
+        current_position.y += then_else_height + vertical_margin;
+        
+        if_join_element->position = current_position;
         if_join_element->size.width = 100; //if_then_element->size.width + middle_margin + if_else_element->size.width;
         if_join_element->size.height = 20;
         if_join_element->has_lane_segments = true;
         
-        flow_element->size.height = if_split_element->size.height + vertical_margin + then_else_height + vertical_margin + if_join_element->size.height;
-        flow_element->size.width = if_then_element->size.width + middle_margin + if_else_element->size.width;
+        current_position.y += if_join_element->size.height;
         
+        i32 total_height = current_position.y - start_position.y;
+        i32 total_width = current_position_right.x + if_then_element->size.width - start_position.x;
+        
+        flow_element->size.height = total_height;
+        flow_element->size.width = total_width;
     }
     else if (flow_element->type == FlowElement_For)
     {
@@ -859,17 +896,20 @@ void absolute_layout_elements(FlowElement * flow_element, Pos2d absolute_parent_
     {
         flow_element->absolute_position = add_position_to_position(flow_element->position, absolute_parent_position);
         
-        FlowElement * if_split_element = flow_element->first_child;
+        FlowElement * if_cond_element = flow_element->first_child;
+        FlowElement * if_split_element = if_cond_element->next_sibling;
         FlowElement * if_then_element = if_split_element->next_sibling;
         FlowElement * if_else_element = if_then_element->next_sibling;
         FlowElement * if_join_element = if_else_element->next_sibling;
 
+        absolute_layout_elements(if_cond_element, flow_element->absolute_position);
         absolute_layout_elements(if_split_element, flow_element->absolute_position);
         absolute_layout_elements(if_then_element, flow_element->absolute_position);
         absolute_layout_elements(if_else_element, flow_element->absolute_position);
         absolute_layout_elements(if_join_element, flow_element->absolute_position);
     }
-    else if (flow_element->type == FlowElement_IfSplit ||
+    else if (flow_element->type == FlowElement_IfCond ||
+             flow_element->type == FlowElement_IfSplit ||
              flow_element->type == FlowElement_IfJoin
              )
     {
@@ -1139,11 +1179,13 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
     else if (flow_element->type == FlowElement_If)
     {
         FlowElement * if_element = flow_element;
-        FlowElement * if_split_element = flow_element->first_child;
+        FlowElement * if_cond_element = flow_element->first_child;
+        FlowElement * if_split_element = if_cond_element->next_sibling;
         FlowElement * if_then_element = if_split_element->next_sibling;
         FlowElement * if_else_element = if_then_element->next_sibling;
         FlowElement * if_join_element = if_else_element->next_sibling;
 
+        draw_straight_element(if_cond_element, if_cond_element->previous_in_flow, if_split_element, show_help_rectangles);
         draw_splitting_element(if_else_element, if_then_element, if_split_element, show_help_rectangles);
         draw_elements(if_then_element, show_help_rectangles);
         draw_elements(if_else_element, show_help_rectangles);
