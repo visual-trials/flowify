@@ -912,6 +912,7 @@ void draw_joining_element(FlowElement * left_element, FlowElement * right_elemen
     Color4 unselected_color = {180, 180, 255, 255};
     Color4 selected_color   = {180, 255, 180, 255};
     Color4 rectangle_color  = {255, 0, 0, 255};
+    Color4 rectangle_fill   = {255, 0, 0, 50};
     Color4 no_color         = {};
     Color4 fill_color = unselected_color;
     if (joining_element->is_selected)
@@ -953,7 +954,7 @@ void draw_joining_element(FlowElement * left_element, FlowElement * right_elemen
     
     if (show_help_rectangles)
     {
-        draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
+        draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, rectangle_fill, 2);
     }
 }
 
@@ -966,6 +967,7 @@ void draw_splitting_element(FlowElement * left_element, FlowElement * right_elem
     Color4 unselected_color = {180, 180, 255, 255};
     Color4 selected_color   = {180, 255, 180, 255};
     Color4 rectangle_color  = {255, 0, 0, 255};
+    Color4 rectangle_fill   = {255, 0, 0, 50};
     Color4 no_color         = {};
     Color4 fill_color = unselected_color;
     if (splitting_element->is_selected)
@@ -1003,7 +1005,7 @@ void draw_splitting_element(FlowElement * left_element, FlowElement * right_elem
     
     if (show_help_rectangles)
     {
-        draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
+        draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, rectangle_fill, 2);
     }
 }
 
@@ -1017,6 +1019,7 @@ void draw_straight_element(FlowElement * flow_element, FlowElement * element_pre
     Color4 unselected_color = {180, 180, 255, 255};
     Color4 selected_color   = {180, 255, 180, 255};
     Color4 rectangle_color  = {255, 0, 0, 255};
+    Color4 rectangle_fill   = {255, 0, 0, 50};
     Color4 no_color         = {};
     Color4 fill_color = unselected_color;
     if (flow_element->is_selected)
@@ -1053,7 +1056,7 @@ void draw_straight_element(FlowElement * flow_element, FlowElement * element_pre
     
     if (show_help_rectangles)
     {
-        draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
+        draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, rectangle_fill, 2);
     }
 }
 
@@ -1068,6 +1071,7 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
     Color4 unselected_color = {180, 180, 255, 255};
     Color4 selected_color   = {180, 255, 180, 255};
     Color4 rectangle_color  = {255, 0, 0, 255};
+    Color4 rectangle_fill   = {255, 0, 0, 50};
     Color4 no_color         = {};
     i32 line_width = 4;
     i32 bending_radius = 20;
@@ -1170,7 +1174,7 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
         
         if (show_help_rectangles)
         {
-            draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
+            draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, rectangle_fill, 2);
         }
         
         // Drawing the function itself
