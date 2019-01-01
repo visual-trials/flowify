@@ -629,16 +629,16 @@ void layout_elements(FlowElement * flow_element)
         i32 for_body_height = for_body_element->size.height;
         
         i32 middle_margin = 80;
-        i32 vertical_margin = 100;
+        i32 vertical_margin = 50;
         
         Pos2d current_position = {0,0};
 
         for_init_element->position = current_position;
-        for_init_element->size.height = 20;
+        for_init_element->size.height = 80;
         for_init_element->size.width = 200;
         for_init_element->has_lane_segments = true;
         
-        current_position.y += for_init_element->size.height + vertical_margin;
+        current_position.y += for_init_element->size.height;
         
         for_join_element->position = current_position;
         for_join_element->size.height = 20;
@@ -659,12 +659,7 @@ void layout_elements(FlowElement * flow_element)
         for_split_element->size.width = 100;
         for_split_element->has_lane_segments = true;
         
-        /*
-        if_else_element->position.x = 0;
-        if_else_element->position.y = if_split_element->size.height + vertical_margin;
-        */
-        
-        current_position.y += for_split_element->size.height + vertical_margin;
+        current_position.y += for_split_element->size.height + vertical_margin + vertical_margin + vertical_margin;
         
         Pos2d current_position_right = current_position;
         Pos2d current_position_left = current_position;
@@ -673,13 +668,25 @@ void layout_elements(FlowElement * flow_element)
         for_passthrough_element->size.height = 20;
         for_passthrough_element->size.width = 50;
         
-        current_position_right.x += middle_margin;
+        current_position_right.x += for_passthrough_element->size.width + middle_margin;
         for_body_element->position = current_position_right;
         
+        current_position_right.y += for_body_element->size.height;
         
-        // TODO: add for_update_element
+        for_update_element->position = current_position_right;
+        for_update_element->size.height = 80;
+        for_update_element->size.width = 100;
+        
+        current_position_right.y += for_update_element->size.height + vertical_margin;
+        
         // TODO: add for_passback_element
         
+        // FIXME: we are assuming the body + update is always vertically larger than the for_passthrough_element
+        current_position_left.y = current_position_right.y;
+        
+        for_done_element->position = current_position_left;
+        for_done_element->size.height = 20;
+        for_done_element->size.width = 100;
         // TODO: add for_done_element
         
         // TODO: fix these
@@ -995,7 +1002,8 @@ void draw_splitting_element(FlowElement * left_element, FlowElement * right_elem
     }
 }
 
-void draw_straight_element(FlowElement * flow_element, b32 show_help_rectangles)
+void draw_straight_element(FlowElement * flow_element, FlowElement * element_previous_in_flow, 
+                           FlowElement * element_next_in_flow, b32 show_help_rectangles)
 {
     // TODO: maybe we want to have a drawer-variable (Drawer-struct), containing all color/line_width/bending_radius settings)
 
@@ -1025,15 +1033,15 @@ void draw_straight_element(FlowElement * flow_element, b32 show_help_rectangles)
     middle_rect.position = position;
     middle_rect.size = size;
     
-    if (flow_element->previous_in_flow)
+    if (element_previous_in_flow)
     {
-        top_rect.position = flow_element->previous_in_flow->absolute_position;
-        top_rect.size = flow_element->previous_in_flow->size;
+        top_rect.position = element_previous_in_flow->absolute_position;
+        top_rect.size = element_previous_in_flow->size;
     }
-    if (flow_element->next_in_flow)
+    if (element_next_in_flow)
     {
-        bottom_rect.position = flow_element->next_in_flow->absolute_position;
-        bottom_rect.size = flow_element->next_in_flow->size;
+        bottom_rect.position = element_next_in_flow->absolute_position;
+        bottom_rect.size = element_next_in_flow->size;
     }
     
     draw_lane_segments_for_3_rectangles(top_rect, middle_rect, bottom_rect, bending_radius, line_width, line_color, fill_color, fill_color);
@@ -1071,7 +1079,7 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
         flow_element->type == FlowElement_BinaryOperator ||
         flow_element->type == FlowElement_Return)
     {
-        draw_straight_element(flow_element, show_help_rectangles);
+        draw_straight_element(flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, show_help_rectangles);
     }
     else if (flow_element->type == FlowElement_If)
     {
@@ -1099,19 +1107,23 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
         FlowElement * for_passthrough_element = for_passback_element->next_sibling;
         FlowElement * for_done_element = for_passthrough_element->next_sibling;
 
-        draw_straight_element(for_init_element, show_help_rectangles);
+        draw_straight_element(for_init_element, for_init_element->previous_in_flow, for_join_element, show_help_rectangles);
         
         // TODO: we probably need a special draw of this joining element: 
         // TODO: draw_joining_element(for_init_element, for_passback_element?, for_join_element, for_cond_element?, show_help_rectangles);
-        draw_straight_element(for_join_element, show_help_rectangles); // TODO: replace this!
+        draw_straight_element(for_join_element, for_init_element, for_cond_element, show_help_rectangles); // TODO: replace this!
         
-        draw_straight_element(for_cond_element, show_help_rectangles);
+        draw_straight_element(for_cond_element, for_join_element, for_split_element, show_help_rectangles);
         draw_splitting_element(for_passthrough_element, for_body_element, for_split_element, show_help_rectangles);
         draw_elements(for_body_element, show_help_rectangles);
-        draw_straight_element(for_update_element, show_help_rectangles);
-        draw_straight_element(for_passback_element, show_help_rectangles);
-        draw_straight_element(for_passthrough_element, show_help_rectangles);
-        draw_straight_element(for_done_element, show_help_rectangles);
+        // TODO: The previous_in_flow and next_in_flow of the update_element are not correct (previous should be last statement in for-body, next should be?)
+        draw_straight_element(for_update_element, for_body_element, 0, show_help_rectangles);
+        // TODO: we need a special drawer for this! (need to connect from update -> passback -> joiner
+        /*
+        draw_straight_element(for_passback_element, 0, 0, show_help_rectangles);
+        */
+        draw_straight_element(for_passthrough_element, 0, for_done_element, show_help_rectangles);
+        draw_straight_element(for_done_element, for_passthrough_element, for_done_element->next_in_flow, show_help_rectangles);
     }
     else if (flow_element->type == FlowElement_FunctionCall)
     {
