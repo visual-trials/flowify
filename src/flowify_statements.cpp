@@ -679,6 +679,7 @@ void layout_elements(FlowElement * flow_element)
         for_update_element->position = current_position_right;
         for_update_element->size.height = 80;
         for_update_element->size.width = 100;
+        for_update_element->has_lane_segments = true;
         
         current_position_right.y += for_update_element->size.height + vertical_margin;
         
