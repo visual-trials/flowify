@@ -47,6 +47,8 @@ struct WorldData
     i32 iteration;
     i32 selected_element_index;
     
+    i32 flowify_vertical_offset;
+    
     b32 show_help_rectangles;
     
     b32 verbose_memory_usage;
@@ -105,6 +107,8 @@ extern "C" {
         
         world->iteration = 0;
         world->selected_element_index = 1;  // FIXME: HACK
+        
+        world->flowify_vertical_offset = 0;
         
         world->program_texts[0] = simple_assign_program_text;
         world->program_texts[1] = i_plus_plus_program_text;
@@ -227,11 +231,26 @@ extern "C" {
         
         FlowElement * root_element = world->root_element;
         Input * input = &global_input;
+        MouseInput * mouse = &input->mouse;
+        
+        if (mouse->wheel_has_moved)
+        {
+            // TODO: account for a "Mac" mouse! (which has a 'continous' wheel)
+            if (mouse->wheel_delta > 0)
+            {
+                world->flowify_vertical_offset += 30;
+            }
+            
+            if (mouse->wheel_delta < 0)
+            {
+                world->flowify_vertical_offset -= 30;
+            }
+        }
         
         Pos2d absolute_position;
         // FIXME: hack!
         absolute_position.x = input->screen.width - root_element->size.width - 100; 
-        absolute_position.y = 50; 
+        absolute_position.y = 50 + world->flowify_vertical_offset; 
         absolute_layout_elements(root_element, absolute_position);
         
         draw_elements(root_element, world->show_help_rectangles);
