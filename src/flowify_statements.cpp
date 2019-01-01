@@ -973,6 +973,54 @@ void draw_splitting_element(FlowElement * left_element, FlowElement * right_elem
     }
 }
 
+void draw_straight_element(FlowElement * flow_element, b32 show_help_rectangles)
+{
+    // TODO: maybe we want to have a drawer-variable (Drawer-struct), containing all color/line_width/bending_radius settings)
+
+    // Colors
+    Color4 line_color       = {  0,   0,   0, 255};
+    Color4 unselected_color = {180, 180, 255, 255};
+    Color4 selected_color   = {180, 255, 180, 255};
+    Color4 rectangle_color  = {255, 0, 0, 255};
+    Color4 no_color         = {};
+    Color4 fill_color = unselected_color;
+    if (flow_element->is_selected)
+    {
+        fill_color = selected_color;
+    }
+        
+    i32 line_width = 4;
+    i32 bending_radius = 20;
+    Rect2d no_rect = {-1,-1,-1,-1};
+    
+    // Positions and sizes
+    Rect2d top_rect = no_rect;
+    Rect2d middle_rect = no_rect;
+    Rect2d bottom_rect = no_rect;
+    
+    Pos2d position = flow_element->absolute_position;
+    Size2d size = flow_element->size;
+    middle_rect.position = position;
+    middle_rect.size = size;
+    
+    if (flow_element->previous_in_flow)
+    {
+        top_rect.position = flow_element->previous_in_flow->absolute_position;
+        top_rect.size = flow_element->previous_in_flow->size;
+    }
+    if (flow_element->next_in_flow)
+    {
+        bottom_rect.position = flow_element->next_in_flow->absolute_position;
+        bottom_rect.size = flow_element->next_in_flow->size;
+    }
+    
+    draw_lane_segments_for_3_rectangles(top_rect, middle_rect, bottom_rect, bending_radius, line_width, line_color, fill_color, fill_color);
+    
+    if (show_help_rectangles)
+    {
+        draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
+    }
+}
 
 void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
 {
@@ -997,45 +1045,11 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
     
     // TODO: we probably want flags here!
     if (flow_element->type == FlowElement_PassThrough || 
-        flow_element->type == FlowElement_PassBack || 
         flow_element->type == FlowElement_Assignment || 
         flow_element->type == FlowElement_BinaryOperator ||
         flow_element->type == FlowElement_Return)
     {
-        // Colors
-        Color4 fill_color = unselected_color;
-        if (flow_element->is_selected)
-        {
-            fill_color = selected_color;
-        }
-
-        // Positions and sizes
-        Rect2d top_rect = {-1,-1,-1,-1};
-        Rect2d middle_rect = {-1,-1,-1,-1};
-        Rect2d bottom_rect = {-1,-1,-1,-1};
-        
-        Pos2d position = flow_element->absolute_position;
-        Size2d size = flow_element->size;
-        middle_rect.position = position;
-        middle_rect.size = size;
-        
-        if (flow_element->previous_in_flow)
-        {
-            top_rect.position = flow_element->previous_in_flow->absolute_position;
-            top_rect.size = flow_element->previous_in_flow->size;
-        }
-        if (flow_element->next_in_flow)
-        {
-            bottom_rect.position = flow_element->next_in_flow->absolute_position;
-            bottom_rect.size = flow_element->next_in_flow->size;
-        }
-        
-        draw_lane_segments_for_3_rectangles(top_rect, middle_rect, bottom_rect, bending_radius, line_width, line_color, fill_color, fill_color);
-        
-        if (show_help_rectangles)
-        {
-            draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
-        }
+        draw_straight_element(flow_element, show_help_rectangles);
     }
     else if (flow_element->type == FlowElement_If)
     {
@@ -1052,6 +1066,7 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
     }
     else if (flow_element->type == FlowElement_For)
     {
+        FlowElement * for_element = flow_element;
         FlowElement * for_init_element = flow_element->first_child;
         FlowElement * for_join_element = for_init_element->next_sibling;
         FlowElement * for_cond_element = for_join_element->next_sibling;
@@ -1062,15 +1077,15 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
         FlowElement * for_passthrough_element = for_passback_element->next_sibling;
         FlowElement * for_done_element = for_passthrough_element->next_sibling;
 
-        draw_elements(for_init_element, show_help_rectangles);
-        draw_elements(for_join_element, show_help_rectangles);
-        draw_elements(for_cond_element, show_help_rectangles);
-        draw_elements(for_split_element, show_help_rectangles);
+        draw_straight_element(for_init_element, show_help_rectangles);
+        // TODO: we probably need a special draw of this joining element: draw_joining_element(if_else_element, if_then_element, if_join_element, if_element->next_in_flow, show_help_rectangles);
+        draw_straight_element(for_cond_element, show_help_rectangles);
+        draw_splitting_element(for_passthrough_element, for_body_element, for_split_element, show_help_rectangles);
         draw_elements(for_body_element, show_help_rectangles);
-        draw_elements(for_update_element, show_help_rectangles);
-        draw_elements(for_passback_element, show_help_rectangles);
-        draw_elements(for_passthrough_element, show_help_rectangles);
-        draw_elements(for_done_element, show_help_rectangles);
+        draw_straight_element(for_update_element, show_help_rectangles);
+        draw_straight_element(for_passback_element, show_help_rectangles);
+        draw_straight_element(for_passthrough_element, show_help_rectangles);
+        draw_straight_element(for_done_element, show_help_rectangles);
     }
     else if (flow_element->type == FlowElement_FunctionCall)
     {
