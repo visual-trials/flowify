@@ -66,10 +66,11 @@ const char * flow_element_type_names[] = {
     "FunctionBody",
     
     "If",
-    "IfStart",
+    "IfCond",
+    "IfSplit",
     "IfThen",
     "IfElse",
-    "IfEnd",
+    "IfJoin",
     
     "For",
     "ForInit",
@@ -341,7 +342,6 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         // TODO: flowify the for_init_node!
         FlowElement * for_init_element = new_flow_element(flowifier, for_init_node, FlowElement_ForInit); 
         
-        /*
         // TODO: to which ast-node does this correpond (if any)?
         FlowElement * for_join_element = new_flow_element(flowifier, 0, FlowElement_ForJoin); 
         
@@ -374,11 +374,10 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         
         // TODO: to which ast-node does this correpond (if any)?
         FlowElement * for_done_element = new_flow_element(flowifier, 0, FlowElement_ForDone); 
-        */
         
         for_element->first_child = for_init_element;
         for_init_element->parent = for_element;  // TODO: only setting parent on first_child?
-        /*
+        
         for_init_element->next_sibling = for_join_element;
         for_join_element->previous_sibling = for_init_element;
         
@@ -402,9 +401,9 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         
         for_passthrough_element->next_sibling = for_done_element;
         for_done_element->previous_sibling = for_passthrough_element;
-        */
+        
         for_element->first_in_flow = for_init_element;
-        // for_element->last_in_flow = for_done_element;
+        for_element->last_in_flow = for_done_element;
         
         new_statement_element = for_element;
     }
