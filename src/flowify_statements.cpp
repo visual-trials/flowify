@@ -211,68 +211,78 @@ FlowElement * get_function_element(Flowifier * flowifier, String identifier)
 
 void flowify_statements(Flowifier * flowifier, FlowElement * parent_element);
 
+FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
+{
+    // TODO: we should flowify the expression! (for now we create a dummy element)
+    
+    FlowElement * new_expression_element = 0;
+    
+    if (expression_node && expression_node->first_child)
+    {
+        if (expression_node->first_child->next_sibling)
+        {
+            if (expression_node->first_child->next_sibling->type == Node_Expr_PostInc)
+            {
+                // FIXME: hack!
+                new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_BinaryOperator);
+            }
+            else if (expression_node->first_child->next_sibling->type == Node_Expr_FuncCall)
+            {
+                String identifier = expression_node->first_child->next_sibling->identifier;
+                
+                FlowElement * function_element = get_function_element(flowifier, identifier);
+                
+                if (function_element)
+                {
+                    new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_FunctionCall);
+                    new_expression_element->first_child = function_element;
+                    // TODO: set parent?
+                }
+                else {
+                    // log("Unknown function:");
+                    // log(identifier);
+                    new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_FunctionCall);
+                    
+                    FlowElement * hidden_element = new_flow_element(flowifier, expression_node, FlowElement_Hidden);
+                    new_expression_element->first_child = hidden_element;
+                    // TODO: set parent?
+                }
+
+            }
+            else
+            {
+                // FIXME: hack!
+                new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_Assignment);
+            }
+        }
+        else
+        {
+            // FIXME: hack!
+            new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_Assignment);
+        }
+    }
+    else
+    {
+        // FIXME: this is not always an FlowElement_Assignment!
+        new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_Assignment);
+    }
+    
+    return new_expression_element;
+}
+
 FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
 {
     FlowElement * new_statement_element = 0;
     
     if (statement_node->type == Node_Stmt_Expr)
     {
+        Node * expression_node = statement_node->first_child;
         
-        // TODO: we should flowify the expression! (for now we create a dummy element)
+        FlowElement * new_expression_element = flowify_expression(flowifier, expression_node);
         
-        FlowElementType element_type = FlowElement_Assignment;
-        if (statement_node->first_child && statement_node->first_child->first_child)
-        {
-            if (statement_node->first_child->first_child->next_sibling)
-            {
-                if (statement_node->first_child->first_child->next_sibling->type == Node_Expr_PostInc)
-                {
-                    // FIXME: hack!
-                    new_statement_element = new_flow_element(flowifier, statement_node, FlowElement_BinaryOperator);
-                }
-                else if (statement_node->first_child->first_child->next_sibling->type == Node_Expr_FuncCall)
-                {
-                    String identifier = statement_node->first_child->first_child->next_sibling->identifier;
-                    
-                    FlowElement * function_element = get_function_element(flowifier, identifier);
-                    
-                    if (function_element)
-                    {
-                        new_statement_element = new_flow_element(flowifier, statement_node, FlowElement_FunctionCall);
-                        new_statement_element->first_child = function_element;
-                        // TODO: set parent?
-                    }
-                    else {
-                        // log("Unknown function:");
-                        // log(identifier);
-                        new_statement_element = new_flow_element(flowifier, statement_node, FlowElement_FunctionCall);
-                        
-                        FlowElement * hidden_element = new_flow_element(flowifier, statement_node, FlowElement_Hidden);
-                        new_statement_element->first_child = hidden_element;
-                        // TODO: set parent?
-                    }
-
-                }
-                else
-                {
-                    // FIXME: hack!
-                    new_statement_element = new_flow_element(flowifier, statement_node, FlowElement_Assignment);
-                }
-            }
-            else
-            {
-                // FIXME: hack!
-                new_statement_element = new_flow_element(flowifier, statement_node, FlowElement_Assignment);
-            }
-        }
-        else
-        {
-            // FIXME: this is not always an FlowElement_Assignment!
-            new_statement_element = new_flow_element(flowifier, statement_node, FlowElement_Assignment);
-        }
-        
-        new_statement_element->first_in_flow = new_statement_element;
-        new_statement_element->last_in_flow = new_statement_element;
+        new_statement_element = new_expression_element;
+        new_statement_element->first_in_flow = new_expression_element;
+        new_statement_element->last_in_flow = new_expression_element;
         
     }
     else if (statement_node->type == Node_Stmt_If)
@@ -339,14 +349,32 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         Node * for_update_node = for_cond_node->next_sibling;
         Node * for_body_node = for_update_node->next_sibling;
         
-        // TODO: flowify the for_init_node!
         FlowElement * for_init_element = new_flow_element(flowifier, for_init_node, FlowElement_ForInit); 
+        if (for_init_element && for_init_element->first_child)
+        {
+            flowify_statements(flowifier, for_init_element);
+        }
+        else
+        {
+            FlowElement * init_passthrough_element = new_flow_element(flowifier, 0, FlowElement_PassThrough);
+            for_init_element->first_child = init_passthrough_element;
+            init_passthrough_element->parent = for_init_element;
+        }
         
         // TODO: to which ast-node does this correpond (if any)?
         FlowElement * for_join_element = new_flow_element(flowifier, 0, FlowElement_ForJoin); 
         
-        // TODO: flowify the for_cond_node!
         FlowElement * for_cond_element = new_flow_element(flowifier, for_cond_node, FlowElement_ForCond); 
+        if (for_cond_element && for_cond_element->first_child)
+        {
+            flowify_statements(flowifier, for_cond_element);
+        }
+        else
+        {
+            FlowElement * cond_passthrough_element = new_flow_element(flowifier, 0, FlowElement_PassThrough);
+            for_cond_element->first_child = cond_passthrough_element;
+            cond_passthrough_element->parent = for_cond_element;
+        }
         
         // TODO: to which ast-node does this correpond (if any)?
         FlowElement * for_split_element = new_flow_element(flowifier, 0, FlowElement_ForSplit); 
