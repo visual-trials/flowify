@@ -280,6 +280,7 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         
         FlowElement * new_expression_element = flowify_expression(flowifier, expression_node);
         
+        // TODO: should we wrap the expression element inside a statement element?
         new_statement_element = new_expression_element;
         new_statement_element->first_in_flow = new_expression_element;
         new_statement_element->last_in_flow = new_expression_element;
@@ -350,9 +351,11 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         Node * for_body_node = for_update_node->next_sibling;
         
         FlowElement * for_init_element = new_flow_element(flowifier, for_init_node, FlowElement_ForInit); 
-        if (for_init_element && for_init_element->first_child)
+        if (for_init_node && for_init_node->first_child)
         {
-            flowify_statements(flowifier, for_init_element);
+            FlowElement * init_expression_element = flowify_expression(flowifier, for_init_node->first_child);
+            for_init_element->first_child = init_expression_element;
+            init_expression_element->parent = for_init_element;
         }
         else
         {
@@ -365,9 +368,11 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         FlowElement * for_join_element = new_flow_element(flowifier, 0, FlowElement_ForJoin); 
         
         FlowElement * for_cond_element = new_flow_element(flowifier, for_cond_node, FlowElement_ForCond); 
-        if (for_cond_element && for_cond_element->first_child)
+        if (for_cond_node && for_cond_node->first_child)
         {
-            flowify_statements(flowifier, for_cond_element);
+            FlowElement * cond_expression_element = flowify_expression(flowifier, for_cond_node->first_child);
+            for_cond_element->first_child = cond_expression_element;
+            cond_expression_element->parent = for_cond_element;
         }
         else
         {
@@ -393,6 +398,18 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         
         // TODO: flowify the for_update_node!
         FlowElement * for_update_element = new_flow_element(flowifier, for_update_node, FlowElement_ForUpdate); 
+        if (for_update_node && for_update_node->first_child)
+        {
+            FlowElement * update_expression_element = flowify_expression(flowifier, for_update_node->first_child);
+            for_update_element->first_child = update_expression_element;
+            update_expression_element->parent = for_update_element;
+        }
+        else
+        {
+            FlowElement * update_passthrough_element = new_flow_element(flowifier, 0, FlowElement_PassThrough);
+            for_update_element->first_child = update_passthrough_element;
+            update_passthrough_element->parent = for_update_element;
+        }
         
         // TODO: to which ast-node does this correpond (if any)?
         FlowElement * for_passback_element = new_flow_element(flowifier, 0, FlowElement_PassBack);
