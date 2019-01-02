@@ -194,21 +194,13 @@ extern "C" {
     // File upload
     u8 * get_address_file_upload(i32 length)
     {
-        if(!global_memory.block_size)
-        {
-            init_memory(&global_memory);
-        }
-        global_input.file.file_contents = create_dynamic_string((Color4){0,0,255,255}, cstring_to_string("File content"), length);
+        init_dynamic_string(&global_input.file.file_contents, (Color4){0,0,255,255}, cstring_to_string("File content"), length);
         return global_input.file.file_contents.string.data;
     }
     
     u8 * get_address_file_name(i32 file_name_length)
     {
-        if(!global_memory.block_size)
-        {
-            init_memory(&global_memory);
-        }
-        global_input.file.file_name = create_dynamic_string((Color4){0,255,0,255}, cstring_to_string("File name"), file_name_length);
+        init_dynamic_string(&global_input.file.file_name, (Color4){0,255,0,255}, cstring_to_string("File name"), file_name_length);
         return global_input.file.file_name.string.data;
     }
     
