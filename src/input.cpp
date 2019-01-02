@@ -69,13 +69,10 @@ struct TouchesInput
     i32 touch_count;
 };
 
-#define MAX_FILE_UPLOAD_SIZE 50000 // FIXME: sync this value with input.js and we need more room!
-#define MAX_FILE_NAME_SIZE     255 // FIXME: sync this value with input.js and we need more room!
-
 struct FileUpload
 {
-    String file_contents;
-    String file_name;
+    DynamicString file_contents;
+    DynamicString file_name;
     b32 file_was_uploaded;
 };
 
@@ -118,9 +115,6 @@ struct Input
 
 Input global_input = {};
 Input new_input = {};
-
-u8 global_file_contents[MAX_FILE_UPLOAD_SIZE]; // TODO: allocate this dynamically!
-u8 global_file_name[MAX_FILE_NAME_SIZE]; // TODO: allocate this dynamically!
 
 extern "C" {
     
@@ -198,27 +192,28 @@ extern "C" {
     }
 
     // File upload
-    u8 * get_address_file_upload()
+    u8 * get_address_file_upload(i32 length)
     {
-        global_input.file.file_contents.data = global_file_contents;
-        return global_input.file.file_contents.data;
-    }
-    
-    u8 * get_address_file_name()
-    {
-        global_input.file.file_name.data = global_file_name;
-        return global_input.file.file_name.data;
-    }
-    
-    void set_file_upload_data(i32 length, i32 file_name_length, b32 file_was_uploaded)
-    {
-        if (length > MAX_FILE_UPLOAD_SIZE)
+        if(!global_memory.block_size)
         {
-            length = MAX_FILE_UPLOAD_SIZE;
+            init_memory(&global_memory);
         }
-        // Note: the corresponding data in global_input.file.file_contents.data should have been filled beforehand
-        global_input.file.file_contents.length = length;
-        global_input.file.file_name.length = file_name_length;
+        global_input.file.file_contents = create_dynamic_string((Color4){0,0,255,255}, cstring_to_string("File content"), length);
+        return global_input.file.file_contents.string.data;
+    }
+    
+    u8 * get_address_file_name(i32 file_name_length)
+    {
+        if(!global_memory.block_size)
+        {
+            init_memory(&global_memory);
+        }
+        global_input.file.file_name = create_dynamic_string((Color4){0,255,0,255}, cstring_to_string("File name"), file_name_length);
+        return global_input.file.file_name.string.data;
+    }
+    
+    void set_file_was_uploaded(b32 file_was_uploaded)
+    {
         global_input.file.file_was_uploaded = file_was_uploaded;
     }
 

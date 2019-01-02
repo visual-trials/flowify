@@ -442,15 +442,31 @@ struct DynamicString
     i32 max_length;
 };
 
-DynamicString create_dynamic_string(Color4 color, String description)
+DynamicString create_dynamic_string(Color4 color, String description, i32 required_size = 0)
 {
     DynamicString dynamic_string = {};
     
     // TODO: maybe we want to reserve 1 block or allow an initial amount of items and reserve memory for those
     dynamic_string.memory_arena = new_consecutive_memory_arena(&global_memory, color, description, 0); 
     
+    Memory * memory = dynamic_string.memory_arena.memory;
+    
     dynamic_string.string.length = 0;
     dynamic_string.string.data = 0;  // TODO: this needs to be set if memory is reserved (now nothing is reserved)
+    
+    if (required_size)
+    {
+        // TODO: maybe its better to give increase_consecutive_memory_blocks the nr_of_required_bytes instead of the nr_of_required_blocks?
+        // TODO: and also let it return the pointer to the start of the first block
+        i32 required_nr_of_blocks = (i32)((f32)required_size / (f32)memory->block_size) + 1; // first round down, then add one
+        increase_consecutive_memory_blocks(&dynamic_string.memory_arena, required_nr_of_blocks);
+        
+        u8 * data = (u8 *)((i32)memory->base_address + memory->block_size * dynamic_string.memory_arena.first_block_index);
+        
+        // TODO: we *should* keep the string length 0, since we have no content yet. We should set the length *after* we filled the content.
+        dynamic_string.string.length = required_size;
+        dynamic_string.string.data = data;
+    }
     
     return dynamic_string;
 }

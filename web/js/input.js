@@ -469,7 +469,7 @@ Flowify.input = function () {
     }
 
     my.sendFileUploadData = function () {
-        Flowify.main.wasmInstance.exports._set_file_upload_data(my.fileContentLength, my.fileNameLength, my.fileWasUploaded)
+        Flowify.main.wasmInstance.exports._set_file_was_uploaded(my.fileWasUploaded)
     }
     
     my.resetFileUploadData = function () {
@@ -496,30 +496,27 @@ Flowify.input = function () {
         let reader = new FileReader()
         reader.onload = (function(uploadedFile) {
             return function(e) {
-                let max_file_size = 50000 // FIXME: sync this value with input.cpp and make it bigger!
-                let max_file_name = 255   // FIXME: sync this value with input.cpp and make it bigger!
-                if (e.target.result.length <= max_file_size && uploadedFile.name.length <= max_file_name) {
-                        
-                    for (let i = 0; i < uploadedFile.name.length; i++) {
-                        Flowify.main.bufferU8[my.addressFileName + i] = uploadedFile.name.charCodeAt(i)
-                    }
-                    my.fileNameLength = uploadedFile.name.length
+                my.fileNameLength = uploadedFile.name.length
+                my.fileContentLength = e.target.result.length
                     
-                    // FIXME: this SHOULD work: 
-                    // if (e.target.result.byteLength <= max_file_size) {
-                    for (let i = 0; i < e.target.result.length; i++) {
-                        Flowify.main.bufferU8[my.addressFileUpload + i] = e.target.result.charCodeAt(i)
-                    }
-                    my.fileContentLength = e.target.result.length
-                    
-                    // FIXME: this SHOULD work: 
-                    // Flowify.main.bufferU8.set(e.target.result, my.addressFileUpload)
-                    
-                    my.fileWasUploaded = true
+                // TODO: check if address is not 0
+                my.addressFileName = Flowify.main.wasmInstance.exports._get_address_file_name(my.fileNameLength)
+                my.addressFileUpload = Flowify.main.wasmInstance.exports._get_address_file_upload(my.fileContentLength)
+                
+                for (let i = 0; i < uploadedFile.name.length; i++) {
+                    Flowify.main.bufferU8[my.addressFileName + i] = uploadedFile.name.charCodeAt(i)
                 }
-                else {
-                    // TODO: notify that file size or file name is out of bounds!
+                
+                // FIXME: this SHOULD work: 
+                // if (e.target.result.byteLength <= max_file_size) {
+                for (let i = 0; i < e.target.result.length; i++) {
+                    Flowify.main.bufferU8[my.addressFileUpload + i] = e.target.result.charCodeAt(i)
                 }
+                
+                // FIXME: this SHOULD work: 
+                // Flowify.main.bufferU8.set(e.target.result, my.addressFileUpload)
+                
+                my.fileWasUploaded = true
             };
         })(file);
 

@@ -2,8 +2,8 @@ set -e  # stop script on first error
 
 source /home/emscripten/emsdk/emsdk_env.sh
 
-PROJECT_NAME=flowify
-#PROJECT_NAME=testing_file
+#PROJECT_NAME=flowify
+PROJECT_NAME=testing_file
 #PROJECT_NAME=testing_parser
 #PROJECT_NAME=testing_memory
 #PROJECT_NAME=testing_text
@@ -30,7 +30,7 @@ emcc src/$PROJECT_NAME.cpp -Os -s WASM=1 -o dist/$PROJECT_NAME.html -s TOTAL_MEM
         '_set_touch_data', 
         '_get_address_file_upload',
         '_get_address_file_name',
-        '_set_file_upload_data',
+        '_set_file_was_uploaded',
         '_set_frame_time',
         '_set_screen_size',
         '_set_address_and_size_dynamic_memory'

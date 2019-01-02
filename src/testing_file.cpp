@@ -28,6 +28,7 @@ struct WorldData
     
     ScrollableText scrollable_file;
     
+    b32 verbose_memory_usage;
     b32 verbose_frame_times;
 };
 
@@ -57,9 +58,9 @@ extern "C" {
         if (input->file.file_was_uploaded)
         {
             // FIXME: this might be erased, so the pointer in .data may become invalid. We have to copy the content!
-            String file_contents = input->file.file_contents;
+            String file_contents = input->file.file_contents.string;
             world->file_length = file_contents.length;
-            world->file_name = input->file.file_name;
+            world->file_name = input->file.file_name.string;
             
             split_string_into_scrollable_lines(file_contents, scrollable_file);
             
@@ -111,6 +112,7 @@ extern "C" {
         // Draw frame timing
         do_frame_timing(&global_input, &world->verbose_frame_times);
         
+        do_memory_usage(&global_memory, &global_input, &world->verbose_memory_usage);
         do_physical_pixels_switch(&global_input);
     }
 }
