@@ -427,7 +427,11 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         }
         
         // TODO: to which ast-node does this correpond (if any)?
-        FlowElement * for_passback_element = new_flow_element(flowifier, 0, FlowElement_PassBack);
+        FlowElement * for_passright_element = new_flow_element(flowifier, 0, FlowElement_PassBack);
+        // TODO: to which ast-node does this correpond (if any)?
+        FlowElement * for_passup_element = new_flow_element(flowifier, 0, FlowElement_PassBack);
+        // TODO: to which ast-node does this correpond (if any)?
+        FlowElement * for_passleft_element = new_flow_element(flowifier, 0, FlowElement_PassBack);
             
         // TODO: to which ast-node does this correpond (if any)?
         FlowElement * for_passthrough_element = new_flow_element(flowifier, 0, FlowElement_PassThrough);
@@ -443,8 +447,10 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         add_sibling(for_cond_element, for_split_element);
         add_sibling(for_split_element, for_body_element);
         add_sibling(for_body_element, for_update_element);
-        add_sibling(for_update_element, for_passback_element);
-        add_sibling(for_passback_element, for_passthrough_element);
+        add_sibling(for_update_element, for_passleft_element);
+        add_sibling(for_passleft_element, for_passup_element);
+        add_sibling(for_passup_element, for_passright_element);
+        add_sibling(for_passright_element, for_passthrough_element);
         add_sibling(for_passthrough_element, for_done_element);
         
         for_element->first_in_flow = for_init_element;
@@ -592,12 +598,6 @@ void layout_elements(FlowElement * flow_element)
         flow_element->size.height = 80;
         flow_element->has_lane_segments = true;
     }
-    else if (flow_element->type == FlowElement_PassBack)
-    {
-        flow_element->size.width = 40;
-        flow_element->size.height = 80;
-        flow_element->has_lane_segments = true;
-    }
     else if (flow_element->type == FlowElement_Assignment)
     {
         flow_element->size.width = 100;
@@ -686,8 +686,10 @@ void layout_elements(FlowElement * flow_element)
         FlowElement * for_split_element = for_cond_element->next_sibling;
         FlowElement * for_body_element = for_split_element->next_sibling;
         FlowElement * for_update_element = for_body_element->next_sibling;
-        FlowElement * for_passback_element = for_update_element->next_sibling;
-        FlowElement * for_passthrough_element = for_passback_element->next_sibling;
+        FlowElement * for_passright_element = for_update_element->next_sibling;
+        FlowElement * for_passup_element = for_passright_element->next_sibling;
+        FlowElement * for_passleft_element = for_passup_element->next_sibling;
+        FlowElement * for_passthrough_element = for_passleft_element->next_sibling;
         FlowElement * for_done_element = for_passthrough_element->next_sibling;
         
         layout_elements(for_body_element);
@@ -749,10 +751,22 @@ void layout_elements(FlowElement * flow_element)
         
         current_position_right.y += for_update_element->size.height + vertical_margin;
         
-        for_passback_element->position.y = for_join_element->position.y;
-        for_passback_element->position.x = current_position_right.x + for_body_element->size.width + right_margin;
-        for_passback_element->size.height = 20;
-        for_passback_element->size.width = 50;
+        for_passright_element->position.y = current_position_right.y;
+        for_passright_element->position.x = current_position_right.x + for_body_element->size.width + right_margin / 2; // TODO: use bending radius here?
+        for_passright_element->size.height = 50;
+        for_passright_element->size.width = 20;
+        
+        current_position_right.y += for_passright_element->size.height + vertical_margin;
+        
+        for_passup_element->position.y = for_split_element->position.y;
+        for_passup_element->position.x = current_position_right.x + for_body_element->size.width + right_margin;
+        for_passup_element->size.height = 20;
+        for_passup_element->size.width = 50;
+        
+        for_passleft_element->position.y = for_join_element->position.y;
+        for_passleft_element->position.x = current_position_right.x + for_body_element->size.width + right_margin / 2; // TODO: use bending radius here?
+        for_passleft_element->size.height = 50;
+        for_passleft_element->size.width = 20;
         
         // FIXME: we are assuming the body + update is always vertically larger than the for_passthrough_element
         current_position_left.y = current_position_right.y;
@@ -764,7 +778,7 @@ void layout_elements(FlowElement * flow_element)
         current_position_left.y += for_done_element->size.height;
         
         i32 total_height = current_position_left.y - start_position.y;
-        i32 total_width = for_passback_element->position.x + for_passback_element->size.width - start_position.x;
+        i32 total_width = for_passup_element->position.x + for_passup_element->size.width - start_position.x;
         
         flow_element->size.height = total_height;
         flow_element->size.width = total_width;
@@ -909,8 +923,10 @@ void absolute_layout_elements(FlowElement * flow_element, Pos2d absolute_parent_
         FlowElement * for_split_element = for_cond_element->next_sibling;
         FlowElement * for_body_element = for_split_element->next_sibling;
         FlowElement * for_update_element = for_body_element->next_sibling;
-        FlowElement * for_passback_element = for_update_element->next_sibling;
-        FlowElement * for_passthrough_element = for_passback_element->next_sibling;
+        FlowElement * for_passright_element = for_update_element->next_sibling;
+        FlowElement * for_passup_element = for_passright_element->next_sibling;
+        FlowElement * for_passleft_element = for_passup_element->next_sibling;
+        FlowElement * for_passthrough_element = for_passleft_element->next_sibling;
         FlowElement * for_done_element = for_passthrough_element->next_sibling;
 
         absolute_layout_elements(for_init_element, flow_element->absolute_position);
@@ -919,7 +935,9 @@ void absolute_layout_elements(FlowElement * flow_element, Pos2d absolute_parent_
         absolute_layout_elements(for_split_element, flow_element->absolute_position);
         absolute_layout_elements(for_body_element, flow_element->absolute_position);
         absolute_layout_elements(for_update_element, flow_element->absolute_position);
-        absolute_layout_elements(for_passback_element, flow_element->absolute_position);
+        absolute_layout_elements(for_passright_element, flow_element->absolute_position);
+        absolute_layout_elements(for_passup_element, flow_element->absolute_position);
+        absolute_layout_elements(for_passleft_element, flow_element->absolute_position);
         absolute_layout_elements(for_passthrough_element, flow_element->absolute_position);
         absolute_layout_elements(for_done_element, flow_element->absolute_position);
     }
@@ -1184,8 +1202,10 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
         FlowElement * for_split_element = for_cond_element->next_sibling;
         FlowElement * for_body_element = for_split_element->next_sibling;
         FlowElement * for_update_element = for_body_element->next_sibling;
-        FlowElement * for_passback_element = for_update_element->next_sibling;
-        FlowElement * for_passthrough_element = for_passback_element->next_sibling;
+        FlowElement * for_passright_element = for_update_element->next_sibling;
+        FlowElement * for_passup_element = for_passright_element->next_sibling;
+        FlowElement * for_passleft_element = for_passup_element->next_sibling;
+        FlowElement * for_passthrough_element = for_passleft_element->next_sibling;
         FlowElement * for_done_element = for_passthrough_element->next_sibling;
 
         draw_straight_element(for_init_element, for_init_element->previous_in_flow, for_join_element, show_help_rectangles);
@@ -1200,7 +1220,37 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
         // TODO: The previous_in_flow and next_in_flow of the update_element are not correct (previous should be last statement in for-body, next should be?)
         draw_straight_element(for_update_element, for_body_element, 0, show_help_rectangles);
         // TODO: we need a special drawer for this! (need to connect from update -> passback -> joiner
-        draw_straight_element(for_passback_element, 0, 0, show_help_rectangles);
+        
+        // FIXME: we need a get_rect_from_element-function!
+        Rect2d update_rect = {};
+        update_rect.position = for_update_element->absolute_position;
+        update_rect.size = for_update_element->size;
+        
+        Rect2d passright_rect = {};
+        passright_rect.position = for_passright_element->absolute_position;
+        passright_rect.size = for_passright_element->size;
+        
+        Rect2d passup_rect = {};
+        passup_rect.position = for_passup_element->absolute_position;
+        passup_rect.size = for_passup_element->size;
+        
+        Rect2d passleft_rect = {};
+        passleft_rect.position = for_passleft_element->absolute_position;
+        passleft_rect.size = for_passleft_element->size;
+        
+        HorLine hor_line = get_bottom_line_from_rect(update_rect);
+        VertLine vert_line = get_left_line_from_rect(passright_rect);
+        draw_cornered_lane_segment(hor_line, vert_line, bending_radius, line_color, unselected_color, line_width);
+        
+        vert_line = get_left_line_from_rect(passright_rect);
+        hor_line = get_bottom_line_from_rect(passup_rect);
+        draw_cornered_lane_segment(hor_line, vert_line, bending_radius, line_color, unselected_color, line_width);
+        
+        hor_line = get_bottom_line_from_rect(passup_rect);
+        vert_line = get_left_line_from_rect(passleft_rect);
+        draw_cornered_lane_segment(hor_line, vert_line, bending_radius, line_color, unselected_color, line_width);
+
+        
         draw_straight_element(for_passthrough_element, 0, for_done_element, show_help_rectangles);
         draw_straight_element(for_done_element, for_passthrough_element, for_done_element->next_in_flow, show_help_rectangles);
     }
