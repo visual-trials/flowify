@@ -98,8 +98,8 @@ extern "C" {
     {
         WorldData * world = &global_world;
         
-        world->active_page_index = 1;
-        world->nr_of_pages = 4;
+        world->active_page_index = 2;
+        world->nr_of_pages = 5;
         
         world->iteration = 0;
         world->selected_lane_segment_index = 0;
@@ -202,6 +202,38 @@ extern "C" {
         }
 
         if (lane_example_index == 1)
+        {
+            i32 nr_of_example_rectangles3 = 2;
+            const Rectangles3 example_rectangles3[12] = {
+                { {-1,-1,-1,-1}, {450, 100, 80, 150}, {300, 300, 100, 50} },
+                { {-1,-1,-1,-1}, {600, 100, 80, 150}, {750, 300, 100, 50} },
+            };
+            
+            for (i32 example_rectangles3_index = 0; example_rectangles3_index < nr_of_example_rectangles3; example_rectangles3_index++)
+            {
+                Rectangles3 rects = example_rectangles3[example_rectangles3_index];
+                
+                draw_lane_segments_for_3_rectangles(rects.top, rects.middle, rects.bottom, bending_radius, line_width, line_color, unselected_color, selected_color);
+                
+                if (world->show_help_rectangles)
+                {
+                    Rect2d top_rect = shrink_rect_by_size(rects.top, (Size2d){2,0});
+                    Rect2d middle_rect = shrink_rect_by_size(rects.middle, (Size2d){2,0});
+                    Rect2d bottom_rect = shrink_rect_by_size(rects.bottom, (Size2d){2,0});
+                    
+                    // Drawing the rectangle above it, to show where it would go
+                    draw_rectangle(top_rect.position, top_rect.size, rectangle_color, no_color, 2);
+                    
+                    // Drawing the middle_rect
+                    draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, no_color, 2);
+                    
+                    // Drawing the rectangle below it, to show where it would go
+                    draw_rectangle(bottom_rect.position, bottom_rect.size, rectangle_color, no_color, 2);
+                }
+            }
+        }
+
+        if (lane_example_index == 2)
         {
 
             line_width = 4;
@@ -487,9 +519,13 @@ extern "C" {
         }
         else if (world->active_page_index == 3)
         {
-            draw_lanes(world);
+            draw_example_lanes(world, 2);
         }
         else if (world->active_page_index == 4)
+        {
+            draw_lanes(world);
+        }
+        else if (world->active_page_index == 5)
         {
             draw_pixel_borders();
         }
