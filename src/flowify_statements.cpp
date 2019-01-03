@@ -209,6 +209,12 @@ FlowElement * get_function_element(Flowifier * flowifier, String identifier)
     return 0;
 }
 
+void add_sibling(FlowElement * existing_sibling, FlowElement * new_sibling)
+{
+    existing_sibling->next_sibling = new_sibling;
+    new_sibling->previous_sibling = existing_sibling;
+}
+
 void flowify_statements(Flowifier * flowifier, FlowElement * parent_element);
 
 FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
@@ -341,17 +347,10 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         if_element->first_child = if_cond_element;
         if_cond_element->parent = if_element;  // TODO: only setting parent on first_child?
         
-        if_cond_element->next_sibling = if_split_element;
-        if_split_element->previous_sibling = if_cond_element;
-        
-        if_split_element->next_sibling = if_then_element;
-        if_then_element->previous_sibling = if_split_element;
-        
-        if_then_element->next_sibling = if_else_element;
-        if_else_element->previous_sibling = if_then_element;
-        
-        if_else_element->next_sibling = if_join_element;
-        if_join_element->previous_sibling = if_else_element;
+        add_sibling(if_cond_element, if_split_element);
+        add_sibling(if_split_element, if_then_element);
+        add_sibling(if_then_element, if_else_element);
+        add_sibling(if_else_element, if_join_element);
         
         if_element->first_in_flow = if_cond_element;
         if_element->last_in_flow = if_join_element;
@@ -439,29 +438,14 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         for_element->first_child = for_init_element;
         for_init_element->parent = for_element;  // TODO: only setting parent on first_child?
         
-        for_init_element->next_sibling = for_join_element;
-        for_join_element->previous_sibling = for_init_element;
-        
-        for_join_element->next_sibling = for_cond_element;
-        for_cond_element->previous_sibling = for_join_element;
-
-        for_cond_element->next_sibling = for_split_element;
-        for_split_element->previous_sibling = for_cond_element;
-        
-        for_split_element->next_sibling = for_body_element;
-        for_body_element->previous_sibling = for_split_element;
-        
-        for_body_element->next_sibling = for_update_element;
-        for_update_element->previous_sibling = for_body_element;
-        
-        for_update_element->next_sibling = for_passback_element;
-        for_passback_element->previous_sibling = for_update_element;
-        
-        for_passback_element->next_sibling = for_passthrough_element;
-        for_passthrough_element->previous_sibling = for_passback_element;
-        
-        for_passthrough_element->next_sibling = for_done_element;
-        for_done_element->previous_sibling = for_passthrough_element;
+        add_sibling(for_init_element, for_join_element);
+        add_sibling(for_join_element, for_cond_element);
+        add_sibling(for_cond_element, for_split_element);
+        add_sibling(for_split_element, for_body_element);
+        add_sibling(for_body_element, for_update_element);
+        add_sibling(for_update_element, for_passback_element);
+        add_sibling(for_passback_element, for_passthrough_element);
+        add_sibling(for_passthrough_element, for_done_element);
         
         for_element->first_in_flow = for_init_element;
         for_element->last_in_flow = for_done_element;
