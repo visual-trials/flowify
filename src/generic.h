@@ -58,6 +58,12 @@ struct HorLine
    i32 width;
 };
 
+struct VertLine
+{
+   Pos2d position;
+   i32 height;
+};
+
 struct HorLine2
 {
    HorLine top_line;
@@ -141,6 +147,27 @@ HorLine get_bottom_line_from_rect(Rect2d rect)
     bottom_line.width = rect.size.width;
     
     return bottom_line;
+}
+
+VertLine get_left_line_from_rect(Rect2d rect)
+{
+    VertLine left_line = {};
+    
+    left_line.position = rect.position;
+    left_line.height = rect.size.height;
+    
+    return left_line;
+}
+
+VertLine get_right_line_from_rect(Rect2d rect)
+{
+    VertLine right_line = {};
+    
+    right_line.position.x = rect.position.x + rect.size.width;
+    right_line.position.y = rect.position.y;
+    right_line.height = rect.size.height;
+    
+    return right_line;
 }
 
 Rect2d shrink_rect_by_size(Rect2d rect, Size2d size)

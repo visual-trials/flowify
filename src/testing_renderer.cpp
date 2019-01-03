@@ -203,17 +203,22 @@ extern "C" {
 
         if (lane_example_index == 1)
         {
-            i32 nr_of_example_rectangles3 = 2;
+            i32 nr_of_example_rectangles3 = 1;
             const Rectangles3 example_rectangles3[12] = {
-                { {-1,-1,-1,-1}, {450, 100, 80, 150}, {300, 300, 100, 50} },
-                { {-1,-1,-1,-1}, {600, 100, 80, 150}, {750, 300, 100, 50} },
+                { {-1,-1,-1,-1}, {450, 100, 80, 150}, {200, 300, 100, 50} },
+                // { {-1,-1,-1,-1}, {600, 100, 80, 150}, {850, 300, 100, 50} },
             };
             
             for (i32 example_rectangles3_index = 0; example_rectangles3_index < nr_of_example_rectangles3; example_rectangles3_index++)
             {
                 Rectangles3 rects = example_rectangles3[example_rectangles3_index];
                 
-                draw_lane_segments_for_3_rectangles(rects.top, rects.middle, rects.bottom, bending_radius, line_width, line_color, unselected_color, selected_color);
+                
+                HorLine hor_line = get_bottom_line_from_rect(rects.middle);
+                VertLine vert_line = get_right_line_from_rect(rects.bottom);
+                
+                draw_cornered_lane_segment(hor_line, vert_line, bending_radius, line_color, unselected_color, line_width);
+                //draw_lane_segments_for_3_rectangles(rects.top, rects.middle, rects.bottom, bending_radius, line_width, line_color, unselected_color, selected_color);
                 
                 if (world->show_help_rectangles)
                 {
