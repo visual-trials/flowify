@@ -168,13 +168,13 @@ Flowify.canvas = function () {
                         if (vertBottomY < horY) {
                             // The lane ends to the top of the beginning (we are drawing West -> North)
                             
-                            ctx.arcTo(horLeftX, vertBottomY, vertX, vertBottomY, radius)
+                            ctx.arcTo(horLeftX, vertBottomY, horLeftX - radius, vertBottomY, radius)
+                            ctx.lineTo(vertX, vertBottomY)
+                            
                             ctx.lineTo(vertX, vertTopY)
                             
-                            // ctx.lineTo(rightBottomX, bottomY)
-                            
-                            ctx.arcTo(horRightX, vertTopY, horRightX, horY, radius)
-                            // ctx.lineTo(leftBottomX, bottomY)
+                            ctx.arcTo(horRightX, vertTopY, horRightX, vertTopY + radius, radius)
+                            ctx.lineTo(horRightX, horY)
                         }
                         else {
                             // The lane ends to the bottom of the beginning (we are drawing West -> South)
@@ -189,11 +189,28 @@ Flowify.canvas = function () {
                         }
                     }
                     else {
-                        if (true) {
+                        // The lane ends to the right of the beginning (we are drawing East)
+                        if (vertBottomY < horY) {
+                            // The lane ends to the top of the beginning (we are drawing East -> North)
                             
+                            ctx.arcTo(horLeftX, vertTopY, horLeftX + radius, vertTopY, radius)
+                            ctx.lineTo(vertX, vertTopY)
+                            
+                            ctx.lineTo(vertX, vertBottomY)
+                            
+                            ctx.arcTo(horRightX, vertBottomY, horRightX, vertBottomY + radius, radius)
+                            ctx.lineTo(horRightX, horY)
                         }
                         else {
+                            // The lane ends to the bottom of the beginning (we are drawing East -> South)
                             
+                            ctx.arcTo(horLeftX, vertBottomY, horLeftX + radius, vertBottomY, radius)
+                            ctx.lineTo(vertX, vertBottomY)
+                            
+                            ctx.lineTo(vertX, vertTopY)
+                            
+                            ctx.arcTo(horRightX, vertTopY, horRightX, vertTopY - radius, radius)
+                            ctx.lineTo(horRightX, horY)
                         }
                     }
                     
@@ -203,56 +220,66 @@ Flowify.canvas = function () {
                     ctx.fill()
                 }
                 
-                /*
                 if (lineColorAlpha) {
-                    // Draw left side
-                    ctx.beginPath()     
-                    ctx.moveTo(leftTopX, topY)
-                    if (leftBottomX < leftTopX) {
-                        // bottom is to the left of the top
-                        ctx.arcTo(leftTopX, leftMiddleY, leftTopX - radius, leftMiddleY, radius)
-                        ctx.arcTo(leftBottomX, leftMiddleY, leftBottomX, leftMiddleY + radius, radius)
-                        ctx.lineTo(leftBottomX, bottomY)
-                    }
-                    if (leftBottomX > leftTopX) {
-                        // bottom is to the right of the top
-                        ctx.arcTo(leftTopX, leftMiddleY, leftTopX + radius, leftMiddleY, radius)
-                        ctx.arcTo(leftBottomX, leftMiddleY, leftBottomX, leftMiddleY + radius, radius)
-                        ctx.lineTo(leftBottomX, bottomY)
-                    }
-                    else {
-                        // straight vertical line
-                        ctx.lineTo(leftBottomX, bottomY)
-                    }
-                    ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
-                    ctx.lineWidth = lineWidth
-                    ctx.stroke()
-                    
-                    // Draw right side
+                    // Draw borders
                     
                     ctx.beginPath()     
-                    ctx.moveTo(rightTopX, topY)
-                    if (rightBottomX < rightTopX) {
-                        // bottom is to the left of the top
-                        ctx.arcTo(rightTopX, rightMiddleY, rightTopX - radius, rightMiddleY, radius)
-                        ctx.arcTo(rightBottomX, rightMiddleY, rightBottomX, rightMiddleY + radius, radius)
-                        ctx.lineTo(rightBottomX, bottomY)
-                    }
-                    if (rightBottomX > rightTopX) {
-                        // bottom is to the right of the top
-                        ctx.arcTo(rightTopX, rightMiddleY, rightTopX + radius, rightMiddleY, radius)
-                        ctx.arcTo(rightBottomX, rightMiddleY, rightBottomX, rightMiddleY + radius, radius)
-                        ctx.lineTo(rightBottomX, bottomY)
+                    
+                    ctx.moveTo(horLeftX, horY)
+                    if (vertX < horLeftX) {
+                        // The lane ends to the left of the beginning (we are drawing West)
+                        if (vertBottomY < horY) {
+                            // The lane ends to the top of the beginning (we are drawing West -> North)
+                            
+                            ctx.arcTo(horLeftX, vertBottomY, horLeftX - radius, vertBottomY, radius)
+                            ctx.lineTo(vertX, vertBottomY)
+                            
+                            ctx.moveTo(vertX, vertTopY)
+                            
+                            ctx.arcTo(horRightX, vertTopY, horRightX, vertTopY + radius, radius)
+                            ctx.lineTo(horRightX, horY)
+                        }
+                        else {
+                            // The lane ends to the bottom of the beginning (we are drawing West -> South)
+                            
+                            ctx.arcTo(horLeftX, vertTopY, horLeftX - radius, vertTopY, radius)
+                            ctx.lineTo(vertX, vertTopY)
+                            
+                            ctx.moveTo(vertX, vertBottomY)
+                            
+                            ctx.arcTo(horRightX, vertBottomY, horRightX, vertBottomY - radius, radius)
+                            ctx.lineTo(horRightX, horY)
+                        }
                     }
                     else {
-                        // straight vertical line
-                        ctx.lineTo(rightBottomX, bottomY)
+                        // The lane ends to the right of the beginning (we are drawing East)
+                        if (vertBottomY < horY) {
+                            // The lane ends to the top of the beginning (we are drawing East -> North)
+                            
+                            ctx.arcTo(horLeftX, vertTopY, horLeftX + radius, vertTopY, radius)
+                            ctx.lineTo(vertX, vertTopY)
+                            
+                            ctx.moveTo(vertX, vertBottomY)
+                            
+                            ctx.arcTo(horRightX, vertBottomY, horRightX, vertBottomY + radius, radius)
+                            ctx.lineTo(horRightX, horY)
+                        }
+                        else {
+                            // The lane ends to the bottom of the beginning (we are drawing East -> South)
+                            
+                            ctx.arcTo(horLeftX, vertBottomY, horLeftX + radius, vertBottomY, radius)
+                            ctx.lineTo(vertX, vertBottomY)
+                            
+                            ctx.moveTo(vertX, vertTopY)
+                            
+                            ctx.arcTo(horRightX, vertTopY, horRightX, vertTopY - radius, radius)
+                            ctx.lineTo(horRightX, horY)
+                        }
                     }
                     ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
                     ctx.lineWidth = lineWidth
                     ctx.stroke()
                 }
-                */
             },
             
             _jsDrawLaneSegment: function (leftTopX, rightTopX, topY, leftBottomX, rightBottomX, bottomY, leftMiddleY, rightMiddleY, radius, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
