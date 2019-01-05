@@ -703,7 +703,10 @@ void layout_elements(FlowElement * flow_element)
         
         i32 for_body_height = for_body_element->size.height;
         
-        i32 middle_margin = 80;
+        i32 thickness_passback = 50; // TODO: should actually depend on the number of data lines going through it
+        i32 length_passback = 10;
+        
+        i32 middle_margin = 4 * bending_radius;
         i32 right_margin = 100;
         i32 vertical_margin = 50;
 
@@ -726,7 +729,7 @@ void layout_elements(FlowElement * flow_element)
         for_init_element->size.width = 100;
         for_init_element->has_lane_segments = true;
         
-        current_position.y += for_init_element->size.height + vertical_margin;
+        current_position.y += for_init_element->size.height + thickness_passback + bending_radius + bending_radius + bending_radius;
         
         for_join_element->position = current_position;
         for_join_element->size.height = 20;
@@ -768,9 +771,6 @@ void layout_elements(FlowElement * flow_element)
         
         current_position_right.y += for_update_element->size.height + vertical_margin;
         
-        i32 thickness_passback = 50; // TODO: should actually depend on the number of data lines going through it
-        i32 length_passback = 10;
-        
         for_passright_element->position.y = current_position_right.y;
         for_passright_element->position.x = current_position_right.x + for_body_element->size.width + right_margin / 2; // TODO: use bending radius here?
         for_passright_element->size.height = thickness_passback;
@@ -789,7 +789,7 @@ void layout_elements(FlowElement * flow_element)
         for_passleft_element->size.width = length_passback;
         
         for_passdown_element->position.y = for_init_element->position.y + for_init_element->size.height - length_passback;
-        for_passdown_element->position.x = current_position_right.x;
+        for_passdown_element->position.x = for_init_element->position.x + for_init_element->size.width + middle_margin;
         for_passdown_element->size.height = length_passback;
         for_passdown_element->size.width = thickness_passback;
         
@@ -1256,16 +1256,13 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
         
         draw_straight_element(for_init_element, for_start_element, for_join_element, show_help_rectangles);
         
-        // TODO: we probably need a special draw of this joining element: 
-        // FIXME: draw_joining_element(for_init_element, for_passback_element?, for_join_element, for_cond_element?, show_help_rectangles);
-        draw_straight_element(for_join_element, for_init_element, for_cond_element, show_help_rectangles); // TODO: replace this!
+        draw_joining_element(for_init_element, for_passdown_element, for_join_element, for_cond_element, show_help_rectangles);
         
         draw_straight_element(for_cond_element, for_join_element, for_split_element, show_help_rectangles);
         draw_splitting_element(for_passthrough_element, for_body_element, for_split_element, show_help_rectangles);
         draw_elements(for_body_element, show_help_rectangles);
         // TODO: The previous_in_flow and next_in_flow of the update_element are not correct (previous should be last statement in for-body, next should be?)
         draw_straight_element(for_update_element, for_body_element, 0, show_help_rectangles);
-        // TODO: we need a special drawer for this! (need to connect from update -> passback -> joiner
         
         // FIXME: we need a get_rect_from_element-function!
         Rect2d update_rect = {};
