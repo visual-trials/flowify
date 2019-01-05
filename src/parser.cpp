@@ -1057,9 +1057,11 @@ Node * parse_statement(Parser * parser)
         }
         Node * condition_node = new_node(parser);
         condition_node->type = Node_Stmt_If_Cond;
+        condition_node->first_token_index = parser->current_token_index;
         statement_node->first_child = condition_node;
         
         Node * condition_expression_node = parse_expression(parser);
+        condition_node->last_token_index = parser->current_token_index - 1;
         condition_node->first_child = condition_expression_node;
         expect_token(parser, Token_CloseParenteses);
         
@@ -1094,27 +1096,36 @@ Node * parse_statement(Parser * parser)
         
         Node * init_node = new_node(parser);
         init_node->type = Node_Stmt_For_Init;
-        statement_node->first_child = init_node;
-        
+        init_node->first_token_index = parser->current_token_index;
+
         Node * init_expression_node = parse_expression(parser);
+        
         init_node->first_child = init_expression_node;
+        init_node->last_token_index = parser->current_token_index - 1;
+        
+        statement_node->first_child = init_node;
         
         expect_token(parser, Token_Semicolon);
             
         Node * condition_node = new_node(parser);
         condition_node->type = Node_Stmt_For_Cond;
+        condition_node->first_token_index = parser->current_token_index;
         init_node->next_sibling = condition_node;
         
         Node * condition_expression_node = parse_expression(parser);
+        
+        condition_node->last_token_index = parser->current_token_index - 1;
         condition_node->first_child = condition_expression_node;
         
         expect_token(parser, Token_Semicolon);
         
         Node * update_node = new_node(parser);
         update_node->type = Node_Stmt_For_Update;
+        update_node->first_token_index = parser->current_token_index;
         condition_node->next_sibling = update_node;
         
         Node * update_expression_node = parse_expression(parser);
+        update_node->last_token_index = parser->current_token_index - 1;
         update_node->first_child = update_expression_node;
         
         expect_token(parser, Token_CloseParenteses);
