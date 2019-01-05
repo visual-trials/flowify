@@ -701,11 +701,26 @@ void layout_elements(FlowElement * flow_element)
         
         layout_elements(for_body_element);
         
+        // TODO: we should layout for_init to get its (proper) width and height
+        for_init_element->size.width = 100;
+        for_init_element->size.height = 80;
+        
+        // TODO: we should layout for_cond to get its (proper) width and height
+        for_cond_element->size.height = 80;
+        for_cond_element->size.width = 100;
+        
+        // TODO: we should layout for_update to get its (proper) width and height
+        for_update_element->size.height = 80;
+        for_update_element->size.width = 100;
+        
         i32 for_body_height = for_body_element->size.height;
         
-        i32 thickness_passback = 50; // TODO: should actually depend on the number of data lines going through it
-        i32 length_passback = 10;
+        i32 passback_width = 50; // TODO: should actually depend on the number of data lines going through it
+        i32 passback_height = 0;
         
+        i32 passthrough_width = 50;
+        
+        i32 width_center_elements = 100; // for_start, for_join, for_split, for_done
         i32 middle_margin = 4 * bending_radius;
         i32 right_margin = 100;
         i32 vertical_margin = 50;
@@ -715,49 +730,52 @@ void layout_elements(FlowElement * flow_element)
         // TODO: we want for_init and for_passthough to be aligned at their right-side! (and be to the left of the center)
         
         Pos2d current_position = start_position;
+        
+        current_position.x += for_init_element->size.width + 2 * bending_radius - width_center_elements / 2;
+        // TODO: we are creating some space at the top here. But we probably want the entire For-element to be move to the left, so we don't need this vertical space.
+        current_position.y += 100;
 
         for_start_element->position = current_position;
         for_start_element->size.height = 20;
-        for_start_element->size.width = 100;
+        for_start_element->size.width = width_center_elements;
         for_start_element->has_lane_segments = true;
         
-        current_position.y += for_start_element->size.height + vertical_margin;
+        current_position.y += for_start_element->size.height + vertical_margin + vertical_margin;
+        current_position.x -= for_init_element->size.width + 2 * bending_radius - width_center_elements / 2;
         
-        // FIXME: if width is set to 200 it doesn't look good!!
         for_init_element->position = current_position;
-        for_init_element->size.height = 80;
-        for_init_element->size.width = 100;
         for_init_element->has_lane_segments = true;
         
-        current_position.y += for_init_element->size.height + thickness_passback + bending_radius + bending_radius + bending_radius;
+        current_position.y += for_init_element->size.height + passback_width + bending_radius + bending_radius + bending_radius;
+        current_position.x += for_init_element->size.width + 2 * bending_radius - width_center_elements / 2;
         
         for_join_element->position = current_position;
         for_join_element->size.height = 20;
-        for_join_element->size.width = 100;
+        for_join_element->size.width = width_center_elements;
         for_join_element->has_lane_segments = true;
         
         current_position.y += for_join_element->size.height + vertical_margin;
         
         for_cond_element->position = current_position;
-        for_cond_element->size.height = 80;
-        for_cond_element->size.width = 100;
         for_cond_element->has_lane_segments = true;
         
         current_position.y += for_cond_element->size.height + vertical_margin;
         
         for_split_element->position = current_position;
         for_split_element->size.height = 20;
-        for_split_element->size.width = 100;
+        for_split_element->size.width = width_center_elements;
         for_split_element->has_lane_segments = true;
         
         current_position.y += for_split_element->size.height + vertical_margin + vertical_margin + vertical_margin;
         
+        current_position.x -= passthrough_width + 2 * bending_radius - width_center_elements / 2;
+        
         Pos2d current_position_right = current_position;
         Pos2d current_position_left = current_position;
-        
+
         for_passthrough_element->position = current_position_left;
         for_passthrough_element->size.height = 20;
-        for_passthrough_element->size.width = 50;
+        for_passthrough_element->size.width = passthrough_width;
         
         current_position_right.x += for_passthrough_element->size.width + middle_margin;
         for_body_element->position = current_position_right;
@@ -765,40 +783,38 @@ void layout_elements(FlowElement * flow_element)
         current_position_right.y += for_body_element->size.height;
         
         for_update_element->position = current_position_right;
-        for_update_element->size.height = 80;
-        for_update_element->size.width = 100;
         for_update_element->has_lane_segments = true;
         
         current_position_right.y += for_update_element->size.height + vertical_margin;
         
         for_passright_element->position.y = current_position_right.y;
         for_passright_element->position.x = current_position_right.x + for_body_element->size.width + right_margin / 2; // TODO: use bending radius here?
-        for_passright_element->size.height = thickness_passback;
-        for_passright_element->size.width = length_passback;
+        for_passright_element->size.height = passback_width;
+        for_passright_element->size.width = passback_height;
         
         current_position_right.y += for_passright_element->size.height + vertical_margin;
         
         for_passup_element->position.y = for_split_element->position.y;
         for_passup_element->position.x = current_position_right.x + for_body_element->size.width + right_margin;
-        for_passup_element->size.height = length_passback;
-        for_passup_element->size.width = thickness_passback;
+        for_passup_element->size.height = passback_height;
+        for_passup_element->size.width = passback_width;
         
-        for_passleft_element->position.y = for_init_element->position.y + for_init_element->size.height - thickness_passback - length_passback - bending_radius;
+        for_passleft_element->position.y = for_init_element->position.y + for_init_element->size.height - passback_width - passback_height - bending_radius;
         for_passleft_element->position.x = current_position_right.x + for_body_element->size.width + right_margin / 2; // TODO: use bending radius here?
-        for_passleft_element->size.height = thickness_passback;
-        for_passleft_element->size.width = length_passback;
+        for_passleft_element->size.height = passback_width;
+        for_passleft_element->size.width = passback_height;
         
-        for_passdown_element->position.y = for_init_element->position.y + for_init_element->size.height - length_passback;
+        for_passdown_element->position.y = for_init_element->position.y + for_init_element->size.height - passback_height;
         for_passdown_element->position.x = for_init_element->position.x + for_init_element->size.width + middle_margin;
-        for_passdown_element->size.height = length_passback;
-        for_passdown_element->size.width = thickness_passback;
+        for_passdown_element->size.height = passback_height;
+        for_passdown_element->size.width = passback_width;
         
         // FIXME: we are assuming the body + update is always vertically larger than the for_passthrough_element
         current_position_left.y = current_position_right.y;
         
         for_done_element->position = current_position_left;
         for_done_element->size.height = 20;
-        for_done_element->size.width = 100;
+        for_done_element->size.width = width_center_elements;
         
         current_position_left.y += for_done_element->size.height;
         
@@ -1254,7 +1270,7 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
 
         draw_straight_element(for_start_element, for_start_element->previous_in_flow, for_init_element, show_help_rectangles);
         
-        draw_straight_element(for_init_element, for_start_element, for_join_element, show_help_rectangles);
+        draw_straight_element(for_init_element, for_start_element, 0, show_help_rectangles);
         
         draw_joining_element(for_init_element, for_passdown_element, for_join_element, for_cond_element, show_help_rectangles);
         
