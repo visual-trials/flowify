@@ -601,7 +601,6 @@ void layout_elements(FlowElement * flow_element)
     {
         flow_element->size.width = 40;
         flow_element->size.height = 80;
-        flow_element->is_selectable = true;
     }
     else if (flow_element->type == FlowElement_Assignment)
     {
@@ -655,7 +654,6 @@ void layout_elements(FlowElement * flow_element)
         if_split_element->position = current_position;
         if_split_element->size.height = 20;
         if_split_element->size.width = 100; // if_then_element->size.width + middle_margin + if_else_element->size.width;
-        if_split_element->is_selectable = true;
         
         current_position.y += if_split_element->size.height + vertical_margin;
         
@@ -673,7 +671,6 @@ void layout_elements(FlowElement * flow_element)
         if_join_element->position = current_position;
         if_join_element->size.width = 100; //if_then_element->size.width + middle_margin + if_else_element->size.width;
         if_join_element->size.height = 20;
-        if_join_element->is_selectable = true;
         
         current_position.y += if_join_element->size.height;
         
@@ -738,7 +735,6 @@ void layout_elements(FlowElement * flow_element)
         for_start_element->position = current_position;
         for_start_element->size.height = 20;
         for_start_element->size.width = width_center_elements;
-        for_start_element->is_selectable = true;
         
         current_position.y += for_start_element->size.height + vertical_margin + vertical_margin;
         current_position.x -= for_init_element->size.width + 2 * bending_radius - width_center_elements / 2;
@@ -752,7 +748,6 @@ void layout_elements(FlowElement * flow_element)
         for_join_element->position = current_position;
         for_join_element->size.height = 20;
         for_join_element->size.width = width_center_elements;
-        for_join_element->is_selectable = true;
         
         current_position.y += for_join_element->size.height + vertical_margin;
         
@@ -764,7 +759,6 @@ void layout_elements(FlowElement * flow_element)
         for_split_element->position = current_position;
         for_split_element->size.height = 20;
         for_split_element->size.width = width_center_elements;
-        for_split_element->is_selectable = true;
         
         current_position.y += for_split_element->size.height + vertical_margin + vertical_margin + vertical_margin;
         
