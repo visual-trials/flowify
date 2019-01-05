@@ -123,7 +123,7 @@ struct FlowElement
     // This FlowElement represents a chained-list of all functions
     FlowElement * next_function; // TODO: we should probably not store this in FlowElement
     
-    b32 has_lane_segments;
+    b32 is_selectable;
     b32 is_selected;
     
     Size2d size;
@@ -187,7 +187,7 @@ FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowEleme
     new_flow_element->absolute_position.x = 0;
     new_flow_element->absolute_position.y = 0;
 
-    new_flow_element->has_lane_segments = false;
+    new_flow_element->is_selectable = false;
     
     new_flow_element->is_selected = false;
     
@@ -601,25 +601,25 @@ void layout_elements(FlowElement * flow_element)
     {
         flow_element->size.width = 40;
         flow_element->size.height = 80;
-        flow_element->has_lane_segments = true;
+        flow_element->is_selectable = true;
     }
     else if (flow_element->type == FlowElement_Assignment)
     {
         flow_element->size.width = 100;
         flow_element->size.height = 80;
-        flow_element->has_lane_segments = true;
+        flow_element->is_selectable = true;
     }
     else if (flow_element->type == FlowElement_BinaryOperator)
     {
         flow_element->size.width = 200;
         flow_element->size.height = 80;
-        flow_element->has_lane_segments = true;
+        flow_element->is_selectable = true;
     }
     else if (flow_element->type == FlowElement_Return)
     {
         flow_element->size.width = 100;
         flow_element->size.height = 40;
-        flow_element->has_lane_segments = true;
+        flow_element->is_selectable = true;
     }
     else if (flow_element->type == FlowElement_If)
     {
@@ -648,14 +648,14 @@ void layout_elements(FlowElement * flow_element)
         if_cond_element->position = current_position;
         if_cond_element->size.height = 80;
         if_cond_element->size.width = 100;
-        if_cond_element->has_lane_segments = true;
+        if_cond_element->is_selectable = true;
         
         current_position.y += if_cond_element->size.height;
         
         if_split_element->position = current_position;
         if_split_element->size.height = 20;
         if_split_element->size.width = 100; // if_then_element->size.width + middle_margin + if_else_element->size.width;
-        if_split_element->has_lane_segments = true;
+        if_split_element->is_selectable = true;
         
         current_position.y += if_split_element->size.height + vertical_margin;
         
@@ -673,7 +673,7 @@ void layout_elements(FlowElement * flow_element)
         if_join_element->position = current_position;
         if_join_element->size.width = 100; //if_then_element->size.width + middle_margin + if_else_element->size.width;
         if_join_element->size.height = 20;
-        if_join_element->has_lane_segments = true;
+        if_join_element->is_selectable = true;
         
         current_position.y += if_join_element->size.height;
         
@@ -738,13 +738,13 @@ void layout_elements(FlowElement * flow_element)
         for_start_element->position = current_position;
         for_start_element->size.height = 20;
         for_start_element->size.width = width_center_elements;
-        for_start_element->has_lane_segments = true;
+        for_start_element->is_selectable = true;
         
         current_position.y += for_start_element->size.height + vertical_margin + vertical_margin;
         current_position.x -= for_init_element->size.width + 2 * bending_radius - width_center_elements / 2;
         
         for_init_element->position = current_position;
-        for_init_element->has_lane_segments = true;
+        for_init_element->is_selectable = true;
         
         current_position.y += for_init_element->size.height + passback_width + bending_radius + bending_radius + bending_radius;
         current_position.x += for_init_element->size.width + 2 * bending_radius - width_center_elements / 2;
@@ -752,19 +752,19 @@ void layout_elements(FlowElement * flow_element)
         for_join_element->position = current_position;
         for_join_element->size.height = 20;
         for_join_element->size.width = width_center_elements;
-        for_join_element->has_lane_segments = true;
+        for_join_element->is_selectable = true;
         
         current_position.y += for_join_element->size.height + vertical_margin;
         
         for_cond_element->position = current_position;
-        for_cond_element->has_lane_segments = true;
+        for_cond_element->is_selectable = true;
         
         current_position.y += for_cond_element->size.height + vertical_margin;
         
         for_split_element->position = current_position;
         for_split_element->size.height = 20;
         for_split_element->size.width = width_center_elements;
-        for_split_element->has_lane_segments = true;
+        for_split_element->is_selectable = true;
         
         current_position.y += for_split_element->size.height + vertical_margin + vertical_margin + vertical_margin;
         
@@ -779,7 +779,7 @@ void layout_elements(FlowElement * flow_element)
         current_position_right.y += for_body_element->size.height;
         
         for_update_element->position = current_position_right;
-        for_update_element->has_lane_segments = true;
+        for_update_element->is_selectable = true;
         
         current_position_right.y += for_update_element->size.height + vertical_margin;
         
@@ -844,7 +844,7 @@ void layout_elements(FlowElement * flow_element)
         
         flow_element->size.width = left_margin + function_element->size.width + right_margin;
         flow_element->size.height = top_margin + function_element->size.height + bottom_margin; 
-        flow_element->has_lane_segments = true;
+        flow_element->is_selectable = true;
         
         // flow_element->size = function_element->size;
     }

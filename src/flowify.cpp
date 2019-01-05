@@ -175,7 +175,7 @@ extern "C" {
             {
                 
                 FlowElement * newly_selected_flow_element = &flow_elements[world->selected_element_index];
-                if (newly_selected_flow_element->has_lane_segments)
+                if (newly_selected_flow_element->is_selectable)
                 {
                     newly_selected_flow_element->is_selected = true;
                     break;
@@ -189,7 +189,7 @@ extern "C" {
             while (world->selected_element_index < nr_of_flow_elements)
             {
                 FlowElement * newly_selected_flow_element = &flow_elements[world->selected_element_index];
-                if (newly_selected_flow_element->has_lane_segments)
+                if (newly_selected_flow_element->is_selectable)
                 {
                     newly_selected_flow_element->is_selected = true;
                     break;
