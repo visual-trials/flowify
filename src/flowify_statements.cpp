@@ -773,11 +773,7 @@ void layout_elements(FlowElement * flow_element)
         Pos2d current_position_right = current_position;
         Pos2d current_position_left = current_position;
 
-        for_passthrough_element->position = current_position_left;
-        for_passthrough_element->size.height = 20;
-        for_passthrough_element->size.width = passthrough_width;
-        
-        current_position_right.x += for_passthrough_element->size.width + middle_margin;
+        current_position_right.x += passthrough_width + middle_margin;
         for_body_element->position = current_position_right;
         
         current_position_right.y += for_body_element->size.height;
@@ -811,6 +807,13 @@ void layout_elements(FlowElement * flow_element)
         
         // FIXME: we are assuming the body + update is always vertically larger than the for_passthrough_element
         current_position_left.y = current_position_right.y;
+        
+        for_passthrough_element->position = current_position_left;
+        for_passthrough_element->size.height = 20;
+        for_passthrough_element->size.width = passthrough_width;
+        
+        current_position_left.y += for_passthrough_element->size.height + bending_radius * 4;
+        current_position_left.x += passthrough_width + 2 * bending_radius - width_center_elements / 2;
         
         for_done_element->position = current_position_left;
         for_done_element->size.height = 20;
