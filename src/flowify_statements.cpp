@@ -33,6 +33,7 @@ enum FlowElementType
     FlowElement_IfJoin,
     
     FlowElement_For,
+    FlowElement_ForStart,
     FlowElement_ForInit,
     FlowElement_ForJoin,
     FlowElement_ForCond,
@@ -73,6 +74,7 @@ const char * flow_element_type_names[] = {
     "IfJoin",
     
     "For",
+    "ForStart",
     "ForInit",
     "ForJoin",
     "ForCond",
@@ -366,6 +368,8 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         Node * for_update_node = for_cond_node->next_sibling;
         Node * for_body_node = for_update_node->next_sibling;
         
+        FlowElement * for_start_element = new_flow_element(flowifier, 0, FlowElement_ForStart); 
+        
         FlowElement * for_init_element = new_flow_element(flowifier, for_init_node, FlowElement_ForInit); 
         if (for_init_node && for_init_node->first_child)
         {
@@ -426,22 +430,18 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
             update_passthrough_element->parent = for_update_element;
         }
         
-        // TODO: to which ast-node does this correpond (if any)?
         FlowElement * for_passright_element = new_flow_element(flowifier, 0, FlowElement_PassBack);
-        // TODO: to which ast-node does this correpond (if any)?
         FlowElement * for_passup_element = new_flow_element(flowifier, 0, FlowElement_PassBack);
-        // TODO: to which ast-node does this correpond (if any)?
         FlowElement * for_passleft_element = new_flow_element(flowifier, 0, FlowElement_PassBack);
             
-        // TODO: to which ast-node does this correpond (if any)?
         FlowElement * for_passthrough_element = new_flow_element(flowifier, 0, FlowElement_PassThrough);
         
-        // TODO: to which ast-node does this correpond (if any)?
         FlowElement * for_done_element = new_flow_element(flowifier, 0, FlowElement_ForDone); 
         
-        for_element->first_child = for_init_element;
-        for_init_element->parent = for_element;  // TODO: only setting parent on first_child?
+        for_element->first_child = for_start_element;
+        for_start_element->parent = for_element;  // TODO: only setting parent on first_child?
         
+        add_sibling(for_start_element, for_init_element);
         add_sibling(for_init_element, for_join_element);
         add_sibling(for_join_element, for_cond_element);
         add_sibling(for_cond_element, for_split_element);
@@ -453,7 +453,7 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         add_sibling(for_passright_element, for_passthrough_element);
         add_sibling(for_passthrough_element, for_done_element);
         
-        for_element->first_in_flow = for_init_element;
+        for_element->first_in_flow = for_start_element;
         for_element->last_in_flow = for_done_element;
         
         new_statement_element = for_element;
@@ -680,7 +680,8 @@ void layout_elements(FlowElement * flow_element)
     }
     else if (flow_element->type == FlowElement_For)
     {
-        FlowElement * for_init_element = flow_element->first_child;
+        FlowElement * for_start_element = flow_element->first_child;
+        FlowElement * for_init_element = for_start_element->next_sibling;
         FlowElement * for_join_element = for_init_element->next_sibling;
         FlowElement * for_cond_element = for_join_element->next_sibling;
         FlowElement * for_split_element = for_cond_element->next_sibling;
@@ -704,12 +705,20 @@ void layout_elements(FlowElement * flow_element)
         
         Pos2d current_position = start_position;
 
+        for_start_element->position = current_position;
+        for_start_element->size.height = 20;
+        for_start_element->size.width = 100;
+        for_start_element->has_lane_segments = true;
+        
+        current_position.y += for_start_element->size.height + vertical_margin;
+        
+        // FIXME: if width is set to 200 it doesn't look good!!
         for_init_element->position = current_position;
         for_init_element->size.height = 80;
-        for_init_element->size.width = 200;
+        for_init_element->size.width = 100;
         for_init_element->has_lane_segments = true;
         
-        current_position.y += for_init_element->size.height + vertical_margin + vertical_margin;
+        current_position.y += for_init_element->size.height + vertical_margin;
         
         for_join_element->position = current_position;
         for_join_element->size.height = 20;
@@ -917,7 +926,8 @@ void absolute_layout_elements(FlowElement * flow_element, Pos2d absolute_parent_
     {
         flow_element->absolute_position = add_position_to_position(flow_element->position, absolute_parent_position);
         
-        FlowElement * for_init_element = flow_element->first_child;
+        FlowElement * for_start_element = flow_element->first_child;
+        FlowElement * for_init_element = for_start_element->next_sibling;
         FlowElement * for_join_element = for_init_element->next_sibling;
         FlowElement * for_cond_element = for_join_element->next_sibling;
         FlowElement * for_split_element = for_cond_element->next_sibling;
@@ -929,6 +939,7 @@ void absolute_layout_elements(FlowElement * flow_element, Pos2d absolute_parent_
         FlowElement * for_passthrough_element = for_passleft_element->next_sibling;
         FlowElement * for_done_element = for_passthrough_element->next_sibling;
 
+        absolute_layout_elements(for_start_element, flow_element->absolute_position);
         absolute_layout_elements(for_init_element, flow_element->absolute_position);
         absolute_layout_elements(for_join_element, flow_element->absolute_position);
         absolute_layout_elements(for_cond_element, flow_element->absolute_position);
@@ -941,7 +952,8 @@ void absolute_layout_elements(FlowElement * flow_element, Pos2d absolute_parent_
         absolute_layout_elements(for_passthrough_element, flow_element->absolute_position);
         absolute_layout_elements(for_done_element, flow_element->absolute_position);
     }
-    else if (flow_element->type == FlowElement_ForInit ||
+    else if (flow_element->type == FlowElement_ForStart ||
+             flow_element->type == FlowElement_ForInit ||
              flow_element->type == FlowElement_ForJoin ||
              flow_element->type == FlowElement_ForCond ||
              flow_element->type == FlowElement_ForSplit ||
@@ -1196,7 +1208,8 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
     else if (flow_element->type == FlowElement_For)
     {
         FlowElement * for_element = flow_element;
-        FlowElement * for_init_element = flow_element->first_child;
+        FlowElement * for_start_element = flow_element->first_child;
+        FlowElement * for_init_element = for_start_element->next_sibling;
         FlowElement * for_join_element = for_init_element->next_sibling;
         FlowElement * for_cond_element = for_join_element->next_sibling;
         FlowElement * for_split_element = for_cond_element->next_sibling;
@@ -1208,10 +1221,12 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
         FlowElement * for_passthrough_element = for_passleft_element->next_sibling;
         FlowElement * for_done_element = for_passthrough_element->next_sibling;
 
-        draw_straight_element(for_init_element, for_init_element->previous_in_flow, for_join_element, show_help_rectangles);
+        draw_straight_element(for_start_element, for_start_element->previous_in_flow, for_init_element, show_help_rectangles);
+        
+        draw_straight_element(for_init_element, for_start_element, for_join_element, show_help_rectangles);
         
         // TODO: we probably need a special draw of this joining element: 
-        // TODO: draw_joining_element(for_init_element, for_passback_element?, for_join_element, for_cond_element?, show_help_rectangles);
+        // FIXME: draw_joining_element(for_init_element, for_passback_element?, for_join_element, for_cond_element?, show_help_rectangles);
         draw_straight_element(for_join_element, for_init_element, for_cond_element, show_help_rectangles); // TODO: replace this!
         
         draw_straight_element(for_cond_element, for_join_element, for_split_element, show_help_rectangles);
