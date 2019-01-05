@@ -769,7 +769,7 @@ void layout_elements(FlowElement * flow_element)
         current_position_right.y += for_update_element->size.height + vertical_margin;
         
         i32 thickness_passback = 50; // TODO: should actually depend on the number of data lines going through it
-        i32 length_passback = bending_radius; // TODO: for_passdown needs this!
+        i32 length_passback = 10;
         
         for_passright_element->position.y = current_position_right.y;
         for_passright_element->position.x = current_position_right.x + for_body_element->size.width + right_margin / 2; // TODO: use bending radius here?
@@ -788,7 +788,7 @@ void layout_elements(FlowElement * flow_element)
         for_passleft_element->size.height = thickness_passback;
         for_passleft_element->size.width = length_passback;
         
-        for_passdown_element->position.y = for_init_element->position.y + for_init_element->size.height - bending_radius;
+        for_passdown_element->position.y = for_init_element->position.y + for_init_element->size.height - length_passback;
         for_passdown_element->position.x = current_position_right.x;
         for_passdown_element->size.height = length_passback;
         for_passdown_element->size.width = thickness_passback;
@@ -1284,6 +1284,10 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
         passleft_rect.position = for_passleft_element->absolute_position;
         passleft_rect.size = for_passleft_element->size;
         
+        Rect2d passdown_rect = {};
+        passdown_rect.position = for_passdown_element->absolute_position;
+        passdown_rect.size = for_passdown_element->size;
+        
         HorLine hor_line = get_bottom_line_from_rect(update_rect);
         VertLine vert_line = get_left_line_from_rect(passright_rect);
         draw_cornered_lane_segment(hor_line, vert_line, bending_radius, line_color, unselected_color, line_width);
@@ -1296,7 +1300,9 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
         vert_line = get_left_line_from_rect(passleft_rect);
         draw_cornered_lane_segment(hor_line, vert_line, bending_radius, line_color, unselected_color, line_width);
 
-        // FIXME: add corner from passleft to passdown!
+        vert_line = get_left_line_from_rect(passleft_rect);
+        hor_line = get_bottom_line_from_rect(passdown_rect);
+        draw_cornered_lane_segment(hor_line, vert_line, bending_radius, line_color, unselected_color, line_width);
 
         if (show_help_rectangles)
         {
