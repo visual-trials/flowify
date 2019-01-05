@@ -701,14 +701,22 @@ void layout_elements(FlowElement * flow_element)
         // TODO: we should layout for_init to get its (proper) width and height
         for_init_element->size.width = 100;
         for_init_element->size.height = 80;
+        for_init_element->is_selectable = true;
+        /*
+        TODO: create a function that gets the text from the start-token until the end token and puts it in a string
+        i32 nr_of_tokens = for_init_element->ast_node->last_token_index - for_init_element->ast_node->first_token_index;
+        for_init_element->size.width = nr_of_tokens * 50;
+        */
         
         // TODO: we should layout for_cond to get its (proper) width and height
         for_cond_element->size.height = 80;
         for_cond_element->size.width = 100;
+        for_cond_element->is_selectable = true;
         
         // TODO: we should layout for_update to get its (proper) width and height
         for_update_element->size.height = 80;
         for_update_element->size.width = 100;
+        for_update_element->is_selectable = true;
         
         i32 for_body_height = for_body_element->size.height;
         
@@ -740,7 +748,6 @@ void layout_elements(FlowElement * flow_element)
         current_position.x -= for_init_element->size.width + 2 * bending_radius - width_center_elements / 2;
         
         for_init_element->position = current_position;
-        for_init_element->is_selectable = true;
         
         current_position.y += for_init_element->size.height + passback_width + bending_radius + bending_radius + bending_radius;
         current_position.x += for_init_element->size.width + 2 * bending_radius - width_center_elements / 2;
@@ -752,7 +759,6 @@ void layout_elements(FlowElement * flow_element)
         current_position.y += for_join_element->size.height + vertical_margin;
         
         for_cond_element->position = current_position;
-        for_cond_element->is_selectable = true;
         
         current_position.y += for_cond_element->size.height + vertical_margin;
         
@@ -773,7 +779,6 @@ void layout_elements(FlowElement * flow_element)
         current_position_right.y += for_body_element->size.height;
         
         for_update_element->position = current_position_right;
-        for_update_element->is_selectable = true;
         
         current_position_right.y += for_update_element->size.height + vertical_margin;
         
