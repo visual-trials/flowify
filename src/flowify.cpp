@@ -98,7 +98,10 @@ extern "C" {
         dump_element_tree(root_element, &world->flowify_dump_text);
         
         split_string_into_scrollable_lines(world->flowify_dump_text.string, scrollable_flowify_dump);
-    }
+        
+        // Note: we reset this, so selected_element_index never refers to a non-existing element (from a previous file parse/flowify)
+        world->selected_element_index = -1;  // TODO: there is probably a nicer way of saying this value is invalid
+}
     
     void init_world()
     {
@@ -106,7 +109,7 @@ extern "C" {
         Memory * memory = &global_memory;
         
         world->iteration = 0;
-        world->selected_element_index = 1;  // FIXME: HACK
+        world->selected_element_index = -1;  // TODO: there is probably a nicer way of saying this value is invalid
         
         world->flowify_vertical_offset = 0;
         
@@ -163,7 +166,7 @@ extern "C" {
         FlowElement * flow_elements = (FlowElement *)world->flowifier.flow_elements.items;
         i32 nr_of_flow_elements = world->flowifier.flow_elements.nr_of_items;
         
-        if (world->iteration > 60) // every second
+        if (world->selected_element_index >= 0 && world->iteration > 60) // every second (and if it is a valid selected element)
         {
             world->iteration = 0;
             
@@ -183,7 +186,7 @@ extern "C" {
                 world->selected_element_index++;
             }
         }
-        if (world->selected_element_index >= nr_of_flow_elements)
+        if (world->selected_element_index < 0 || world->selected_element_index >= nr_of_flow_elements)
         {
             world->selected_element_index = 0;
             while (world->selected_element_index < nr_of_flow_elements)
@@ -280,7 +283,7 @@ extern "C" {
         
         String * lines = (String *)scrollable_program_text->lines.items;
 
-        if (nr_of_flow_elements > 0)
+        if (nr_of_flow_elements > 0 && world->selected_element_index >= 0)
         {
             FlowElement * selected_flow_element = &flow_elements[world->selected_element_index];
             Node * node = selected_flow_element->ast_node;

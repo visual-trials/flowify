@@ -571,14 +571,13 @@ void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
                         previous_statement_element->next_sibling = new_statement_element;
                     }
                     new_statement_element->previous_sibling = previous_statement_element;
-                    
                 }
                 
                 if (previous_statement_element)
                 {
                     previous_statement_element->next_in_flow = new_statement_element->first_in_flow;
+                    new_statement_element->previous_in_flow = previous_statement_element->last_in_flow;
                 }
-                new_statement_element->previous_in_flow = previous_statement_element->last_in_flow;
                     
                 previous_statement_element = new_statement_element;
             }
