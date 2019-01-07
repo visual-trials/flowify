@@ -241,10 +241,8 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
         return 0;
     }
     
-    // TODO: we shouldn't use 'new_input' for memory
-    new_input.memory.address = game_memory_address;
-    new_input.memory.size = dynamic_memory_size;
-    global_input = new_input; // TODO: We have to copy this right now, because new_input.memory is filled and being used in init_world()
+    global_memory.base_address = game_memory_address;
+    global_memory.size = dynamic_memory_size;
 
     init_world();
     
