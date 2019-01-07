@@ -174,7 +174,6 @@ Flowify.canvas = function () {
                             ctx.lineTo(vertX, vertTopY)
                             
                             ctx.arcTo(horRightX, vertTopY, horRightX, vertTopY + radius, radius)
-                            ctx.lineTo(horRightX, horY)
                         }
                         else {
                             // The lane ends to the bottom of the beginning (we are drawing West -> South)
@@ -185,7 +184,6 @@ Flowify.canvas = function () {
                             ctx.lineTo(vertX, vertBottomY)
                             
                             ctx.arcTo(horRightX, vertBottomY, horRightX, vertBottomY - radius, radius)
-                            ctx.lineTo(horRightX, horY)
                         }
                     }
                     else {
@@ -199,7 +197,6 @@ Flowify.canvas = function () {
                             ctx.lineTo(vertX, vertBottomY)
                             
                             ctx.arcTo(horRightX, vertBottomY, horRightX, vertBottomY + radius, radius)
-                            ctx.lineTo(horRightX, horY)
                         }
                         else {
                             // The lane ends to the bottom of the beginning (we are drawing East -> South)
@@ -210,10 +207,9 @@ Flowify.canvas = function () {
                             ctx.lineTo(vertX, vertTopY)
                             
                             ctx.arcTo(horRightX, vertTopY, horRightX, vertTopY - radius, radius)
-                            ctx.lineTo(horRightX, horY)
                         }
                     }
-                    
+                    ctx.lineTo(horRightX, horY)
                     ctx.closePath()
                 
                     ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
@@ -237,7 +233,6 @@ Flowify.canvas = function () {
                             ctx.moveTo(vertX, vertTopY)
                             
                             ctx.arcTo(horRightX, vertTopY, horRightX, vertTopY + radius, radius)
-                            ctx.lineTo(horRightX, horY)
                         }
                         else {
                             // The lane ends to the bottom of the beginning (we are drawing West -> South)
@@ -248,7 +243,6 @@ Flowify.canvas = function () {
                             ctx.moveTo(vertX, vertBottomY)
                             
                             ctx.arcTo(horRightX, vertBottomY, horRightX, vertBottomY - radius, radius)
-                            ctx.lineTo(horRightX, horY)
                         }
                     }
                     else {
@@ -262,7 +256,6 @@ Flowify.canvas = function () {
                             ctx.moveTo(vertX, vertBottomY)
                             
                             ctx.arcTo(horRightX, vertBottomY, horRightX, vertBottomY + radius, radius)
-                            ctx.lineTo(horRightX, horY)
                         }
                         else {
                             // The lane ends to the bottom of the beginning (we are drawing East -> South)
@@ -273,9 +266,9 @@ Flowify.canvas = function () {
                             ctx.moveTo(vertX, vertTopY)
                             
                             ctx.arcTo(horRightX, vertTopY, horRightX, vertTopY - radius, radius)
-                            ctx.lineTo(horRightX, horY)
                         }
                     }
+                    ctx.lineTo(horRightX, horY)
                     ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
                     ctx.lineWidth = lineWidth
                     ctx.stroke()
