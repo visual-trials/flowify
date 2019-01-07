@@ -118,6 +118,12 @@ void draw_rounded_rectangle(Pos2d position, Size2d size, i32 r, Color4 line_colo
     
 }
 
+void draw_cornered_lane_segment(HorLine hor_line, VertLine vert_line, 
+                                i32 radius, Color4 line_color, Color4 fill_color, i32 line_width)
+{
+    
+}
+
 void draw_lane_segment(Pos2d left_top_position, Pos2d right_top_position, 
                        Pos2d left_bottom_position, Pos2d right_bottom_position, 
                        i32 left_middle_y, i32 right_middle_y, i32 radius,
