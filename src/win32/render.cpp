@@ -121,7 +121,233 @@ void draw_rounded_rectangle(Pos2d position, Size2d size, i32 r, Color4 line_colo
 void draw_cornered_lane_segment(HorLine hor_line, VertLine vert_line, 
                                 i32 radius, Color4 line_color, Color4 fill_color, i32 line_width)
 {
+    ID2D1SolidColorBrush * line_brush = 0;
+    ID2D1SolidColorBrush * fill_brush = 0;
     
+    ID2D1PathGeometry * path_geometry = 0;
+    ID2D1GeometrySink * sink = 0;
+    
+    i32 hor_left_x = hor_line.position.x;
+    i32 hor_right_x = hor_line.position.x + hor_line.width;
+    i32 hor_y = hor_line.position.y;
+    
+    i32 vert_x = vert_line.position.x;
+    i32 vert_top_y = vert_line.position.y;
+    i32 vert_bottom_y = vert_line.position.y + vert_line.height;
+    
+    D2D1_POINT_2F hor_left = D2D1::Point2F(hor_left_x, hor_y);
+    D2D1_POINT_2F hor_right = D2D1::Point2F(hor_right_x, hor_y);
+    
+    D2D1_POINT_2F vert_top = D2D1::Point2F(vert_x, vert_top_y);
+    D2D1_POINT_2F vert_bottom = D2D1::Point2F(vert_x, vert_bottom_y);
+    
+    D2D1_POINT_2F left_start;
+    D2D1_POINT_2F left_before_arc;
+    D2D1_POINT_2F left_after_arc;
+    D2D1_POINT_2F left_end;
+    
+    D2D1_POINT_2F right_start;
+    D2D1_POINT_2F right_before_arc;
+    D2D1_POINT_2F right_after_arc;
+    D2D1_POINT_2F right_end;
+    
+    D2D1_ARC_SEGMENT left_arc_segment;
+    D2D1_ARC_SEGMENT right_arc_segment;
+    
+    left_start = hor_left;
+    if (vert_x < hor_left_x)
+    {
+        // The lane ends to the left of the beginning (we are drawing West)
+        if (vert_bottom_y < hor_y)
+        {
+            // The lane ends to the top of the beginning (we are drawing West -> North)
+            left_before_arc = D2D1::Point2F(hor_left_x, vert_bottom_y + radius);
+            left_after_arc = D2D1::Point2F(hor_left_x - radius, vert_bottom_y);
+            left_end = vert_bottom;
+
+            left_arc_segment = D2D1::ArcSegment(
+                left_after_arc,
+                D2D1::SizeF(radius, radius),
+                180,
+                D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE,
+                D2D1_ARC_SIZE_SMALL  // means: smaller than 180 degrees
+            );
+            
+            right_start = vert_top;
+            right_before_arc = D2D1::Point2F(hor_right_x - radius, vert_top_y);
+            right_after_arc = D2D1::Point2F(hor_right_x, vert_top_y + radius);
+            
+            right_arc_segment = D2D1::ArcSegment(
+                right_after_arc,
+                D2D1::SizeF(radius, radius),
+                0,
+                D2D1_SWEEP_DIRECTION_CLOCKWISE,
+                D2D1_ARC_SIZE_SMALL  // means: smaller than 180 degrees
+            );
+        }
+        else
+        {
+            // The lane ends to the bottom of the beginning (we are drawing West -> South)
+            left_before_arc = D2D1::Point2F(hor_left_x, vert_top_y - radius);
+            left_after_arc = D2D1::Point2F(hor_left_x - radius, vert_top_y);
+            left_end = vert_top;
+            
+            left_arc_segment = D2D1::ArcSegment(
+                left_after_arc,
+                D2D1::SizeF(radius, radius),
+                90,
+                D2D1_SWEEP_DIRECTION_CLOCKWISE,
+                D2D1_ARC_SIZE_SMALL  // means: smaller than 180 degrees
+            );
+            
+            right_start = vert_bottom;
+            right_before_arc = D2D1::Point2F(hor_right_x - radius, vert_bottom_y);
+            right_after_arc = D2D1::Point2F(hor_right_x, vert_bottom_y - radius);
+            
+            right_arc_segment = D2D1::ArcSegment(
+                right_after_arc,
+                D2D1::SizeF(radius, radius),
+                270,
+                D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE,
+                D2D1_ARC_SIZE_SMALL  // means: smaller than 180 degrees
+            );
+        }
+    }
+    else
+    {
+        // The lane ends to the right of the beginning (we are drawing East)
+        if (vert_bottom_y < hor_y)
+        {
+            // The lane ends to the top of the beginning (we are drawing East -> North)
+            left_before_arc = D2D1::Point2F(hor_left_x, vert_top_y + radius);
+            left_after_arc = D2D1::Point2F(hor_left_x + radius, vert_top_y);
+            left_end = vert_top;
+            
+            left_arc_segment = D2D1::ArcSegment(
+                left_after_arc,
+                D2D1::SizeF(radius, radius),
+                0,
+                D2D1_SWEEP_DIRECTION_CLOCKWISE,
+                D2D1_ARC_SIZE_SMALL  // means: smaller than 180 degrees
+            );
+            
+            right_start = vert_bottom;
+            right_before_arc = D2D1::Point2F(hor_right_x + radius, vert_bottom_y);
+            right_after_arc = D2D1::Point2F(hor_right_x, vert_bottom_y + radius);
+            
+            right_arc_segment = D2D1::ArcSegment(
+                right_after_arc,
+                D2D1::SizeF(radius, radius),
+                0,
+                D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE,
+                D2D1_ARC_SIZE_SMALL  // means: smaller than 180 degrees
+            );
+        }
+        else
+        {
+            // The lane ends to the bottom of the beginning (we are drawing East -> South)
+            left_before_arc = D2D1::Point2F(hor_left_x, vert_bottom_y - radius);
+            left_after_arc = D2D1::Point2F(hor_left_x + radius, vert_bottom_y);
+            left_end = vert_bottom;
+            
+            left_arc_segment = D2D1::ArcSegment(
+                left_after_arc,
+                D2D1::SizeF(radius, radius),
+                90,
+                D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE,
+                D2D1_ARC_SIZE_SMALL  // means: smaller than 180 degrees
+            );
+            
+            right_start = vert_top;
+            right_before_arc = D2D1::Point2F(hor_right_x + radius, vert_top_y);
+            right_after_arc = D2D1::Point2F(hor_right_x, vert_top_y - radius);
+            
+            right_arc_segment = D2D1::ArcSegment(
+                right_after_arc,
+                D2D1::SizeF(radius, radius),
+                270,
+                D2D1_SWEEP_DIRECTION_CLOCKWISE,
+                D2D1_ARC_SIZE_SMALL  // means: smaller than 180 degrees
+            );
+        }
+    }
+    right_end = hor_right;
+    
+    
+    if (fill_color.a)
+    {
+        d2d_factory->CreatePathGeometry(&path_geometry);
+        path_geometry->Open(&sink);
+        sink->SetFillMode(D2D1_FILL_MODE_WINDING);
+        
+        // Left side
+        sink->BeginFigure(left_start, D2D1_FIGURE_BEGIN_FILLED);
+        sink->AddLine(left_before_arc);
+        sink->AddArc(left_arc_segment);
+        sink->AddLine(left_end);
+
+        // Right side
+        sink->AddLine(right_start);
+        sink->AddLine(right_before_arc);
+        sink->AddArc(right_arc_segment);
+        sink->AddLine(right_end);
+        
+        sink->EndFigure(D2D1_FIGURE_END_CLOSED);
+        sink->Close();
+        sink->Release();
+        
+        get_brush(fill_color, &fill_brush);
+        render_target->FillGeometry(path_geometry, fill_brush);
+        release_brush(fill_brush);
+        
+        path_geometry->Release();
+    }
+    
+    if (line_color.a)
+    {
+        // Left side
+        d2d_factory->CreatePathGeometry(&path_geometry);
+        path_geometry->Open(&sink);
+        sink->SetFillMode(D2D1_FILL_MODE_WINDING);
+        
+        sink->BeginFigure(left_start, D2D1_FIGURE_BEGIN_FILLED);
+        sink->AddLine(left_before_arc);
+        sink->AddArc(left_arc_segment);
+        sink->AddLine(left_end);
+        
+        sink->EndFigure(D2D1_FIGURE_END_OPEN);
+        sink->Close();
+        sink->Release();
+        
+        get_brush(line_color, &line_brush);
+        render_target->DrawGeometry(path_geometry, line_brush, line_width);    
+        release_brush(line_brush);
+        
+        path_geometry->Release();
+        
+        // Right side
+        
+        d2d_factory->CreatePathGeometry(&path_geometry);
+        path_geometry->Open(&sink);
+        sink->SetFillMode(D2D1_FILL_MODE_WINDING);
+        
+        sink->BeginFigure(right_start, D2D1_FIGURE_BEGIN_FILLED);
+        sink->AddLine(right_before_arc);
+        sink->AddArc(right_arc_segment);
+        sink->AddLine(right_end);
+        
+        sink->EndFigure(D2D1_FIGURE_END_OPEN);
+        sink->Close();
+        sink->Release();
+        
+        get_brush(line_color, &line_brush);
+        render_target->DrawGeometry(path_geometry, line_brush, line_width);    
+        release_brush(line_brush);
+        
+        path_geometry->Release();
+        
+    }
+
 }
 
 void draw_lane_segment(Pos2d left_top_position, Pos2d right_top_position, 
