@@ -16,6 +16,69 @@
 
  */
 
+void draw_lane_segments_for_3_rectangles(Rect2d top_rect, Rect2d middle_rect, Rect2d bottom_rect, i32 bending_radius, i32 line_width, Color4 line_color, Color4 rect_color, Color4 bend_color)
+{
+    Color4 no_color = {};
+    
+    LaneSegment3 lane_segments = get_3_lane_segments_from_3_rectangles(top_rect, middle_rect, bottom_rect, bending_radius);
+    
+    LaneSegment lane_segment = {};
+    
+    if (lane_segments.has_valid_top_segment)
+    {
+        lane_segment = lane_segments.top;
+        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
+                          lane_segment.left_bottom, lane_segment.right_bottom, 
+                          lane_segment.left_middle_y, lane_segment.right_middle_y, lane_segment.bending_radius, 
+                          line_color, rect_color, line_width);
+    }
+    
+    lane_segment = lane_segments.middle;
+    draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
+                      lane_segment.left_bottom, lane_segment.right_bottom, 
+                      lane_segment.left_middle_y, lane_segment.right_middle_y, lane_segment.bending_radius, 
+                      line_color, rect_color, line_width);
+
+    if (lane_segments.has_valid_bottom_segment)
+    {
+        lane_segment = lane_segments.bottom;
+        draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
+                          lane_segment.left_bottom, lane_segment.right_bottom, 
+                          lane_segment.left_middle_y, lane_segment.right_middle_y, lane_segment.bending_radius, 
+                          line_color, bend_color, line_width);
+    }
+    
+}
+
+void draw_lane_segments_for_4_rectangles(Rect2d top_or_bottom_rect, b32 is_top_rect, Rect2d left_rect, Rect2d right_rect, Rect2d middle_rect, i32 bending_radius, i32 line_width, Color4 line_color, Color4 rect_color, Color4 bend_color)
+{
+    Color4 no_color = {};
+    
+    LaneSegment3LR lane_segments = get_3_lane_segments_from_4_rectangles(top_or_bottom_rect, is_top_rect, middle_rect, left_rect, right_rect, bending_radius);
+    
+    LaneSegment lane_segment = {};
+    
+    lane_segment = lane_segments.top_or_bottom;
+    draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
+                      lane_segment.left_bottom, lane_segment.right_bottom, 
+                      lane_segment.left_middle_y, lane_segment.right_middle_y, lane_segment.bending_radius, 
+                      line_color, bend_color, line_width);
+
+    // TODO: should we always draw all 3 segments? Could one or some of them be invalid?
+                      
+    lane_segment = lane_segments.left;
+    draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
+                      lane_segment.left_bottom, lane_segment.right_bottom, 
+                      lane_segment.left_middle_y, lane_segment.right_middle_y, lane_segment.bending_radius, 
+                      line_color, bend_color, line_width);
+                      
+    lane_segment = lane_segments.right;
+    draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
+                      lane_segment.left_bottom, lane_segment.right_bottom, 
+                      lane_segment.left_middle_y, lane_segment.right_middle_y, lane_segment.bending_radius, 
+                      line_color, bend_color, line_width);
+}
+
 void draw_joining_element(FlowElement * left_element, FlowElement * right_element, 
                           FlowElement * joining_element, FlowElement * element_next_in_flow, 
                           b32 show_help_rectangles)

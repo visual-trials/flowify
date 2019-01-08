@@ -40,3 +40,16 @@ struct Color4
     u8 a;
 };
 
+// NOTE: always keep this in sync with my.fontFamilies in canvas.js and font_families in win32/render.cpp!
+enum FontFamily
+{
+    Font_Arial = 0x00,
+    Font_CourierNew = 0x01
+};
+
+struct Font
+{
+    FontFamily family;
+    i32 height;  // font.height is the distance between the top of a capital and the bottom of a capital (note that a non-capital can stick out below!)
+};
+

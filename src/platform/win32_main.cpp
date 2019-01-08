@@ -29,7 +29,13 @@ LARGE_INTEGER clock_counter_after_wait;
 #include "../geometry.cpp"
 #include "../memory.cpp"
 #include "../input.cpp"
-#include "../render.cpp"
+
+#include "win32_render.cpp"
+
+#include "../gui/gui.h"
+#include "../gui/menu.cpp"
+#include "../gui/debug.cpp"
+#include "../gui/scrollable_text.cpp"
 
 #include INCLUDE_PROJECT_FILE
 

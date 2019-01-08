@@ -21,6 +21,12 @@
 #include "../geometry.cpp"
 #include "../memory.cpp"
 #include "../input.cpp"
-#include "../render.cpp"
+
+#include "browser_render.cpp"
+
+#include "../gui/gui.h"
+#include "../gui/menu.cpp"
+#include "../gui/debug.cpp"
+#include "../gui/scrollable_text.cpp"
 
 #include INCLUDE_PROJECT_FILE
