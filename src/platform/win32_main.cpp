@@ -25,6 +25,8 @@ LARGE_INTEGER clock_counter_after_render;
 LARGE_INTEGER clock_counter_after_wait;
 
 #include "../generic.h"
+#include "../string.cpp"
+#include "../geometry.cpp"
 #include "../memory.cpp"
 #include "../input.cpp"
 #include "../render.cpp"
