@@ -17,7 +17,11 @@
  */
  
 #include "parser.cpp"
-#include "flowify_statements.cpp"
+
+#include "flowify/flow.h"
+#include "flowify/flow.cpp"
+#include "flowify/layout.cpp"
+#include "flowify/draw.cpp"
 
 #include "examples.h"
 
