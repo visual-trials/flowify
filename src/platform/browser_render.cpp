@@ -145,7 +145,7 @@ void draw_ellipse(Pos2d position, Size2d size,
     jsDrawEllipse(position.x, position.y, size.width, size.height, line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
 }
 
-Size2d get_text_size(ShortString * text, Font font)
+Size2d get_text_size(String * text, Font font)
 {
     f32 text_width = jsGetTextWidth(text->data, text->length, font.height, font.family);
     
@@ -156,15 +156,13 @@ Size2d get_text_size(ShortString * text, Font font)
     return text_size;
 }
 
-Size2d get_text_size(String * text, Font font)
+Size2d get_text_size(ShortString * text, Font font)
 {
-    f32 text_width = jsGetTextWidth(text->data, text->length, font.height, font.family);
+    String text_string = {};
+    text_string.data = text->data;
+    text_string.length = text->length;
     
-    Size2d text_size = {};
-    text_size.width = (i32)text_width;
-    text_size.height = (i32)((f32)font.height * textHeightToFontSizeRatio[font.family]); // Note: this is a workaround. The browser doens't give us this info!
-    
-    return text_size;
+    return get_text_size(&text_string, font);
 }
 
 Size2dFloat get_text_size_float(ShortString * text, Font font)

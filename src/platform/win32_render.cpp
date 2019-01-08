@@ -587,7 +587,7 @@ void draw_ellipse(Pos2d position, Size2d size,
     
 }
 
-Size2d get_text_size(ShortString * text, Font font)
+Size2d get_text_size(String * text, Font font)
 {
     u16 wide_text[MAX_LENGTH_SHORT_STRING];
     MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, (LPCCH)text->data, text->length, (LPWSTR)wide_text, MAX_LENGTH_SHORT_STRING);
@@ -630,6 +630,15 @@ Size2d get_text_size(ShortString * text, Font font)
     text_size.height = text_metrics.height;
     
     return text_size;
+}
+
+Size2d get_text_size(ShortString * text, Font font)
+{
+    String text_string = {};
+    text_string.data = text->data;
+    text_string.length = text->length;
+    
+    return get_text_size(&text_string, font);
 }
 
 Size2dFloat get_text_size_float(ShortString * text, Font font)
