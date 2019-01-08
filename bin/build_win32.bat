@@ -1,6 +1,6 @@
 @echo off
 REM SET PROJECT_NAME=flowify
-SET PROJECT_NAME=testing/testing_file
+REM SET PROJECT_NAME=testing/testing_file
 REM SET PROJECT_NAME=testing/testing_parser
 REM SET PROJECT_NAME=testing/testing_memory
 REM SET PROJECT_NAME=testing/testing_text
@@ -8,7 +8,7 @@ REM SET PROJECT_NAME=testing/testing_animation
 REM SET PROJECT_NAME=testing/testing_keyboard
 REM SET PROJECT_NAME=testing/testing_touch
 REM SET PROJECT_NAME=testing/testing_mouse
-REM SET PROJECT_NAME=testing/testing_renderer
+SET PROJECT_NAME=testing/testing_renderer
 
 REM TODO: add more warnings!
 
