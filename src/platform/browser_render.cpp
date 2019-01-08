@@ -23,6 +23,10 @@ const f32 textHeightToFontSizeRatio[] = {
 };
 
 extern "C" { 
+    extern void jsClipRect(i32 x, i32 y, i32 width, i32 height);
+    
+    extern void jsUnClipRect();
+                           
     extern void jsDrawRoundedRect(i32 x, i32 y, i32 width, i32 height, i32 r,
                                   i32 line_color_rgb, i32 line_color_alpha, 
                                   i32 fill_color_rgb, i32 fill_color_alpha, 
@@ -66,6 +70,16 @@ extern "C" {
     extern void jsLog(u8 * text_data, i32 text_length);
     
     extern void jsSetUsingPhysicalPixels(b32 using_physical_pixels);
+}
+
+void clip_rectangle(Pos2d position, Size2d size)
+{
+    jsClipRect(position.x, position.y, size.width, size.height);
+}
+
+void unclip_rectangle()
+{
+    jsUnClipRect();
 }
 
 void draw_rounded_rectangle(Pos2d position, Size2d size, i32 r,

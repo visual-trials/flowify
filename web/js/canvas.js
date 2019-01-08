@@ -134,6 +134,18 @@ Flowify.canvas = function () {
         
         let exportedFunctions = {
             
+            _jsClipRect: function (x, y, width, height) {
+                ctx.save()
+                
+                ctx.beginPath()
+                ctx.rect(x, y, width, height)
+                ctx.clip()
+            },
+            
+            _jsUnClipRect: function () {
+                ctx.restore()
+            },
+            
             _jsDrawRoundedRect: function (x, y, width, height, r, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
                 ctx.beginPath()     
                 ctx.moveTo(x + r, y)

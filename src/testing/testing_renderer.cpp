@@ -15,12 +15,18 @@
    limitations under the License.
 
  */
+
+// TODO: we need to let these file include each other! (we only need draw.cpp here)
+#include "../parser.cpp"
+#include "../flowify/flow.h"
+#include "../flowify/draw.cpp"
  
 struct WorldData
 {
     i32 iteration;
     i32 selected_lane_segment_index;
 
+    i32 clip_rectangle;
     i32 show_help_rectangles;
     
     i32 active_page_index;
@@ -99,6 +105,7 @@ extern "C" {
         world->iteration = 0;
         world->selected_lane_segment_index = 0;
         world->show_help_rectangles = true;
+        world->clip_rectangle = false;
     }
     
     void update_frame()
@@ -121,8 +128,13 @@ extern "C" {
         }
     }
     
-    void draw_basic_figures()
+    void draw_basic_figures(WorldData * world)
     {
+        if (world->clip_rectangle)
+        {
+            clip_rectangle((Pos2d){250, 70}, (Size2d){500, 350});
+        }
+        
         Color4 line_color_rect = { 20,  80, 205, 255};
         Color4 fill_color_rect = { 40, 173, 255, 255};
         
@@ -137,6 +149,32 @@ extern "C" {
         Color4 fill_color_rounded = { 40,  69, 173, 150};
         
         draw_rounded_rectangle((Pos2d){500, 200}, (Size2d){200, 350}, 20, line_color_rounded, fill_color_rounded, 4);
+        
+        if (world->clip_rectangle)
+        {
+            unclip_rectangle();
+        }
+        
+        // Button for toggling clip rectangle
+        {
+            Size2d size_button = {50, 50};
+            Pos2d position_button = {};
+            position_button.x = global_input.screen.width - size_button.width - 20;
+            position_button.y = 400;
+            
+            ShortString label;
+            copy_cstring_to_short_string("Clip", &label);
+            ShortString label_active;
+            copy_cstring_to_short_string("[   ]", &label_active);
+
+            b32 button_is_pressed = do_button(position_button, size_button, &label, world->clip_rectangle, &global_input, &label_active);
+
+            if (button_is_pressed)
+            {
+                world->clip_rectangle = !world->clip_rectangle;
+            }
+        }
+        
     }
     
     void draw_example_lanes(WorldData * world, i32 lane_example_index)
@@ -521,7 +559,7 @@ extern "C" {
         
         if (world->active_page_index == 0)
         {
-            draw_basic_figures();
+            draw_basic_figures(world);
         }
         else if (world->active_page_index == 1)
         {
