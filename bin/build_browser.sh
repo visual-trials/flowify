@@ -3,18 +3,18 @@ set -e  # stop script on first error
 source /home/emscripten/emsdk/emsdk_env.sh
 
 PROJECT_NAME=flowify
-#PROJECT_NAME=testing_file
-#PROJECT_NAME=testing_parser
-#PROJECT_NAME=testing_memory
-#PROJECT_NAME=testing_text
-#PROJECT_NAME=testing_animation
-#PROJECT_NAME=testing_keyboard
-#PROJECT_NAME=testing_touch
-#PROJECT_NAME=testing_mouse
-#PROJECT_NAME=testing_renderer
+#PROJECT_NAME=testing/testing_file
+#PROJECT_NAME=testing/testing_parser
+#PROJECT_NAME=testing/testing_memory
+#PROJECT_NAME=testing/testing_text
+#PROJECT_NAME=testing/testing_animation
+#PROJECT_NAME=testing/testing_keyboard
+#PROJECT_NAME=testing/testing_touch
+#PROJECT_NAME=testing/testing_mouse
+#PROJECT_NAME=testing/testing_renderer
 
-# NOTE: this will not work standalone (due to stack issues!) emcc src/$PROJECT_NAME.cpp -Os -s WASM=1 -s SIDE_MODULE=1 -o web/wasm/$PROJECT_NAME.wasm
-emcc src/$PROJECT_NAME.cpp -Os -s WASM=1 -o dist/$PROJECT_NAME.html -s TOTAL_MEMORY=34MB --js-library web/js/emcc/external.js \
+# NOTE: this will not work standalone (due to stack issues!) emcc src/platform/browser_main.cpp -Os -s WASM=1 -s SIDE_MODULE=1 -o web/wasm/$PROJECT_NAME.wasm
+emcc src/platform/browser_main.cpp -Os -s WASM=1 -D INCLUDE_PROJECT_FILE="\"../$PROJECT_NAME.cpp\"" -o dist/$PROJECT_NAME.html -s TOTAL_MEMORY=34MB --js-library web/js/emcc/external.js \
     -s "EXPORTED_FUNCTIONS=[
         '_init_world', 
         '_update_frame', 

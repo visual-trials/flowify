@@ -16,12 +16,8 @@
 
  */
  
-#include "generic.h"
-#include "memory.cpp"
-#include "input.cpp"
-#include "render.cpp"
-#include "parser.cpp"
-#include "examples.h"
+#include "../parser.cpp"
+#include "../examples.h"
 
 struct WorldData
 {

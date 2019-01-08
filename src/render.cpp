@@ -30,9 +30,9 @@ struct Font
 };
 
 #if BUILD_FOR_NATIVE_PLATFORM
-    #include "win32/render.cpp"
+    #include "platform/win32_render.cpp"
 #else
-    #include "browser/render.cpp"
+    #include "platform/browser_render.cpp"
 #endif
 
 void draw_lane_segments_for_3_rectangles(Rect2d top_rect, Rect2d middle_rect, Rect2d bottom_rect, i32 bending_radius, i32 line_width, Color4 line_color, Color4 rect_color, Color4 bend_color)

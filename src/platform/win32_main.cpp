@@ -24,6 +24,11 @@ LARGE_INTEGER clock_counter_after_update;
 LARGE_INTEGER clock_counter_after_render;
 LARGE_INTEGER clock_counter_after_wait;
 
+#include "../generic.h"
+#include "../memory.cpp"
+#include "../input.cpp"
+#include "../render.cpp"
+
 #include INCLUDE_PROJECT_FILE
 
 b32 keep_running;

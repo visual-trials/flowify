@@ -65,8 +65,6 @@ extern "C" {
                            
     extern void jsLog(u8 * text_data, i32 text_length);
     
-    extern void jsLogInt(i32 log_integer);
-    
     extern void jsSetUsingPhysicalPixels(b32 using_physical_pixels);
 }
 

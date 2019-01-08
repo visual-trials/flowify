@@ -16,11 +16,6 @@
 
  */
  
-#include "generic.h"
-#include "memory.cpp"
-#include "input.cpp"
-#include "render.cpp"
-
 extern "C" {
     
     void init_world()

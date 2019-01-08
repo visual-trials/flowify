@@ -21,8 +21,6 @@ Flowify.main = function () {
 
     let my = {}
     
-    my.autoReload = false
-    
     my.frameIndex = 0
     my.maxNrOfFramesForTiming = 60 // always keep this is sync with input.cpp!
     
@@ -210,31 +208,6 @@ Flowify.main = function () {
     request.responseType = 'arraybuffer'
     request.send()
     
-    if (my.autoReload) {
-        let reloadWhenWasmChanged = function() {
-        
-            let request = new XMLHttpRequest()
-            request.open('HEAD', wasmFile)
-            request.setRequestHeader('cache-control', 'no-cache, must-revalidate, post-check=0, pre-check=0');
-            request.send()
-
-            request.onload = function() {
-                let responseHeaders = request.getAllResponseHeaders().split("\n")
-                
-                let newChangeToWasm = responseHeaders[1] // FIXME: ugly way of getting the latest changed time
-                // console.log('checking wasm: ' + newChangeToWasm + " -- " + latestChangeToWasm)
-                if (latestChangeToWasm != null && newChangeToWasm !== latestChangeToWasm) {
-                    location.reload()
-                }
-                else {
-                    setTimeout(reloadWhenWasmChanged, 500)
-                }
-            }
-        }
-        
-        setTimeout(reloadWhenWasmChanged, 500)
-    }
-
     return my
 
 }()

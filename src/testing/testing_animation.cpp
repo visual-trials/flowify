@@ -16,11 +16,6 @@
 
  */
  
-#include "generic.h"
-#include "memory.cpp"
-#include "input.cpp"
-#include "render.cpp"
-
 #define MAX_ENTITIES 10
 
 struct Entity

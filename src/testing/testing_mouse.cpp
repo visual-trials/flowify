@@ -16,11 +16,6 @@
 
  */
  
-#include "generic.h"
-#include "memory.cpp"
-#include "input.cpp"
-#include "render.cpp"
-
 // FIXME: mouse position should also be a Pos2d, right?
 
 struct entity

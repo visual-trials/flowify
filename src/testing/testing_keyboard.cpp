@@ -16,11 +16,6 @@
 
  */
  
-#include "generic.h"
-#include "memory.cpp"
-#include "input.cpp"
-#include "render.cpp"
-
 #define MAX_KEY_SEQUENCE 30
 #define MAX_KEYS_PER_KEYBOARD_ROW 20
 #define MAX_ROWS_PER_KEYBOARD 6

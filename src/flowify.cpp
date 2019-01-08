@@ -16,11 +16,6 @@
 
  */
  
-#include "generic.h"
-#include "memory.cpp"
-#include "input.cpp"
-#include "render.cpp"
-
 #include "parser.cpp"
 #include "flowify_statements.cpp"
 
