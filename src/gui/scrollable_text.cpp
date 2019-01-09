@@ -119,7 +119,7 @@ void init_scrollable_text(ScrollableText * scrollable_text, Window * window, b32
     scrollable_text->line_margin = 4;
 
     // TODO: do we want to use nr-of-characters or percentage-of-screen for margins? or should we have margins inside the inside_rect AND margins around the screen_rect?
-    // FIXME: these need to be removed!
+    // TODO: these are margins within the inside_rect (not in the screen_rect)
     scrollable_text->left_margin = 10;
     scrollable_text->top_margin = 10;
     scrollable_text->right_margin = 10;
