@@ -189,6 +189,8 @@ void split_string_into_scrollable_lines(String string, ScrollableText * scrollab
     add_to_array(&scrollable_text->lines, &line_string);
     
     scrollable_text->widest_line = widest_line;
+    scrollable_text->window->inside_rect.position.x = 0;
+    scrollable_text->window->inside_rect.position.y = 0;
 }
 
 void update_scrollable_text(ScrollableText * scrollable_text, Input * input)
