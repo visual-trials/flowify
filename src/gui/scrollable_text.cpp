@@ -37,7 +37,6 @@ struct ScrollableText
     
     DynamicArray lines;
     
-    // FIXME: remove this! i32 line_offset;
     i32 vertical_offset;
     i32 widest_line;
     
@@ -48,7 +47,7 @@ struct ScrollableText
     Font font;
     i32 line_margin;
     
-    // FIXME: these need to be removed!
+    // Note: these are margins within the inside_rect (not in the screen_rect)
     i32 left_margin;
     i32 top_margin;
     i32 bottom_margin;
@@ -97,7 +96,6 @@ void init_scrollable_text(ScrollableText * scrollable_text, Window * window, b32
     
     scrollable_text->window = window;
     
-    // FIXME: remove this: scrollable_text->line_offset = 0;
     scrollable_text->vertical_offset = 0;
     scrollable_text->widest_line = 0;
     
@@ -118,8 +116,7 @@ void init_scrollable_text(ScrollableText * scrollable_text, Window * window, b32
     
     scrollable_text->line_margin = 4;
 
-    // TODO: do we want to use nr-of-characters or percentage-of-screen for margins? or should we have margins inside the inside_rect AND margins around the screen_rect?
-    // TODO: these are margins within the inside_rect (not in the screen_rect)
+    // Note: these are margins within the inside_rect (not in the screen_rect)
     scrollable_text->left_margin = 10;
     scrollable_text->top_margin = 10;
     scrollable_text->right_margin = 10;
@@ -152,8 +149,6 @@ void split_string_into_scrollable_lines(String string, ScrollableText * scrollab
     line_string.length = 0;
     
     reset_dynamic_array(&scrollable_text->lines);
-    
-    // FIXME: remember widest line!
     
     i32 position = 0;
     i32 start_of_line = 0;
@@ -191,7 +186,6 @@ void split_string_into_scrollable_lines(String string, ScrollableText * scrollab
     
     add_to_array(&scrollable_text->lines, &line_string);
     
-    // FIXME: remove this: scrollable_text->line_offset = 0;
     scrollable_text->vertical_offset = 0;
     scrollable_text->widest_line = widest_line;
 }
@@ -247,7 +241,7 @@ void update_scrollable_text(ScrollableText * scrollable_text, Input * input)
     
     i32 line_height = scrollable_text->font.height + scrollable_text->line_margin;
     
-    // TODO: use line_height here
+    // TODO: use line_height here too
     scrollable_text->nr_of_lines_to_show = (i32)((f32)(scrollable_text->window->screen_rect.size.height - scrollable_text->top_margin - scrollable_text->bottom_margin) / 
                                        ((f32)scrollable_text->font.height + (f32)scrollable_text->line_margin));
 
@@ -257,7 +251,6 @@ void update_scrollable_text(ScrollableText * scrollable_text, Input * input)
     scrollable_text->max_line_width_in_characters = (i32)((f32)(scrollable_text->window->screen_rect.size.width - scrollable_text->left_margin - scrollable_text->line_numbers_width - scrollable_text->right_margin) / (f32)white_space_size.width);
 
     
-    // FIXME: calculate this properly!
     i32 nr_of_characters_in_widest_line = scrollable_text->widest_line;
     i32 inside_width = scrollable_text->left_margin + scrollable_text->line_numbers_width + nr_of_characters_in_widest_line * white_space_size.width + scrollable_text->right_margin;
     i32 inside_height = scrollable_text->top_margin + scrollable_text->lines.nr_of_items * line_height + scrollable_text->bottom_margin;
