@@ -124,7 +124,7 @@ extern "C" {
         world->current_program_text_index = 2;
 
         world->screen_margins.left = 100;
-        world->screen_margins.top = 20; // TODO: we should properly account for the height of the text above this
+        world->screen_margins.top = 20;
         world->screen_margins.right = 20;
         world->screen_margins.bottom = 20;
         
