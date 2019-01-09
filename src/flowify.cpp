@@ -27,8 +27,11 @@
 
 struct WorldData
 {
+    Rect2d title_rect;
+    
     String program_text;
     ScrollableText scrollable_program_text;
+    Window program_text_window;
 
     Tokenizer tokenizer;
     Parser parser;
@@ -36,6 +39,12 @@ struct WorldData
     
     DynamicString flowify_dump_text;
     ScrollableText scrollable_flowify_dump;
+    Window flowify_dump_window;
+    
+    Margins screen_margins;
+    i32 middle_margin;
+    i32 title_height;
+    f32 program_text_fraction_of_screen;
     
     FlowElement * root_element;
     
@@ -46,6 +55,7 @@ struct WorldData
     i32 iteration;
     i32 selected_element_index;
     
+    // TODO: Window flowify_window;
     i32 flowify_vertical_offset;
     
     b32 show_help_rectangles;
@@ -68,12 +78,12 @@ extern "C" {
         ScrollableText * scrollable_flowify_dump = &world->scrollable_flowify_dump;
         DynamicString * flowify_dump_text = &world->flowify_dump_text;
         
-        init_scrollable_text(scrollable_program_text);
+        init_scrollable_text(scrollable_program_text, &world->program_text_window);
         init_tokenizer(tokenizer);
         init_parser(parser, tokenizer);
         init_flowifier(flowifier);
         init_dynamic_string(flowify_dump_text, (Color4){70,150,255,255}, cstring_to_string("Flowify dump text"));
-        init_scrollable_text(scrollable_flowify_dump, false);
+        init_scrollable_text(scrollable_flowify_dump, &world->flowify_dump_window, false);
         
         world->program_text.data = (u8 *)program_text;
         world->program_text.length = cstring_length(program_text);
@@ -100,12 +110,27 @@ extern "C" {
         
         // Note: we reset this, so selected_element_index never refers to a non-existing element (from a previous file parse/flowify)
         world->selected_element_index = -1;  // TODO: there is probably a nicer way of saying this value is invalid
-}
+    }
     
+    void update_window_dimensions(WorldData * world, Screen * screen)
+    {
+        Rect2d full_screen_rect = {}; // also meaning: position = 0,0
+        full_screen_rect.size.width = screen->width;
+        full_screen_rect.size.height = screen->height;
+        
+        Rect2d available_screen_rect = shrink_rect_by_margins(full_screen_rect, world->screen_margins);
+        Rectangle2 title_and_text_rects = split_rect_vertically(available_screen_rect, world->title_height);
+        Rectangle2 text_rects = split_rect_horizontally_fraction(title_and_text_rects.second, world->program_text_fraction_of_screen, world->middle_margin);
+        
+        world->title_rect = title_and_text_rects.first;
+        world->program_text_window.screen_rect = text_rects.first;
+        world->flowify_dump_window.screen_rect = text_rects.second;
+    }
+        
     void init_world()
     {
         WorldData * world = &global_world;
-        Memory * memory = &global_memory;
+        Input * input = &global_input;
         
         world->iteration = 0;
         world->selected_element_index = -1;  // TODO: there is probably a nicer way of saying this value is invalid
@@ -127,6 +152,17 @@ extern "C" {
         
         world->verbose_memory_usage = true;
 
+        world->screen_margins.left = 100;
+        world->screen_margins.top = 20; // TODO: we should properly account for the height of the text above this
+        world->screen_margins.right = 20;
+        world->screen_margins.bottom = 20;
+        
+        world->middle_margin = 20;
+        world->program_text_fraction_of_screen = 0.5;
+        world->title_height = 30;
+        
+        update_window_dimensions(world, &input->screen);
+        
         load_program_text(world->program_texts[world->current_program_text_index], world);
         
     }
@@ -136,24 +172,30 @@ extern "C" {
         WorldData * world = &global_world;
         Input * input = &global_input;
 
+        update_window_dimensions(world, &input->screen);
+        
         ScrollableText * scrollable_program_text = &world->scrollable_program_text;
         
+        /*
         // The screen size can change, so we have to update the position and size of the scrollables.
         scrollable_program_text->position.x = 100;
         scrollable_program_text->position.y = 50; // TODO: we should properly account for the height of the text above this
 
         scrollable_program_text->size.width = input->screen.width - scrollable_program_text->position.x;
         scrollable_program_text->size.height = input->screen.height - scrollable_program_text->position.y;
+        */
         
         update_scrollable_text(scrollable_program_text, input);
         
         ScrollableText * scrollable_flowify_dump = &world->scrollable_flowify_dump;
         
+        /*
         scrollable_flowify_dump->position.x = input->screen.width / 2 - 50; // TODO: calculate by percentage?
         scrollable_flowify_dump->position.y = 50; // TODO: where do we want to let this begin?
 
         scrollable_flowify_dump->size.width = input->screen.width - scrollable_flowify_dump->position.x;
         scrollable_flowify_dump->size.height = input->screen.height - scrollable_flowify_dump->position.y - 50;
+        */
         
         update_scrollable_text(scrollable_flowify_dump, input);
         

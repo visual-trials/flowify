@@ -21,9 +21,9 @@
 
 struct WorldData
 {
-    String program_text;
+    Rect2d title_rect;
     
-    Rect2d program_text_title_rect;
+    String program_text;
     ScrollableText scrollable_program_text;
     Window program_text_window;
     
@@ -31,7 +31,6 @@ struct WorldData
     Parser parser;
     
     DynamicString dump_text;
-    
     ScrollableText scrollable_ast_dump;
     Window ast_dump_window;
     
@@ -97,7 +96,7 @@ extern "C" {
         Rectangle2 title_and_text_rects = split_rect_vertically(available_screen_rect, world->title_height);
         Rectangle2 text_rects = split_rect_horizontally_fraction(title_and_text_rects.second, world->program_text_fraction_of_screen, world->middle_margin);
         
-        world->program_text_title_rect = title_and_text_rects.first;
+        world->title_rect = title_and_text_rects.first;
         world->program_text_window.screen_rect = text_rects.first;
         world->ast_dump_window.screen_rect = text_rects.second;
     }
