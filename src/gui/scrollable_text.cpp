@@ -298,18 +298,15 @@ void update_scrollable_text(ScrollableText * scrollable_text, Input * input)
         scrollable_text->vertical_offset += (scrollable_text->nr_of_lines_to_show - 2) * line_height;
     }
 
-/*
-    // FIXME: enable this again!    
-    if (scrollable_text->line_offset > scrollable_text->lines.nr_of_items - scrollable_text->nr_of_lines_to_show)
+    if (scrollable_text->vertical_offset < scrollable_text->window->screen_rect.size.height - scrollable_text->window->inside_rect.size.height)
     {
-        scrollable_text->line_offset = scrollable_text->lines.nr_of_items - scrollable_text->nr_of_lines_to_show;
+        scrollable_text->vertical_offset = scrollable_text->window->screen_rect.size.height - scrollable_text->window->inside_rect.size.height;
     }
     
-    if (scrollable_text->line_offset < 0)
+    if (scrollable_text->vertical_offset > 0)
     {
-        scrollable_text->line_offset = 0;
+        scrollable_text->vertical_offset = 0;
     }
-*/
 }
 
 void draw_scrollable_text(ScrollableText * scrollable_text)
