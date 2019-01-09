@@ -23,6 +23,7 @@ struct WorldData
 {
     String program_text;
     
+    Rect2d program_text_title_rect;
     ScrollableText scrollable_program_text;
     Window program_text_window;
     
@@ -34,6 +35,11 @@ struct WorldData
     ScrollableText scrollable_ast_dump;
     Window ast_dump_window;
     
+    Margins screen_margins;
+    i32 middle_margin;
+    i32 title_height;
+    f32 program_text_fraction_of_screen;
+        
     const char * program_texts[10];
     i32 nr_of_program_texts;
     i32 current_program_text_index;
@@ -75,17 +81,31 @@ extern "C" {
         //Parse
         Node * root_node = parse_program(parser);
         
-        
         // Dump parse result
         dump_tree(root_node, &world->dump_text);
         
         split_string_into_scrollable_lines(world->dump_text.string, scrollable_ast_dump);
     }
-    
+
+    void update_window_dimensions(WorldData * world, Screen * screen)
+    {
+        Rect2d full_screen_rect = {}; // also meaning: position = 0,0
+        full_screen_rect.size.width = screen->width;
+        full_screen_rect.size.height = screen->height;
+        
+        Rect2d available_screen_rect = shrink_rect_by_margins(full_screen_rect, world->screen_margins);
+        Rectangle2 title_and_text_rects = split_rect_vertically(available_screen_rect, world->title_height);
+        Rectangle2 text_rects = split_rect_horizontally_fraction(title_and_text_rects.second, world->program_text_fraction_of_screen, world->middle_margin);
+        
+        world->program_text_title_rect = title_and_text_rects.first;
+        world->program_text_window.screen_rect = text_rects.first;
+        world->ast_dump_window.screen_rect = text_rects.second;
+    }
+        
     void init_world()
     {
         WorldData * world = &global_world;
-        Memory * memory = &global_memory;
+        Input * input = &global_input;
         
         world->iteration = 0;
         world->selected_token_index = 0;
@@ -104,15 +124,18 @@ extern "C" {
         
         world->current_program_text_index = 2;
 
-        // TODO: call a function the divides the screen into parts
-        world->program_text_window.screen_rect.position = (Pos2d){};
-        world->program_text_window.screen_rect.size = (Size2d){};
+        world->screen_margins.left = 100;
+        world->screen_margins.top = 20; // TODO: we should properly account for the height of the text above this
+        world->screen_margins.right = 20;
+        world->screen_margins.bottom = 20;
         
-        world->ast_dump_window.screen_rect.position = (Pos2d){};
-        world->ast_dump_window.screen_rect.size = (Size2d){};
+        world->middle_margin = 20;
+        world->program_text_fraction_of_screen = 0.5;
+        world->title_height = 30;
+        
+        update_window_dimensions(world, &input->screen);
         
         load_program_text(world->program_texts[world->current_program_text_index], world);
-        
     }
     
     void update_frame()
@@ -120,26 +143,7 @@ extern "C" {
         WorldData * world = &global_world;
         Input * input = &global_input;
 
-        // TODO: put this somewhere else
-        i32 left_margin = 100;
-        i32 top_margin = 50; // TODO: we should properly account for the height of the text above this
-        i32 right_margin = 10;
-        i32 bottom_margin = 10;
-        
-        // TODO: call a function the divides the screen into parts
-        // The screen size can change, so we have to update the position and size of the windows of the scrollables.
-        world->program_text_window.screen_rect.position.x = left_margin;
-        world->program_text_window.screen_rect.position.y = top_margin; 
-
-        world->program_text_window.screen_rect.size.width = (input->screen.width - left_margin - right_margin) * 0.4;
-        world->program_text_window.screen_rect.size.height = input->screen.height - top_margin - bottom_margin;
-        
-        world->ast_dump_window.screen_rect.position.x = left_margin + (input->screen.width - left_margin - right_margin) * 0.4;
-        world->ast_dump_window.screen_rect.position.y = top_margin;
-
-        world->ast_dump_window.screen_rect.size.width = (input->screen.width - left_margin - right_margin) * 0.6;
-        world->ast_dump_window.screen_rect.size.height = input->screen.height - top_margin - bottom_margin;
-        
+        update_window_dimensions(world, &input->screen);
         
         update_scrollable_text(&world->scrollable_program_text, input);
         update_scrollable_text(&world->scrollable_ast_dump, input);

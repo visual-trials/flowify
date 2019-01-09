@@ -122,10 +122,16 @@ void init_scrollable_text(ScrollableText * scrollable_text, Window * window, b32
     scrollable_text->right_margin = 10;
     scrollable_text->bottom_margin = 10;
     
+    ShortString white_space;
+    copy_char_to_string(' ', &white_space);
+    Size2d white_space_size = get_text_size(&white_space, scrollable_text->font);
+
     scrollable_text->draw_line_numbers = draw_line_numbers;
     if (draw_line_numbers)
     {
-        scrollable_text->line_numbers_width = 120; // TODO: we should properly calculate this
+        i32 nr_of_white_space_between_numbers_and_text = 3;
+        i32 nr_of_digits_need_for_max_line_nr = 4;  // TODO: we should properly calculate this
+        scrollable_text->line_numbers_width = white_space_size.width * (nr_of_digits_need_for_max_line_nr + nr_of_white_space_between_numbers_and_text); 
     }
     else
     {
@@ -333,6 +339,7 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
     absolute_base_position.y = scrollable_text->window->screen_rect.position.y + scrollable_text->window->inside_rect.position.y;
     
     // TODO: this is DEBUG code
+    if (true)
     {
         Color4 screen_rect_color = {0, 0, 255, 255};
         Color4 inside_rect_color = {255, 0, 0, 255};
@@ -392,7 +399,7 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
                 Pos2d position_line_nr = position;
                 int_to_string(file_line_index + 1, &line_nr_text);
                 Size2d line_nr_size = get_text_size(&line_nr_text, font);
-                position_line_nr.x -= 40 + line_nr_size.width;
+                position_line_nr.x -= white_space_size.width * 3 + line_nr_size.width;
                 draw_text(position_line_nr, &line_nr_text, font, grey);
             }
         }
