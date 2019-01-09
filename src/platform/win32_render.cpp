@@ -52,7 +52,20 @@ void get_brush(Color4 color, ID2D1SolidColorBrush ** brush)
  
 // TODO: don't we want to pass two positions to most of these functions? Instead of pos + size?
 // TODO: don't we want f32 for colors?
+
+void clip_rectangle(Pos2d position, Size2d size)
+{
+    render_target->PushAxisAlignedClip(
+        D2D1::RectF(position.x, position.y, position.x + size.width, position.y + size.height),
+        D2D1_ANTIALIAS_MODE_PER_PRIMITIVE
+    );
+}
  
+void unclip_rectangle()
+{
+    render_target->PopAxisAlignedClip();
+}
+
 void draw_rectangle(Pos2d position, Size2d size, Color4 line_color, Color4 fill_color, i32 line_width)
 {
     ID2D1SolidColorBrush * line_brush = 0;
