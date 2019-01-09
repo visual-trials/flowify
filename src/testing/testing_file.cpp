@@ -22,6 +22,7 @@ struct WorldData
     String file_name;
     
     ScrollableText scrollable_file;
+    Window scrollable_file_window;
     
     b32 verbose_memory_usage;
     b32 verbose_frame_times;
@@ -36,10 +37,7 @@ extern "C" {
         WorldData * world = &global_world;
         Input * input = &global_input;
 
-        ScrollableText * scrollable_file = &world->scrollable_file;
-        
-        init_scrollable_text(scrollable_file);
-        
+        init_scrollable_text(&world->scrollable_file, &world->scrollable_file_window);
     }
         
     void update_frame()
@@ -58,17 +56,27 @@ extern "C" {
             world->file_name = input->file.file_name.string;
             
             split_string_into_scrollable_lines(file_contents, scrollable_file);
-            
-            // If file has just loaded, show it from the start
-            scrollable_file->line_offset = 0;
         }
         
+        Margins margins = {};
+        margins.top = 110;
+        
+        Rect2d full_screen_rect = {}; // also meaning: position = 0,0
+        full_screen_rect.size.width = input->screen.width;
+        full_screen_rect.size.height = input->screen.height;
+        
+        Rect2d available_screen_rect = shrink_rect_by_margins(full_screen_rect, margins);
+
+        world->scrollable_file_window.screen_rect = available_screen_rect;
+        
+        /*
         // The screen size can change, so we have to update the position and size of the scrollables.
         scrollable_file->position.x = 0;
         scrollable_file->position.y = 110; // TODO: we should properly account for the hieght of the text above
 
         scrollable_file->size.width = input->screen.width - scrollable_file->position.x;
         scrollable_file->size.height = input->screen.height - scrollable_file->position.y;
+        */
         
         update_scrollable_text(scrollable_file, input);
         

@@ -57,8 +57,6 @@ struct ScrollableText
     i32 line_numbers_width;
     
     Window * window;
-    // Pos2d position;
-    // Size2d size;
     
     i32 nr_of_lines_to_show;
     i32 max_line_width_in_characters;
