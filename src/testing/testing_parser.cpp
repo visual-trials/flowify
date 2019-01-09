@@ -263,7 +263,6 @@ extern "C" {
             highlighted_line_part->length = node->highlighted_line_part.length;
         }
         
-        // TODO: add clip-rectanglesn (inside draw_scrollable_text!)
         draw_scrollable_text(scrollable_program_text);
         draw_scrollable_text(scrollable_ast_dump);
         

@@ -37,7 +37,6 @@ struct ScrollableText
     
     DynamicArray lines;
     
-    i32 vertical_offset;
     i32 widest_line;
     
     // TODO: we probably want to use a DynamicArray here too!
@@ -94,7 +93,6 @@ void init_scrollable_text(ScrollableText * scrollable_text, Window * window, b32
     
     scrollable_text->window = window;
     
-    scrollable_text->vertical_offset = 0;
     scrollable_text->widest_line = 0;
     
     if (!scrollable_text->highlighted_line_parts_memory_arena.memory)
@@ -190,7 +188,6 @@ void split_string_into_scrollable_lines(String string, ScrollableText * scrollab
     
     add_to_array(&scrollable_text->lines, &line_string);
     
-    scrollable_text->vertical_offset = 0;
     scrollable_text->widest_line = widest_line;
 }
 
@@ -266,43 +263,43 @@ void update_scrollable_text(ScrollableText * scrollable_text, Input * input)
         // TODO: account for a "Mac" mouse! (which has a 'continous' wheel)
         if (mouse->wheel_delta > 0)
         {
-            scrollable_text->vertical_offset += 3 * line_height;
+            scrollable_text->window->inside_rect.position.y += 3 * line_height;
         }
         
         if (mouse->wheel_delta < 0)
         {
-            scrollable_text->vertical_offset -= 3 * line_height;
+            scrollable_text->window->inside_rect.position.y -= 3 * line_height;
         }
     }
     
     if (arrow_down_pressed)
     {
-        scrollable_text->vertical_offset -= 1 * line_height;
+        scrollable_text->window->inside_rect.position.y -= 1 * line_height;
     }
 
     if (arrow_up_pressed)
     {
-        scrollable_text->vertical_offset += 1 * line_height;
+        scrollable_text->window->inside_rect.position.y += 1 * line_height;
     }
     
     if (page_down_pressed)
     {
-        scrollable_text->vertical_offset -= (scrollable_text->nr_of_lines_to_show - 2) * line_height;
+        scrollable_text->window->inside_rect.position.y -= (scrollable_text->nr_of_lines_to_show - 2) * line_height;
     }
 
     if (page_up_pressed)
     {
-        scrollable_text->vertical_offset += (scrollable_text->nr_of_lines_to_show - 2) * line_height;
+        scrollable_text->window->inside_rect.position.y += (scrollable_text->nr_of_lines_to_show - 2) * line_height;
     }
 
-    if (scrollable_text->vertical_offset < scrollable_text->window->screen_rect.size.height - scrollable_text->window->inside_rect.size.height)
+    if (scrollable_text->window->inside_rect.position.y < scrollable_text->window->screen_rect.size.height - scrollable_text->window->inside_rect.size.height)
     {
-        scrollable_text->vertical_offset = scrollable_text->window->screen_rect.size.height - scrollable_text->window->inside_rect.size.height;
+        scrollable_text->window->inside_rect.position.y = scrollable_text->window->screen_rect.size.height - scrollable_text->window->inside_rect.size.height;
     }
     
-    if (scrollable_text->vertical_offset > 0)
+    if (scrollable_text->window->inside_rect.position.y > 0)
     {
-        scrollable_text->vertical_offset = 0;
+        scrollable_text->window->inside_rect.position.y = 0;
     }
 }
 
@@ -312,7 +309,7 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
     // TODO: turn line numbers on/off
     // TODO: add scroll bars
     
-    clip_rectangle(scrollable_text->window->screen_rect.position, scrollable_text->window->screen_rect.size);
+// FIXME    clip_rectangle(scrollable_text->window->screen_rect.position, scrollable_text->window->screen_rect.size);
     
     Color4 no_color = {};
     
@@ -358,7 +355,7 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
             {
                 Pos2d position;
                 position.x = absolute_base_position.x + x_position_part + scrollable_text->left_margin + scrollable_text->line_numbers_width;
-                position.y = absolute_base_position.y + scrollable_text->top_margin + scrollable_text->vertical_offset + line_part->line_index * (font.height + line_margin);
+                position.y = absolute_base_position.y + scrollable_text->top_margin + line_part->line_index * (font.height + line_margin);
                 
                 Size2d size;
                 size.width = x_width_part;
@@ -374,13 +371,27 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
         
         String * lines = (String *)scrollable_text->lines.items;
         
-        // FIXME: dont draw all lines! Only those that will be on screen (or close to it)
-        for (i32 file_line_index = 0; file_line_index < scrollable_text->lines.nr_of_items; file_line_index++)
+        // Note: we are drawing only lines that are on screen (or are close to being on screen)
+        
+        // Extra -1 and not counting top_margin
+        i32 start_line_index = - 1 - scrollable_text->window->inside_rect.position.y / (font.height + line_margin);
+        if (start_line_index < 0)
+        {
+            start_line_index = 0;
+        }
+        // Extra +1 and not counting bottom_margin
+        i32 end_line_index = + 1 + (scrollable_text->window->screen_rect.size.height - scrollable_text->window->inside_rect.position.y) / (font.height + line_margin);
+        if (end_line_index > scrollable_text->lines.nr_of_items - 1)
+        {
+            end_line_index = scrollable_text->lines.nr_of_items - 1;
+        }
+        
+        for (i32 file_line_index = start_line_index; file_line_index <= end_line_index; file_line_index++)
         {
             // Line text
             Pos2d position;
             position.x = absolute_base_position.x + scrollable_text->left_margin + scrollable_text->line_numbers_width;
-            position.y = absolute_base_position.y + scrollable_text->top_margin + scrollable_text->vertical_offset + file_line_index * (font.height + line_margin);
+            position.y = absolute_base_position.y + scrollable_text->top_margin + file_line_index * (font.height + line_margin);
             
             String line_text = lines[file_line_index];
             
@@ -389,7 +400,6 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
                 line_text.length = scrollable_text->max_line_width_in_characters;
             }
             draw_text(position, &line_text, font, black);
-            
             
             if (scrollable_text->draw_line_numbers)
             {
@@ -404,6 +414,6 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
         
     }
     
-    unclip_rectangle();
+// FIXME    unclip_rectangle();
 
 }
