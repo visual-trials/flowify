@@ -112,6 +112,12 @@ void init_scrollable_text(ScrollableText * scrollable_text, Window * window, b32
     scrollable_text->right_margin = 10;
     scrollable_text->bottom_margin = 10;
     
+    window->has_vertical_scrollbar = true;
+    window->vertical_scrollbar_width = 15;
+    
+    window->has_horizontal_scrollbar = false;
+    window->horizontal_scrollbar_width = 15;
+
     ShortString white_space;
     copy_char_to_string(' ', &white_space);
     Size2d white_space_size = get_text_size(&white_space, scrollable_text->font);
@@ -242,7 +248,7 @@ void update_scrollable_text(ScrollableText * scrollable_text, Input * input)
         }
     }
     
-    // TODO: take into account vertical_scrollbar_width_fraction and horizontal_scrollbar_width_fraction
+    // TODO: take into account vertical_scrollbar_width and horizontal_scrollbar_width
     
     i32 line_height = scrollable_text->font.height + scrollable_text->line_margin;
     
@@ -421,8 +427,44 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
         
     }
     
-    // TODO: put this in draw_window()
+    // TODO: put this in draw_window() or draw_scrollbars()
     
+    if (window->has_vertical_scrollbar)
+    {
+        Rect2d vertical_bar_rect = {}; // TODO: draw the bar in which the scrollbar scrolls
+        Rect2d vertical_scrollbar_rect = {};
+        
+        vertical_scrollbar_rect.size.width = window->vertical_scrollbar_width;
+        
+        vertical_scrollbar_rect.position = window->screen_rect.position;
+        vertical_scrollbar_rect.position.x += window->screen_rect.size.width - vertical_scrollbar_rect.size.width;
+        i32 scroll_distance = - window->inside_rect.position.y;
+        f32 top_position_vertical_fraction = (f32)scroll_distance / (f32)window->inside_rect.size.height;
+        if (top_position_vertical_fraction < 0)
+        {
+            top_position_vertical_fraction = 0;
+        }
+        
+        f32 height_vertical_fraction = (f32)window->screen_rect.size.height / (f32)window->inside_rect.size.height;
+        if (height_vertical_fraction > 1)
+        {
+            height_vertical_fraction = 1;
+        }
+        
+        vertical_scrollbar_rect.position.y += window->screen_rect.size.height * top_position_vertical_fraction;
+        
+        vertical_scrollbar_rect.size.height = window->screen_rect.size.height * height_vertical_fraction;
+        
+        // TODO: put this color in the Window-struct
+        Color4 scrollbar_color = {0, 0, 0, 50};
+        
+        draw_rectangle(vertical_scrollbar_rect.position, vertical_scrollbar_rect.size, no_color, scrollbar_color, 1);
+    }
+    
+    if (window->has_horizontal_scrollbar)
+    {
+        // TODO: horizontal_scrollbar_width;
+    }
     
 // FIXME    unclip_rectangle();
 

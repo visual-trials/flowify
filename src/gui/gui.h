@@ -22,10 +22,10 @@ struct Window
     Rect2d inside_rect;
     
     b32 has_vertical_scrollbar;
-    i32 vertical_scrollbar_width_fraction;
+    i32 vertical_scrollbar_width;
     
     b32 has_horizontal_scrollbar;
-    i32 horizontal_scrollbar_width_fraction;
+    i32 horizontal_scrollbar_width;
 };
 
 struct HoveredOrPressed
