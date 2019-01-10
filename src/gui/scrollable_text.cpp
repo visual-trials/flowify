@@ -322,7 +322,7 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
     
     Window * window = scrollable_text->window;
     
-// FIXME    clip_rectangle(window->screen_rect.position, window->screen_rect.size);
+    clip_rectangle(window->screen_rect.position, window->screen_rect.size);
     
     Color4 no_color = {};
     
@@ -347,7 +347,7 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
     absolute_base_position.y = window->screen_rect.position.y + window->inside_rect.position.y;
     
     // TODO: this is DEBUG code
-    if (true)
+    if (false)
     {
         Color4 screen_rect_color = {0, 0, 255, 255};
         Color4 inside_rect_color = {255, 0, 0, 255};
@@ -458,7 +458,11 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
         // TODO: put this color in the Window-struct
         Color4 scrollbar_color = {0, 0, 0, 50};
         
-        draw_rectangle(vertical_scrollbar_rect.position, vertical_scrollbar_rect.size, no_color, scrollbar_color, 1);
+        // TODO: not drawing the scrollbar also changes the width!
+        if (height_vertical_fraction != 1)
+        {
+            draw_rectangle(vertical_scrollbar_rect.position, vertical_scrollbar_rect.size, no_color, scrollbar_color, 1);
+        }
     }
     
     if (window->has_horizontal_scrollbar)
@@ -466,6 +470,6 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
         // TODO: horizontal_scrollbar_width;
     }
     
-// FIXME    unclip_rectangle();
+    unclip_rectangle();
 
 }
