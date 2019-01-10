@@ -25,12 +25,6 @@ struct HighlightedLinePart
     HighlightedLinePart * next_highlighted_line_part;
 };
 
-struct Window
-{
-    Rect2d screen_rect;
-    Rect2d inside_rect;
-};
-
 struct ScrollableText
 {
     b32 is_active;  // TODO: implement this
@@ -134,13 +128,15 @@ void init_scrollable_text(ScrollableText * scrollable_text, Window * window, b32
         scrollable_text->line_numbers_width = 0;
     }
     
+    // TODO: call init_window()
+    
     // These should be calculated each update
-    scrollable_text->window->inside_rect.position.x = 0;
-    scrollable_text->window->inside_rect.position.y = 0;
+    window->inside_rect.position.x = 0;
+    window->inside_rect.position.y = 0;
     
     // Initially the size of the inside rectangle is the same as the screen rectangle
-    scrollable_text->window->inside_rect.size = scrollable_text->window->screen_rect.size;
-    scrollable_text->window->inside_rect.size = scrollable_text->window->screen_rect.size;
+    window->inside_rect.size = window->screen_rect.size;
+    window->inside_rect.size = window->screen_rect.size;
 }
 
 // TODO: we might want to pass a pointer to the DynamicArray instead (not ScrollableText)
@@ -189,6 +185,8 @@ void split_string_into_scrollable_lines(String string, ScrollableText * scrollab
     add_to_array(&scrollable_text->lines, &line_string);
     
     scrollable_text->widest_line = widest_line;
+    
+    // TODO: call reset_window ?
     scrollable_text->window->inside_rect.position.x = 0;
     scrollable_text->window->inside_rect.position.y = 0;
 }
@@ -198,6 +196,8 @@ void update_scrollable_text(ScrollableText * scrollable_text, Input * input)
     // Updating scrollable text
     MouseInput * mouse = &input->mouse;
     KeyboardInput * keyboard = &input->keyboard;
+    
+    Window * window = scrollable_text->window;
     
     u8 sequence_keys_up_down[MAX_KEY_SEQUENCE_PER_FRAME * 2];
     i32 sequence_keys_length;
@@ -242,66 +242,69 @@ void update_scrollable_text(ScrollableText * scrollable_text, Input * input)
         }
     }
     
+    // TODO: take into account vertical_scrollbar_width_fraction and horizontal_scrollbar_width_fraction
+    
     i32 line_height = scrollable_text->font.height + scrollable_text->line_margin;
     
     // TODO: use line_height here too
-    scrollable_text->nr_of_lines_to_show = (i32)((f32)(scrollable_text->window->screen_rect.size.height - scrollable_text->top_margin - scrollable_text->bottom_margin) / 
+    scrollable_text->nr_of_lines_to_show = (i32)((f32)(window->screen_rect.size.height - scrollable_text->top_margin - scrollable_text->bottom_margin) / 
                                        ((f32)scrollable_text->font.height + (f32)scrollable_text->line_margin));
 
     ShortString white_space;
     copy_char_to_string(' ', &white_space);
     Size2d white_space_size = get_text_size(&white_space, scrollable_text->font);
-    scrollable_text->max_line_width_in_characters = (i32)((f32)(scrollable_text->window->screen_rect.size.width - scrollable_text->left_margin - scrollable_text->line_numbers_width - scrollable_text->right_margin) / (f32)white_space_size.width);
+    scrollable_text->max_line_width_in_characters = (i32)((f32)(window->screen_rect.size.width - scrollable_text->left_margin - scrollable_text->line_numbers_width - scrollable_text->right_margin) / (f32)white_space_size.width);
 
     
     i32 nr_of_characters_in_widest_line = scrollable_text->widest_line;
     i32 inside_width = scrollable_text->left_margin + scrollable_text->line_numbers_width + nr_of_characters_in_widest_line * white_space_size.width + scrollable_text->right_margin;
     i32 inside_height = scrollable_text->top_margin + scrollable_text->lines.nr_of_items * line_height + scrollable_text->bottom_margin;
-    scrollable_text->window->inside_rect.size.width = inside_width;
-    scrollable_text->window->inside_rect.size.height = inside_height;
+    window->inside_rect.size.width = inside_width;
+    window->inside_rect.size.height = inside_height;
 
+    // TODO: put this in update_window()
     if (mouse->wheel_has_moved)
     {
         // TODO: account for a "Mac" mouse! (which has a 'continous' wheel)
         if (mouse->wheel_delta > 0)
         {
-            scrollable_text->window->inside_rect.position.y += 3 * line_height;
+            window->inside_rect.position.y += 3 * line_height;
         }
         
         if (mouse->wheel_delta < 0)
         {
-            scrollable_text->window->inside_rect.position.y -= 3 * line_height;
+            window->inside_rect.position.y -= 3 * line_height;
         }
     }
     
     if (arrow_down_pressed)
     {
-        scrollable_text->window->inside_rect.position.y -= 1 * line_height;
+        window->inside_rect.position.y -= 1 * line_height;
     }
 
     if (arrow_up_pressed)
     {
-        scrollable_text->window->inside_rect.position.y += 1 * line_height;
+        window->inside_rect.position.y += 1 * line_height;
     }
     
     if (page_down_pressed)
     {
-        scrollable_text->window->inside_rect.position.y -= (scrollable_text->nr_of_lines_to_show - 2) * line_height;
+        window->inside_rect.position.y -= (scrollable_text->nr_of_lines_to_show - 2) * line_height;
     }
 
     if (page_up_pressed)
     {
-        scrollable_text->window->inside_rect.position.y += (scrollable_text->nr_of_lines_to_show - 2) * line_height;
+        window->inside_rect.position.y += (scrollable_text->nr_of_lines_to_show - 2) * line_height;
     }
 
-    if (scrollable_text->window->inside_rect.position.y < scrollable_text->window->screen_rect.size.height - scrollable_text->window->inside_rect.size.height)
+    if (window->inside_rect.position.y < window->screen_rect.size.height - window->inside_rect.size.height)
     {
-        scrollable_text->window->inside_rect.position.y = scrollable_text->window->screen_rect.size.height - scrollable_text->window->inside_rect.size.height;
+        window->inside_rect.position.y = window->screen_rect.size.height - window->inside_rect.size.height;
     }
     
-    if (scrollable_text->window->inside_rect.position.y > 0)
+    if (window->inside_rect.position.y > 0)
     {
-        scrollable_text->window->inside_rect.position.y = 0;
+        window->inside_rect.position.y = 0;
     }
 }
 
@@ -311,7 +314,9 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
     // TODO: turn line numbers on/off
     // TODO: add scroll bars
     
-// FIXME    clip_rectangle(scrollable_text->window->screen_rect.position, scrollable_text->window->screen_rect.size);
+    Window * window = scrollable_text->window;
+    
+// FIXME    clip_rectangle(window->screen_rect.position, window->screen_rect.size);
     
     Color4 no_color = {};
     
@@ -332,16 +337,16 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
     Size2d white_space_size = get_text_size(&white_space_text, font);
     
     Pos2d absolute_base_position = {};
-    absolute_base_position.x = scrollable_text->window->screen_rect.position.x + scrollable_text->window->inside_rect.position.x;
-    absolute_base_position.y = scrollable_text->window->screen_rect.position.y + scrollable_text->window->inside_rect.position.y;
+    absolute_base_position.x = window->screen_rect.position.x + window->inside_rect.position.x;
+    absolute_base_position.y = window->screen_rect.position.y + window->inside_rect.position.y;
     
     // TODO: this is DEBUG code
     if (true)
     {
         Color4 screen_rect_color = {0, 0, 255, 255};
         Color4 inside_rect_color = {255, 0, 0, 255};
-        draw_rectangle(scrollable_text->window->screen_rect.position, scrollable_text->window->screen_rect.size, screen_rect_color, no_color, 1);
-        draw_rectangle(absolute_base_position, scrollable_text->window->inside_rect.size, inside_rect_color, no_color, 1);
+        draw_rectangle(window->screen_rect.position, window->screen_rect.size, screen_rect_color, no_color, 1);
+        draw_rectangle(absolute_base_position, window->inside_rect.size, inside_rect_color, no_color, 1);
     }
                 
     if (scrollable_text->lines.nr_of_items > 0)
@@ -376,13 +381,13 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
         // Note: we are drawing only lines that are on screen (or are close to being on screen)
         
         // Extra -1 and not counting top_margin
-        i32 start_line_index = - 1 - scrollable_text->window->inside_rect.position.y / (font.height + line_margin);
+        i32 start_line_index = - 1 - window->inside_rect.position.y / (font.height + line_margin);
         if (start_line_index < 0)
         {
             start_line_index = 0;
         }
         // Extra +1 and not counting bottom_margin
-        i32 end_line_index = + 1 + (scrollable_text->window->screen_rect.size.height - scrollable_text->window->inside_rect.position.y) / (font.height + line_margin);
+        i32 end_line_index = + 1 + (window->screen_rect.size.height - window->inside_rect.position.y) / (font.height + line_margin);
         if (end_line_index > scrollable_text->lines.nr_of_items - 1)
         {
             end_line_index = scrollable_text->lines.nr_of_items - 1;
@@ -415,6 +420,9 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
         }
         
     }
+    
+    // TODO: put this in draw_window()
+    
     
 // FIXME    unclip_rectangle();
 
