@@ -279,7 +279,7 @@ extern "C" {
         absolute_position.y = 50 + world->flowify_vertical_offset; 
         absolute_layout_elements(root_element, absolute_position);
         
-        draw_elements(root_element, world->show_help_rectangles);
+        draw_elements(&world->flowifier, root_element, world->show_help_rectangles);
         
     }
     

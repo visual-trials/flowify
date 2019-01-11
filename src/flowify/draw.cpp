@@ -255,7 +255,7 @@ void draw_straight_element(FlowElement * flow_element, FlowElement * element_pre
     }
 }
 
-void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
+void draw_elements(Flowifier * flowifier, FlowElement * flow_element, b32 show_help_rectangles)
 {
     // TODO: add is_position_of and position_originates_from
     // TODO: set colors properly
@@ -296,8 +296,8 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
 
         draw_straight_element(if_cond_element, if_cond_element->previous_in_flow, if_split_element, show_help_rectangles);
         draw_splitting_element(if_else_element, if_then_element, if_split_element, if_cond_element, show_help_rectangles);
-        draw_elements(if_then_element, show_help_rectangles);
-        draw_elements(if_else_element, show_help_rectangles);
+        draw_elements(flowifier, if_then_element, show_help_rectangles);
+        draw_elements(flowifier, if_else_element, show_help_rectangles);
         draw_joining_element(if_else_element, if_then_element, if_join_element, if_element->next_in_flow, show_help_rectangles);
     }
     else if (flow_element->type == FlowElement_For)
@@ -326,7 +326,7 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
         // FIXME: for some reason this is drawn wrongly! (for_join_element and for_split_element seem too wide)
         draw_straight_element(for_cond_element, for_join_element, for_split_element, show_help_rectangles);
         draw_splitting_element(for_passthrough_element, for_body_element, for_split_element, for_cond_element, show_help_rectangles);
-        draw_elements(for_body_element, show_help_rectangles);
+        draw_elements(flowifier, for_body_element, show_help_rectangles);
         // TODO: The previous_in_flow and next_in_flow of the update_element are not correct (previous should be last statement in for-body, next should be?)
         draw_straight_element(for_update_element, for_body_element, 0, show_help_rectangles);
         
@@ -425,7 +425,7 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
         
         FlowElement * function_element = flow_element->first_child;
 
-        draw_elements(function_element, show_help_rectangles);
+        draw_elements(flowifier, function_element, show_help_rectangles);
     }
     else if (flow_element->type == FlowElement_Function)
     {
@@ -433,7 +433,7 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
         
         FlowElement * function_body_element = flow_element->first_child;
 
-        draw_elements(function_body_element, show_help_rectangles);
+        draw_elements(flowifier, function_body_element, show_help_rectangles);
     }
     else if (flow_element->type == FlowElement_Root ||
              flow_element->type == FlowElement_FunctionBody ||
@@ -463,7 +463,7 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
         {
             do
             {
-                draw_elements(child_element, show_help_rectangles);
+                draw_elements(flowifier, child_element, show_help_rectangles);
             }
             while ((child_element = child_element->next_sibling));
         }
