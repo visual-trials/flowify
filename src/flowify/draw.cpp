@@ -222,6 +222,13 @@ void draw_straight_element(FlowElement * flow_element, FlowElement * element_pre
     {
         fill_color = selected_color;
     }
+    
+    Font font = {};
+    font.height = 20;
+    font.family = Font_CourierNew;
+
+    Color4 text_color = {};
+    text_color.a = 255;
         
     i32 line_width = 4;
     i32 bending_radius = 20;
@@ -249,6 +256,20 @@ void draw_straight_element(FlowElement * flow_element, FlowElement * element_pre
     }
     
     draw_lane_segments_for_3_rectangles(top_rect, middle_rect, bottom_rect, bending_radius, line_width, line_color, fill_color, fill_color);
+    
+    if (flow_element->source_text.length)
+    {
+        Size2d source_text_size = get_text_size(&flow_element->source_text, font);
+        
+        // TODO: create a function: draw_text_in_rect()
+        Pos2d text_position = {};
+        text_position = middle_rect.position;
+        text_position.x += (middle_rect.size.width - source_text_size.width) / 2;
+        text_position.y += (middle_rect.size.height - source_text_size.height) / 2;
+        
+        draw_text(text_position, &flow_element->source_text, font, text_color);
+    }
+    
     if (show_help_rectangles)
     {
         draw_element_rectangle(flow_element);
