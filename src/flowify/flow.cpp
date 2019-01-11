@@ -101,8 +101,6 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         Node * if_then_node = if_cond_node->next_sibling;
         Node * if_else_node = if_then_node->next_sibling;
         
-        // TODO: not sure if if_split_element correponds to if_cond_node
-        //       No, it doesn't. We need a if_split_element AND a if_cond_element. The if_cond_element corresponds to the if_cond_node.
         FlowElement * if_cond_element = new_flow_element(flowifier, if_cond_node, FlowElement_IfCond); 
         if (if_cond_node && if_cond_node->first_child)
         {
@@ -191,7 +189,6 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
             // TODO: whould we set first_in_flow and last_in_flow?
         }
         
-        // TODO: to which ast-node does this correpond (if any)?
         FlowElement * for_join_element = new_flow_element(flowifier, 0, FlowElement_ForJoin); 
         
         FlowElement * for_cond_element = new_flow_element(flowifier, for_cond_node, FlowElement_ForCond); 
@@ -210,7 +207,6 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
             // TODO: whould we set first_in_flow and last_in_flow?
         }
         
-        // TODO: to which ast-node does this correpond (if any)?
         FlowElement * for_split_element = new_flow_element(flowifier, 0, FlowElement_ForSplit); 
         
         FlowElement * for_body_element = new_flow_element(flowifier, for_body_node, FlowElement_ForBody); 
@@ -290,6 +286,8 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         function_body_element->parent = function_element;
         
         // TODO: we might want to say that the first_in_flow of a function is actually the first statement element in the function?
+        // Note that flowify_statements(...) (see above) already set first_in_flow and last_in_flow (to the first and last statement 
+        // in the body resp.) of the function_body_element.
         function_element->first_in_flow = function_element;
         function_element->last_in_flow = function_element;
         
