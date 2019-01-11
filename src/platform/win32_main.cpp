@@ -32,10 +32,10 @@ LARGE_INTEGER clock_counter_after_wait;
 
 #include "win32_render.cpp"
 
-#include "../gui/gui.h"
-#include "../gui/menu.cpp"
-#include "../gui/debug.cpp"
-#include "../gui/scrollable_text.cpp"
+#include "../imgui/imgui.h"
+#include "../imgui/menu.cpp"
+#include "../imgui/debug.cpp"
+#include "../imgui/scrollable_text.cpp"
 
 #include INCLUDE_PROJECT_FILE
 

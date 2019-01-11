@@ -16,7 +16,23 @@
 
  */
 
-void layout_elements(FlowElement * flow_element)
+i32 get_width_based_on_source_text(Flowifier * flowifier, FlowElement * flow_element)
+{
+    // FIXME: get these from flowifier!
+    i32 character_width = 20; // TODO: use a single white space for this! (of the font used)
+    i32 default_element_width = 100;
+    
+    if (flow_element->source_text.length)
+    {
+        return flow_element->source_text.length * character_width;
+    }
+    else
+    {
+        return default_element_width;
+    }
+}
+
+void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
 {
     // FIXME: we should get this from Flowifier!
     i32 bending_radius = 20;
@@ -24,7 +40,7 @@ void layout_elements(FlowElement * flow_element)
     if (flow_element->type == FlowElement_Hidden)
     {
         flow_element->size.width = 100;
-        flow_element->size.height = 20;
+        flow_element->size.height = 40;
     }
     else if (flow_element->type == FlowElement_PassThrough)
     {
@@ -33,19 +49,19 @@ void layout_elements(FlowElement * flow_element)
     }
     else if (flow_element->type == FlowElement_Assignment)
     {
-        flow_element->size.width = 100;
+        flow_element->size.width = get_width_based_on_source_text(flowifier, flow_element);
         flow_element->size.height = 80;
         flow_element->is_selectable = true;
     }
     else if (flow_element->type == FlowElement_BinaryOperator)
     {
-        flow_element->size.width = 200;
+        flow_element->size.width = get_width_based_on_source_text(flowifier, flow_element);
         flow_element->size.height = 80;
         flow_element->is_selectable = true;
     }
     else if (flow_element->type == FlowElement_Return)
     {
-        flow_element->size.width = 100;
+        flow_element->size.width = get_width_based_on_source_text(flowifier, flow_element);
         flow_element->size.height = 40;
         flow_element->is_selectable = true;
     }
@@ -57,8 +73,8 @@ void layout_elements(FlowElement * flow_element)
         FlowElement * if_else_element = if_then_element->next_sibling;
         FlowElement * if_join_element = if_else_element->next_sibling;
         
-        layout_elements(if_then_element);
-        layout_elements(if_else_element);
+        layout_elements(flowifier, if_then_element);
+        layout_elements(flowifier, if_else_element);
         
         i32 then_else_height = if_then_element->size.height;
         if (if_else_element->size.height > then_else_height)
@@ -74,14 +90,14 @@ void layout_elements(FlowElement * flow_element)
         Pos2d current_position = start_position;
         
         if_cond_element->position = current_position;
+        if_cond_element->size.width = get_width_based_on_source_text(flowifier, if_cond_element);
         if_cond_element->size.height = 80;
-        if_cond_element->size.width = 100;
         if_cond_element->is_selectable = true;
         
         current_position.y += if_cond_element->size.height;
         
         if_split_element->position = current_position;
-        if_split_element->size.height = 20;
+        if_split_element->size.height = 2 * bending_radius;
         if_split_element->size.width = 100; // if_then_element->size.width + middle_margin + if_else_element->size.width;
         
         current_position.y += if_split_element->size.height + vertical_margin;
@@ -99,7 +115,7 @@ void layout_elements(FlowElement * flow_element)
         
         if_join_element->position = current_position;
         if_join_element->size.width = 100; //if_then_element->size.width + middle_margin + if_else_element->size.width;
-        if_join_element->size.height = 20;
+        if_join_element->size.height = 2 * bending_radius;
         
         current_position.y += if_join_element->size.height;
         
@@ -125,26 +141,21 @@ void layout_elements(FlowElement * flow_element)
         FlowElement * for_passthrough_element = for_passdown_element->next_sibling;
         FlowElement * for_done_element = for_passthrough_element->next_sibling;
         
-        layout_elements(for_body_element);
+        layout_elements(flowifier, for_body_element);
         
         // TODO: we should layout for_init to get its (proper) width and height
-        for_init_element->size.width = 100;
+        for_init_element->size.width = get_width_based_on_source_text(flowifier, for_init_element);
         for_init_element->size.height = 80;
         for_init_element->is_selectable = true;
-        /*
-        TODO: create a function that gets the text from the start-token until the end token and puts it in a string
-        i32 nr_of_tokens = for_init_element->ast_node->last_token_index - for_init_element->ast_node->first_token_index;
-        for_init_element->size.width = nr_of_tokens * 50;
-        */
         
         // TODO: we should layout for_cond to get its (proper) width and height
+        for_cond_element->size.width = get_width_based_on_source_text(flowifier, for_cond_element);
         for_cond_element->size.height = 80;
-        for_cond_element->size.width = 100;
         for_cond_element->is_selectable = true;
         
         // TODO: we should layout for_update to get its (proper) width and height
+        for_update_element->size.width = get_width_based_on_source_text(flowifier, for_update_element);
         for_update_element->size.height = 80;
-        for_update_element->size.width = 100;
         for_update_element->is_selectable = true;
         
         i32 for_body_height = for_body_element->size.height;
@@ -170,7 +181,7 @@ void layout_elements(FlowElement * flow_element)
         current_position.y += 100;
 
         for_start_element->position = current_position;
-        for_start_element->size.height = 20;
+        for_start_element->size.height = 2 * bending_radius;
         for_start_element->size.width = width_center_elements;
         
         current_position.y += for_start_element->size.height + vertical_margin + vertical_margin;
@@ -182,7 +193,7 @@ void layout_elements(FlowElement * flow_element)
         current_position.x += for_init_element->size.width + 2 * bending_radius - width_center_elements / 2;
         
         for_join_element->position = current_position;
-        for_join_element->size.height = 20;
+        for_join_element->size.height = 2 * bending_radius;
         for_join_element->size.width = width_center_elements;
         
         current_position.y += for_join_element->size.height + vertical_margin;
@@ -192,7 +203,7 @@ void layout_elements(FlowElement * flow_element)
         current_position.y += for_cond_element->size.height + vertical_margin;
         
         for_split_element->position = current_position;
-        for_split_element->size.height = 20;
+        for_split_element->size.height = 2 * bending_radius;
         for_split_element->size.width = width_center_elements;
         
         current_position.y += for_split_element->size.height + vertical_margin + vertical_margin + vertical_margin;
@@ -244,7 +255,7 @@ void layout_elements(FlowElement * flow_element)
         current_position_left.x += passthrough_width + 2 * bending_radius - width_center_elements / 2;
         
         for_done_element->position = current_position_left;
-        for_done_element->size.height = 20;
+        for_done_element->size.height = 2 * bending_radius;
         for_done_element->size.width = width_center_elements;
         
         current_position_left.y += for_done_element->size.height;
@@ -265,7 +276,7 @@ void layout_elements(FlowElement * flow_element)
         i32 left_margin = 20;
         i32 right_margin = 20;
             
-        layout_elements(function_element);
+        layout_elements(flowifier, function_element);
         
         function_element->position.x = left_margin;
         function_element->position.y = top_margin;
@@ -280,7 +291,7 @@ void layout_elements(FlowElement * flow_element)
     {
         FlowElement * function_body_element = flow_element->first_child;
         
-        layout_elements(function_body_element);
+        layout_elements(flowifier, function_body_element);
         
         flow_element->size = function_body_element->size;
     }
@@ -321,7 +332,7 @@ void layout_elements(FlowElement * flow_element)
         {
             do
             {
-                layout_elements(child_element);
+                layout_elements(flowifier, child_element);
                 
                 // TODO: the child can be wider or narrower at the bottom or top!
                 Size2d child_size = child_element->size;

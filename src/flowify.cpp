@@ -82,7 +82,7 @@ extern "C" {
         init_scrollable_text(scrollable_program_text, &world->program_text_window);
         init_tokenizer(tokenizer);
         init_parser(parser, tokenizer);
-        init_flowifier(flowifier);
+        init_flowifier(flowifier, parser);
         init_dynamic_string(flowify_dump_text, (Color4){70,150,255,255}, cstring_to_string("Flowify dump text"));
         init_scrollable_text(scrollable_flowify_dump, &world->flowify_dump_window, false);
         
@@ -102,7 +102,7 @@ extern "C" {
         flowify_statements(flowifier, root_element);
         
         // TODO: should we do this in update_frame?
-        layout_elements(root_element);
+        layout_elements(flowifier, root_element);
         world->root_element = root_element;
         
         dump_element_tree(root_element, &world->flowify_dump_text);

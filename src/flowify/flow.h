@@ -105,6 +105,7 @@ struct FlowElement
     FlowElementType type;
     
     Node * ast_node;
+    String source_text;
     
     // These 4 FlowElements represent a parental and sibling "hierarchy" (mostly used for "looping" through all elements)
     FlowElement * first_child;
@@ -146,23 +147,30 @@ struct Flowifier
     
     FlowElement * first_function;
     FlowElement * latest_function;
+    
+    Parser * parser;
 };
 
-void init_flowifier(Flowifier * flowifier)
+void init_flowifier(Flowifier * flowifier, Parser * parser)
 {
     flowifier->first_function = 0;
     flowifier->latest_function = 0;
+    
+    flowifier->parser = parser;
     
     init_dynamic_array(&flowifier->flow_elements, sizeof(FlowElement), (Color4){0,255,255,255}, cstring_to_string("Flowifier"));
 }
 
 FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowElementType flow_element_type = FlowElement_Unknown)
 {
+    Parser * parser = flowifier->parser;
+    
     FlowElement empty_flow_element = {};
     
     FlowElement * new_flow_element = (FlowElement *)add_to_array(&flowifier->flow_elements, &empty_flow_element);
     
     new_flow_element->ast_node = ast_node;
+    new_flow_element->source_text = get_source_text_from_ast_node(parser, ast_node);
     
     new_flow_element->first_child = 0;
     new_flow_element->parent = 0;

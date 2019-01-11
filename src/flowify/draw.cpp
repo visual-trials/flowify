@@ -136,7 +136,7 @@ void draw_joining_element(FlowElement * left_element, FlowElement * right_elemen
     }
 }
 
-void draw_splitting_element(FlowElement * left_element, FlowElement * right_element, FlowElement * splitting_element, b32 show_help_rectangles)
+void draw_splitting_element(FlowElement * left_element, FlowElement * right_element, FlowElement * splitting_element, FlowElement * element_previous_in_flow, b32 show_help_rectangles)
 {
     // TODO: maybe we want to have a drawer-variable (Drawer-struct), containing all color/line_width/bending_radius settings)
 
@@ -157,8 +157,13 @@ void draw_splitting_element(FlowElement * left_element, FlowElement * right_elem
     i32 bending_radius = 20;
     Rect2d no_rect = {-1,-1,-1,-1};
 
-        
     Rect2d top_rect = no_rect;
+    
+    if (element_previous_in_flow)
+    {
+        top_rect.position = element_previous_in_flow->absolute_position;
+        top_rect.size = element_previous_in_flow->size;
+    }
     
     // If-start rectangle (middle)
     Rect2d middle_rect = {};
@@ -290,7 +295,7 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
         FlowElement * if_join_element = if_else_element->next_sibling;
 
         draw_straight_element(if_cond_element, if_cond_element->previous_in_flow, if_split_element, show_help_rectangles);
-        draw_splitting_element(if_else_element, if_then_element, if_split_element, show_help_rectangles);
+        draw_splitting_element(if_else_element, if_then_element, if_split_element, if_cond_element, show_help_rectangles);
         draw_elements(if_then_element, show_help_rectangles);
         draw_elements(if_else_element, show_help_rectangles);
         draw_joining_element(if_else_element, if_then_element, if_join_element, if_element->next_in_flow, show_help_rectangles);
@@ -319,7 +324,7 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
         draw_joining_element(for_init_element, for_passdown_element, for_join_element, for_cond_element, show_help_rectangles);
         
         draw_straight_element(for_cond_element, for_join_element, for_split_element, show_help_rectangles);
-        draw_splitting_element(for_passthrough_element, for_body_element, for_split_element, show_help_rectangles);
+        draw_splitting_element(for_passthrough_element, for_body_element, for_split_element, for_cond_element, show_help_rectangles);
         draw_elements(for_body_element, show_help_rectangles);
         // TODO: The previous_in_flow and next_in_flow of the update_element are not correct (previous should be last statement in for-body, next should be?)
         draw_straight_element(for_update_element, for_body_element, 0, show_help_rectangles);

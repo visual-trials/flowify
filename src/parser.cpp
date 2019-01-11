@@ -701,6 +701,25 @@ Node * new_node(Parser * parser)
     return new_node;
 }
 
+String get_source_text_from_ast_node(Parser * parser, Node * node)
+{
+    String source_text = {};
+    
+    if (node)
+    {
+        Tokenizer * tokenizer = parser->tokenizer;
+        
+        Token * tokens = (Token *)tokenizer->tokens.items;
+        Token * start_token = &tokens[node->first_token_index];
+        Token * end_token = &tokens[node->last_token_index];
+        
+        source_text.data = start_token->text.data;
+        source_text.length = end_token->text.data + end_token->text.length - start_token->text.data;
+    }
+    
+    return source_text;
+}
+
 void parse_arguments(Parser * parser, Node * parent_node);
 Node * parse_expression(Parser * parser);
 
