@@ -115,6 +115,8 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
             FlowElement * cond_passthrough_element = new_flow_element(flowifier, 0, FlowElement_PassThrough);
             if_cond_element->first_child = cond_passthrough_element;
             cond_passthrough_element->parent = if_cond_element;
+            
+            // TODO: whould we set first_in_flow and last_in_flow?
         }
         
         FlowElement * if_split_element = new_flow_element(flowifier, if_cond_node, FlowElement_IfSplit); 
@@ -129,6 +131,8 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
             FlowElement * then_passthrough_element = new_flow_element(flowifier, 0, FlowElement_PassThrough);
             if_then_element->first_child = then_passthrough_element;
             then_passthrough_element->parent = if_then_element;
+            if_then_element->first_in_flow = then_passthrough_element;
+            if_then_element->last_in_flow = then_passthrough_element;
         }
         
         FlowElement * if_else_element = new_flow_element(flowifier, if_else_node, FlowElement_IfElse);
@@ -141,6 +145,8 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
             FlowElement * else_passthrough_element = new_flow_element(flowifier, 0, FlowElement_PassThrough);
             if_else_element->first_child = else_passthrough_element;
             else_passthrough_element->parent = if_else_element;
+            if_else_element->first_in_flow = else_passthrough_element;
+            if_else_element->last_in_flow = else_passthrough_element;
         }
         
         FlowElement * if_join_element = new_flow_element(flowifier, 0, FlowElement_IfJoin);
@@ -181,6 +187,8 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
             FlowElement * init_passthrough_element = new_flow_element(flowifier, 0, FlowElement_PassThrough);
             for_init_element->first_child = init_passthrough_element;
             init_passthrough_element->parent = for_init_element;
+            
+            // TODO: whould we set first_in_flow and last_in_flow?
         }
         
         // TODO: to which ast-node does this correpond (if any)?
@@ -198,6 +206,8 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
             FlowElement * cond_passthrough_element = new_flow_element(flowifier, 0, FlowElement_PassThrough);
             for_cond_element->first_child = cond_passthrough_element;
             cond_passthrough_element->parent = for_cond_element;
+            
+            // TODO: whould we set first_in_flow and last_in_flow?
         }
         
         // TODO: to which ast-node does this correpond (if any)?
@@ -213,6 +223,9 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
             FlowElement * body_passthrough_element = new_flow_element(flowifier, 0, FlowElement_PassThrough);
             for_body_element->first_child = body_passthrough_element;
             body_passthrough_element->parent = for_body_element;
+            
+            for_body_element->first_in_flow = body_passthrough_element;
+            for_body_element->last_in_flow = body_passthrough_element;
         }
         
         FlowElement * for_update_element = new_flow_element(flowifier, for_update_node, FlowElement_ForUpdate); 
@@ -227,6 +240,8 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
             FlowElement * update_passthrough_element = new_flow_element(flowifier, 0, FlowElement_PassThrough);
             for_update_element->first_child = update_passthrough_element;
             update_passthrough_element->parent = for_update_element;
+            
+            // TODO: whould we set first_in_flow and last_in_flow?
         }
         
         FlowElement * for_passright_element = new_flow_element(flowifier, 0, FlowElement_PassBack);
@@ -350,6 +365,8 @@ void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
     // Non-functions
     statement_node = parent_node->first_child;
     FlowElement * previous_statement_element = 0;
+    parent_element->first_in_flow = parent_element;
+    parent_element->last_in_flow = parent_element;
     if (statement_node) // There are statements (in the parent)
     {
         do // Loop through all statements (in the parent)
@@ -362,6 +379,11 @@ void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
                 {
                     parent_element->first_child = new_statement_element;
                     new_statement_element->parent = parent_element;  // TODO: only setting parent on first_child?
+                    
+                    // The first element is found, we assume its also the first_in_flow
+                    parent_element->first_in_flow = new_statement_element;
+                    // We have only found one child (yet) so we assume its also the last_in_flow
+                    parent_element->last_in_flow = new_statement_element;
                 }
                 else 
                 {
@@ -370,6 +392,9 @@ void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
                         previous_statement_element->next_sibling = new_statement_element;
                     }
                     new_statement_element->previous_sibling = previous_statement_element;
+                    
+                    // We found a new element and we already have children, so we only set last_in_flow
+                    parent_element->last_in_flow = new_statement_element;
                 }
                 
                 if (previous_statement_element)

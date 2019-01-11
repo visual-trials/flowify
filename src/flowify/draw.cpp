@@ -316,10 +316,10 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element, b32 show_h
         FlowElement * if_join_element = if_else_element->next_sibling;
 
         draw_straight_element(if_cond_element, if_cond_element->previous_in_flow, if_split_element, show_help_rectangles);
-        draw_splitting_element(if_else_element, if_then_element, if_split_element, if_cond_element, show_help_rectangles);
+        draw_splitting_element(if_else_element->first_in_flow, if_then_element->first_in_flow, if_split_element, if_cond_element, show_help_rectangles);
         draw_elements(flowifier, if_then_element, show_help_rectangles);
         draw_elements(flowifier, if_else_element, show_help_rectangles);
-        draw_joining_element(if_else_element, if_then_element, if_join_element, if_element->next_in_flow, show_help_rectangles);
+        draw_joining_element(if_else_element->last_in_flow, if_then_element->last_in_flow, if_join_element, if_element->next_in_flow, show_help_rectangles);
     }
     else if (flow_element->type == FlowElement_For)
     {
@@ -346,10 +346,9 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element, b32 show_h
         
         // FIXME: for some reason this is drawn wrongly! (for_join_element and for_split_element seem too wide)
         draw_straight_element(for_cond_element, for_join_element, for_split_element, show_help_rectangles);
-        draw_splitting_element(for_passthrough_element, for_body_element, for_split_element, for_cond_element, show_help_rectangles);
+        draw_splitting_element(for_passthrough_element, for_body_element->first_in_flow, for_split_element, for_cond_element, show_help_rectangles);
         draw_elements(flowifier, for_body_element, show_help_rectangles);
-        // TODO: The previous_in_flow and next_in_flow of the update_element are not correct (previous should be last statement in for-body, next should be?)
-        draw_straight_element(for_update_element, for_body_element, 0, show_help_rectangles);
+        draw_straight_element(for_update_element, for_body_element->last_in_flow, 0, show_help_rectangles);
         
         // FIXME: we need a get_rect_from_element-function!
         Rect2d update_rect = {};
