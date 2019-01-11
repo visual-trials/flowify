@@ -323,6 +323,7 @@ void draw_elements(FlowElement * flow_element, b32 show_help_rectangles)
         
         draw_joining_element(for_init_element, for_passdown_element, for_join_element, for_cond_element, show_help_rectangles);
         
+        // FIXME: for some reason this is drawn wrongly! (for_join_element and for_split_element seem too wide)
         draw_straight_element(for_cond_element, for_join_element, for_split_element, show_help_rectangles);
         draw_splitting_element(for_passthrough_element, for_body_element, for_split_element, for_cond_element, show_help_rectangles);
         draw_elements(for_body_element, show_help_rectangles);
