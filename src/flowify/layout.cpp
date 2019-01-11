@@ -18,13 +18,22 @@
 
 i32 get_width_based_on_source_text(Flowifier * flowifier, FlowElement * flow_element)
 {
+    Font font = {};
+    font.height = 20;
+    font.family = Font_CourierNew;
+    
+    // FIXME: this is SLOW! We should do this only ONCE and put it in Flowifier!
+    ShortString white_space;
+    copy_char_to_string(' ', &white_space);
+    Size2d white_space_size = get_text_size(&white_space, font);
+    
     // FIXME: get these from flowifier!
-    i32 character_width = 20; // TODO: use a single white space for this! (of the font used)
+    i32 character_width = white_space_size.width; // TODO: use a single white space for this! (of the font used)
     i32 default_element_width = 100;
     
     if (flow_element->source_text.length)
     {
-        return flow_element->source_text.length * character_width;
+        return (4 + flow_element->source_text.length) * character_width; // Note: 2 extra whitespace on each side
     }
     else
     {
