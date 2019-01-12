@@ -25,6 +25,9 @@ struct WorldData
 {
     i32 iteration;
     i32 selected_lane_segment_index;
+    
+    Rect2d movable_rect;
+    
 
     i32 clip_rectangle;
     i32 show_help_rectangles;
@@ -99,8 +102,8 @@ extern "C" {
     {
         WorldData * world = &global_world;
         
-        world->active_page_index = 2;
-        world->nr_of_pages = 5;
+        world->active_page_index = 1;
+        world->nr_of_pages = 6;
         
         world->iteration = 0;
         world->selected_lane_segment_index = 0;
@@ -187,6 +190,34 @@ extern "C" {
         
         i32 line_width = 2;
         i32 bending_radius = 10;
+        
+        if (lane_example_index == -1)
+        {
+            Rect2d static_rect = {};
+            
+            line_width = 4;
+            bending_radius = 20;
+            
+            static_rect.size.width = 150;
+            static_rect.size.height = 100;
+            static_rect.position.x = 200;
+            static_rect.position.y = 100;
+            
+            if (world->movable_rect.size.width == 0)
+            {
+                world->movable_rect.size.width = 120;
+                world->movable_rect.size.height = 50;
+                world->movable_rect.position.x = 200;
+                world->movable_rect.position.y = 250;
+            }
+            
+            draw_lane_segments_for_3_rectangles((Rect2d){-1,-1,-1,-1}, static_rect, world->movable_rect, bending_radius, line_width, line_color, unselected_color, selected_color);
+            
+            draw_rectangle(static_rect.position, static_rect.size, rectangle_color, no_color, 2);
+            draw_rectangle(world->movable_rect.position, world->movable_rect.size, rectangle_color, no_color, 2);
+            
+            
+        }
         
         if (lane_example_index == 0)
         {
@@ -563,21 +594,25 @@ extern "C" {
         }
         else if (world->active_page_index == 1)
         {
-            draw_example_lanes(world, 0);
+            draw_example_lanes(world, -1);
         }
         else if (world->active_page_index == 2)
         {
-            draw_example_lanes(world, 1);
+            draw_example_lanes(world, 0);
         }
         else if (world->active_page_index == 3)
         {
-            draw_example_lanes(world, 2);
+            draw_example_lanes(world, 1);
         }
         else if (world->active_page_index == 4)
         {
-            draw_lanes(world);
+            draw_example_lanes(world, 2);
         }
         else if (world->active_page_index == 5)
+        {
+            draw_lanes(world);
+        }
+        else if (world->active_page_index == 6)
         {
             draw_pixel_borders();
         }
