@@ -130,12 +130,12 @@ extern "C" {
         
         Rect2d available_screen_rect = shrink_rect_by_margins(full_screen_rect, world->screen_margins);
         Rectangle2 title_and_text_rects = split_rect_vertically(available_screen_rect, world->title_height);
-        Rectangle2 horizontal_rects = split_rect_horizontally_fraction(title_and_text_rects.second, world->program_text_fraction_of_screen, world->middle_margin);
-        Rectangle2 dump_and_flowify_rects = split_rect_horizontally_fraction(horizontal_rects.second, world->flowify_dump_fraction_of_screen / (1 - world->program_text_fraction_of_screen), world->middle_margin);
+        Rectangle2 horizontal_rects = split_rect_horizontally_fraction(title_and_text_rects.second, world->flowify_dump_fraction_of_screen, world->middle_margin);
+        Rectangle2 dump_and_flowify_rects = split_rect_horizontally_fraction(horizontal_rects.second, world->program_text_fraction_of_screen / (1 - world->flowify_dump_fraction_of_screen), world->middle_margin);
         
         world->title_rect = title_and_text_rects.first;
-        world->program_text_window.screen_rect = horizontal_rects.first;
-        world->flowify_dump_window.screen_rect = dump_and_flowify_rects.first;
+        world->flowify_dump_window.screen_rect = horizontal_rects.first;
+        world->program_text_window.screen_rect = dump_and_flowify_rects.first;
         // TODO: store rect in flowify-window!
     }
         
@@ -171,8 +171,8 @@ extern "C" {
         world->screen_margins.bottom = 20;
         
         world->middle_margin = 20;
-        world->program_text_fraction_of_screen = 0.35;
-        world->flowify_dump_fraction_of_screen = 0.35;
+        world->flowify_dump_fraction_of_screen = 0.5;
+        world->program_text_fraction_of_screen = 0.5;
         world->title_height = 30;
         
         world->mouse_dragging = false;
@@ -337,7 +337,8 @@ extern "C" {
         
         Pos2d absolute_position;
         // FIXME: hack!
-        absolute_position.x = input->screen.width - root_element->size.width - 100 + world->flowify_horizontal_offset; 
+        // Aligned right: absolute_position.x = input->screen.width - root_element->size.width - 100 + world->flowify_horizontal_offset; 
+        absolute_position.x = 100 + world->flowify_horizontal_offset; 
         absolute_position.y = 50 + world->flowify_vertical_offset; 
         absolute_layout_elements(root_element, absolute_position);
         
@@ -401,7 +402,7 @@ extern "C" {
         }
         
         draw_scrollable_text(scrollable_program_text);
-        draw_scrollable_text(scrollable_flowify_dump);
+        // Turned off for the moment: draw_scrollable_text(scrollable_flowify_dump);
         
         draw_and_update_button_menu(world);
 
