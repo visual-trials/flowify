@@ -474,6 +474,7 @@ LaneSegment3 get_3_lane_segments_from_3_rectangles(Rect2d top_rect,
     // TODO: is there a better way of saying that the top_rect is invalid?
     if (top_rect.size.height >= 0)
     {
+        // FIXME: shouldn't this be false?
         b32 move_down = true;
         lines_between_top_and_middle_rects = widen_horizontal_lines(lines_between_top_and_middle_rects, bending_radius, move_down);
         lane_segments.has_valid_top_segment = true;
@@ -486,6 +487,7 @@ LaneSegment3 get_3_lane_segments_from_3_rectangles(Rect2d top_rect,
     // TODO: is there a better way of saying that the bottom_rect is invalid?
     if (bottom_rect.size.height >= 0)
     {
+        // FIXME: shouldn't this be true?
         b32 move_down = false;
         lines_between_middle_and_bottom_rects = widen_horizontal_lines(lines_between_middle_and_bottom_rects, bending_radius, move_down);
         lane_segments.has_valid_bottom_segment = true;

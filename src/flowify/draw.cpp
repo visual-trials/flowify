@@ -41,6 +41,7 @@ void draw_lane_segments_for_3_rectangles(Rect2d top_rect, Rect2d middle_rect, Re
 
     if (lane_segments.has_valid_bottom_segment)
     {
+        
         lane_segment = lane_segments.bottom;
         draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
                           lane_segment.left_bottom, lane_segment.right_bottom, 
@@ -344,10 +345,12 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element, b32 show_h
         
         draw_joining_element(for_init_element, for_passdown_element, for_join_element, for_cond_element, show_help_rectangles);
         
-        // FIXME: for some reason this is drawn wrongly! (for_join_element and for_split_element seem too wide)
         draw_straight_element(for_cond_element, for_join_element, for_split_element, show_help_rectangles);
+        
         draw_splitting_element(for_passthrough_element, for_body_element->first_in_flow, for_split_element, for_cond_element, show_help_rectangles);
+        
         draw_elements(flowifier, for_body_element, show_help_rectangles);
+        
         draw_straight_element(for_update_element, for_body_element->last_in_flow, 0, show_help_rectangles);
         
         // FIXME: we need a get_rect_from_element-function!
