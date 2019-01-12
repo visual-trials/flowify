@@ -59,7 +59,7 @@ struct WorldData
     // TODO: Window flowify_window;
     i32 flowify_vertical_offset;
     i32 flowify_horizontal_offset;
-    b32 dragging; // FIXME: ugly HACK!
+    b32 mouse_dragging; // FIXME: ugly HACK!
     Pos2d last_mouse_position;
     
     b32 show_help_rectangles;
@@ -169,7 +169,7 @@ extern "C" {
         world->flowify_dump_fraction_of_screen = 0.35;
         world->title_height = 30;
         
-        world->dragging = false;
+        world->mouse_dragging = false;
         world->last_mouse_position.x = 0;
         world->last_mouse_position.y = 0;
         
@@ -285,22 +285,20 @@ extern "C" {
         Pos2d delta_position = {};
         if (mouse->left_button_is_down)
         {
-            world->dragging = true;
-            if (world->last_mouse_position.x && world->last_mouse_position.y) // FIXME: ugly!
+            if (world->mouse_dragging)
             {
                 delta_position.x = mouse->position.x - world->last_mouse_position.x;
                 delta_position.y = mouse->position.y - world->last_mouse_position.y;
             }
-            world->last_mouse_position = mouse->position;
-            
             world->flowify_horizontal_offset += delta_position.x;
             world->flowify_vertical_offset += delta_position.y;
+            
+            world->last_mouse_position = mouse->position;
+            world->mouse_dragging = true;
         }
         else
         {
-            world->dragging = false;
-            world->last_mouse_position.x = 0;
-            world->last_mouse_position.y = 0;
+            world->mouse_dragging = false;
         }
         
         
