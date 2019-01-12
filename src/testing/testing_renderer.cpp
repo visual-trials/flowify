@@ -216,6 +216,7 @@ extern "C" {
             draw_rectangle(static_rect.position, static_rect.size, rectangle_color, no_color, 2);
             draw_rectangle(world->movable_rect.position, world->movable_rect.size, rectangle_color, no_color, 2);
             
+            // TODO: make the movable_rect draggable by mouse-click+drag (and sizeable by mouse-scrolling)
             
         }
         
