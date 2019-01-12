@@ -187,17 +187,15 @@ HorLine2 widen_horizontal_lines(HorLine2 horizontal_lines, i32 bending_radius, b
 {
     i32 vertical_gap_between_lines = horizontal_lines.bottom_line.position.y - horizontal_lines.top_line.position.y;
     
-    i32 gap_needed = bending_radius + bending_radius + bending_radius + bending_radius;
+    i32 gap_needed = bending_radius + bending_radius;
     if (vertical_gap_between_lines < gap_needed)
     {
         i32 extra_vertical_gap_needed = gap_needed - vertical_gap_between_lines;
-        i32 extra_vertical_gap_needed_top_line = (i32)((f32)extra_vertical_gap_needed / (f32)2);
-        i32 extra_vertical_gap_needed_bottom_line = extra_vertical_gap_needed - extra_vertical_gap_needed_top_line;
         
         if (move_down)
         {
             // We are moving the bottom line downwards. (btw this means our rect is downwards).
-            horizontal_lines.bottom_line.position.y += extra_vertical_gap_needed_bottom_line;
+            horizontal_lines.bottom_line.position.y += extra_vertical_gap_needed;
             
             // This also means we are *not* moving the top line upwards, so we have to move it to the side(s)
             if (horizontal_lines.bottom_line.position.x + horizontal_lines.bottom_line.width > horizontal_lines.top_line.position.x + horizontal_lines.top_line.width)
@@ -218,7 +216,7 @@ HorLine2 widen_horizontal_lines(HorLine2 horizontal_lines, i32 bending_radius, b
         else
         {
             // We are moving the top line upwards. (btw this means our rect is upwards).
-            horizontal_lines.top_line.position.y -= extra_vertical_gap_needed_top_line;
+            horizontal_lines.top_line.position.y -= extra_vertical_gap_needed;
             
             // This also means we are *not* moving the bottom line downwards, so we have to move it to the side(s)
             if (horizontal_lines.top_line.position.x + horizontal_lines.top_line.width > horizontal_lines.bottom_line.position.x + horizontal_lines.bottom_line.width)

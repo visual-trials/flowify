@@ -205,9 +205,9 @@ extern "C" {
             
             if (world->movable_rect.size.width == 0)
             {
-                world->movable_rect.size.width = 120;
+                world->movable_rect.size.width = 170;
                 world->movable_rect.size.height = 50;
-                world->movable_rect.position.x = 200;
+                world->movable_rect.position.x = 150;
                 world->movable_rect.position.y = 250;
             }
             
