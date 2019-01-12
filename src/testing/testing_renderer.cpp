@@ -212,6 +212,7 @@ extern "C" {
             }
             
             draw_lane_segments_for_3_rectangles((Rect2d){-1,-1,-1,-1}, static_rect, world->movable_rect, bending_radius, line_width, line_color, unselected_color, selected_color);
+            // FIXME: we should probably pass static_rect here, but signify it should NOT draw above world->movable_rect!
             draw_lane_segments_for_3_rectangles(static_rect, world->movable_rect, (Rect2d){-1,-1,-1,-1}, bending_radius, line_width, line_color, unselected_color, selected_color);
             
             draw_rectangle(static_rect.position, static_rect.size, rectangle_color, no_color, 2);

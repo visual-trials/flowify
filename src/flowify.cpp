@@ -58,6 +58,9 @@ struct WorldData
     
     // TODO: Window flowify_window;
     i32 flowify_vertical_offset;
+    i32 flowify_horizontal_offset;
+    b32 dragging; // FIXME: ugly HACK!
+    Pos2d last_mouse_position;
     
     b32 show_help_rectangles;
     
@@ -139,6 +142,7 @@ extern "C" {
         world->selected_element_index = -1;  // TODO: there is probably a nicer way of saying this value is invalid
         
         world->flowify_vertical_offset = 0;
+        world->flowify_horizontal_offset = 0;
         
         world->program_texts[0] = simple_assign_program_text;
         world->program_texts[1] = i_plus_plus_program_text;
@@ -164,6 +168,10 @@ extern "C" {
         world->program_text_fraction_of_screen = 0.35;
         world->flowify_dump_fraction_of_screen = 0.35;
         world->title_height = 30;
+        
+        world->dragging = false;
+        world->last_mouse_position.x = 0;
+        world->last_mouse_position.y = 0;
         
         update_window_dimensions(world, &input->screen);
         
@@ -273,9 +281,32 @@ extern "C" {
             }
         }
         
+        // FIXME: ugly HACK!
+        Pos2d delta_position = {};
+        if (mouse->left_button_is_down)
+        {
+            world->dragging = true;
+            if (world->last_mouse_position.x && world->last_mouse_position.y) // FIXME: ugly!
+            {
+                delta_position.x = mouse->position.x - world->last_mouse_position.x;
+                delta_position.y = mouse->position.y - world->last_mouse_position.y;
+            }
+            world->last_mouse_position = mouse->position;
+            
+            world->flowify_horizontal_offset += delta_position.x;
+            world->flowify_vertical_offset += delta_position.y;
+        }
+        else
+        {
+            world->dragging = false;
+            world->last_mouse_position.x = 0;
+            world->last_mouse_position.y = 0;
+        }
+        
+        
         Pos2d absolute_position;
         // FIXME: hack!
-        absolute_position.x = input->screen.width - root_element->size.width - 100; 
+        absolute_position.x = input->screen.width - root_element->size.width - 100 + world->flowify_horizontal_offset; 
         absolute_position.y = 50 + world->flowify_vertical_offset; 
         absolute_layout_elements(root_element, absolute_position);
         
