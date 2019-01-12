@@ -59,8 +59,14 @@ struct WorldData
     // TODO: Window flowify_window;
     i32 flowify_vertical_offset;
     i32 flowify_horizontal_offset;
-    b32 mouse_dragging; // FIXME: ugly HACK!
+    
+    // FIXME: ugly HACK!
+    b32 mouse_dragging;
     Pos2d last_mouse_position;
+    
+    // FIXME: ugly HACK!
+    b32 touch_dragging;
+    Pos2d last_touch_position;
     
     b32 show_help_rectangles;
     
@@ -173,6 +179,10 @@ extern "C" {
         world->last_mouse_position.x = 0;
         world->last_mouse_position.y = 0;
         
+        world->touch_dragging = false;
+        world->last_touch_position.x = 0;
+        world->last_touch_position.y = 0;
+        
         update_window_dimensions(world, &input->screen);
         
         load_program_text(world->program_texts[world->current_program_text_index], world);
@@ -266,6 +276,7 @@ extern "C" {
         FlowElement * root_element = world->root_element;
         Input * input = &global_input;
         MouseInput * mouse = &input->mouse;
+        TouchesInput * touch = &input->touch;
         
         if (mouse->wheel_has_moved)
         {
@@ -282,16 +293,16 @@ extern "C" {
         }
         
         // FIXME: ugly HACK!
-        Pos2d delta_position = {};
+        Pos2d mouse_delta_position = {};
         if (mouse->left_button_is_down)
         {
             if (world->mouse_dragging)
             {
-                delta_position.x = mouse->position.x - world->last_mouse_position.x;
-                delta_position.y = mouse->position.y - world->last_mouse_position.y;
+                mouse_delta_position.x = mouse->position.x - world->last_mouse_position.x;
+                mouse_delta_position.y = mouse->position.y - world->last_mouse_position.y;
             }
-            world->flowify_horizontal_offset += delta_position.x;
-            world->flowify_vertical_offset += delta_position.y;
+            world->flowify_horizontal_offset += mouse_delta_position.x;
+            world->flowify_vertical_offset += mouse_delta_position.y;
             
             world->last_mouse_position = mouse->position;
             world->mouse_dragging = true;
@@ -300,6 +311,28 @@ extern "C" {
         {
             world->mouse_dragging = false;
         }
+        
+        // FIXME: ugly HACK!
+        Pos2d touch_delta_position = {};
+        if (touch->touch_count == 1)
+        {
+            if (world->touch_dragging)
+            {
+                touch_delta_position.x = touch->touches[0].position.x - world->last_touch_position.x;
+                touch_delta_position.y = touch->touches[0].position.y - world->last_touch_position.y;
+            }
+            world->flowify_horizontal_offset += touch_delta_position.x;
+            world->flowify_vertical_offset += touch_delta_position.y;
+            
+            // FIXME: we are not checking if the touch was actually ended!
+            world->last_touch_position = touch->touches[0].position;
+            world->touch_dragging = true;
+        }
+        else
+        {
+            world->touch_dragging = false;
+        }
+        
         
         
         Pos2d absolute_position;
