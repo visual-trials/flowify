@@ -208,10 +208,11 @@ extern "C" {
                 world->movable_rect.size.width = 170;
                 world->movable_rect.size.height = 50;
                 world->movable_rect.position.x = 150;
-                world->movable_rect.position.y = 250;
+                world->movable_rect.position.y = 220;
             }
             
             draw_lane_segments_for_3_rectangles((Rect2d){-1,-1,-1,-1}, static_rect, world->movable_rect, bending_radius, line_width, line_color, unselected_color, selected_color);
+            draw_lane_segments_for_3_rectangles(static_rect, world->movable_rect, (Rect2d){-1,-1,-1,-1}, bending_radius, line_width, line_color, unselected_color, selected_color);
             
             draw_rectangle(static_rect.position, static_rect.size, rectangle_color, no_color, 2);
             draw_rectangle(world->movable_rect.position, world->movable_rect.size, rectangle_color, no_color, 2);
