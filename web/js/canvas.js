@@ -302,7 +302,7 @@ Flowify.canvas = function () {
                         ctx.arcTo(leftBottomX, leftMiddleY, leftBottomX, leftMiddleY + radius, radius)
                         ctx.lineTo(leftBottomX, bottomY)
                     }
-                    if (leftBottomX > leftTopX) {
+                    else if (leftBottomX > leftTopX) {
                         // bottom is to the right of the top
                         ctx.arcTo(leftTopX, leftMiddleY, leftTopX + radius, leftMiddleY, radius)
                         ctx.arcTo(leftBottomX, leftMiddleY, leftBottomX, leftMiddleY + radius, radius)
@@ -321,7 +321,7 @@ Flowify.canvas = function () {
                         ctx.arcTo(rightTopX, rightMiddleY, rightTopX, rightMiddleY - radius, radius)
                         ctx.lineTo(rightTopX, topY)
                     }
-                    if (rightBottomX > rightTopX) {
+                    else if (rightBottomX > rightTopX) {
                         // bottom is to the right of the top
                         ctx.arcTo(rightBottomX, rightMiddleY, rightBottomX - radius, rightMiddleY, radius)
                         ctx.arcTo(rightTopX, rightMiddleY, rightTopX, rightMiddleY - radius, radius)
@@ -348,7 +348,7 @@ Flowify.canvas = function () {
                         ctx.arcTo(leftBottomX, leftMiddleY, leftBottomX, leftMiddleY + radius, radius)
                         ctx.lineTo(leftBottomX, bottomY)
                     }
-                    if (leftBottomX > leftTopX) {
+                    else if (leftBottomX > leftTopX) {
                         // bottom is to the right of the top
                         ctx.arcTo(leftTopX, leftMiddleY, leftTopX + radius, leftMiddleY, radius)
                         ctx.arcTo(leftBottomX, leftMiddleY, leftBottomX, leftMiddleY + radius, radius)
@@ -372,7 +372,7 @@ Flowify.canvas = function () {
                         ctx.arcTo(rightBottomX, rightMiddleY, rightBottomX, rightMiddleY + radius, radius)
                         ctx.lineTo(rightBottomX, bottomY)
                     }
-                    if (rightBottomX > rightTopX) {
+                    else if (rightBottomX > rightTopX) {
                         // bottom is to the right of the top
                         ctx.arcTo(rightTopX, rightMiddleY, rightTopX + radius, rightMiddleY, radius)
                         ctx.arcTo(rightBottomX, rightMiddleY, rightBottomX, rightMiddleY + radius, radius)
