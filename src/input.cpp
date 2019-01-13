@@ -18,8 +18,7 @@
 
 struct MouseInput
 {
-    // FIXME: remove the term 'mouse' here, it's implicit!
-    
+    // FIXME: the button keeps being down, if you bring it up outside the screen!
     b32 left_button_is_down;
     b32 left_button_has_gone_up;
     b32 left_button_has_gone_down;

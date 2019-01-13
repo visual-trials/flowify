@@ -359,13 +359,16 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element, b32 show_h
     }
     else if (flow_element->type == FlowElement_FunctionCall)
     {
+        /*
         // Colors
         Color4 fill_color = flowifier->unselected_color;
         if (flow_element->is_selected)
         {
             fill_color = flowifier->selected_color;
         }
+        */
         
+        /*
         // Positions and sizes
         Rect2d top_rect = {-1,-1,-1,-1};
         Rect2d middle_rect = {-1,-1,-1,-1};
@@ -375,6 +378,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element, b32 show_h
         Size2d size = flow_element->size;
         middle_rect.position = position;
         middle_rect.size = size;
+        
         
         if (flow_element->previous_in_flow)
         {
@@ -390,10 +394,20 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element, b32 show_h
         draw_lane_segments_for_3_rectangles(top_rect, middle_rect, bottom_rect, 
                                             flowifier->bending_radius, flowifier->line_width, 
                                             flowifier->line_color, fill_color, fill_color);
+        */
+        
+        Pos2d position = flow_element->absolute_position;
+        
+        if (flow_element->type == FlowElement_FunctionCall)
+        {
+            // TODO: determine fill color depending on odd/even depth
+            draw_rounded_rectangle(position, flow_element->size, flowifier->bending_radius, 
+                                   flowifier->function_line_color, flowifier->function_even_fill_color, flowifier->function_line_width);
+        }
         
         if (show_help_rectangles)
         {
-            draw_rectangle(middle_rect.position, middle_rect.size, flowifier->rectangle_color, flowifier->rectangle_fill, 2);
+            draw_rectangle(position, flow_element->size, flowifier->rectangle_color, flowifier->rectangle_fill, 2);
         }
         
         // Drawing the function itself
@@ -421,8 +435,9 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element, b32 show_h
         
         if (flow_element->type == FlowElement_Root)
         {
-            draw_rounded_rectangle(position, flow_element->size, 20, 
-                                   flowifier->function_line_color, flowifier->function_fill_color, flowifier->function_line_width);
+            // TODO: determine fill color depending on odd/even depth
+            draw_rounded_rectangle(position, flow_element->size, flowifier->bending_radius, 
+                                   flowifier->function_line_color, flowifier->function_odd_fill_color, flowifier->function_line_width);
         }
                                
         FlowElement * child_element = flow_element->first_child;
