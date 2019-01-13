@@ -270,11 +270,11 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
     {
         FlowElement * function_element = flow_element->first_child;
         
-        i32 top_margin = 20;
-        i32 bottom_margin = 20;
+        i32 top_margin = 20; // FIXME: get from Flowifier!
+        i32 bottom_margin = 20; // FIXME: get from Flowifier!
         
-        i32 left_margin = 20;
-        i32 right_margin = 20;
+        i32 left_margin = 20; // FIXME: get from Flowifier!
+        i32 right_margin = 20; // FIXME: get from Flowifier!
             
         layout_elements(flowifier, function_element);
         
@@ -313,11 +313,11 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         if (flow_element->type == FlowElement_Root)
         {
-            top_margin = 20;
-            bottom_margin = 20;
+            top_margin = 20; // FIXME: get from Flowifier!
+            bottom_margin = 20; // FIXME: get from Flowifier!
             
-            left_margin = 20;
-            right_margin = 20;
+            left_margin = 20; // FIXME: get from Flowifier!
+            right_margin = 20; // FIXME: get from Flowifier!
         }
         
         i32 summed_children_height = 0;
