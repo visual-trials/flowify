@@ -191,8 +191,8 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     flowifier->rectangle_color  = (Color4){255, 0, 0, 255};
     flowifier->rectangle_fill   = (Color4){255, 0, 0, 50};
     flowifier->function_line_color = (Color4){ 200, 200, 200, 255};
-    flowifier->function_even_fill_color = (Color4){ 235, 235, 235, 255};
-    flowifier->function_odd_fill_color = (Color4){ 245, 245, 245, 255};
+    flowifier->function_even_fill_color = (Color4){ 235, 235, 235, 100}; // FIXME: remove alpha
+    flowifier->function_odd_fill_color = (Color4){ 245, 245, 245, 100}; // FIXME: remove alpha
     
     flowifier->font.height = 20;
     flowifier->font.family = Font_CourierNew;

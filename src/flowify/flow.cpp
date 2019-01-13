@@ -37,6 +37,9 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
             {
                 String identifier = expression_node->first_child->next_sibling->identifier;
                 
+                // FIXME: should we not CLONE the function element, since this INSTANCE will be places somewhere else
+                //        and connected to (its previous_in_flow and next_in_flow will be) different compared
+                //        to another call of the same function!
                 FlowElement * function_element = get_function_element(flowifier, identifier);
                 
                 if (function_element)
@@ -44,15 +47,20 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
                     new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_FunctionCall);
                     new_expression_element->first_child = function_element;
                     // TODO: set parent?
+                    new_expression_element->first_in_flow = function_element->first_in_flow;
+                    new_expression_element->last_in_flow = function_element->last_in_flow;
                 }
                 else {
                     // log("Unknown function:");
                     // log(identifier);
                     new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_FunctionCall);
                     
-                    FlowElement * hidden_element = new_flow_element(flowifier, expression_node, FlowElement_Hidden);
+                    // TODO: is it corrent that the hidden element has no corresponding ast-node?
+                    FlowElement * hidden_element = new_flow_element(flowifier, 0, FlowElement_Hidden);
                     new_expression_element->first_child = hidden_element;
                     // TODO: set parent?
+                    new_expression_element->first_in_flow = hidden_element;
+                    new_expression_element->last_in_flow = hidden_element;
                 }
 
             }
@@ -74,6 +82,16 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
         new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_Assignment);
     }
     
+    // FIXME: HACK. We want to do this properly for each expression type
+    if (!new_expression_element->first_in_flow)
+    {
+        new_expression_element->first_in_flow = new_expression_element;
+    }
+    if (!new_expression_element->last_in_flow)
+    {
+        new_expression_element->last_in_flow = new_expression_element;
+    }
+    
     return new_expression_element;
 }
 
@@ -89,8 +107,8 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         
         // TODO: should we wrap the expression element inside a statement element?
         new_statement_element = new_expression_element;
-        new_statement_element->first_in_flow = new_expression_element;
-        new_statement_element->last_in_flow = new_expression_element;
+        new_statement_element->first_in_flow = new_expression_element->first_in_flow;
+        new_statement_element->last_in_flow = new_expression_element->last_in_flow;
         
     }
     else if (statement_node->type == Node_Stmt_If)
@@ -288,8 +306,8 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         // TODO: we might want to say that the first_in_flow of a function is actually the first statement element in the function?
         // Note that flowify_statements(...) (see above) already set first_in_flow and last_in_flow (to the first and last statement 
         // in the body resp.) of the function_body_element.
-        function_element->first_in_flow = function_element;
-        function_element->last_in_flow = function_element;
+        function_element->first_in_flow = function_body_element->first_in_flow;
+        function_element->last_in_flow = function_body_element->last_in_flow;
         
         new_statement_element = function_element;
     }

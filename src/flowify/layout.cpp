@@ -270,11 +270,11 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
     {
         FlowElement * function_element = flow_element->first_child;
         
-        i32 top_margin = 20; // FIXME: get from Flowifier!
-        i32 bottom_margin = 20; // FIXME: get from Flowifier!
+        i32 top_margin = bending_radius;
+        i32 bottom_margin = bending_radius;
         
-        i32 left_margin = 20; // FIXME: get from Flowifier!
-        i32 right_margin = 20; // FIXME: get from Flowifier!
+        i32 left_margin = bending_radius;
+        i32 right_margin = bending_radius;
             
         layout_elements(flowifier, function_element);
         
@@ -367,6 +367,7 @@ void absolute_layout_elements(FlowElement * flow_element, Pos2d absolute_parent_
 {
     if (flow_element->type == FlowElement_PassThrough || 
         flow_element->type == FlowElement_PassBack || 
+        flow_element->type == FlowElement_Hidden || 
         flow_element->type == FlowElement_Assignment || 
         flow_element->type == FlowElement_BinaryOperator ||
         flow_element->type == FlowElement_Return)
