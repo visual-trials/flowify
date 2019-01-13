@@ -162,11 +162,18 @@ struct Flowifier
     
     // Font
     Font font;
+    i32 character_width;
         
     // Layout, sizes
     i32 line_width;
     i32 bending_radius;
     i32 function_line_width;
+    i32 if_middle_margin;
+    i32 for_middle_margin;
+    i32 for_right_margin;
+    
+    i32 default_element_width;
+    i32 default_element_height;
 };
 
 void init_flowifier(Flowifier * flowifier, Parser * parser)
@@ -187,10 +194,21 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     
     flowifier->font.height = 20;
     flowifier->font.family = Font_CourierNew;
-        
+    
+    ShortString white_space;
+    copy_char_to_string(' ', &white_space);
+    Size2d white_space_size = get_text_size(&white_space, flowifier->font);
+    flowifier->character_width = white_space_size.width;
+    
     flowifier->line_width = 4;
     flowifier->bending_radius = 20;
     flowifier->function_line_width = 2;
+    flowifier->if_middle_margin = 80;
+    flowifier->for_middle_margin = 80;
+    flowifier->for_right_margin = 100;
+    
+    flowifier->default_element_width = 100;
+    flowifier->default_element_height = 80;
     
     init_dynamic_array(&flowifier->flow_elements, sizeof(FlowElement), (Color4){0,255,255,255}, cstring_to_string("Flowifier"));
 }

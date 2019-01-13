@@ -18,60 +18,51 @@
 
 i32 get_width_based_on_source_text(Flowifier * flowifier, FlowElement * flow_element)
 {
-    Font font = {};
-    font.height = 20;
-    font.family = Font_CourierNew;
-    
-    // FIXME: this is SLOW! We should do this only ONCE and put it in Flowifier!
-    ShortString white_space;
-    copy_char_to_string(' ', &white_space);
-    Size2d white_space_size = get_text_size(&white_space, font);
-    
-    // FIXME: get these from flowifier!
-    i32 character_width = white_space_size.width; // TODO: use a single white space for this! (of the font used)
-    i32 default_element_width = 100;
-    
     if (flow_element->source_text.length)
     {
-        return (4 + flow_element->source_text.length) * character_width; // Note: 2 extra whitespace on each side
+        return (4 + flow_element->source_text.length) * flowifier->character_width; // Note: 2 extra whitespace on each side
     }
     else
     {
-        return default_element_width;
+        return flowifier->default_element_width;
     }
 }
 
 void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
 {
-    // FIXME: we should get this from Flowifier!
-    i32 bending_radius = 20;
+    i32 bending_radius = flowifier->bending_radius;
+    i32 default_element_width = flowifier->default_element_width;
+    i32 default_element_height = flowifier->default_element_height;
+    i32 if_middle_margin = flowifier->if_middle_margin;
+    i32 for_middle_margin = flowifier->for_middle_margin;
+    i32 for_right_margin = flowifier->for_right_margin;
     
     if (flow_element->type == FlowElement_Hidden)
     {
-        flow_element->size.width = 100;
-        flow_element->size.height = 40;
+        flow_element->size.width = default_element_width;
+        flow_element->size.height = default_element_height / 2;
     }
-    else if (flow_element->type == FlowElement_PassThrough)
+    else if (flow_element->type == FlowElement_PassThrough) // TODO: is this ever used?
     {
-        flow_element->size.width = 40;
-        flow_element->size.height = 80;
+        flow_element->size.width = default_element_width / 2;
+        flow_element->size.height = default_element_height;
     }
     else if (flow_element->type == FlowElement_Assignment)
     {
         flow_element->size.width = get_width_based_on_source_text(flowifier, flow_element);
-        flow_element->size.height = 80;
+        flow_element->size.height = default_element_height;
         flow_element->is_selectable = true;
     }
     else if (flow_element->type == FlowElement_BinaryOperator)
     {
         flow_element->size.width = get_width_based_on_source_text(flowifier, flow_element);
-        flow_element->size.height = 80;
+        flow_element->size.height = default_element_height;
         flow_element->is_selectable = true;
     }
     else if (flow_element->type == FlowElement_Return)
     {
         flow_element->size.width = get_width_based_on_source_text(flowifier, flow_element);
-        flow_element->size.height = 40;
+        flow_element->size.height = default_element_height / 2;
         flow_element->is_selectable = true;
     }
     else if (flow_element->type == FlowElement_If)
@@ -91,8 +82,9 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
             then_else_height = if_else_element->size.height;
         }
         
-        i32 middle_margin = 80;
-        i32 vertical_margin = 150;
+        // FIXME: we should compute this based on the max width of: the splitter, if-then and if-else (+ several bending radius)
+        //        note that the top and bottom vertical margin could be different!
+        i32 vertical_margin = 150; 
 
         Pos2d start_position = {0,0};
         
@@ -100,21 +92,21 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         if_cond_element->position = current_position;
         if_cond_element->size.width = get_width_based_on_source_text(flowifier, if_cond_element);
-        if_cond_element->size.height = 80;
+        if_cond_element->size.height = default_element_height;
         if_cond_element->is_selectable = true;
         
         current_position.y += if_cond_element->size.height;
         
         if_split_element->position = current_position;
         if_split_element->size.height = 2 * bending_radius;
-        if_split_element->size.width = 100; // if_then_element->size.width + middle_margin + if_else_element->size.width;
+        if_split_element->size.width = default_element_width;
         
         current_position.y += if_split_element->size.height + vertical_margin;
         
         Pos2d current_position_right = current_position;
         Pos2d current_position_left = current_position;
         
-        current_position_right.x += if_else_element->size.width + middle_margin;
+        current_position_right.x += if_else_element->size.width + if_middle_margin;
         
         if_else_element->position = current_position_left;
         
@@ -123,7 +115,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         current_position.y += then_else_height + vertical_margin;
         
         if_join_element->position = current_position;
-        if_join_element->size.width = 100; //if_then_element->size.width + middle_margin + if_else_element->size.width;
+        if_join_element->size.width = default_element_width;
         if_join_element->size.height = 2 * bending_radius;
         
         current_position.y += if_join_element->size.height;
@@ -154,30 +146,29 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         // TODO: we should layout for_init to get its (proper) width and height
         for_init_element->size.width = get_width_based_on_source_text(flowifier, for_init_element);
-        for_init_element->size.height = 80;
+        for_init_element->size.height = default_element_height;
         for_init_element->is_selectable = true;
         
         // TODO: we should layout for_cond to get its (proper) width and height
         for_cond_element->size.width = get_width_based_on_source_text(flowifier, for_cond_element);
-        for_cond_element->size.height = 80;
+        for_cond_element->size.height = default_element_height;
         for_cond_element->is_selectable = true;
         
         // TODO: we should layout for_update to get its (proper) width and height
         for_update_element->size.width = get_width_based_on_source_text(flowifier, for_update_element);
-        for_update_element->size.height = 80;
+        for_update_element->size.height = default_element_height;
         for_update_element->is_selectable = true;
         
         i32 for_body_height = for_body_element->size.height;
         
-        i32 passback_width = 50; // TODO: should actually depend on the number of data lines going through it
-        i32 passback_height = 0;
+        i32 for_passback_width = 50; // TODO: should actually depend on the number of data lines going through it
+        i32 for_passback_height = 0;
         
-        i32 passthrough_width = 50;
+        i32 for_passthrough_width = 50; // TODO: should actually depend on the number of data lines going through it
         
-        i32 width_center_elements = 100; // for_start, for_join, for_split, for_done
+        i32 width_center_elements = default_element_width; // for_start, for_join, for_split, for_done
         i32 middle_margin = 4 * bending_radius;
-        i32 right_margin = 100;
-        i32 vertical_margin = 50;
+        i32 vertical_margin = 50; // FIXME: need to calculate this properly!
 
         Pos2d start_position = {0,0};
 
@@ -187,7 +178,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         current_position.x += for_init_element->size.width + 2 * bending_radius - width_center_elements / 2;
         // TODO: we are creating some space at the top here. But we probably want the entire For-element to be move to the left, so we don't need this vertical space.
-        current_position.y += 100;
+        current_position.y += 100;  // FIXME: need to calculate this properly!
 
         for_start_element->position = current_position;
         for_start_element->size.height = 2 * bending_radius;
@@ -198,7 +189,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         for_init_element->position = current_position;
         
-        current_position.y += for_init_element->size.height + passback_width + bending_radius + bending_radius + bending_radius;
+        current_position.y += for_init_element->size.height + for_passback_width + bending_radius + bending_radius + bending_radius;
         current_position.x += for_init_element->size.width + 2 * bending_radius - width_center_elements / 2;
         
         for_join_element->position = current_position;
@@ -217,12 +208,12 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         current_position.y += for_split_element->size.height + vertical_margin + vertical_margin + vertical_margin;
         
-        current_position.x -= passthrough_width + 2 * bending_radius - width_center_elements / 2;
+        current_position.x -= for_passthrough_width + 2 * bending_radius - width_center_elements / 2;
         
         Pos2d current_position_right = current_position;
         Pos2d current_position_left = current_position;
 
-        current_position_right.x += passthrough_width + middle_margin;
+        current_position_right.x += for_passthrough_width + middle_margin;
         for_body_element->position = current_position_right;
         
         current_position_right.y += for_body_element->size.height;
@@ -232,36 +223,36 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         current_position_right.y += for_update_element->size.height + vertical_margin;
         
         for_passright_element->position.y = current_position_right.y;
-        for_passright_element->position.x = current_position_right.x + for_body_element->size.width + right_margin / 2; // TODO: use bending radius here?
-        for_passright_element->size.height = passback_width;
-        for_passright_element->size.width = passback_height;
+        for_passright_element->position.x = current_position_right.x + for_body_element->size.width + for_right_margin / 2; // TODO: use bending radius here?
+        for_passright_element->size.height = for_passback_width;
+        for_passright_element->size.width = for_passback_height;
         
         current_position_right.y += for_passright_element->size.height + vertical_margin;
         
         for_passup_element->position.y = for_split_element->position.y;
-        for_passup_element->position.x = current_position_right.x + for_body_element->size.width + right_margin;
-        for_passup_element->size.height = passback_height;
-        for_passup_element->size.width = passback_width;
+        for_passup_element->position.x = current_position_right.x + for_body_element->size.width + for_right_margin;
+        for_passup_element->size.height = for_passback_height;
+        for_passup_element->size.width = for_passback_width;
         
-        for_passleft_element->position.y = for_init_element->position.y + for_init_element->size.height - passback_width - passback_height - bending_radius;
-        for_passleft_element->position.x = current_position_right.x + for_body_element->size.width + right_margin / 2; // TODO: use bending radius here?
-        for_passleft_element->size.height = passback_width;
-        for_passleft_element->size.width = passback_height;
+        for_passleft_element->position.y = for_init_element->position.y + for_init_element->size.height - for_passback_width - for_passback_height - bending_radius;
+        for_passleft_element->position.x = current_position_right.x + for_body_element->size.width + for_right_margin / 2; // TODO: use bending radius here?
+        for_passleft_element->size.height = for_passback_width;
+        for_passleft_element->size.width = for_passback_height;
         
-        for_passdown_element->position.y = for_init_element->position.y + for_init_element->size.height - passback_height;
-        for_passdown_element->position.x = for_init_element->position.x + for_init_element->size.width + middle_margin;
-        for_passdown_element->size.height = passback_height;
-        for_passdown_element->size.width = passback_width;
+        for_passdown_element->position.y = for_init_element->position.y + for_init_element->size.height - for_passback_height;
+        for_passdown_element->position.x = for_init_element->position.x + for_init_element->size.width + for_middle_margin;
+        for_passdown_element->size.height = for_passback_height;
+        for_passdown_element->size.width = for_passback_width;
         
         // FIXME: we are assuming the body + update is always vertically larger than the for_passthrough_element
         current_position_left.y = current_position_right.y;
         
         for_passthrough_element->position = current_position_left;
-        for_passthrough_element->size.height = 20;
-        for_passthrough_element->size.width = passthrough_width;
+        for_passthrough_element->size.height = 0;
+        for_passthrough_element->size.width = for_passthrough_width;
         
         current_position_left.y += for_passthrough_element->size.height + bending_radius * 4;
-        current_position_left.x += passthrough_width + 2 * bending_radius - width_center_elements / 2;
+        current_position_left.x += for_passthrough_width + 2 * bending_radius - width_center_elements / 2;
         
         for_done_element->position = current_position_left;
         for_done_element->size.height = 2 * bending_radius;
