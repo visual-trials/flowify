@@ -269,9 +269,10 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
     else if (flow_element->type == FlowElement_FunctionCall)
     {
         FlowElement * function_element = flow_element->first_child;
-        
-        i32 top_margin = bending_radius;
-        i32 bottom_margin = bending_radius;
+
+         // FIXME: workaround to create more vertical margin (extra bending_radius added)
+        i32 top_margin = bending_radius + bending_radius;
+        i32 bottom_margin = bending_radius + bending_radius;
         
         i32 left_margin = bending_radius;
         i32 right_margin = bending_radius;
@@ -282,7 +283,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         function_element->position.y = top_margin;
         
         flow_element->size.width = left_margin + function_element->size.width + right_margin;
-        flow_element->size.height = top_margin + function_element->size.height + bottom_margin; 
+        flow_element->size.height = top_margin + function_element->size.height + bottom_margin;
         flow_element->is_selectable = true;
         
         // flow_element->size = function_element->size;

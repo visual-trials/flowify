@@ -398,11 +398,16 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element, b32 show_h
         */
         
         Pos2d position = flow_element->absolute_position;
+        Size2d size = flow_element->size;
+        
+        // FIXME: workaround to create more vertical margin (here we substract from the size)
+        position.y += flowifier->bending_radius;
+        size.height -= flowifier->bending_radius * 2;
         
         if (flow_element->type == FlowElement_FunctionCall)
         {
             // TODO: determine fill color depending on odd/even depth
-            draw_rounded_rectangle(position, flow_element->size, flowifier->bending_radius, 
+            draw_rounded_rectangle(position, size, flowifier->bending_radius, 
                                    flowifier->function_line_color, flowifier->function_even_fill_color, flowifier->function_line_width);
         }
         
