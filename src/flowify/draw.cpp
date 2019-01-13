@@ -360,43 +360,6 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element, b32 show_h
     }
     else if (flow_element->type == FlowElement_FunctionCall)
     {
-        /*
-        // Colors
-        Color4 fill_color = flowifier->unselected_color;
-        if (flow_element->is_selected)
-        {
-            fill_color = flowifier->selected_color;
-        }
-        */
-        
-        /*
-        // Positions and sizes
-        Rect2d top_rect = {-1,-1,-1,-1};
-        Rect2d middle_rect = {-1,-1,-1,-1};
-        Rect2d bottom_rect = {-1,-1,-1,-1};
-        
-        Pos2d position = flow_element->absolute_position;
-        Size2d size = flow_element->size;
-        middle_rect.position = position;
-        middle_rect.size = size;
-        
-        
-        if (flow_element->previous_in_flow)
-        {
-            top_rect.position = flow_element->previous_in_flow->absolute_position;
-            top_rect.size = flow_element->previous_in_flow->size;
-        }
-        if (flow_element->next_in_flow)
-        {
-            bottom_rect.position = flow_element->next_in_flow->absolute_position;
-            bottom_rect.size = flow_element->next_in_flow->size;
-        }
-        
-        draw_lane_segments_for_3_rectangles(top_rect, middle_rect, bottom_rect, 
-                                            flowifier->bending_radius, flowifier->line_width, 
-                                            flowifier->line_color, fill_color, fill_color);
-        */
-        
         Pos2d position = flow_element->absolute_position;
         Size2d size = flow_element->size;
         
