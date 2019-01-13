@@ -149,6 +149,24 @@ struct Flowifier
     FlowElement * latest_function;
     
     Parser * parser;
+    
+    // Colors
+    Color4 line_color;
+    Color4 unselected_color;
+    Color4 selected_color;
+    Color4 text_color;
+    Color4 rectangle_color;
+    Color4 rectangle_fill;
+    Color4 function_line_color;
+    Color4 function_fill_color;
+    
+    // Font
+    Font font;
+        
+    // Layout, sizes
+    i32 line_width;
+    i32 bending_radius;
+    i32 function_line_width;
 };
 
 void init_flowifier(Flowifier * flowifier, Parser * parser)
@@ -157,6 +175,22 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     flowifier->latest_function = 0;
     
     flowifier->parser = parser;
+    
+    flowifier->line_color       = (Color4){  0,   0,   0, 255};
+    flowifier->unselected_color = (Color4){180, 180, 255, 255};
+    flowifier->selected_color   = (Color4){180, 255, 180, 255};
+    flowifier->text_color       = (Color4){  0,   0,   0, 255};
+    flowifier->rectangle_color  = (Color4){255, 0, 0, 255};
+    flowifier->rectangle_fill   = (Color4){255, 0, 0, 50};
+    flowifier->function_line_color = (Color4){ 200, 200, 200, 255};
+    flowifier->function_fill_color = (Color4){ 240, 240, 240, 255};
+    
+    flowifier->font.height = 20;
+    flowifier->font.family = Font_CourierNew;
+        
+    flowifier->line_width = 4;
+    flowifier->bending_radius = 20;
+    flowifier->function_line_width = 2;
     
     init_dynamic_array(&flowifier->flow_elements, sizeof(FlowElement), (Color4){0,255,255,255}, cstring_to_string("Flowifier"));
 }

@@ -80,27 +80,16 @@ void draw_lane_segments_for_4_rectangles(Rect2d top_or_bottom_rect, b32 is_top_r
                       line_color, bend_color, line_width);
 }
 
-void draw_joining_element(FlowElement * left_element, FlowElement * right_element, 
+void draw_joining_element(Flowifier * flowifier, FlowElement * left_element, FlowElement * right_element, 
                           FlowElement * joining_element, FlowElement * element_next_in_flow, 
                           b32 show_help_rectangles)
 {
-    // TODO: maybe we want to have a drawer-variable (Drawer-struct), containing all color/line_width/bending_radius settings)
-
-    // Colors
-    Color4 line_color       = {  0,   0,   0, 255};
-    Color4 unselected_color = {180, 180, 255, 255};
-    Color4 selected_color   = {180, 255, 180, 255};
-    Color4 rectangle_color  = {255, 0, 0, 255};
-    Color4 rectangle_fill   = {255, 0, 0, 50};
-    Color4 no_color         = {};
-    Color4 fill_color = unselected_color;
+    Color4 fill_color = flowifier->unselected_color;
     if (joining_element->is_selected)
     {
-        fill_color = selected_color;
+        fill_color = flowifier->selected_color;
     }
         
-    i32 line_width = 4;
-    i32 bending_radius = 20;
     Rect2d no_rect = {-1,-1,-1,-1};
     
     // Right element position + size
@@ -128,34 +117,29 @@ void draw_joining_element(FlowElement * left_element, FlowElement * right_elemen
         bottom_rect.size = element_next_in_flow->size;
     }
     
-    draw_lane_segments_for_4_rectangles(bottom_rect, false, left_rect, right_rect, middle_rect, bending_radius, line_width, line_color, fill_color, fill_color);
-    draw_lane_segments_for_3_rectangles(no_rect, middle_rect, bottom_rect, bending_radius, line_width, line_color, fill_color, fill_color);
+    draw_lane_segments_for_4_rectangles(bottom_rect, false, left_rect, right_rect, middle_rect, 
+                                        flowifier->bending_radius, flowifier->line_width, 
+                                        flowifier->line_color, fill_color, fill_color);
+    draw_lane_segments_for_3_rectangles(no_rect, middle_rect, bottom_rect, 
+                                        flowifier->bending_radius, flowifier->line_width, 
+                                        flowifier->line_color, fill_color, fill_color);
     
     if (show_help_rectangles)
     {
-        draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, rectangle_fill, 2);
+        draw_rectangle(middle_rect.position, middle_rect.size, flowifier->rectangle_color, flowifier->rectangle_fill, 2);
     }
 }
 
-void draw_splitting_element(FlowElement * left_element, FlowElement * right_element, FlowElement * splitting_element, FlowElement * element_previous_in_flow, b32 show_help_rectangles)
+void draw_splitting_element(Flowifier * flowifier, FlowElement * left_element, FlowElement * right_element, 
+                            FlowElement * splitting_element, FlowElement * element_previous_in_flow, 
+                            b32 show_help_rectangles)
 {
-    // TODO: maybe we want to have a drawer-variable (Drawer-struct), containing all color/line_width/bending_radius settings)
-
-    // Colors
-    Color4 line_color       = {  0,   0,   0, 255};
-    Color4 unselected_color = {180, 180, 255, 255};
-    Color4 selected_color   = {180, 255, 180, 255};
-    Color4 rectangle_color  = {255, 0, 0, 255};
-    Color4 rectangle_fill   = {255, 0, 0, 50};
-    Color4 no_color         = {};
-    Color4 fill_color = unselected_color;
+    Color4 fill_color = flowifier->unselected_color;
     if (splitting_element->is_selected)
     {
-        fill_color = selected_color;
+        fill_color = flowifier->selected_color;
     }
         
-    i32 line_width = 4;
-    i32 bending_radius = 20;
     Rect2d no_rect = {-1,-1,-1,-1};
 
     Rect2d top_rect = no_rect;
@@ -183,56 +167,38 @@ void draw_splitting_element(FlowElement * left_element, FlowElement * right_elem
     left_rect.position = left_element->absolute_position;
     left_rect.size = left_element->size;
 
-    draw_lane_segments_for_4_rectangles(top_rect, true, left_rect, right_rect, middle_rect, bending_radius, line_width, line_color, fill_color, fill_color);
+    draw_lane_segments_for_4_rectangles(top_rect, true, left_rect, right_rect, middle_rect, 
+                                        flowifier->bending_radius, flowifier->line_width, 
+                                        flowifier->line_color, fill_color, fill_color);
     // FIXME: we somehow need the previous element, BEFORE the start-if as top_rect!
-    draw_lane_segments_for_3_rectangles(top_rect, middle_rect, no_rect, bending_radius, line_width, line_color, fill_color, fill_color);
+    draw_lane_segments_for_3_rectangles(top_rect, middle_rect, no_rect, 
+                                        flowifier->bending_radius, flowifier->line_width, 
+                                        flowifier->line_color, fill_color, fill_color);
     
     if (show_help_rectangles)
     {
-        draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, rectangle_fill, 2);
+        draw_rectangle(middle_rect.position, middle_rect.size, flowifier->rectangle_color, flowifier->rectangle_fill, 2);
     }
 }
 
-void draw_element_rectangle(FlowElement * flow_element)
+void draw_element_rectangle(Flowifier * flowifier, FlowElement * flow_element)
 {
-    // TODO: maybe we want to have a drawer-variable (Drawer-struct), containing all color/line_width/bending_radius settings)
-
-    // Colors
-    Color4 rectangle_color  = {255, 0, 0, 255};
-    Color4 rectangle_fill   = {255, 0, 0, 50};
-    
     Rect2d rect = {};
     rect.position = flow_element->absolute_position;
     rect.size = flow_element->size;
     
-    draw_rectangle(rect.position, rect.size, rectangle_color, rectangle_fill, 2);
+    draw_rectangle(rect.position, rect.size, flowifier->rectangle_color, flowifier->rectangle_fill, 2);
 }
 
-void draw_straight_element(FlowElement * flow_element, FlowElement * element_previous_in_flow, 
+void draw_straight_element(Flowifier * flowifier, FlowElement * flow_element, FlowElement * element_previous_in_flow, 
                            FlowElement * element_next_in_flow, b32 show_help_rectangles)
 {
-    // TODO: maybe we want to have a drawer-variable (Drawer-struct), containing all color/line_width/bending_radius settings)
-
-    // Colors
-    Color4 line_color       = {  0,   0,   0, 255};
-    Color4 unselected_color = {180, 180, 255, 255};
-    Color4 selected_color   = {180, 255, 180, 255};
-    Color4 no_color         = {};
-    Color4 fill_color = unselected_color;
+    Color4 fill_color = flowifier->unselected_color;
     if (flow_element->is_selected)
     {
-        fill_color = selected_color;
+        fill_color = flowifier->selected_color;
     }
     
-    Font font = {};
-    font.height = 20;
-    font.family = Font_CourierNew;
-
-    Color4 text_color = {};
-    text_color.a = 255;
-        
-    i32 line_width = 4;
-    i32 bending_radius = 20;
     Rect2d no_rect = {-1,-1,-1,-1};
     
     // Positions and sizes
@@ -256,11 +222,13 @@ void draw_straight_element(FlowElement * flow_element, FlowElement * element_pre
         bottom_rect.size = element_next_in_flow->size;
     }
     
-    draw_lane_segments_for_3_rectangles(top_rect, middle_rect, bottom_rect, bending_radius, line_width, line_color, fill_color, fill_color);
+    draw_lane_segments_for_3_rectangles(top_rect, middle_rect, bottom_rect, 
+                                        flowifier->bending_radius, flowifier->line_width, 
+                                        flowifier->line_color, fill_color, fill_color);
     
     if (flow_element->source_text.length)
     {
-        Size2d source_text_size = get_text_size(&flow_element->source_text, font);
+        Size2d source_text_size = get_text_size(&flow_element->source_text, flowifier->font);
         
         // TODO: create a function: draw_text_in_rect()
         Pos2d text_position = {};
@@ -268,36 +236,20 @@ void draw_straight_element(FlowElement * flow_element, FlowElement * element_pre
         text_position.x += (middle_rect.size.width - source_text_size.width) / 2;
         text_position.y += (middle_rect.size.height - source_text_size.height) / 2;
         
-        draw_text(text_position, &flow_element->source_text, font, text_color);
+        draw_text(text_position, &flow_element->source_text, flowifier->font, flowifier->text_color);
     }
     
     if (show_help_rectangles)
     {
-        draw_element_rectangle(flow_element);
+        draw_element_rectangle(flowifier, flow_element);
     }
 }
 
 void draw_elements(Flowifier * flowifier, FlowElement * flow_element, b32 show_help_rectangles)
 {
     // TODO: add is_position_of and position_originates_from
-    // TODO: set colors properly
-    
-    // TODO: maybe we want to have a drawer-variable (Drawer-struct), containing all color/line_width/bending_radius settings)
-    
-    Color4 line_color       = {  0,   0,   0, 255};
-    Color4 unselected_color = {180, 180, 255, 255};
-    Color4 selected_color   = {180, 255, 180, 255};
-    Color4 rectangle_color  = {255, 0, 0, 255};
-    Color4 rectangle_fill   = {255, 0, 0, 50};
-    Color4 no_color         = {};
-    i32 line_width = 4;
-    i32 bending_radius = 20;
     
     Rect2d no_rect = {-1,-1,-1,-1};
-    
-    Color4 function_line_color = { 200, 200, 200, 255};
-    Color4 function_fill_color = { 240, 240, 240, 255};
-    i32 function_line_width = 2;
     
     // TODO: we probably want flags here!
     if (flow_element->type == FlowElement_PassThrough || 
@@ -305,7 +257,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element, b32 show_h
         flow_element->type == FlowElement_BinaryOperator ||
         flow_element->type == FlowElement_Return)
     {
-        draw_straight_element(flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, show_help_rectangles);
+        draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, show_help_rectangles);
     }
     else if (flow_element->type == FlowElement_If)
     {
@@ -316,11 +268,11 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element, b32 show_h
         FlowElement * if_else_element = if_then_element->next_sibling;
         FlowElement * if_join_element = if_else_element->next_sibling;
 
-        draw_straight_element(if_cond_element, if_cond_element->previous_in_flow, if_split_element, show_help_rectangles);
-        draw_splitting_element(if_else_element->first_in_flow, if_then_element->first_in_flow, if_split_element, if_cond_element, show_help_rectangles);
+        draw_straight_element(flowifier, if_cond_element, if_cond_element->previous_in_flow, if_split_element, show_help_rectangles);
+        draw_splitting_element(flowifier, if_else_element->first_in_flow, if_then_element->first_in_flow, if_split_element, if_cond_element, show_help_rectangles);
         draw_elements(flowifier, if_then_element, show_help_rectangles);
         draw_elements(flowifier, if_else_element, show_help_rectangles);
-        draw_joining_element(if_else_element->last_in_flow, if_then_element->last_in_flow, if_join_element, if_element->next_in_flow, show_help_rectangles);
+        draw_joining_element(flowifier, if_else_element->last_in_flow, if_then_element->last_in_flow, if_join_element, if_element->next_in_flow, show_help_rectangles);
     }
     else if (flow_element->type == FlowElement_For)
     {
@@ -339,19 +291,19 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element, b32 show_h
         FlowElement * for_passthrough_element = for_passdown_element->next_sibling;
         FlowElement * for_done_element = for_passthrough_element->next_sibling;
 
-        draw_straight_element(for_start_element, for_start_element->previous_in_flow, for_init_element, show_help_rectangles);
+        draw_straight_element(flowifier, for_start_element, for_start_element->previous_in_flow, for_init_element, show_help_rectangles);
         
-        draw_straight_element(for_init_element, for_start_element, 0, show_help_rectangles);
+        draw_straight_element(flowifier, for_init_element, for_start_element, 0, show_help_rectangles);
         
-        draw_joining_element(for_init_element, for_passdown_element, for_join_element, for_cond_element, show_help_rectangles);
+        draw_joining_element(flowifier, for_init_element, for_passdown_element, for_join_element, for_cond_element, show_help_rectangles);
         
-        draw_straight_element(for_cond_element, for_join_element, for_split_element, show_help_rectangles);
+        draw_straight_element(flowifier, for_cond_element, for_join_element, for_split_element, show_help_rectangles);
         
-        draw_splitting_element(for_passthrough_element, for_body_element->first_in_flow, for_split_element, for_cond_element, show_help_rectangles);
+        draw_splitting_element(flowifier, for_passthrough_element, for_body_element->first_in_flow, for_split_element, for_cond_element, show_help_rectangles);
         
         draw_elements(flowifier, for_body_element, show_help_rectangles);
         
-        draw_straight_element(for_update_element, for_body_element->last_in_flow, 0, show_help_rectangles);
+        draw_straight_element(flowifier, for_update_element, for_body_element->last_in_flow, 0, show_help_rectangles);
         
         // FIXME: we need a get_rect_from_element-function!
         Rect2d update_rect = {};
@@ -376,45 +328,43 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element, b32 show_h
         
         HorLine hor_line = get_bottom_line_from_rect(update_rect);
         VertLine vert_line = get_left_line_from_rect(passright_rect);
-        draw_cornered_lane_segment(hor_line, vert_line, bending_radius, line_color, unselected_color, line_width);
+        draw_cornered_lane_segment(hor_line, vert_line, flowifier->bending_radius, 
+                                   flowifier->line_color, flowifier->unselected_color, flowifier->line_width);
         
         vert_line = get_left_line_from_rect(passright_rect);
         hor_line = get_bottom_line_from_rect(passup_rect);
-        draw_cornered_lane_segment(hor_line, vert_line, bending_radius, line_color, unselected_color, line_width);
+        draw_cornered_lane_segment(hor_line, vert_line, flowifier->bending_radius, 
+                                   flowifier->line_color, flowifier->unselected_color, flowifier->line_width);
         
         hor_line = get_bottom_line_from_rect(passup_rect);
         vert_line = get_left_line_from_rect(passleft_rect);
-        draw_cornered_lane_segment(hor_line, vert_line, bending_radius, line_color, unselected_color, line_width);
+        draw_cornered_lane_segment(hor_line, vert_line, flowifier->bending_radius, 
+                                   flowifier->line_color, flowifier->unselected_color, flowifier->line_width);
 
         vert_line = get_left_line_from_rect(passleft_rect);
         hor_line = get_bottom_line_from_rect(passdown_rect);
-        draw_cornered_lane_segment(hor_line, vert_line, bending_radius, line_color, unselected_color, line_width);
+        draw_cornered_lane_segment(hor_line, vert_line, flowifier->bending_radius, 
+                                   flowifier->line_color, flowifier->unselected_color, flowifier->line_width);
 
         if (show_help_rectangles)
         {
-            draw_element_rectangle(for_passright_element);
-            draw_element_rectangle(for_passup_element);
-            draw_element_rectangle(for_passleft_element);
-            draw_element_rectangle(for_passdown_element);
+            draw_element_rectangle(flowifier, for_passright_element);
+            draw_element_rectangle(flowifier, for_passup_element);
+            draw_element_rectangle(flowifier, for_passleft_element);
+            draw_element_rectangle(flowifier, for_passdown_element);
         }
         
-        draw_straight_element(for_passthrough_element, 0, for_done_element, show_help_rectangles);
-        draw_straight_element(for_done_element, for_passthrough_element, for_done_element->next_in_flow, show_help_rectangles);
+        draw_straight_element(flowifier, for_passthrough_element, 0, for_done_element, show_help_rectangles);
+        draw_straight_element(flowifier, for_done_element, for_passthrough_element, for_done_element->next_in_flow, show_help_rectangles);
     }
     else if (flow_element->type == FlowElement_FunctionCall)
     {
         // Colors
-        Color4 fill_color = unselected_color;
+        Color4 fill_color = flowifier->unselected_color;
         if (flow_element->is_selected)
         {
-            fill_color = selected_color;
+            fill_color = flowifier->selected_color;
         }
-        
-        // FIXME: HACK!
-        fill_color.r -= 30;
-        fill_color.g -= 30;
-        fill_color.b -= 30;
-        
         
         // Positions and sizes
         Rect2d top_rect = {-1,-1,-1,-1};
@@ -437,11 +387,13 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element, b32 show_h
             bottom_rect.size = flow_element->next_in_flow->size;
         }
         
-        draw_lane_segments_for_3_rectangles(top_rect, middle_rect, bottom_rect, bending_radius, line_width, line_color, fill_color, fill_color);
+        draw_lane_segments_for_3_rectangles(top_rect, middle_rect, bottom_rect, 
+                                            flowifier->bending_radius, flowifier->line_width, 
+                                            flowifier->line_color, fill_color, fill_color);
         
         if (show_help_rectangles)
         {
-            draw_rectangle(middle_rect.position, middle_rect.size, rectangle_color, rectangle_fill, 2);
+            draw_rectangle(middle_rect.position, middle_rect.size, flowifier->rectangle_color, flowifier->rectangle_fill, 2);
         }
         
         // Drawing the function itself
@@ -467,18 +419,10 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element, b32 show_h
     {
         Pos2d position = flow_element->absolute_position;
         
-        /*
-        Color4 fill_color = unselected_color;
-        if (flow_element->is_selected)
-        {
-            fill_color = selected_color;
-        }
-        */
-        
         if (flow_element->type == FlowElement_Root)
         {
             draw_rounded_rectangle(position, flow_element->size, 20, 
-                                   function_line_color, function_fill_color, function_line_width);
+                                   flowifier->function_line_color, flowifier->function_fill_color, flowifier->function_line_width);
         }
                                
         FlowElement * child_element = flow_element->first_child;
