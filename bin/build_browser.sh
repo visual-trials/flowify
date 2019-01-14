@@ -13,8 +13,9 @@ PROJECT_NAME=flowify
 #PROJECT_NAME=testing/testing_mouse
 #PROJECT_NAME=testing/testing_renderer
 
-# NOTE: this will not work standalone (due to stack issues!) emcc src/platform/browser_main.cpp -Os -s WASM=1 -s SIDE_MODULE=1 -o web/wasm/$PROJECT_NAME.wasm
-emcc src/platform/browser_main.cpp -Os -s WASM=1 -D INCLUDE_PROJECT_FILE="\"../$PROJECT_NAME.cpp\"" -o dist/$PROJECT_NAME.html -s TOTAL_MEMORY=34MB --js-library web/js/emcc/external.js \
+# Debug build: DO_ASSERTIONS=1
+
+emcc src/platform/browser_main.cpp -Os -s WASM=1 -D DO_ASSERTIONS=1 -D INCLUDE_PROJECT_FILE="\"../$PROJECT_NAME.cpp\"" -o dist/$PROJECT_NAME.html -s TOTAL_MEMORY=34MB --js-library web/js/emcc/external.js \
     -s "EXPORTED_FUNCTIONS=[
         '_init_world', 
         '_update_frame', 
@@ -38,3 +39,4 @@ emcc src/platform/browser_main.cpp -Os -s WASM=1 -D INCLUDE_PROJECT_FILE="\"../$
 cp dist/$PROJECT_NAME.wasm web/wasm/$PROJECT_NAME.wasm
 # wasm2wat web/wasm/$PROJECT_NAME.wasm
 
+# NOTE: this will not work standalone (due to stack issues!) emcc src/platform/browser_main.cpp -Os -s WASM=1 -s SIDE_MODULE=1 -o web/wasm/$PROJECT_NAME.wasm

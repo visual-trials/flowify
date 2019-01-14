@@ -16,8 +16,13 @@
 
  */
  
+#if DO_ASSERTIONS
 #define assert(expression) if(!(expression)) {abort("Assertion failed!", __FILE__, __LINE__);}
 #define assert_message(expression, message) if(!(expression)) {abort(message, __FILE__, __LINE__);}
+#else
+#define assert(expression)
+#define assert_message(expression, message)
+#endif
 
 #include "../generic.h"
 #include "../string.cpp"

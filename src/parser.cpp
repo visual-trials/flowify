@@ -649,7 +649,8 @@ void init_parser(Parser * parser, Tokenizer * tokenizer)
 
 void next_token(Parser * parser)
 {
-    // FIXME: we should check if we reached the last token!
+    assert(parser->current_token_index < parser->tokenizer->tokens.nr_of_items);
+    
     parser->current_token_index++;
 }
 
@@ -657,7 +658,9 @@ Token * get_latest_token(Parser * parser)
 {
     Tokenizer * tokenizer = parser->tokenizer;
     
-    // FIXME: check bounds!    
+    assert(parser->current_token_index - 1 >= 0);
+    assert(parser->current_token_index - 1 < parser->tokenizer->tokens.nr_of_items);
+    
     Token * tokens = (Token *)tokenizer->tokens.items;
     Token * token = &tokens[parser->current_token_index - 1];
     
