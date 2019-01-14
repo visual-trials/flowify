@@ -180,9 +180,6 @@ Flowify.main = function () {
     request.onload = function() {
     
         let wasmCode = request.response
-        let responseHeaders = request.getAllResponseHeaders().split("\n")
-        
-        latestChangeToWasm = responseHeaders[1] // FIXME: ugly way of getting the latest changed time
         
         WebAssembly.instantiate(wasmCode, { env: wasmEnv })
         .then( wasm_module => {
