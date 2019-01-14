@@ -94,13 +94,11 @@ void draw_joining_element(Flowifier * flowifier, FlowElement * left_element, Flo
     
     // Right element position + size
     Rect2d right_rect = {};
-    // FIXME: we need the position and size of the LAST statement in the then-element, NOT of the then-element itself!
     right_rect.position = right_element->absolute_position;
     right_rect.size = right_element->size;
     
     // Left element position + size
     Rect2d left_rect = {};
-    // FIXME: we need the position and size of the LAST statement in the else-element, NOT of the else-element itself!
     left_rect.position = left_element->absolute_position;
     left_rect.size = left_element->size;
     
@@ -157,20 +155,18 @@ void draw_splitting_element(Flowifier * flowifier, FlowElement * left_element, F
     
     // If-then rectangle (right)
     Rect2d right_rect = {};
-    // FIXME: we need the position and size of the FIRST statement in the then-element, NOT of the then-element itself!
     right_rect.position = right_element->absolute_position;
     right_rect.size = right_element->size;
     
     // If-else rectangle (left)
     Rect2d left_rect = {};
-    // FIXME: we need the position and size of the FIRST statement in the else-element, NOT of the else-element itself!
     left_rect.position = left_element->absolute_position;
     left_rect.size = left_element->size;
 
     draw_lane_segments_for_4_rectangles(top_rect, true, left_rect, right_rect, middle_rect, 
                                         flowifier->bending_radius, flowifier->line_width, 
                                         flowifier->line_color, fill_color, fill_color);
-    // FIXME: we somehow need the previous element, BEFORE the start-if as top_rect!
+                                        
     draw_lane_segments_for_3_rectangles(top_rect, middle_rect, no_rect, 
                                         flowifier->bending_radius, flowifier->line_width, 
                                         flowifier->line_color, fill_color, fill_color);
