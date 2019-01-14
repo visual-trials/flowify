@@ -11,5 +11,6 @@ mergeInto(LibraryManager.library, { jsDrawEllipse: function(){} })
 mergeInto(LibraryManager.library, { jsDrawText: function(){} })
 mergeInto(LibraryManager.library, { jsGetTextWidth: function(){} })
 mergeInto(LibraryManager.library, { jsLog: function(){} })
+mergeInto(LibraryManager.library, { jsAbort: function(){} })
 mergeInto(LibraryManager.library, { jsSetUsingPhysicalPixels: function(){} })
 

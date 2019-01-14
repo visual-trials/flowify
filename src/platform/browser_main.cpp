@@ -16,6 +16,9 @@
 
  */
  
+#define assert(expression) if(!(expression)) {abort("Assertion failed!", __FILE__, __LINE__);}
+#define assert_message(expression, message) if(!(expression)) {abort(message, __FILE__, __LINE__);}
+
 #include "../generic.h"
 #include "../string.cpp"
 #include "../geometry.cpp"

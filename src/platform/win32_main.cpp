@@ -19,6 +19,9 @@
 #include <windows.h>
 #include <stdio.h>
 
+// FIXME: implement win32 version: #define assert(expression) if(!(expression)) {*(int *)0 = 0;}
+// FIXME: implement win32 version: #define assert_message(expression, message) if(!(expression)) {abort(message, __FILE__, __LINE__);}
+
 LARGE_INTEGER clock_counter_before_update_and_render;
 LARGE_INTEGER clock_counter_after_update;
 LARGE_INTEGER clock_counter_after_render;

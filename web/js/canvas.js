@@ -508,10 +508,19 @@ Flowify.canvas = function () {
                 console.log(string)
             },
             
-            _jsLogInt: function(logInteger) {
-                console.log(logInteger)
+            _jsAbort: function(stringIndex, stringLength, fileNameIndex, fileNameLength, lineNumber) {
+                let string = ""
+                for (let i = stringIndex; i < stringIndex + stringLength; i++) {
+                    string += String.fromCharCode(Flowify.main.bufferU8[i])
+                }
+                let fileName = ""
+                for (let i = fileNameIndex; i < fileNameIndex + fileNameLength; i++) {
+                    fileName += String.fromCharCode(Flowify.main.bufferU8[i])
+                }
+                let error = "Assertion failed: " + string + " in " + fileName + " at line " + lineNumber
+                throw error
             },
-            
+        
             _jsSetUsingPhysicalPixels: function(usingPhysicalPixels) {
                 my.usingPhysicalPixels = usingPhysicalPixels
                 Flowify.input.storeCookie('usingPhysicalPixels', usingPhysicalPixels)

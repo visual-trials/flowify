@@ -69,6 +69,8 @@ extern "C" {
                            
     extern void jsLog(u8 * text_data, i32 text_length);
     
+    extern void jsAbort(u8 * text_data, i32 text_length, u8 * file_name_data, i32 file_name_length, i32 line_number);
+    
     extern void jsSetUsingPhysicalPixels(b32 using_physical_pixels);
 }
 
@@ -236,6 +238,13 @@ void log_int(i32 integer)
     ShortString decimal_number;
     int_to_string(integer, &decimal_number);
     log(&decimal_number);
+}
+
+void abort(const char * text, const char * file_name, i32 line_number)
+{
+    i32 text_length = cstring_length(text);
+    i32 file_name_length = cstring_length(file_name);
+    jsAbort((u8 *)text, text_length, (u8 *)file_name, file_name_length, line_number);
 }
 
 void set_using_physical_pixels(b32 using_physical_pixels)
