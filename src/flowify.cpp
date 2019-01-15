@@ -204,9 +204,6 @@ extern "C" {
         
         world->iteration++;
         
-        // FIXME: we should not set is_highlighted on the flow element itself. Instead we should keep a record of the *element identifier* we want to select
-        //        whenever we draw the element we check for a *match* between the  selected *element identifier* and the identifier of the element.
-        
         FlowElement * flow_elements = (FlowElement *)flowifier->flow_elements.items;
         i32 nr_of_flow_elements = flowifier->flow_elements.nr_of_items;
         
