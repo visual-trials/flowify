@@ -146,6 +146,7 @@ struct FlowInteraction
 {
     i32 highlighted_element_index;
     i32 selected_element_index;
+    i32 hovered_element_index;
 };
 
 struct Flowifier
@@ -160,13 +161,26 @@ struct Flowifier
     b32 has_absolute_positions;
     FlowInteraction interaction;
     
-    // Colors
+    // Colors and line widths
     Color4 line_color;
+    Color4 text_color;
+    
     Color4 unhighlighted_color;
     Color4 highlighted_color;
-    Color4 text_color;
-    Color4 rectangle_color;
-    Color4 rectangle_fill;
+    
+    b32 show_help_rectangles;
+    Color4 help_rectangle_color;
+    Color4 help_rectangle_fill;
+    i32 help_rectangle_line_width;
+    
+    Color4 hovered_color;
+    Color4 hovered_fill;
+    i32 hovered_line_width;
+    
+    Color4 selected_color;
+    Color4 selected_fill;
+    i32 selected_line_width;
+    
     Color4 function_line_color;
     Color4 function_even_fill_color;
     Color4 function_odd_fill_color;
@@ -198,15 +212,29 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     
     flowifier->interaction.highlighted_element_index = 0;
     flowifier->interaction.selected_element_index = 0;
+    flowifier->interaction.hovered_element_index = 0;
     
     flowifier->has_absolute_positions = false;
     
     flowifier->line_color          = (Color4){  0,   0,   0, 255};
+    flowifier->text_color          = (Color4){  0,   0,   0, 255};
+    
     flowifier->unhighlighted_color = (Color4){180, 180, 255, 255};
     flowifier->highlighted_color   = (Color4){180, 255, 180, 255};
-    flowifier->text_color          = (Color4){  0,   0,   0, 255};
-    flowifier->rectangle_color     = (Color4){255, 0, 0, 255};
-    flowifier->rectangle_fill      = (Color4){255, 0, 0, 50};
+    
+    flowifier->show_help_rectangles = false;
+    flowifier->help_rectangle_color     = (Color4){255, 0, 0, 255};
+    flowifier->help_rectangle_fill      = (Color4){255, 0, 0, 50};
+    flowifier->help_rectangle_line_width = 2;
+    
+    flowifier->hovered_color     = (Color4){0, 0, 255, 255};
+    flowifier->hovered_fill      = (Color4){0, 0, 255, 50};
+    flowifier->hovered_line_width = 2;
+    
+    flowifier->selected_color     = (Color4){0, 255, 0, 255};
+    flowifier->selected_fill      = (Color4){0, 255, 0, 50};
+    flowifier->selected_line_width = 2;
+    
     flowifier->function_line_color = (Color4){ 200, 200, 200, 255};
     flowifier->function_even_fill_color = (Color4){ 235, 235, 235, 100}; // FIXME: remove alpha
     flowifier->function_odd_fill_color  = (Color4){ 245, 245, 245, 100}; // FIXME: remove alpha

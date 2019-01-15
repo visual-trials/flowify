@@ -69,8 +69,6 @@ struct WorldData
     b32 touch_dragging;
     Pos2d last_touch_position;
     
-    b32 show_help_rectangles;
-    
     b32 verbose_memory_usage;
     b32 verbose_frame_times;
 };
@@ -202,7 +200,7 @@ extern "C" {
         
         if (flowifier->has_absolute_positions)
         {
-            process_interactions(flowifier, world->root_element);
+            process_interactions(flowifier, input, world->root_element);
         }
         
         layout_elements(flowifier, world->root_element);
@@ -351,7 +349,7 @@ extern "C" {
         absolute_position.y = 50 + world->flowify_vertical_offset; 
         absolute_layout_elements(flowifier, root_element, absolute_position);
         
-        draw_elements(flowifier, root_element, world->show_help_rectangles);
+        draw_elements(flowifier, root_element);
         
     }
     
@@ -360,6 +358,7 @@ extern "C" {
         WorldData * world = &global_world;
         Input * input = &global_input;
         Memory * memory = &global_memory;
+        Flowifier * flowifier = &world->flowifier;
         
         ScrollableText * scrollable_program_text = &world->scrollable_program_text;
         ScrollableText * scrollable_flowify_dump = &world->scrollable_flowify_dump;
@@ -373,8 +372,8 @@ extern "C" {
         
         Token * tokens = (Token *)world->tokenizer.tokens.items;
         
-        FlowElement * flow_elements = (FlowElement *)world->flowifier.flow_elements.items;
-        i32 nr_of_flow_elements = world->flowifier.flow_elements.nr_of_items;
+        FlowElement * flow_elements = (FlowElement *)flowifier->flow_elements.items;
+        i32 nr_of_flow_elements = flowifier->flow_elements.nr_of_items;
         
         String * lines = (String *)scrollable_program_text->lines.items;
 
@@ -427,11 +426,11 @@ extern "C" {
             ShortString label_active;
             copy_cstring_to_short_string("[   ]", &label_active);
 
-            b32 button_is_pressed = do_button(position_button, size_button, &label, world->show_help_rectangles, &global_input, &label_active);
+            b32 button_is_pressed = do_button(position_button, size_button, &label, flowifier->show_help_rectangles, &global_input, &label_active);
 
             if (button_is_pressed)
             {
-                world->show_help_rectangles = !world->show_help_rectangles;
+                flowifier->show_help_rectangles = !flowifier->show_help_rectangles;
             }
         }
         

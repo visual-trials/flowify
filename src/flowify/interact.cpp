@@ -16,18 +16,39 @@
 
  */
 
-void process_interactions(Flowifier * flowifier, FlowElement * flow_element)
+
+// TODO: we should check whether these mouse or touch interactions are within the Window of the flowified elements
+void process_interactions(Flowifier * flowifier, Input * input, FlowElement * flow_element)
 {
     
-    // TODO: implement: check for mouse/touch interaction and store in Flowifier-struct
+    HoveredOrPressed hovered_or_pressed = check_hovered_or_pressed(flow_element->absolute_position, flow_element->size, input);
     
-    if (flow_element->first_child)
+    if (hovered_or_pressed.is_hovered || hovered_or_pressed.is_pressed)
     {
-        process_interactions(flowifier, flow_element->first_child);
+        // If the element is hovered, we remember it as the hovered element
+        if (hovered_or_pressed.is_hovered)
+        {
+            flowifier->interaction.hovered_element_index = flow_element->index;
+        }
+        // If the element is hovered, we remember it as the selected element
+        if (hovered_or_pressed.is_pressed)
+        {
+            flowifier->interaction.selected_element_index = flow_element->index;
+        }
+        
+        if (flow_element->first_child)
+        {
+            // If the element is hovered or pressed and it has children, we check them too.
+            // The child may become the more specific element being hovered or selected
+            process_interactions(flowifier, input, flow_element->first_child);
+        }
     }
-
-    if (flow_element->next_sibling)
+    else
     {
-        process_interactions(flowifier, flow_element->next_sibling);
+        // If the element is not hovered, we check its siblings
+        if (flow_element->next_sibling)
+        {
+            process_interactions(flowifier, input, flow_element->next_sibling);
+        }
     }
 }

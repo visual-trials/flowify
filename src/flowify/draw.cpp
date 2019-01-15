@@ -16,6 +16,22 @@
 
  */
 
+void draw_element_rectangle(Flowifier * flowifier, FlowElement * flow_element)
+{
+    if (flowifier->interaction.hovered_element_index == flow_element->index)
+    {
+        draw_rectangle(flow_element->absolute_position, flow_element->size, flowifier->hovered_color, flowifier->hovered_fill, flowifier->hovered_line_width);
+    }
+    if (flowifier->interaction.selected_element_index == flow_element->index)
+    {
+        draw_rectangle(flow_element->absolute_position, flow_element->size, flowifier->selected_color, flowifier->selected_fill, flowifier->selected_line_width);
+    }
+    if (flowifier->show_help_rectangles)
+    {
+        draw_rectangle(flow_element->absolute_position, flow_element->size, flowifier->help_rectangle_color, flowifier->help_rectangle_fill, flowifier->help_rectangle_line_width);
+    }
+}
+
 void draw_lane_segments_for_3_rectangles(Rect2d top_rect, Rect2d middle_rect, Rect2d bottom_rect, i32 bending_radius, i32 line_width, Color4 line_color, Color4 rect_color, Color4 bend_color)
 {
     Color4 no_color = {};
@@ -81,8 +97,7 @@ void draw_lane_segments_for_4_rectangles(Rect2d top_or_bottom_rect, b32 is_top_r
 }
 
 void draw_joining_element(Flowifier * flowifier, FlowElement * left_element, FlowElement * right_element, 
-                          FlowElement * joining_element, FlowElement * element_next_in_flow, 
-                          b32 show_help_rectangles)
+                          FlowElement * joining_element, FlowElement * element_next_in_flow)
 {
     Color4 fill_color = flowifier->unhighlighted_color;
     if (joining_element->is_highlighted)
@@ -121,16 +136,13 @@ void draw_joining_element(Flowifier * flowifier, FlowElement * left_element, Flo
     draw_lane_segments_for_3_rectangles(no_rect, middle_rect, bottom_rect, 
                                         flowifier->bending_radius, flowifier->line_width, 
                                         flowifier->line_color, fill_color, fill_color);
+                                       
+    draw_element_rectangle(flowifier, joining_element);
     
-    if (show_help_rectangles)
-    {
-        draw_rectangle(middle_rect.position, middle_rect.size, flowifier->rectangle_color, flowifier->rectangle_fill, 2);
-    }
 }
 
 void draw_splitting_element(Flowifier * flowifier, FlowElement * left_element, FlowElement * right_element, 
-                            FlowElement * splitting_element, FlowElement * element_previous_in_flow, 
-                            b32 show_help_rectangles)
+                            FlowElement * splitting_element, FlowElement * element_previous_in_flow)
 {
     Color4 fill_color = flowifier->unhighlighted_color;
     if (splitting_element->is_highlighted)
@@ -170,24 +182,12 @@ void draw_splitting_element(Flowifier * flowifier, FlowElement * left_element, F
     draw_lane_segments_for_3_rectangles(top_rect, middle_rect, no_rect, 
                                         flowifier->bending_radius, flowifier->line_width, 
                                         flowifier->line_color, fill_color, fill_color);
-    
-    if (show_help_rectangles)
-    {
-        draw_rectangle(middle_rect.position, middle_rect.size, flowifier->rectangle_color, flowifier->rectangle_fill, 2);
-    }
-}
-
-void draw_element_rectangle(Flowifier * flowifier, FlowElement * flow_element)
-{
-    Rect2d rect = {};
-    rect.position = flow_element->absolute_position;
-    rect.size = flow_element->size;
-    
-    draw_rectangle(rect.position, rect.size, flowifier->rectangle_color, flowifier->rectangle_fill, 2);
+ 
+    draw_element_rectangle(flowifier, splitting_element);
 }
 
 void draw_straight_element(Flowifier * flowifier, FlowElement * flow_element, FlowElement * element_previous_in_flow, 
-                           FlowElement * element_next_in_flow, b32 show_help_rectangles)
+                           FlowElement * element_next_in_flow)
 {
     Color4 fill_color = flowifier->unhighlighted_color;
     if (flow_element->is_highlighted)
@@ -235,13 +235,10 @@ void draw_straight_element(Flowifier * flowifier, FlowElement * flow_element, Fl
         draw_text(text_position, &flow_element->source_text, flowifier->font, flowifier->text_color);
     }
     
-    if (show_help_rectangles)
-    {
-        draw_element_rectangle(flowifier, flow_element);
-    }
+    draw_element_rectangle(flowifier, flow_element);
 }
 
-void draw_elements(Flowifier * flowifier, FlowElement * flow_element, b32 show_help_rectangles)
+void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
 {
     // TODO: add is_position_of and position_originates_from
     
@@ -254,7 +251,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element, b32 show_h
         flow_element->type == FlowElement_BinaryOperator ||
         flow_element->type == FlowElement_Return)
     {
-        draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, show_help_rectangles);
+        draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow);
     }
     else if (flow_element->type == FlowElement_If)
     {
@@ -265,11 +262,11 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element, b32 show_h
         FlowElement * if_else_element = if_then_element->next_sibling;
         FlowElement * if_join_element = if_else_element->next_sibling;
 
-        draw_straight_element(flowifier, if_cond_element, if_cond_element->previous_in_flow, if_split_element, show_help_rectangles);
-        draw_splitting_element(flowifier, if_else_element->first_in_flow, if_then_element->first_in_flow, if_split_element, if_cond_element, show_help_rectangles);
-        draw_elements(flowifier, if_then_element, show_help_rectangles);
-        draw_elements(flowifier, if_else_element, show_help_rectangles);
-        draw_joining_element(flowifier, if_else_element->last_in_flow, if_then_element->last_in_flow, if_join_element, if_element->next_in_flow, show_help_rectangles);
+        draw_straight_element(flowifier, if_cond_element, if_cond_element->previous_in_flow, if_split_element);
+        draw_splitting_element(flowifier, if_else_element->first_in_flow, if_then_element->first_in_flow, if_split_element, if_cond_element);
+        draw_elements(flowifier, if_then_element);
+        draw_elements(flowifier, if_else_element);
+        draw_joining_element(flowifier, if_else_element->last_in_flow, if_then_element->last_in_flow, if_join_element, if_element->next_in_flow);
     }
     else if (flow_element->type == FlowElement_For)
     {
@@ -288,19 +285,19 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element, b32 show_h
         FlowElement * for_passthrough_element = for_passdown_element->next_sibling;
         FlowElement * for_done_element = for_passthrough_element->next_sibling;
 
-        draw_straight_element(flowifier, for_start_element, for_start_element->previous_in_flow, for_init_element, show_help_rectangles);
+        draw_straight_element(flowifier, for_start_element, for_start_element->previous_in_flow, for_init_element);
         
-        draw_straight_element(flowifier, for_init_element, for_start_element, 0, show_help_rectangles);
+        draw_straight_element(flowifier, for_init_element, for_start_element, 0);
         
-        draw_joining_element(flowifier, for_init_element, for_passdown_element, for_join_element, for_cond_element, show_help_rectangles);
+        draw_joining_element(flowifier, for_init_element, for_passdown_element, for_join_element, for_cond_element);
         
-        draw_straight_element(flowifier, for_cond_element, for_join_element, for_split_element, show_help_rectangles);
+        draw_straight_element(flowifier, for_cond_element, for_join_element, for_split_element);
         
-        draw_splitting_element(flowifier, for_passthrough_element, for_body_element->first_in_flow, for_split_element, for_cond_element, show_help_rectangles);
+        draw_splitting_element(flowifier, for_passthrough_element, for_body_element->first_in_flow, for_split_element, for_cond_element);
         
-        draw_elements(flowifier, for_body_element, show_help_rectangles);
+        draw_elements(flowifier, for_body_element);
         
-        draw_straight_element(flowifier, for_update_element, for_body_element->last_in_flow, 0, show_help_rectangles);
+        draw_straight_element(flowifier, for_update_element, for_body_element->last_in_flow, 0);
         
         // FIXME: we need a get_rect_from_element-function!
         Rect2d update_rect = {};
@@ -343,16 +340,13 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element, b32 show_h
         draw_cornered_lane_segment(hor_line, vert_line, flowifier->bending_radius, 
                                    flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
 
-        if (show_help_rectangles)
-        {
-            draw_element_rectangle(flowifier, for_passright_element);
-            draw_element_rectangle(flowifier, for_passup_element);
-            draw_element_rectangle(flowifier, for_passleft_element);
-            draw_element_rectangle(flowifier, for_passdown_element);
-        }
+        draw_element_rectangle(flowifier, for_passright_element);
+        draw_element_rectangle(flowifier, for_passup_element);
+        draw_element_rectangle(flowifier, for_passleft_element);
+        draw_element_rectangle(flowifier, for_passdown_element);
         
-        draw_straight_element(flowifier, for_passthrough_element, 0, for_done_element, show_help_rectangles);
-        draw_straight_element(flowifier, for_done_element, for_passthrough_element, for_done_element->next_in_flow, show_help_rectangles);
+        draw_straight_element(flowifier, for_passthrough_element, 0, for_done_element);
+        draw_straight_element(flowifier, for_done_element, for_passthrough_element, for_done_element->next_in_flow);
     }
     else if (flow_element->type == FlowElement_FunctionCall)
     {
@@ -369,17 +363,14 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element, b32 show_h
             draw_rounded_rectangle(position, size, flowifier->bending_radius, 
                                    flowifier->function_line_color, flowifier->function_even_fill_color, flowifier->function_line_width);
         }
-        
-        if (show_help_rectangles)
-        {
-            draw_rectangle(position, flow_element->size, flowifier->rectangle_color, flowifier->rectangle_fill, 2);
-        }
+
+        draw_element_rectangle(flowifier, flow_element);
         
         // Drawing the function itself
         
         FlowElement * function_element = flow_element->first_child;
 
-        draw_elements(flowifier, function_element, show_help_rectangles);
+        draw_elements(flowifier, function_element);
     }
     else if (flow_element->type == FlowElement_Function)
     {
@@ -387,7 +378,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element, b32 show_h
         
         FlowElement * function_body_element = flow_element->first_child;
 
-        draw_elements(flowifier, function_body_element, show_help_rectangles);
+        draw_elements(flowifier, function_body_element);
     }
     else if (flow_element->type == FlowElement_Root ||
              flow_element->type == FlowElement_FunctionBody ||
@@ -410,7 +401,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element, b32 show_h
         {
             do
             {
-                draw_elements(flowifier, child_element, show_help_rectangles);
+                draw_elements(flowifier, child_element);
             }
             while ((child_element = child_element->next_sibling));
         }
