@@ -100,7 +100,7 @@ void draw_joining_element(Flowifier * flowifier, FlowElement * left_element, Flo
                           FlowElement * joining_element, FlowElement * element_next_in_flow)
 {
     Color4 fill_color = flowifier->unhighlighted_color;
-    if (joining_element->is_highlighted)
+    if (flowifier->interaction.highlighted_element_index == joining_element->index)
     {
         fill_color = flowifier->highlighted_color;
     }
@@ -145,7 +145,7 @@ void draw_splitting_element(Flowifier * flowifier, FlowElement * left_element, F
                             FlowElement * splitting_element, FlowElement * element_previous_in_flow)
 {
     Color4 fill_color = flowifier->unhighlighted_color;
-    if (splitting_element->is_highlighted)
+    if (flowifier->interaction.highlighted_element_index == splitting_element->index)
     {
         fill_color = flowifier->highlighted_color;
     }
@@ -190,7 +190,7 @@ void draw_straight_element(Flowifier * flowifier, FlowElement * flow_element, Fl
                            FlowElement * element_next_in_flow)
 {
     Color4 fill_color = flowifier->unhighlighted_color;
-    if (flow_element->is_highlighted)
+    if (flowifier->interaction.highlighted_element_index == flow_element->index)
     {
         fill_color = flowifier->highlighted_color;
     }

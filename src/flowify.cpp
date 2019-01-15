@@ -55,7 +55,7 @@ struct WorldData
     i32 current_program_text_index;
     
     i32 iteration;
-    i32 selected_element_index;
+// FIXME: remove    i32 selected_element_index;
     
     // TODO: Window flowify_window;
     i32 flowify_vertical_offset;
@@ -106,6 +106,7 @@ extern "C" {
         Node * root_node = parse_program(parser);
         
         // Flowify
+        // FIXME: create the root_element inside flowify_statements (and put it in the Flowifier-struct
         FlowElement * root_element = new_flow_element(flowifier, root_node, FlowElement_Root);
         flowify_statements(flowifier, root_element);
         
@@ -115,9 +116,6 @@ extern "C" {
         dump_element_tree(root_element, &world->flowify_dump_text);
         
         split_string_into_scrollable_lines(world->flowify_dump_text.string, scrollable_flowify_dump);
-        
-        // Note: we reset this, so selected_element_index never refers to a non-existing element (from a previous file parse/flowify)
-        world->selected_element_index = -1;  // TODO: there is probably a nicer way of saying this value is invalid
     }
     
     void update_window_dimensions(WorldData * world, Screen * screen)
@@ -143,7 +141,6 @@ extern "C" {
         Input * input = &global_input;
         
         world->iteration = 0;
-        world->selected_element_index = -1;  // TODO: there is probably a nicer way of saying this value is invalid
         
         world->flowify_vertical_offset = 0;
         world->flowify_horizontal_offset = 0;
@@ -213,38 +210,32 @@ extern "C" {
         FlowElement * flow_elements = (FlowElement *)flowifier->flow_elements.items;
         i32 nr_of_flow_elements = flowifier->flow_elements.nr_of_items;
         
-        if (world->selected_element_index >= 0 && world->iteration > 60) // every second (and if it is a valid selected element)
+        if (flowifier->interaction.highlighted_element_index > 0 && world->iteration > 60) // every second (and if it is a valid selected element)
         {
             world->iteration = 0;
             
-            FlowElement * selected_flow_element = &flow_elements[world->selected_element_index];
-            selected_flow_element->is_highlighted = false;
-            
-            world->selected_element_index++;
-            while (world->selected_element_index < nr_of_flow_elements)
+            flowifier->interaction.highlighted_element_index++;
+            while (flowifier->interaction.highlighted_element_index < nr_of_flow_elements)
             {
-                
-                FlowElement * newly_selected_flow_element = &flow_elements[world->selected_element_index];
+                FlowElement * newly_selected_flow_element = &flow_elements[flowifier->interaction.highlighted_element_index];
                 if (newly_selected_flow_element->is_highlightable)
                 {
-                    newly_selected_flow_element->is_highlighted = true;
                     break;
                 }
-                world->selected_element_index++;
+                flowifier->interaction.highlighted_element_index++;
             }
         }
-        if (world->selected_element_index < 0 || world->selected_element_index >= nr_of_flow_elements)
+        if (flowifier->interaction.highlighted_element_index == 0 || flowifier->interaction.highlighted_element_index >= nr_of_flow_elements)
         {
-            world->selected_element_index = 0;
-            while (world->selected_element_index < nr_of_flow_elements)
+            flowifier->interaction.highlighted_element_index = 1;
+            while (flowifier->interaction.highlighted_element_index < nr_of_flow_elements)
             {
-                FlowElement * newly_selected_flow_element = &flow_elements[world->selected_element_index];
+                FlowElement * newly_selected_flow_element = &flow_elements[flowifier->interaction.highlighted_element_index];
                 if (newly_selected_flow_element->is_highlightable)
                 {
-                    newly_selected_flow_element->is_highlighted = true;
                     break;
                 }
-                world->selected_element_index++;
+                flowifier->interaction.highlighted_element_index++;
             }
         }
         
@@ -377,10 +368,10 @@ extern "C" {
         
         String * lines = (String *)scrollable_program_text->lines.items;
 
-        if (nr_of_flow_elements > 0 && world->selected_element_index >= 0)
+        if (nr_of_flow_elements > 0 && flowifier->interaction.highlighted_element_index > 0)
         {
-            FlowElement * selected_flow_element = &flow_elements[world->selected_element_index];
-            Node * node = selected_flow_element->ast_node;
+            FlowElement * highlighted_flow_element = &flow_elements[flowifier->interaction.highlighted_element_index];
+            Node * node = highlighted_flow_element->ast_node;
             
             remove_highlighted_line_parts(scrollable_program_text);
             for (i32 token_index = node->first_token_index; token_index <= node->last_token_index; token_index++)
@@ -404,9 +395,9 @@ extern "C" {
             remove_highlighted_line_parts(scrollable_flowify_dump); 
             
             HighlightedLinePart * highlighted_line_part = add_new_highlighted_line_part(scrollable_flowify_dump);
-            highlighted_line_part->line_index = selected_flow_element->highlighted_line_part.line_index;
-            highlighted_line_part->start_character_index = selected_flow_element->highlighted_line_part.start_character_index;
-            highlighted_line_part->length = selected_flow_element->highlighted_line_part.length;
+            highlighted_line_part->line_index = highlighted_flow_element->highlighted_line_part.line_index;
+            highlighted_line_part->start_character_index = highlighted_flow_element->highlighted_line_part.start_character_index;
+            highlighted_line_part->length = highlighted_flow_element->highlighted_line_part.length;
         }
         
         draw_scrollable_text(scrollable_program_text);

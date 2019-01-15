@@ -126,8 +126,6 @@ struct FlowElement
     b32 is_selectable;
     b32 is_highlightable;
     
-    b32 is_highlighted; // FIXME: use an id of the selected FlowElement and check if it matches
-    
     Size2d size;
     Pos2d position;
     // TODO: i32 scale;
@@ -302,8 +300,6 @@ FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowEleme
 
     new_flow_element->is_selectable = true;
     new_flow_element->is_highlightable = false;
-    
-    new_flow_element->is_highlighted = false;
     
     return new_flow_element;
 }
