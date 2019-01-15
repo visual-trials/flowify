@@ -19,6 +19,7 @@
 #include "parser.cpp"
 
 #include "flowify/flow.h"
+#include "flowify/interact.cpp"
 #include "flowify/flow.cpp"
 #include "flowify/layout.cpp"
 #include "flowify/draw.cpp"
@@ -110,8 +111,7 @@ extern "C" {
         FlowElement * root_element = new_flow_element(flowifier, root_node, FlowElement_Root);
         flowify_statements(flowifier, root_element);
         
-        // TODO: should we do this in update_frame?
-        layout_elements(flowifier, root_element);
+        // FIXME: put root_element inside the Flowifier-struct!
         world->root_element = root_element;
         
         dump_element_tree(root_element, &world->flowify_dump_text);
@@ -193,19 +193,27 @@ extern "C" {
     {
         WorldData * world = &global_world;
         Input * input = &global_input;
+        Flowifier * flowifier = &world->flowifier;
 
         update_window_dimensions(world, &input->screen);
         
         update_scrollable_text(&world->scrollable_program_text, input);
         update_scrollable_text(&world->scrollable_flowify_dump, input);
         
+        if (flowifier->has_absolute_positions)
+        {
+            process_interactions(flowifier, world->root_element);
+        }
+        
+        layout_elements(flowifier, world->root_element);
+        
         world->iteration++;
         
         // FIXME: we should not set is_highlighted on the flow element itself. Instead we should keep a record of the *element identifier* we want to select
         //        whenever we draw the element we check for a *match* between the  selected *element identifier* and the identifier of the element.
         
-        FlowElement * flow_elements = (FlowElement *)world->flowifier.flow_elements.items;
-        i32 nr_of_flow_elements = world->flowifier.flow_elements.nr_of_items;
+        FlowElement * flow_elements = (FlowElement *)flowifier->flow_elements.items;
+        i32 nr_of_flow_elements = flowifier->flow_elements.nr_of_items;
         
         if (world->selected_element_index >= 0 && world->iteration > 60) // every second (and if it is a valid selected element)
         {
@@ -277,6 +285,7 @@ extern "C" {
         Input * input = &global_input;
         MouseInput * mouse = &input->mouse;
         TouchesInput * touch = &input->touch;
+        Flowifier * flowifier = &world->flowifier;
         
         if (mouse->wheel_has_moved)
         {
@@ -340,9 +349,9 @@ extern "C" {
         // Aligned right: absolute_position.x = input->screen.width - root_element->size.width - 100 + world->flowify_horizontal_offset; 
         absolute_position.x = 100 + world->flowify_horizontal_offset; 
         absolute_position.y = 50 + world->flowify_vertical_offset; 
-        absolute_layout_elements(root_element, absolute_position);
+        absolute_layout_elements(flowifier, root_element, absolute_position);
         
-        draw_elements(&world->flowifier, root_element, world->show_help_rectangles);
+        draw_elements(flowifier, root_element, world->show_help_rectangles);
         
     }
     
