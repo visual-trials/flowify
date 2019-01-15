@@ -42,6 +42,9 @@ struct WorldData
     ScrollableText scrollable_flowify_dump;
     Window flowify_dump_window;
     
+    ScrollableText scrollable_flowify_detail;
+    Window flowify_detail_window;
+    
     Margins screen_margins;
     i32 middle_margin;
     i32 title_height;
@@ -55,7 +58,6 @@ struct WorldData
     i32 current_program_text_index;
     
     i32 iteration;
-// FIXME: remove    i32 selected_element_index;
     
     // TODO: Window flowify_window;
     i32 flowify_vertical_offset;
@@ -190,22 +192,32 @@ extern "C" {
         Input * input = &global_input;
         Flowifier * flowifier = &world->flowifier;
 
+        FlowElement * flow_elements = (FlowElement *)flowifier->flow_elements.items;
+        i32 nr_of_flow_elements = flowifier->flow_elements.nr_of_items;
+        
+        // Process input
+        if (flowifier->has_absolute_positions)
+        {
+            i32 old_selected_element_index = flowifier->interaction.selected_element_index;
+            process_interactions(flowifier, input, world->root_element);
+            if (old_selected_element_index != flowifier->interaction.selected_element_index)
+            {
+                FlowElement * newly_selected_flow_element = &flow_elements[flowifier->interaction.selected_element_index];
+                
+                init_scrollable_text(&world->scrollable_flowify_detail, &world->flowify_detail_window, false);
+                split_string_into_scrollable_lines(newly_selected_flow_element->source_text, &world->scrollable_flowify_detail);
+            }
+        }
+        
+        // Update world
         update_window_dimensions(world, &input->screen);
         
         update_scrollable_text(&world->scrollable_program_text, input);
         update_scrollable_text(&world->scrollable_flowify_dump, input);
         
-        if (flowifier->has_absolute_positions)
-        {
-            process_interactions(flowifier, input, world->root_element);
-        }
-        
         layout_elements(flowifier, world->root_element);
         
         world->iteration++;
-        
-        FlowElement * flow_elements = (FlowElement *)flowifier->flow_elements.items;
-        i32 nr_of_flow_elements = flowifier->flow_elements.nr_of_items;
         
         if (flowifier->interaction.highlighted_element_index > 0 && world->iteration > 60) // every second (and if it is a valid selected element)
         {
@@ -214,8 +226,8 @@ extern "C" {
             flowifier->interaction.highlighted_element_index++;
             while (flowifier->interaction.highlighted_element_index < nr_of_flow_elements)
             {
-                FlowElement * newly_selected_flow_element = &flow_elements[flowifier->interaction.highlighted_element_index];
-                if (newly_selected_flow_element->is_highlightable)
+                FlowElement * newly_highlighted_flow_element = &flow_elements[flowifier->interaction.highlighted_element_index];
+                if (newly_highlighted_flow_element->is_highlightable)
                 {
                     break;
                 }
@@ -227,8 +239,8 @@ extern "C" {
             flowifier->interaction.highlighted_element_index = 1;
             while (flowifier->interaction.highlighted_element_index < nr_of_flow_elements)
             {
-                FlowElement * newly_selected_flow_element = &flow_elements[flowifier->interaction.highlighted_element_index];
-                if (newly_selected_flow_element->is_highlightable)
+                FlowElement * newly_highlighted_flow_element = &flow_elements[flowifier->interaction.highlighted_element_index];
+                if (newly_highlighted_flow_element->is_highlightable)
                 {
                     break;
                 }
@@ -338,6 +350,33 @@ extern "C" {
         absolute_layout_elements(flowifier, root_element, absolute_position);
         
         draw_elements(flowifier, root_element);
+        
+        // FIXME: hack!
+        if (flowifier->interaction.selected_element_index)
+        {
+            FlowElement * flow_elements = (FlowElement *)flowifier->flow_elements.items;
+            FlowElement * selected_flow_element = &flow_elements[flowifier->interaction.selected_element_index];
+            
+            Rect2d detail_rect = {};
+            
+            detail_rect.position = world->root_element->absolute_position;
+            detail_rect.size.width = world->root_element->size.width; // FIXME: we should choose a different width here right?
+            detail_rect.size.height = 300; // FIXME: we should choose a different width here right?
+            
+            detail_rect.position.x += world->root_element->size.width + 20;
+            detail_rect.position.y = selected_flow_element->absolute_position.y;
+            //selected_flow_element->absolute_position;
+            //selected_flow_element->size
+            
+            draw_rounded_rectangle(detail_rect.position, detail_rect.size, flowifier->bending_radius, 
+                                   flowifier->function_line_color, flowifier->function_odd_fill_color, flowifier->function_line_width);
+
+            // FIXME: update_scrollable_text should be called in update_frame!!
+            world->flowify_detail_window.screen_rect = detail_rect;
+            update_scrollable_text(&world->scrollable_flowify_detail, input);
+            
+            draw_scrollable_text(&world->scrollable_flowify_detail);
+        }
         
     }
     
