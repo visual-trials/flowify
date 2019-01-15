@@ -407,4 +407,8 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         }
         
     }
+    
+    // TODO: this will double-draw in case of primitive elements
+    draw_element_rectangle(flowifier, flow_element);
+    
 }
