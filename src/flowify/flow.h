@@ -100,8 +100,7 @@ const char * flow_element_type_names[] = {
 
 struct FlowElement
 {
-    // FIXME: Just testing memory!! Remove this!    ShortString dummy[10];
-    
+    i32 id; // Note: we are using the index in the flow_elements-array as an id
     FlowElementType type;
     
     Node * ast_node;
@@ -221,7 +220,12 @@ FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowEleme
     
     FlowElement empty_flow_element = {};
     
+    i32 id = flowifier->flow_elements.nr_of_items;
+
     FlowElement * new_flow_element = (FlowElement *)add_to_array(&flowifier->flow_elements, &empty_flow_element);
+    
+    new_flow_element->id = id;
+    new_flow_element->type = flow_element_type;
     
     new_flow_element->ast_node = ast_node;
     new_flow_element->source_text = get_source_text_from_ast_node(parser, ast_node);
@@ -237,8 +241,6 @@ FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowEleme
     new_flow_element->last_in_flow = 0;
     
     new_flow_element->next_function = 0;
-    
-    new_flow_element->type = flow_element_type;
     
     new_flow_element->position.x = 0;
     new_flow_element->position.y = 0;
