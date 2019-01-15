@@ -124,7 +124,9 @@ struct FlowElement
     FlowElement * next_function; // TODO: we should probably not store this in FlowElement
     
     b32 is_selectable;
-    b32 is_selected;
+    b32 is_highlightable;
+    
+    b32 is_highlighted; // FIXME: use an id of the selected FlowElement and check if it matches
     
     Size2d size;
     Pos2d position;
@@ -151,8 +153,8 @@ struct Flowifier
     
     // Colors
     Color4 line_color;
-    Color4 unselected_color;
-    Color4 selected_color;
+    Color4 unhighlighted_color;
+    Color4 highlighted_color;
     Color4 text_color;
     Color4 rectangle_color;
     Color4 rectangle_fill;
@@ -183,15 +185,15 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     
     flowifier->parser = parser;
     
-    flowifier->line_color       = (Color4){  0,   0,   0, 255};
-    flowifier->unselected_color = (Color4){180, 180, 255, 255};
-    flowifier->selected_color   = (Color4){180, 255, 180, 255};
-    flowifier->text_color       = (Color4){  0,   0,   0, 255};
-    flowifier->rectangle_color  = (Color4){255, 0, 0, 255};
-    flowifier->rectangle_fill   = (Color4){255, 0, 0, 50};
+    flowifier->line_color          = (Color4){  0,   0,   0, 255};
+    flowifier->unhighlighted_color = (Color4){180, 180, 255, 255};
+    flowifier->highlighted_color   = (Color4){180, 255, 180, 255};
+    flowifier->text_color          = (Color4){  0,   0,   0, 255};
+    flowifier->rectangle_color     = (Color4){255, 0, 0, 255};
+    flowifier->rectangle_fill      = (Color4){255, 0, 0, 50};
     flowifier->function_line_color = (Color4){ 200, 200, 200, 255};
     flowifier->function_even_fill_color = (Color4){ 235, 235, 235, 100}; // FIXME: remove alpha
-    flowifier->function_odd_fill_color = (Color4){ 245, 245, 245, 100}; // FIXME: remove alpha
+    flowifier->function_odd_fill_color  = (Color4){ 245, 245, 245, 100}; // FIXME: remove alpha
     
     flowifier->font.height = 20;
     flowifier->font.family = Font_CourierNew;
@@ -252,9 +254,10 @@ FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowEleme
     new_flow_element->absolute_position.x = 0;
     new_flow_element->absolute_position.y = 0;
 
-    new_flow_element->is_selectable = false;
+    new_flow_element->is_selectable = true;
+    new_flow_element->is_highlightable = false;
     
-    new_flow_element->is_selected = false;
+    new_flow_element->is_highlighted = false;
     
     return new_flow_element;
 }

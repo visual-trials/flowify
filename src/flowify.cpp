@@ -201,7 +201,7 @@ extern "C" {
         
         world->iteration++;
         
-        // FIXME: we should not set is_selected on the flow element itself. Instead we should keep a record of the *element identifier* we want to select
+        // FIXME: we should not set is_highlighted on the flow element itself. Instead we should keep a record of the *element identifier* we want to select
         //        whenever we draw the element we check for a *match* between the  selected *element identifier* and the identifier of the element.
         
         FlowElement * flow_elements = (FlowElement *)world->flowifier.flow_elements.items;
@@ -212,16 +212,16 @@ extern "C" {
             world->iteration = 0;
             
             FlowElement * selected_flow_element = &flow_elements[world->selected_element_index];
-            selected_flow_element->is_selected = false;
+            selected_flow_element->is_highlighted = false;
             
             world->selected_element_index++;
             while (world->selected_element_index < nr_of_flow_elements)
             {
                 
                 FlowElement * newly_selected_flow_element = &flow_elements[world->selected_element_index];
-                if (newly_selected_flow_element->is_selectable)
+                if (newly_selected_flow_element->is_highlightable)
                 {
-                    newly_selected_flow_element->is_selected = true;
+                    newly_selected_flow_element->is_highlighted = true;
                     break;
                 }
                 world->selected_element_index++;
@@ -233,9 +233,9 @@ extern "C" {
             while (world->selected_element_index < nr_of_flow_elements)
             {
                 FlowElement * newly_selected_flow_element = &flow_elements[world->selected_element_index];
-                if (newly_selected_flow_element->is_selectable)
+                if (newly_selected_flow_element->is_highlightable)
                 {
-                    newly_selected_flow_element->is_selected = true;
+                    newly_selected_flow_element->is_highlighted = true;
                     break;
                 }
                 world->selected_element_index++;

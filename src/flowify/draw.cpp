@@ -84,10 +84,10 @@ void draw_joining_element(Flowifier * flowifier, FlowElement * left_element, Flo
                           FlowElement * joining_element, FlowElement * element_next_in_flow, 
                           b32 show_help_rectangles)
 {
-    Color4 fill_color = flowifier->unselected_color;
-    if (joining_element->is_selected)
+    Color4 fill_color = flowifier->unhighlighted_color;
+    if (joining_element->is_highlighted)
     {
-        fill_color = flowifier->selected_color;
+        fill_color = flowifier->highlighted_color;
     }
         
     Rect2d no_rect = {-1,-1,-1,-1};
@@ -132,10 +132,10 @@ void draw_splitting_element(Flowifier * flowifier, FlowElement * left_element, F
                             FlowElement * splitting_element, FlowElement * element_previous_in_flow, 
                             b32 show_help_rectangles)
 {
-    Color4 fill_color = flowifier->unselected_color;
-    if (splitting_element->is_selected)
+    Color4 fill_color = flowifier->unhighlighted_color;
+    if (splitting_element->is_highlighted)
     {
-        fill_color = flowifier->selected_color;
+        fill_color = flowifier->highlighted_color;
     }
         
     Rect2d no_rect = {-1,-1,-1,-1};
@@ -189,10 +189,10 @@ void draw_element_rectangle(Flowifier * flowifier, FlowElement * flow_element)
 void draw_straight_element(Flowifier * flowifier, FlowElement * flow_element, FlowElement * element_previous_in_flow, 
                            FlowElement * element_next_in_flow, b32 show_help_rectangles)
 {
-    Color4 fill_color = flowifier->unselected_color;
-    if (flow_element->is_selected)
+    Color4 fill_color = flowifier->unhighlighted_color;
+    if (flow_element->is_highlighted)
     {
-        fill_color = flowifier->selected_color;
+        fill_color = flowifier->highlighted_color;
     }
     
     Rect2d no_rect = {-1,-1,-1,-1};
@@ -326,22 +326,22 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element, b32 show_h
         HorLine hor_line = get_bottom_line_from_rect(update_rect);
         VertLine vert_line = get_left_line_from_rect(passright_rect);
         draw_cornered_lane_segment(hor_line, vert_line, flowifier->bending_radius, 
-                                   flowifier->line_color, flowifier->unselected_color, flowifier->line_width);
+                                   flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
         
         vert_line = get_left_line_from_rect(passright_rect);
         hor_line = get_bottom_line_from_rect(passup_rect);
         draw_cornered_lane_segment(hor_line, vert_line, flowifier->bending_radius, 
-                                   flowifier->line_color, flowifier->unselected_color, flowifier->line_width);
+                                   flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
         
         hor_line = get_bottom_line_from_rect(passup_rect);
         vert_line = get_left_line_from_rect(passleft_rect);
         draw_cornered_lane_segment(hor_line, vert_line, flowifier->bending_radius, 
-                                   flowifier->line_color, flowifier->unselected_color, flowifier->line_width);
+                                   flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
 
         vert_line = get_left_line_from_rect(passleft_rect);
         hor_line = get_bottom_line_from_rect(passdown_rect);
         draw_cornered_lane_segment(hor_line, vert_line, flowifier->bending_radius, 
-                                   flowifier->line_color, flowifier->unselected_color, flowifier->line_width);
+                                   flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
 
         if (show_help_rectangles)
         {

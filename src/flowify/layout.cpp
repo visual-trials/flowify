@@ -51,19 +51,19 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
     {
         flow_element->size.width = get_width_based_on_source_text(flowifier, flow_element);
         flow_element->size.height = default_element_height;
-        flow_element->is_selectable = true;
+        flow_element->is_highlightable = true;
     }
     else if (flow_element->type == FlowElement_BinaryOperator)
     {
         flow_element->size.width = get_width_based_on_source_text(flowifier, flow_element);
         flow_element->size.height = default_element_height;
-        flow_element->is_selectable = true;
+        flow_element->is_highlightable = true;
     }
     else if (flow_element->type == FlowElement_Return)
     {
         flow_element->size.width = get_width_based_on_source_text(flowifier, flow_element);
         flow_element->size.height = default_element_height / 2;
-        flow_element->is_selectable = true;
+        flow_element->is_highlightable = true;
     }
     else if (flow_element->type == FlowElement_If)
     {
@@ -93,7 +93,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         if_cond_element->position = current_position;
         if_cond_element->size.width = get_width_based_on_source_text(flowifier, if_cond_element);
         if_cond_element->size.height = default_element_height;
-        if_cond_element->is_selectable = true;
+        if_cond_element->is_highlightable = true;
         
         current_position.y += if_cond_element->size.height;
         
@@ -147,17 +147,17 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         // TODO: we should layout for_init to get its (proper) width and height
         for_init_element->size.width = get_width_based_on_source_text(flowifier, for_init_element);
         for_init_element->size.height = default_element_height;
-        for_init_element->is_selectable = true;
+        for_init_element->is_highlightable = true;
         
         // TODO: we should layout for_cond to get its (proper) width and height
         for_cond_element->size.width = get_width_based_on_source_text(flowifier, for_cond_element);
         for_cond_element->size.height = default_element_height;
-        for_cond_element->is_selectable = true;
+        for_cond_element->is_highlightable = true;
         
         // TODO: we should layout for_update to get its (proper) width and height
         for_update_element->size.width = get_width_based_on_source_text(flowifier, for_update_element);
         for_update_element->size.height = default_element_height;
-        for_update_element->is_selectable = true;
+        for_update_element->is_highlightable = true;
         
         i32 for_body_height = for_body_element->size.height;
         
@@ -284,7 +284,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         flow_element->size.width = left_margin + function_element->size.width + right_margin;
         flow_element->size.height = top_margin + function_element->size.height + bottom_margin;
-        flow_element->is_selectable = true;
+        flow_element->is_highlightable = true;
         
         // flow_element->size = function_element->size;
     }
