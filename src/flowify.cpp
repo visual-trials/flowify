@@ -205,6 +205,7 @@ extern "C" {
                 FlowElement * newly_selected_flow_element = &flow_elements[flowifier->interaction.selected_element_index];
                 
                 init_scrollable_text(&world->scrollable_flowify_detail, &world->flowify_detail_window, false);
+                // FIXME: when we select the root element, the source_text has an extra character at the end (which doesn't look right)
                 split_string_into_scrollable_lines(newly_selected_flow_element->source_text, &world->scrollable_flowify_detail);
             }
         }
