@@ -100,7 +100,7 @@ const char * flow_element_type_names[] = {
 
 struct FlowElement
 {
-    i32 id; // Note: we are using the index in the flow_elements-array as an id
+    i32 id;
     FlowElementType type;
     
     Node * ast_node;
@@ -220,6 +220,7 @@ FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowEleme
     
     FlowElement empty_flow_element = {};
     
+    // Note: we are using the index in the flow_elements-array as an id
     i32 id = flowifier->flow_elements.nr_of_items;
 
     FlowElement * new_flow_element = (FlowElement *)add_to_array(&flowifier->flow_elements, &empty_flow_element);
