@@ -225,12 +225,12 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     flowifier->help_rectangle_fill      = (Color4){255, 0, 0, 50};
     flowifier->help_rectangle_line_width = 2;
     
-    flowifier->hovered_color     = (Color4){0, 0, 255, 255};
-    flowifier->hovered_fill      = (Color4){0, 0, 255, 50};
+    flowifier->hovered_color     = (Color4){0, 0, 255, 30};
+    flowifier->hovered_fill      = (Color4){0, 0, 255, 10};
     flowifier->hovered_line_width = 2;
     
-    flowifier->selected_color     = (Color4){0, 255, 0, 255};
-    flowifier->selected_fill      = (Color4){0, 255, 0, 50};
+    flowifier->selected_color     = (Color4){255, 0, 255, 255};
+    flowifier->selected_fill      = (Color4){255, 0, 255, 30};
     flowifier->selected_line_width = 2;
     
     flowifier->function_line_color = (Color4){ 200, 200, 200, 255};
