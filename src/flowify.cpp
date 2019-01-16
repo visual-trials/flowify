@@ -366,8 +366,8 @@ extern "C" {
             Rect2d detail_rect = {};
             
             detail_rect.position = world->root_element->absolute_position;
-            detail_rect.size.width = world->root_element->size.width; // FIXME: we should choose a different width here right?
-            detail_rect.size.height = 300; // FIXME: we should choose a different width here right?
+            detail_rect.size.width = 500; // FIXME: we should choose a different width here right?
+            detail_rect.size.height = 644; // FIXME: we should choose a different width here right?
             
             detail_rect.position.x += world->root_element->size.width + 20;
             detail_rect.position.y = selected_flow_element->absolute_position.y;

@@ -328,18 +328,119 @@ void add_sibling(FlowElement * existing_sibling, FlowElement * new_sibling)
     new_sibling->previous_sibling = existing_sibling;
 }
 
+void append_cstring_detail(const char * title, const char * value, DynamicString * detail_text, b32 append_newline = true)
+{
+    append_string(detail_text, cstring_to_string(title));
+    append_string(detail_text, cstring_to_string(": "));
+    String value_string = cstring_to_string(value);
+    append_string(detail_text, value_string);
+    
+    if (append_newline)
+    {
+        append_string(detail_text, cstring_to_string("\n"));
+    }
+}
+
+void append_integer_detail(const char * title, i32 int_value, DynamicString * detail_text, b32 append_newline = true)
+{
+    ShortString decimal_string = {}; // TODO: this is hurting the stack a bit. Maybe pass it instead?
+    
+    append_string(detail_text, cstring_to_string(title));
+    append_string(detail_text, cstring_to_string(": "));
+    append_string(detail_text, int_to_string(int_value, &decimal_string));
+    
+    if (append_newline)
+    {
+        append_string(detail_text, cstring_to_string("\n"));
+    }
+}
+
+void append_element_pointer_detail(const char * title, FlowElement * flow_element, DynamicString * detail_text, b32 append_newline = true)
+{
+    ShortString decimal_string = {}; // TODO: this is hurting the stack a bit. Maybe pass it instead?
+    
+    i32 int_value = 0;
+    if (flow_element)
+    {
+        int_value = flow_element->index;
+    }
+    append_string(detail_text, cstring_to_string(title));
+    append_string(detail_text, cstring_to_string(": "));
+    append_string(detail_text, int_to_string(int_value, &decimal_string));
+    
+    if (int_value)
+    {
+        append_string(detail_text, cstring_to_string(" ("));
+        append_string(detail_text, cstring_to_string(flow_element_type_names[flow_element->type]));
+        append_string(detail_text, cstring_to_string(")"));
+    }
+    
+    if (append_newline)
+    {
+        append_string(detail_text, cstring_to_string("\n"));
+    }
+}
+
+void append_boolean_detail(const char * title, b32 bool_value, DynamicString * detail_text, b32 append_newline = true)
+{
+    append_string(detail_text, cstring_to_string(title));
+    append_string(detail_text, cstring_to_string(": "));
+    if (bool_value)
+    {
+        append_string(detail_text, cstring_to_string("true"));
+    }
+    else
+    {
+        append_string(detail_text, cstring_to_string("false"));
+    }
+    if (append_newline)
+    {
+        append_string(detail_text, cstring_to_string("\n"));
+    }
+    
+}
+
+void append_newline(DynamicString * detail_text)
+{
+    append_string(detail_text, cstring_to_string("\n"));
+}
+
 void generate_element_detail(FlowElement * element, DynamicString * detail_text)
 {
-    ShortString decimal_string = {};
+    append_integer_detail("index", element->index, detail_text);
+    append_cstring_detail("type", flow_element_type_names[element->type], detail_text);
+    append_newline(detail_text);
     
-    append_string(detail_text, cstring_to_string("index: "));
-    append_string(detail_text, int_to_string(element->index, &decimal_string));
-    append_string(detail_text, cstring_to_string("\n"));
+    append_integer_detail("x", element->position.x, detail_text);
+    append_integer_detail("y", element->position.y, detail_text);
+    append_newline(detail_text);
     
-    append_string(detail_text, cstring_to_string("type: "));
-    String element_type_string = cstring_to_string(flow_element_type_names[element->type]);
-    append_string(detail_text, element_type_string);
-    append_string(detail_text, cstring_to_string("\n"));
+    append_integer_detail("width", element->size.width, detail_text);
+    append_integer_detail("height", element->size.height, detail_text);
+    append_newline(detail_text);
+    
+    append_integer_detail("abs.x", element->absolute_position.x, detail_text);
+    append_integer_detail("abs.y", element->absolute_position.y, detail_text);
+    append_newline(detail_text);
+    
+    append_boolean_detail("is_selectable", element->is_selectable, detail_text);
+    append_boolean_detail("is_highlightable", element->is_highlightable, detail_text);
+    append_newline(detail_text);
+
+    append_element_pointer_detail("parent", element->parent, detail_text);
+    append_element_pointer_detail("first_child", element->first_child, detail_text);
+    append_newline(detail_text);
+    
+    append_element_pointer_detail("next_sibling", element->next_sibling, detail_text);
+    append_element_pointer_detail("previous_sibling", element->previous_sibling, detail_text);
+    append_newline(detail_text);
+    
+    append_element_pointer_detail("next_in_flow", element->next_in_flow, detail_text);
+    append_element_pointer_detail("previous_in_flow", element->previous_in_flow, detail_text);
+    append_newline(detail_text);
+    
+    append_element_pointer_detail("first_in_flow", element->first_in_flow, detail_text);
+    append_element_pointer_detail("last_in_flow", element->last_in_flow, detail_text, false);
 }
 
 i32 dump_element_tree(FlowElement * element, DynamicString * dump_text, i32 dump_line_index = 0, i32 depth = 0)
