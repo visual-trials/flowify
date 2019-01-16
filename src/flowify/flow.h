@@ -165,6 +165,7 @@ struct Flowifier
     
     Color4 unhighlighted_color;
     Color4 highlighted_color;
+    i32 line_width;
     
     b32 show_help_rectangles;
     Color4 help_rectangle_color;
@@ -182,15 +183,18 @@ struct Flowifier
     Color4 function_line_color;
     Color4 function_even_fill_color;
     Color4 function_odd_fill_color;
+    i32 function_line_width;
+    
+    Color4 detail_line_color;
+    Color4 detail_fill_color;
+    i32 detail_line_width;
     
     // Font
     Font font;
     i32 character_width;
         
     // Layout, sizes
-    i32 line_width;
     i32 bending_radius;
-    i32 function_line_width;
     i32 if_middle_margin;
     i32 for_middle_margin;
     i32 for_right_margin;
@@ -219,6 +223,7 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     
     flowifier->unhighlighted_color = (Color4){180, 180, 255, 255};
     flowifier->highlighted_color   = (Color4){180, 255, 180, 255};
+    flowifier->line_width = 4;
     
     flowifier->show_help_rectangles = false;
     flowifier->help_rectangle_color     = (Color4){255, 0, 0, 255};
@@ -236,6 +241,11 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     flowifier->function_line_color = (Color4){ 200, 200, 200, 255};
     flowifier->function_even_fill_color = (Color4){ 235, 235, 235, 100}; // FIXME: remove alpha
     flowifier->function_odd_fill_color  = (Color4){ 245, 245, 245, 100}; // FIXME: remove alpha
+    flowifier->function_line_width = 2;
+    
+    flowifier->detail_line_color = (Color4){ 200, 200, 200, 255};
+    flowifier->detail_fill_color = (Color4){ 255, 255, 255, 200};
+    flowifier->detail_line_width = 2;
     
     flowifier->font.height = 20;
     flowifier->font.family = Font_CourierNew;
@@ -245,9 +255,7 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     Size2d white_space_size = get_text_size(&white_space, flowifier->font);
     flowifier->character_width = white_space_size.width;
     
-    flowifier->line_width = 4;
     flowifier->bending_radius = 20;
-    flowifier->function_line_width = 2;
     flowifier->if_middle_margin = 80;
     flowifier->for_middle_margin = 80;
     flowifier->for_right_margin = 100;

@@ -375,7 +375,7 @@ extern "C" {
             //selected_flow_element->size
             
             draw_rounded_rectangle(detail_rect.position, detail_rect.size, flowifier->bending_radius, 
-                                   flowifier->function_line_color, flowifier->function_odd_fill_color, flowifier->function_line_width);
+                                   flowifier->detail_line_color, flowifier->detail_fill_color, flowifier->detail_line_width);
 
             // FIXME: update_scrollable_text should be called in update_frame!!
             world->flowify_detail_window.screen_rect = detail_rect;
