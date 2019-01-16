@@ -275,6 +275,7 @@ FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowEleme
     new_flow_element->type = flow_element_type;
     
     new_flow_element->ast_node = ast_node;
+    // FIXME: for the root element, the source_text has an extra character at the end (which doesn't look right)
     new_flow_element->source_text = get_source_text_from_ast_node(parser, ast_node);
     
     new_flow_element->first_child = 0;
@@ -325,6 +326,20 @@ void add_sibling(FlowElement * existing_sibling, FlowElement * new_sibling)
 {
     existing_sibling->next_sibling = new_sibling;
     new_sibling->previous_sibling = existing_sibling;
+}
+
+void generate_element_detail(FlowElement * element, DynamicString * detail_text)
+{
+    ShortString decimal_string = {};
+    
+    append_string(detail_text, cstring_to_string("index: "));
+    append_string(detail_text, int_to_string(element->index, &decimal_string));
+    append_string(detail_text, cstring_to_string("\n"));
+    
+    append_string(detail_text, cstring_to_string("type: "));
+    String element_type_string = cstring_to_string(flow_element_type_names[element->type]);
+    append_string(detail_text, element_type_string);
+    append_string(detail_text, cstring_to_string("\n"));
 }
 
 i32 dump_element_tree(FlowElement * element, DynamicString * dump_text, i32 dump_line_index = 0, i32 depth = 0)

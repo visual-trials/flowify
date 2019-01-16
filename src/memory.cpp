@@ -546,6 +546,13 @@ void append_string(DynamicString * dynamic_string, String string)
     dynamic_string->string.length += string.length;
 }
 
+void append_string(DynamicString * dynamic_string, ShortString * short_string)
+{
+    String string = {};
+    string.data = short_string->data;
+    string.length = short_string->length;
+    append_string(dynamic_string, string);
+}
 
 extern "C" {
 

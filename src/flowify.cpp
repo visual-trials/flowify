@@ -42,6 +42,7 @@ struct WorldData
     ScrollableText scrollable_flowify_dump;
     Window flowify_dump_window;
     
+    DynamicString flowify_detail_text;
     ScrollableText scrollable_flowify_detail;
     Window flowify_detail_window;
     
@@ -205,8 +206,12 @@ extern "C" {
                 FlowElement * newly_selected_flow_element = &flow_elements[flowifier->interaction.selected_element_index];
                 
                 init_scrollable_text(&world->scrollable_flowify_detail, &world->flowify_detail_window, false);
-                // FIXME: when we select the root element, the source_text has an extra character at the end (which doesn't look right)
-                split_string_into_scrollable_lines(newly_selected_flow_element->source_text, &world->scrollable_flowify_detail);
+                
+                init_dynamic_string(&world->flowify_detail_text, (Color4){255,70,150,255}, cstring_to_string("Flowify detail text"));
+
+                generate_element_detail(newly_selected_flow_element, &world->flowify_detail_text);
+
+                split_string_into_scrollable_lines(world->flowify_detail_text.string, &world->scrollable_flowify_detail);
             }
         }
         
