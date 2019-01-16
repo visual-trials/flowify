@@ -370,7 +370,7 @@ extern "C" {
             detail_rect.size.height = 644; // FIXME: we should choose a different width here right?
             
             detail_rect.position.x += world->root_element->size.width + 20;
-            detail_rect.position.y = selected_flow_element->absolute_position.y;
+            detail_rect.position.y = selected_flow_element->absolute_position.y + selected_flow_element->size.height / 2 - detail_rect.size.height / 4;
             //selected_flow_element->absolute_position;
             //selected_flow_element->size
             
