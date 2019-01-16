@@ -201,6 +201,7 @@ extern "C" {
         {
             i32 old_selected_element_index = flowifier->interaction.selected_element_index;
             process_interactions(flowifier, input, world->root_element);
+            // TODO: we should also re-generate the detail-string when the absolute position changes of the element
             if (old_selected_element_index != flowifier->interaction.selected_element_index)
             {
                 FlowElement * newly_selected_flow_element = &flow_elements[flowifier->interaction.selected_element_index];
@@ -366,13 +367,11 @@ extern "C" {
             Rect2d detail_rect = {};
             
             detail_rect.position = world->root_element->absolute_position;
-            detail_rect.size.width = 500; // FIXME: we should choose a different width here right?
-            detail_rect.size.height = 644; // FIXME: we should choose a different width here right?
+            detail_rect.size.width = 500; // TODO: we should choose a different width here right?
+            detail_rect.size.height = 644; // TODO: we should choose a different width here right?
             
             detail_rect.position.x += world->root_element->size.width + 20;
             detail_rect.position.y = selected_flow_element->absolute_position.y + selected_flow_element->size.height / 2 - detail_rect.size.height / 4;
-            //selected_flow_element->absolute_position;
-            //selected_flow_element->size
             
             draw_rounded_rectangle(detail_rect.position, detail_rect.size, flowifier->bending_radius, 
                                    flowifier->detail_line_color, flowifier->detail_fill_color, flowifier->detail_line_width);
