@@ -15,7 +15,7 @@ PROJECT_NAME=flowify
 
 # Debug build: DO_ASSERTIONS=1
 
-emcc src/platform/browser_main.cpp -Os -s WASM=1 -D DO_ASSERTIONS=1 -D INCLUDE_PROJECT_FILE="\"../$PROJECT_NAME.cpp\"" -o dist/$PROJECT_NAME.html -s TOTAL_MEMORY=34MB --js-library web/js/emcc/external.js \
+emcc src/platform/browser_main.cpp -Os -s WASM=1 -D DO_ASSERTIONS=1 -D INCLUDE_PROJECT_FILE="\"../$PROJECT_NAME.c\"" -o dist/$PROJECT_NAME.html -s TOTAL_MEMORY=34MB --js-library web/js/emcc/external.js \
     -s "EXPORTED_FUNCTIONS=[
         '_init_world', 
         '_update_frame', 

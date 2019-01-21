@@ -40,7 +40,7 @@ struct Color4
     u8 a;
 };
 
-// NOTE: always keep this in sync with my.fontFamilies in canvas.js and font_families in win32/render.cpp!
+// NOTE: always keep this in sync with my.fontFamilies in canvas.js and font_families in platform/win32_render.cpp!
 enum FontFamily
 {
     Font_Arial = 0x00,

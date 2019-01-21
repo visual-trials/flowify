@@ -25,16 +25,16 @@
 #endif
 
 #include "../generic.h"
-#include "../string.cpp"
-#include "../geometry.cpp"
-#include "../memory.cpp"
-#include "../input.cpp"
+#include "../string.c"
+#include "../geometry.c"
+#include "../memory.c"
+#include "../input.c"
 
-#include "browser_render.cpp"
+#include "browser_render.c"
 
 #include "../imgui/imgui.h"
-#include "../imgui/menu.cpp"
-#include "../imgui/debug.cpp"
-#include "../imgui/scrollable_text.cpp"
+#include "../imgui/menu.c"
+#include "../imgui/debug.c"
+#include "../imgui/scrollable_text.c"
 
 #include INCLUDE_PROJECT_FILE

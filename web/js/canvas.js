@@ -32,7 +32,7 @@ Flowify.canvas = function () {
 
     my.isIE = false
 
-    // NOTE: always keep this in sync with FontFamily in render.cpp!
+    // NOTE: always keep this in sync with FontFamily in generic.h!
     my.fontFamilies = [
         "Arial",        // 0x00
         "Courier New",  // 0x01

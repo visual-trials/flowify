@@ -23,7 +23,7 @@ ID2D1HwndRenderTarget * render_target;
 ID2D1Factory * d2d_factory;
 IDWriteFactory * direct_write_factory;
 
-// Note: keep this in sync with the enum FontFamily in render.cpp
+// Note: keep this in sync with the enum FontFamily in generic.h
 const wchar_t* font_families[] = { 
     L"Arial",
     L"Courier New"

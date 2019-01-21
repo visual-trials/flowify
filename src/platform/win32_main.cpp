@@ -28,17 +28,17 @@ LARGE_INTEGER clock_counter_after_render;
 LARGE_INTEGER clock_counter_after_wait;
 
 #include "../generic.h"
-#include "../string.cpp"
-#include "../geometry.cpp"
-#include "../memory.cpp"
-#include "../input.cpp"
+#include "../string.c"
+#include "../geometry.c"
+#include "../memory.c"
+#include "../input.c"
 
 #include "win32_render.cpp"
 
 #include "../imgui/imgui.h"
-#include "../imgui/menu.cpp"
-#include "../imgui/debug.cpp"
-#include "../imgui/scrollable_text.cpp"
+#include "../imgui/menu.c"
+#include "../imgui/debug.c"
+#include "../imgui/scrollable_text.c"
 
 #include INCLUDE_PROJECT_FILE
 

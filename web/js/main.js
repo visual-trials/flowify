@@ -22,7 +22,7 @@ Flowify.main = function () {
     let my = {}
     
     my.frameIndex = 0
-    my.maxNrOfFramesForTiming = 60 // always keep this is sync with input.cpp!
+    my.maxNrOfFramesForTiming = 60 // always keep this is sync with input.c!
     
     my.clockBeforeUpdateAndRender = performance.now()
     my.clockAfterUpdate = performance.now()
