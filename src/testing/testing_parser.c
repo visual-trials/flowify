@@ -110,7 +110,7 @@ extern "C" {
         world->selected_token_index = 0;
         world->selected_node_index = 0;
         
-        world->program_texts[0] = simple_assign_program_text;
+        world->program_texts[0] = large_example; // simple_assign_program_text;
         world->program_texts[1] = i_plus_plus_program_text;
         world->program_texts[2] = simple_functions_program_text;
         world->program_texts[3] = simple_if_program_text;

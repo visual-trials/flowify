@@ -161,3 +161,22 @@ const char * fibonacci_recursive_early_return_program_text =
     "    return fibonacci_recursive($n - 1) + fibonacci_recursive($n - 2);\n"
     "}"
 ;
+
+const char * large_example = 
+    "<?php\n"
+    "\n"
+    "extendFlowElementsWithVisualInfo();\n"
+    "// VisualInfo\n"
+    "\n"
+    "function extendFlowElementsWithVisualInfo (&$flowElementArray, &$visualInfos, &$usedVisualInfos) {\n"
+    "    \n"
+    "    $visualInfo = getVisualInfo($flowElementArray['astNodeIdentifier'], $visualInfos, $usedVisualInfos);\n"
+    "    extendFlowElementWithVisualInfo($flowElementArray, $visualInfo);\n"
+    "    \n"
+    "    if (array_key_exists('children', $flowElementArray)) {\n"
+    "        foreach ($flowElementArray['children'] as &$childflowElementArray) {\n"
+    "            extendFlowElementsWithVisualInfo($childflowElementArray, $visualInfos, $usedVisualInfos);\n"
+    "        }\n"
+    "    }\n"
+    "}\n"
+;
