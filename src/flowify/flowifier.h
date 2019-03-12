@@ -52,9 +52,11 @@ enum FlowElementType
     // Data flow elements
     FlowElement_Hidden,         // TODO: using this to signify the contents of a function we don't know it's implementation of
     FlowElement_Assignment,
+    FlowElement_Assignee,
     FlowElement_UnaryOperator,
     FlowElement_BinaryOperator,
     FlowElement_FunctionCall,   // TODO: is this redundant?
+    FlowElement_Variable,
     FlowElement_Scalar
 };
 // TODO: Keep this in sync with the enum above!
@@ -94,9 +96,11 @@ const char * flow_element_type_names[] = {
     // Data flow elements
     "Hidden",
     "Assignment",
+    "Assignee",
     "UnaryOperator",
     "BinaryOperator",
     "FunctionCall",   // TODO: is this redundant?
+    "Variable",
     "Scalar"
 };
 

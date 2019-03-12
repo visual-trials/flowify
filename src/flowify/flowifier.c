@@ -33,14 +33,17 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
             expression_node->type == Node_Expr_AssignOp_Minus ||
             expression_node->type == Node_Expr_AssignOp_Concat)
         {
-            new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_Assignment);
+            FlowElement * assignment_expression_element = new_flow_element(flowifier, expression_node, FlowElement_Assignment);
+            new_expression_element = assignment_expression_element;
             
-            // TODO: do something with the assigned variable: expression_node->first_child
-            
+            FlowElement * assignee_element = new_flow_element(flowifier, expression_node->first_child, FlowElement_Assignee);
+            assignment_expression_element->first_child = assignee_element;
+            assignee_element->parent = assignment_expression_element;
+
             FlowElement * right_side_expression_element = flowify_expression(flowifier, expression_node->first_child->next_sibling);
-            // FIXME: HACK: setting the right-side of the assignment as the main expression!
-            new_expression_element->first_child = right_side_expression_element;
-            // TODO: set parent?
+            assignee_element->next_sibling = right_side_expression_element;
+            right_side_expression_element->parent = assignment_expression_element;
+            
             // TODO: new_expression_element->first_in_flow ?= right_side_expression_element->first_in_flow;
             // TODO: new_expression_element->last_in_flow ?= right_side_expression_element->last_in_flow;
         }
@@ -50,6 +53,21 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
                  expression_node->type == Node_Expr_PostDec)
         {
             new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_UnaryOperator);
+        }
+        else if (expression_node->type == Node_Expr_BinaryOp_Multiply ||
+                 expression_node->type == Node_Expr_BinaryOp_Divide ||
+                 expression_node->type == Node_Expr_BinaryOp_Plus ||
+                 expression_node->type == Node_Expr_BinaryOp_Minus ||
+                 expression_node->type == Node_Expr_BinaryOp_Smaller ||
+                 expression_node->type == Node_Expr_BinaryOp_Greater ||
+                 expression_node->type == Node_Expr_BinaryOp_Equal)
+        {
+            new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_BinaryOperator);
+        }
+        
+        else if (expression_node->type == Node_Expr_Variable)
+        {
+            new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_Variable);
         }
         else if (expression_node->type == Node_Expr_FuncCall)
         {
@@ -83,6 +101,11 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
                 new_expression_element->first_in_flow = hidden_element;
                 new_expression_element->last_in_flow = hidden_element;
             }
+        }
+        else if (expression_node->type == Node_Scalar_Number)
+        {
+            // TODO: add the (constant) value to the flow element
+            new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_Scalar);
         }
         else
         {
