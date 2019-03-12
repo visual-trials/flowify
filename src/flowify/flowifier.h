@@ -42,6 +42,8 @@ enum FlowElementType
     FlowElement_ForUpdate,
     FlowElement_ForDone,
     
+    FlowElement_Foreach,
+    
     FlowElement_PassThrough,
     FlowElement_PassBack,
     
@@ -85,6 +87,8 @@ const char * flow_element_type_names[] = {
     "ForBody",
     "ForUpdate",
     "ForDone",
+    
+    "Foreach",
     
     "PassThrough",
     "PassBack",

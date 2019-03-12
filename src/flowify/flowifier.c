@@ -331,6 +331,17 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         
         new_statement_element = for_element;
     }
+    else if (statement_node->type == Node_Stmt_Foreach)
+    {
+        FlowElement * foreach_element = new_flow_element(flowifier, statement_node, FlowElement_Foreach);
+        
+        // TODO: flowify foreach statement
+        
+        foreach_element->first_in_flow = foreach_element;
+        foreach_element->last_in_flow = foreach_element;
+        
+        new_statement_element = foreach_element;
+    }
     else if (statement_node->type == Node_Stmt_Function)
     {
         FlowElement * function_element = new_flow_element(flowifier, statement_node, FlowElement_Function);

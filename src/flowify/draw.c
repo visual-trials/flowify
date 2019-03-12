@@ -348,6 +348,10 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_straight_element(flowifier, for_passthrough_element, 0, for_done_element);
         draw_straight_element(flowifier, for_done_element, for_passthrough_element, for_done_element->next_in_flow);
     }
+    else if (flow_element->type == FlowElement_Foreach)
+    {
+        // FIXME: draw foreach
+    }
     else if (flow_element->type == FlowElement_FunctionCall)
     {
         Pos2d position = flow_element->absolute_position;

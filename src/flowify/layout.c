@@ -266,6 +266,12 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         flow_element->size.height = total_height;
         flow_element->size.width = total_width;
     }
+    else if (flow_element->type == FlowElement_Foreach)
+    {
+        flow_element->size.width = 100; // FIXME: get_width_based_on_source_text(flowifier, flow_element);
+        flow_element->size.height = default_element_height;
+        flow_element->is_highlightable = true;
+    }
     else if (flow_element->type == FlowElement_FunctionCall)
     {
         FlowElement * function_element = flow_element->first_child;
@@ -440,6 +446,12 @@ void absolute_layout_elements(Flowifier * flowifier, FlowElement * flow_element,
              )
     {
         flow_element->absolute_position = add_position_to_position(flow_element->position, absolute_parent_position);
+    }
+    else if (flow_element->type == FlowElement_Foreach)
+    {
+        flow_element->absolute_position = add_position_to_position(flow_element->position, absolute_parent_position);
+        
+        // FIXME: implement this!
     }
     else if (flow_element->type == FlowElement_FunctionCall)
     {
