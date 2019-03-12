@@ -35,16 +35,21 @@ enum TokenType
     Token_Colon,
     Token_Semicolon,
     Token_Comma,
+    Token_Ampersand, // &
     
-    Token_String,
+    Token_SingleQuotedString,
     Token_Number,
     Token_Float,
     Token_Identifier,
     Token_VariableIdentifier,  // starts with $
     
+    
     Token_If,
     Token_Else,
     Token_For,
+    Token_Foreach,
+    Token_As,
+    Token_Arrow,  // TODO: What should be the name of this: "=>"
     
     Token_Function,
     Token_Break,
@@ -205,12 +210,30 @@ Token get_token(Tokenizer * tokenizer)
         case ':': {token.type = Token_Colon;} break;
         case ';': {token.type = Token_Semicolon;} break;
         case ',': {token.type = Token_Comma;} break;
+        case '&': {token.type = Token_Ampersand;} break;
+        
+        case '\'': {
+            token.type = Token_SingleQuotedString;
+            // TODO: we should allow for escaping inside a single quoted string
+            while(tokenizer->at[0] && tokenizer->at[0] != '\'')
+            {
+                tokenizer->at++;
+            }
+            tokenizer->at++;
+            token.text.length = tokenizer->at - token.text.data;
+        } break;
         
         case '=': {
             if (tokenizer->at[0] == '=')
             {
                 tokenizer->at++;
                 token.type = Token_Equal;
+                token.text.length = tokenizer->at - token.text.data;
+            }
+            else if (tokenizer->at[0] == '>')   // "=>"
+            {
+                tokenizer->at++;
+                token.type = Token_Arrow;
                 token.text.length = tokenizer->at - token.text.data;
             }
             else
@@ -372,6 +395,14 @@ Token get_token(Tokenizer * tokenizer)
                 {
                     token.type = Token_For;
                 }
+                else if (equals(token.text, "foreach"))
+                {
+                    token.type = Token_Foreach;
+                }
+                else if (equals(token.text, "as"))
+                {
+                    token.type = Token_As;
+                }
                 else if (equals(token.text, "function"))
                 {
                     token.type = Token_Function;
@@ -456,6 +487,7 @@ statements = { statement }
 statement = 
       "if" "(" expr ")" block [ else block ]
     | "for" "(" expr ";" expr ";" expr ")" block
+    | "foreach" "(" expr "as" [ var "=>" ] ["&"]var ")" block
     | "function" identifier arguments block
     | "continue" ";"
     | "break" ";"
@@ -463,7 +495,7 @@ statement =
     | expr ";"
 
 arguments =
-    "(" [ expr { ", " expr } ] ")"
+    "(" [ [&]expr { ", " ["&"]expr } ] ")"
 
 expr =
     sub_expr "<" sub_expr
@@ -478,6 +510,7 @@ sub_expr :=
     "(" expr ")"
     "++" var
     "--" var
+    var "[" expr "]"
     var "++"
     var "--"
     var "*=" expr
@@ -488,7 +521,7 @@ sub_expr :=
     var
     number
     float
-    string
+    single_quoted_string
     identifier arguments
     
 */
@@ -511,6 +544,12 @@ enum NodeType
     Node_Stmt_For_Cond,
     Node_Stmt_For_Update,
     Node_Stmt_For_Body,
+    
+    Node_Stmt_Foreach,
+    Node_Stmt_Foreach_Array,
+    Node_Stmt_Foreach_Key_Var,
+    Node_Stmt_Foreach_Value_Var,
+    Node_Stmt_Foreach_Body,
     
     Node_Stmt_Function,
     Node_Stmt_Function_Args,
@@ -572,6 +611,12 @@ const char * node_type_names[] = {
     "Stmt_For_Cond",
     "Stmt_For_Update",
     "Stmt_For_Body",
+    
+    "Stmt_Foreach",
+    "Stmt_Foreach_Array",
+    "Stmt_Foreach_Key_Var",
+    "Stmt_Foreach_Value_Var",
+    "Stmt_Foreach_Body",
     
     "Stmt_Function",
     "Stmt_Function_Args",
@@ -812,7 +857,18 @@ Node * parse_sub_expression(Parser * parser)
         
         Token * variable_token = get_latest_token(parser);
         
-        if (accept_token(parser, Token_PlusPlus))
+        if (accept_token(parser, Token_OpenBracket))
+        {
+            i32 first_token_index = parser->current_token_index - 1;
+            
+            sub_expression_node = parse_expression(parser);
+            sub_expression_node->first_token_index = first_token_index;
+            
+            expect_token(parser, Token_CloseBracket);
+            
+            sub_expression_node->last_token_index = parser->current_token_index - 1;
+        }
+        else if (accept_token(parser, Token_PlusPlus))
         {
             // TODO: we should only allow '++' *right* behind a variableIdentifier!
             sub_expression_node->type = Node_Expr_PostInc;
@@ -898,7 +954,7 @@ Node * parse_sub_expression(Parser * parser)
         
         sub_expression_node->last_token_index = parser->current_token_index - 1;
     }
-    else if (accept_token(parser, Token_String))
+    else if (accept_token(parser, Token_SingleQuotedString))
     {
         sub_expression_node = new_node(parser);
         
@@ -927,7 +983,10 @@ Node * parse_sub_expression(Parser * parser)
     }
     else
     {
+        Token * latest_token = get_latest_token(parser);
         log("ERROR: unknown sub expression!");
+        log(latest_token->text);
+        log_int(latest_token->line_index + 1);
         sub_expression_node = 0;  // TODO: we should "free" this sub_expression_node (but an error occured so it might nog matter)
         return sub_expression_node;
     }
@@ -1034,6 +1093,11 @@ void parse_arguments(Parser * parser, Node * parent_node)
     Node * previous_sibling;
     while(!accept_token(parser, Token_CloseParenteses))
     {
+        if (accept_token(parser, Token_Ampersand))
+        {
+            // FIXME: do something with the &
+        }
+        
         Node * argument_node = parse_expression(parser);
         if (argument_node)
         {
@@ -1110,11 +1174,15 @@ Node * parse_statement(Parser * parser)
     }
     else if (accept_token(parser, Token_For))
     {
+        // For
+        
         statement_node->first_token_index = parser->current_token_index - 1;
         
         statement_node->type = Node_Stmt_For;
         
         expect_token(parser, Token_OpenParenteses);
+        
+        // For_Init
         
         Node * init_node = new_node(parser);
         init_node->type = Node_Stmt_For_Init;
@@ -1128,7 +1196,9 @@ Node * parse_statement(Parser * parser)
         statement_node->first_child = init_node;
         
         expect_token(parser, Token_Semicolon);
-            
+        
+        // For_Cond
+        
         Node * condition_node = new_node(parser);
         condition_node->type = Node_Stmt_For_Cond;
         condition_node->first_token_index = parser->current_token_index;
@@ -1141,6 +1211,8 @@ Node * parse_statement(Parser * parser)
         
         expect_token(parser, Token_Semicolon);
         
+        // For_Update
+        
         Node * update_node = new_node(parser);
         update_node->type = Node_Stmt_For_Update;
         update_node->first_token_index = parser->current_token_index;
@@ -1152,12 +1224,94 @@ Node * parse_statement(Parser * parser)
         
         expect_token(parser, Token_CloseParenteses);
         
-        // For body
+        // For_Body
+        
         Node * for_body_node = new_node(parser);
         for_body_node->type = Node_Stmt_For_Body;
         parse_block(parser, for_body_node);
         
         update_node->next_sibling = for_body_node;
+        
+        statement_node->last_token_index = parser->current_token_index - 1;
+    }
+    else if (accept_token(parser, Token_Foreach))
+    {
+        // Foreach
+        
+        statement_node->first_token_index = parser->current_token_index - 1;
+        
+        statement_node->type = Node_Stmt_Foreach;
+        
+        expect_token(parser, Token_OpenParenteses);
+        
+        // Foreach_Array
+        
+        Node * array_node = new_node(parser);
+        array_node->type = Node_Stmt_Foreach_Array;
+        array_node->first_token_index = parser->current_token_index;
+
+        Node * array_expression_node = parse_expression(parser);
+        
+        array_node->first_child = array_expression_node;
+        array_node->last_token_index = parser->current_token_index - 1;
+        
+        statement_node->first_child = array_node;
+        
+        expect_token(parser, Token_As);
+
+        // Foreach_Value_Var
+        
+        // We always expect a variable, which (by default) is the Foreach_Value_Var
+        if (accept_token(parser, Token_Ampersand))
+        {
+            // FIXME: do something with the &
+        }
+        expect_token(parser, Token_VariableIdentifier);
+        
+        Node * value_var_node = new_node(parser);
+        value_var_node->type = Node_Stmt_Foreach_Value_Var;
+        value_var_node->first_token_index = parser->current_token_index;
+        
+        value_var_node->last_token_index = parser->current_token_index - 1;
+        
+        if (accept_token(parser, Token_Arrow)) {
+            
+            if (accept_token(parser, Token_Ampersand))
+            {
+                // FIXME: do something with the &
+            }
+            expect_token(parser, Token_VariableIdentifier);
+            
+            // Foreach_Value_Var --becomes--> Foreach_Key_Var
+            
+            // If there is an "=>", the first variable was the Key_Var instead, the next variable becomes the Value_Var
+            Node * key_var_node = value_var_node;
+            key_var_node->type = Node_Stmt_Foreach_Key_Var;
+            
+            // Foreach_Value_Var (new)
+            
+            value_var_node = new_node(parser);
+            value_var_node->type = Node_Stmt_Foreach_Value_Var;
+            value_var_node->first_token_index = parser->current_token_index;
+            value_var_node->last_token_index = parser->current_token_index; // TODO: is this correct??
+            
+            array_node->next_sibling = key_var_node;
+            
+            key_var_node->next_sibling = value_var_node;
+        }
+        else
+        {
+            array_node->next_sibling = value_var_node;
+        }
+        
+        expect_token(parser, Token_CloseParenteses);
+        
+        // Foreach_Body
+        Node * foreach_body_node = new_node(parser);
+        foreach_body_node->type = Node_Stmt_Foreach_Body;
+        parse_block(parser, foreach_body_node);
+        
+        value_var_node->next_sibling = foreach_body_node;
         
         statement_node->last_token_index = parser->current_token_index - 1;
     }
