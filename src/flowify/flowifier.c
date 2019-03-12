@@ -348,7 +348,11 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
     {
         FlowElement * return_element = new_flow_element(flowifier, statement_node, FlowElement_Return);
         
-        // TODO: flowify return statement
+        Node * expression_node = statement_node->first_child;
+        
+        FlowElement * new_expression_element = flowify_expression(flowifier, expression_node);
+        
+        return_element->first_child = new_expression_element;
         
         return_element->first_in_flow = return_element;
         return_element->last_in_flow = return_element;
