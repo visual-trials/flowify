@@ -330,6 +330,19 @@ FlowElement * get_function_element(Flowifier * flowifier, String identifier)
     return 0;
 }
 
+void add_function_element(Flowifier * flowifier, FlowElement * function_element)
+{
+    if (!flowifier->first_function)
+    {
+        flowifier->first_function = function_element;
+    }
+    else 
+    {
+        flowifier->latest_function->next_function = function_element;
+    }
+    flowifier->latest_function = function_element;
+}
+
 void add_sibling(FlowElement * existing_sibling, FlowElement * new_sibling)
 {
     existing_sibling->next_sibling = new_sibling;

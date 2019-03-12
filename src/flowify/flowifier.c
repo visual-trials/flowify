@@ -361,19 +361,12 @@ void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
         {
             if (statement_node->type == Node_Stmt_Function)
             {
-                log("Found function!");
                 FlowElement * new_function_element = flowify_statement(flowifier, statement_node);
+                log("Found function!");
+                log(new_function_element->ast_node->identifier);
 
                 // TODO: right now we store functions in one (global) linked list
-                if (!flowifier->first_function)
-                {
-                    flowifier->first_function = new_function_element;
-                }
-                else 
-                {
-                    flowifier->latest_function->next_function = new_function_element;
-                }
-                flowifier->latest_function = new_function_element;
+                add_function_element(flowifier, new_function_element);
             }
         }
         while((statement_node = statement_node->next_sibling));
