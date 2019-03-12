@@ -34,7 +34,6 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
             expression_node->type == Node_Expr_AssignOp_Concat)
         {
             FlowElement * assignment_expression_element = new_flow_element(flowifier, expression_node, FlowElement_Assignment);
-            new_expression_element = assignment_expression_element;
             
             FlowElement * assignee_element = new_flow_element(flowifier, expression_node->first_child, FlowElement_Assignee);
             assignment_expression_element->first_child = assignee_element;
@@ -44,6 +43,7 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
             assignee_element->next_sibling = right_side_expression_element;
             right_side_expression_element->parent = assignment_expression_element;
             
+            new_expression_element = assignment_expression_element;
             // TODO: new_expression_element->first_in_flow ?= right_side_expression_element->first_in_flow;
             // TODO: new_expression_element->last_in_flow ?= right_side_expression_element->last_in_flow;
         }
@@ -62,12 +62,18 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
                  expression_node->type == Node_Expr_BinaryOp_Greater ||
                  expression_node->type == Node_Expr_BinaryOp_Equal)
         {
-            new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_BinaryOperator);
-        }
-        
-        else if (expression_node->type == Node_Expr_Variable)
-        {
-            new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_Variable);
+            FlowElement * binary_op_expression_element = new_flow_element(flowifier, expression_node, FlowElement_BinaryOperator);
+            
+            FlowElement * left_operand_element = flowify_expression(flowifier, expression_node->first_child);
+            binary_op_expression_element->first_child = left_operand_element;
+            left_operand_element->parent = binary_op_expression_element;
+
+            FlowElement * right_operand_element = flowify_expression(flowifier, expression_node->first_child->next_sibling);
+            binary_op_expression_element->first_child->next_sibling = right_operand_element;
+            right_operand_element->previous_sibling = left_operand_element; // TODO: is this correct?
+            right_operand_element->parent = binary_op_expression_element;
+            
+            new_expression_element = binary_op_expression_element;
         }
         else if (expression_node->type == Node_Expr_FuncCall)
         {
@@ -101,6 +107,10 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
                 new_expression_element->first_in_flow = hidden_element;
                 new_expression_element->last_in_flow = hidden_element;
             }
+        }
+        else if (expression_node->type == Node_Expr_Variable)
+        {
+            new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_Variable);
         }
         else if (expression_node->type == Node_Scalar_Number)
         {
