@@ -20,66 +20,76 @@ void flowify_statements(Flowifier * flowifier, FlowElement * parent_element);
 
 FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
 {
-    // TODO: we should flowify the expression! (for now we create a dummy element)
+    // TODO: we should flowify the expression! Meaning: we should track the dataflow as well (for now we only track control flow)
     
     FlowElement * new_expression_element = 0;
     
-    if (expression_node && expression_node->first_child)
+    if (expression_node) 
     {
-        if (expression_node->first_child->next_sibling)
+        if (expression_node->type == Node_Expr_Assign ||
+            expression_node->type == Node_Expr_AssignOp_Multiply ||
+            expression_node->type == Node_Expr_AssignOp_Divide ||
+            expression_node->type == Node_Expr_AssignOp_Plus ||
+            expression_node->type == Node_Expr_AssignOp_Minus ||
+            expression_node->type == Node_Expr_AssignOp_Concat)
         {
-            if (expression_node->first_child->next_sibling->type == Node_Expr_PostInc)
+            new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_Assignment);
+            
+            // TODO: do something with the assigned variable: expression_node->first_child
+            
+            FlowElement * right_side_expression_element = flowify_expression(flowifier, expression_node->first_child->next_sibling);
+            // FIXME: HACK: setting the right-side of the assignment as the main expression!
+            new_expression_element->first_child = right_side_expression_element;
+            // TODO: set parent?
+            // TODO: new_expression_element->first_in_flow ?= right_side_expression_element->first_in_flow;
+            // TODO: new_expression_element->last_in_flow ?= right_side_expression_element->last_in_flow;
+        }
+        else if (expression_node->type == Node_Expr_PreInc ||
+                 expression_node->type == Node_Expr_PreDec ||
+                 expression_node->type == Node_Expr_PostInc ||
+                 expression_node->type == Node_Expr_PostDec)
+        {
+            new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_UnaryOperator);
+        }
+        else if (expression_node->type == Node_Expr_FuncCall)
+        {
+            String identifier = expression_node->identifier;
+            
+            // FIXME: we should CLONE the function element, since this INSTANCE will be placed somewhere else
+            //        and connected to (its previous_in_flow and next_in_flow will be) different elements compared
+            //        to another call of the same function!
+            log("Trying to find function");
+            log(identifier);
+            FlowElement * function_element = get_function_element(flowifier, identifier);
+            
+            if (function_element)
             {
-                // FIXME: hack!
-                new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_BinaryOperator);
-            }
-            else if (expression_node->first_child->next_sibling->type == Node_Expr_FuncCall)
-            {
-                String identifier = expression_node->first_child->next_sibling->identifier;
-                
-                // FIXME: we should CLONE the function element, since this INSTANCE will be placed somewhere else
-                //        and connected to (its previous_in_flow and next_in_flow will be) different elements compared
-                //        to another call of the same function!
-                FlowElement * function_element = get_function_element(flowifier, identifier);
-                
-                if (function_element)
-                {
-                    new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_FunctionCall);
-                    new_expression_element->first_child = function_element;
-                    // TODO: set parent?
-                    new_expression_element->first_in_flow = function_element->first_in_flow;
-                    new_expression_element->last_in_flow = function_element->last_in_flow;
-                }
-                else {
-                    // log("Unknown function:");
-                    // log(identifier);
-                    new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_FunctionCall);
-                    
-                    // TODO: is it corrent that the hidden element has no corresponding ast-node?
-                    FlowElement * hidden_element = new_flow_element(flowifier, 0, FlowElement_Hidden);
-                    new_expression_element->first_child = hidden_element;
-                    // TODO: set parent?
-                    new_expression_element->first_in_flow = hidden_element;
-                    new_expression_element->last_in_flow = hidden_element;
-                }
-
+                new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_FunctionCall);
+                new_expression_element->first_child = function_element;
+                // TODO: set parent?
+                new_expression_element->first_in_flow = function_element->first_in_flow;
+                new_expression_element->last_in_flow = function_element->last_in_flow;
             }
             else
             {
-                // FIXME: hack!
-                new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_Assignment);
+                // log("Unknown function:");
+                // log(identifier);
+                new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_FunctionCall);
+                
+                // TODO: is it corrent that the hidden element has no corresponding ast-node?
+                FlowElement * hidden_element = new_flow_element(flowifier, 0, FlowElement_Hidden);
+                new_expression_element->first_child = hidden_element;
+                // TODO: set parent?
+                new_expression_element->first_in_flow = hidden_element;
+                new_expression_element->last_in_flow = hidden_element;
             }
         }
         else
         {
-            // FIXME: hack!
-            new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_Assignment);
+            // Unknown expression
+            // TODO: log that we found an unknown expression!
+            new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_Unknown);
         }
-    }
-    else
-    {
-        // FIXME: this is not always an FlowElement_Assignment!
-        new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_Assignment);
     }
     
     // FIXME: HACK. We want to do this properly for each expression type

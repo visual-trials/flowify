@@ -442,7 +442,8 @@ extern "C" {
         }
         
         draw_scrollable_text(scrollable_program_text);
-        // Turned off for the moment: draw_scrollable_text(scrollable_flowify_dump);
+        // Turned off for the moment: 
+        draw_scrollable_text(scrollable_flowify_dump);
         
         draw_and_update_button_menu(world);
 
