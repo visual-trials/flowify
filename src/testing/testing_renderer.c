@@ -18,7 +18,7 @@
 
 // TODO: we need to let these file include each other! (we only need draw.c here)
 #include "../parser.c"
-#include "../flowify/flow.h"
+#include "../flowify/flowifier.h"
 #include "../flowify/draw.c"
  
 struct WorldData

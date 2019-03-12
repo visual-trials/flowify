@@ -18,9 +18,9 @@
  
 #include "parser.c"
 
-#include "flowify/flow.h"
+#include "flowify/flowifier.h"
 #include "flowify/interact.c"
-#include "flowify/flow.c"
+#include "flowify/flowifier.c"
 #include "flowify/layout.c"
 #include "flowify/draw.c"
 
