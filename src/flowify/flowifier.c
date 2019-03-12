@@ -37,8 +37,8 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
             {
                 String identifier = expression_node->first_child->next_sibling->identifier;
                 
-                // FIXME: should we not CLONE the function element, since this INSTANCE will be places somewhere else
-                //        and connected to (its previous_in_flow and next_in_flow will be) different compared
+                // FIXME: we should CLONE the function element, since this INSTANCE will be placed somewhere else
+                //        and connected to (its previous_in_flow and next_in_flow will be) different elements compared
                 //        to another call of the same function!
                 FlowElement * function_element = get_function_element(flowifier, identifier);
                 
