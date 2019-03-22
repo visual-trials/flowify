@@ -699,7 +699,15 @@ void next_token(Parser * parser)
     parser->current_token_index++;
 }
 
-Token * get_latest_token(Parser * parser)
+i32 latest_eaten_token_index(Parser * parser)
+{
+    assert(parser->current_token_index - 1 >= 0);
+    assert(parser->current_token_index - 1 < parser->tokenizer->tokens.nr_of_items);
+    
+    return parser->current_token_index - 1;
+}
+
+Token * latest_eaten_token(Parser * parser)
 {
     Tokenizer * tokenizer = parser->tokenizer;
     
@@ -811,7 +819,7 @@ Node * parse_sub_expression(Parser * parser)
         
         expect_token(parser, Token_VariableIdentifier);
         
-        Token * variable_token = get_latest_token(parser);
+        Token * variable_token = latest_eaten_token(parser);
         
         sub_expression_node->type = Node_Expr_PreInc;
         sub_expression_node->identifier = variable_token->text;
@@ -834,7 +842,7 @@ Node * parse_sub_expression(Parser * parser)
         
         expect_token(parser, Token_VariableIdentifier);
         
-        Token * variable_token = get_latest_token(parser);
+        Token * variable_token = latest_eaten_token(parser);
         sub_expression_node->identifier = variable_token->text;
         
         sub_expression_node->type = Node_Expr_PreDec;
@@ -855,7 +863,7 @@ Node * parse_sub_expression(Parser * parser)
         
         sub_expression_node->first_token_index = parser->current_token_index - 1;
         
-        Token * variable_token = get_latest_token(parser);
+        Token * variable_token = latest_eaten_token(parser);
         
         if (accept_token(parser, Token_OpenBracket))
         {
@@ -934,7 +942,7 @@ Node * parse_sub_expression(Parser * parser)
         
         sub_expression_node->first_token_index = parser->current_token_index - 1;
         
-        Token * token = get_latest_token(parser);
+        Token * token = latest_eaten_token(parser);
         
         sub_expression_node->type = Node_Scalar_Number;
         sub_expression_node->value = token->text;
@@ -947,7 +955,7 @@ Node * parse_sub_expression(Parser * parser)
         
         sub_expression_node->first_token_index = parser->current_token_index - 1;
         
-        Token * token = get_latest_token(parser);
+        Token * token = latest_eaten_token(parser);
         
         sub_expression_node->type = Node_Scalar_Float;
         sub_expression_node->value = token->text;
@@ -960,7 +968,7 @@ Node * parse_sub_expression(Parser * parser)
         
         sub_expression_node->first_token_index = parser->current_token_index - 1;
         
-        Token * token = get_latest_token(parser);
+        Token * token = latest_eaten_token(parser);
         
         sub_expression_node->type = Node_Scalar_String;
         sub_expression_node->value = token->text;
@@ -973,17 +981,17 @@ Node * parse_sub_expression(Parser * parser)
         
         sub_expression_node->first_token_index = parser->current_token_index - 1;
         
-        Token * function_call_token = get_latest_token(parser);
+        Token * function_call_identifier_token = latest_eaten_token(parser);
 
         sub_expression_node->type = Node_Expr_FuncCall;
-        sub_expression_node->identifier = function_call_token->text;
+        sub_expression_node->identifier = function_call_identifier_token->text;
         parse_arguments(parser, sub_expression_node);
         
         sub_expression_node->last_token_index = parser->current_token_index - 1;
     }
     else
     {
-        Token * latest_token = get_latest_token(parser);
+        Token * latest_token = latest_eaten_token(parser);
         log("ERROR: unknown sub expression!");
         log(latest_token->text);
         log_int(latest_token->line_index + 1);
@@ -1324,10 +1332,10 @@ Node * parse_statement(Parser * parser)
         
         if (expect_token(parser, Token_Identifier))
         {
-            Token * function_token = get_latest_token(parser);
+            Token * function_identifier_token = latest_eaten_token(parser);
 
             statement_node->type = Node_Stmt_Function;
-            statement_node->identifier = function_token->text;
+            statement_node->identifier = function_identifier_token->text;
             
             Node * function_arguments_node = new_node(parser);
             function_arguments_node->type = Node_Stmt_Function_Args;
