@@ -939,10 +939,10 @@ Node * parse_sub_expression(Parser * parser)
         
         sub_expression_node->first_token_index = latest_eaten_token_index(parser);
         
-        Token * token = latest_eaten_token(parser);
+        Token * number_token = latest_eaten_token(parser);
         
         sub_expression_node->type = Node_Scalar_Number;
-        sub_expression_node->value = token->text;
+        sub_expression_node->value = number_token->text;
         
         sub_expression_node->last_token_index = latest_eaten_token_index(parser);
     }
@@ -952,10 +952,10 @@ Node * parse_sub_expression(Parser * parser)
         
         sub_expression_node->first_token_index = latest_eaten_token_index(parser);
         
-        Token * token = latest_eaten_token(parser);
+        Token * float_token = latest_eaten_token(parser);
         
         sub_expression_node->type = Node_Scalar_Float;
-        sub_expression_node->value = token->text;
+        sub_expression_node->value = float_token->text;
         
         sub_expression_node->last_token_index = latest_eaten_token_index(parser);
     }
@@ -965,10 +965,10 @@ Node * parse_sub_expression(Parser * parser)
         
         sub_expression_node->first_token_index = latest_eaten_token_index(parser);
         
-        Token * token = latest_eaten_token(parser);
+        Token * string_token = latest_eaten_token(parser);
         
         sub_expression_node->type = Node_Scalar_String;
-        sub_expression_node->value = token->text;
+        sub_expression_node->value = string_token->text;
         
         sub_expression_node->last_token_index = latest_eaten_token_index(parser);
     }
