@@ -711,11 +711,8 @@ Token * latest_eaten_token(Parser * parser)
 {
     Tokenizer * tokenizer = parser->tokenizer;
     
-    assert(parser->current_token_index - 1 >= 0);
-    assert(parser->current_token_index - 1 < parser->tokenizer->tokens.nr_of_items);
-    
     Token * tokens = (Token *)tokenizer->tokens.items;
-    Token * token = &tokens[parser->current_token_index - 1];
+    Token * token = &tokens[latest_eaten_token_index(parser)];
     
     return token;
 }
@@ -802,20 +799,20 @@ Node * parse_sub_expression(Parser * parser)
     
     if (accept_token(parser, Token_OpenParenteses))
     {
-        i32 first_token_index = parser->current_token_index - 1;
+        i32 first_token_index = latest_eaten_token_index(parser);
         
         sub_expression_node = parse_expression(parser);
         sub_expression_node->first_token_index = first_token_index;
         
         expect_token(parser, Token_CloseParenteses);
         
-        sub_expression_node->last_token_index = parser->current_token_index - 1;
+        sub_expression_node->last_token_index = latest_eaten_token_index(parser);
     }
     else if (accept_token(parser, Token_PlusPlus))
     {
         sub_expression_node = new_node(parser);
         
-        sub_expression_node->first_token_index = parser->current_token_index - 1;
+        sub_expression_node->first_token_index = latest_eaten_token_index(parser);
         
         expect_token(parser, Token_VariableIdentifier);
         
@@ -827,18 +824,18 @@ Node * parse_sub_expression(Parser * parser)
         Node * variable_node = new_node(parser);
         variable_node->type = Node_Expr_Variable;
         
-        variable_node->first_token_index = parser->current_token_index - 1;
-        variable_node->last_token_index = parser->current_token_index - 1;
+        variable_node->first_token_index = latest_eaten_token_index(parser);
+        variable_node->last_token_index = latest_eaten_token_index(parser);
             
         sub_expression_node->first_child = variable_node;
         
-        sub_expression_node->last_token_index = parser->current_token_index - 1;
+        sub_expression_node->last_token_index = latest_eaten_token_index(parser);
     }
     else if (accept_token(parser, Token_MinusMinus))
     {
         sub_expression_node = new_node(parser);
         
-        sub_expression_node->first_token_index = parser->current_token_index - 1;
+        sub_expression_node->first_token_index = latest_eaten_token_index(parser);
         
         expect_token(parser, Token_VariableIdentifier);
         
@@ -850,31 +847,31 @@ Node * parse_sub_expression(Parser * parser)
         Node * variable_node = new_node(parser);
         variable_node->type = Node_Expr_Variable;
             
-        variable_node->first_token_index = parser->current_token_index - 1;
-        variable_node->last_token_index = parser->current_token_index - 1;
+        variable_node->first_token_index = latest_eaten_token_index(parser);
+        variable_node->last_token_index = latest_eaten_token_index(parser);
             
         sub_expression_node->first_child = variable_node;
         
-        sub_expression_node->last_token_index = parser->current_token_index - 1;
+        sub_expression_node->last_token_index = latest_eaten_token_index(parser);
     }
     else if (accept_token(parser, Token_VariableIdentifier))
     {
         sub_expression_node = new_node(parser);
         
-        sub_expression_node->first_token_index = parser->current_token_index - 1;
+        sub_expression_node->first_token_index = latest_eaten_token_index(parser);
         
         Token * variable_token = latest_eaten_token(parser);
         
         if (accept_token(parser, Token_OpenBracket))
         {
-            i32 first_token_index = parser->current_token_index - 1;
+            i32 first_token_index = latest_eaten_token_index(parser);
             
             sub_expression_node = parse_expression(parser);
             sub_expression_node->first_token_index = first_token_index;
             
             expect_token(parser, Token_CloseBracket);
             
-            sub_expression_node->last_token_index = parser->current_token_index - 1;
+            sub_expression_node->last_token_index = latest_eaten_token_index(parser);
         }
         else if (accept_token(parser, Token_PlusPlus))
         {
@@ -934,52 +931,52 @@ Node * parse_sub_expression(Parser * parser)
         }
         sub_expression_node->identifier = variable_token->text;
         
-        sub_expression_node->last_token_index = parser->current_token_index - 1;
+        sub_expression_node->last_token_index = latest_eaten_token_index(parser);
     }
     else if (accept_token(parser, Token_Number))
     {
         sub_expression_node = new_node(parser);
         
-        sub_expression_node->first_token_index = parser->current_token_index - 1;
+        sub_expression_node->first_token_index = latest_eaten_token_index(parser);
         
         Token * token = latest_eaten_token(parser);
         
         sub_expression_node->type = Node_Scalar_Number;
         sub_expression_node->value = token->text;
         
-        sub_expression_node->last_token_index = parser->current_token_index - 1;
+        sub_expression_node->last_token_index = latest_eaten_token_index(parser);
     }
     else if (accept_token(parser, Token_Float))
     {
         sub_expression_node = new_node(parser);
         
-        sub_expression_node->first_token_index = parser->current_token_index - 1;
+        sub_expression_node->first_token_index = latest_eaten_token_index(parser);
         
         Token * token = latest_eaten_token(parser);
         
         sub_expression_node->type = Node_Scalar_Float;
         sub_expression_node->value = token->text;
         
-        sub_expression_node->last_token_index = parser->current_token_index - 1;
+        sub_expression_node->last_token_index = latest_eaten_token_index(parser);
     }
     else if (accept_token(parser, Token_SingleQuotedString))
     {
         sub_expression_node = new_node(parser);
         
-        sub_expression_node->first_token_index = parser->current_token_index - 1;
+        sub_expression_node->first_token_index = latest_eaten_token_index(parser);
         
         Token * token = latest_eaten_token(parser);
         
         sub_expression_node->type = Node_Scalar_String;
         sub_expression_node->value = token->text;
         
-        sub_expression_node->last_token_index = parser->current_token_index - 1;
+        sub_expression_node->last_token_index = latest_eaten_token_index(parser);
     }
     else if (accept_token(parser, Token_Identifier))
     {
         sub_expression_node = new_node(parser);
         
-        sub_expression_node->first_token_index = parser->current_token_index - 1;
+        sub_expression_node->first_token_index = latest_eaten_token_index(parser);
         
         Token * function_call_identifier_token = latest_eaten_token(parser);
 
@@ -987,7 +984,7 @@ Node * parse_sub_expression(Parser * parser)
         sub_expression_node->identifier = function_call_identifier_token->text;
         parse_arguments(parser, sub_expression_node);
         
-        sub_expression_node->last_token_index = parser->current_token_index - 1;
+        sub_expression_node->last_token_index = latest_eaten_token_index(parser);
     }
     else
     {
@@ -1024,7 +1021,7 @@ Node * parse_expression(Parser * parser)
         Node * right_sub_expression = parse_sub_expression(parser);
         expression_node->first_child = left_sub_expression;
         left_sub_expression->next_sibling = right_sub_expression;
-        expression_node->last_token_index = parser->current_token_index - 1;
+        expression_node->last_token_index = latest_eaten_token_index(parser);
     }
     else if (accept_token(parser, Token_Smaller))
     {
@@ -1034,7 +1031,7 @@ Node * parse_expression(Parser * parser)
         Node * right_sub_expression = parse_sub_expression(parser);
         expression_node->first_child = left_sub_expression;
         left_sub_expression->next_sibling = right_sub_expression;
-        expression_node->last_token_index = parser->current_token_index - 1;
+        expression_node->last_token_index = latest_eaten_token_index(parser);
     }
     else if (accept_token(parser, Token_Equal))
     {
@@ -1044,7 +1041,7 @@ Node * parse_expression(Parser * parser)
         Node * right_sub_expression = parse_sub_expression(parser);
         expression_node->first_child = left_sub_expression;
         left_sub_expression->next_sibling = right_sub_expression;
-        expression_node->last_token_index = parser->current_token_index - 1;
+        expression_node->last_token_index = latest_eaten_token_index(parser);
     }
     else if (accept_token(parser, Token_Multiply))
     {
@@ -1054,7 +1051,7 @@ Node * parse_expression(Parser * parser)
         Node * right_sub_expression = parse_sub_expression(parser);
         expression_node->first_child = left_sub_expression;
         left_sub_expression->next_sibling = right_sub_expression;
-        expression_node->last_token_index = parser->current_token_index - 1;
+        expression_node->last_token_index = latest_eaten_token_index(parser);
     }
     else if (accept_token(parser, Token_Divide))
     {
@@ -1064,7 +1061,7 @@ Node * parse_expression(Parser * parser)
         Node * right_sub_expression = parse_sub_expression(parser);
         expression_node->first_child = left_sub_expression;
         left_sub_expression->next_sibling = right_sub_expression;
-        expression_node->last_token_index = parser->current_token_index - 1;
+        expression_node->last_token_index = latest_eaten_token_index(parser);
     }
     else if (accept_token(parser, Token_Plus))
     {
@@ -1074,7 +1071,7 @@ Node * parse_expression(Parser * parser)
         Node * right_sub_expression = parse_sub_expression(parser);
         expression_node->first_child = left_sub_expression;
         left_sub_expression->next_sibling = right_sub_expression;
-        expression_node->last_token_index = parser->current_token_index - 1;
+        expression_node->last_token_index = latest_eaten_token_index(parser);
     }
     else if (accept_token(parser, Token_Minus))
     {
@@ -1084,7 +1081,7 @@ Node * parse_expression(Parser * parser)
         Node * right_sub_expression = parse_sub_expression(parser);
         expression_node->first_child = left_sub_expression;
         left_sub_expression->next_sibling = right_sub_expression;
-        expression_node->last_token_index = parser->current_token_index - 1;
+        expression_node->last_token_index = latest_eaten_token_index(parser);
     }
     else
     {
@@ -1098,7 +1095,7 @@ void parse_arguments(Parser * parser, Node * parent_node)
 {
     expect_token(parser, Token_OpenParenteses);
     
-    parent_node->first_token_index = parser->current_token_index - 1;
+    parent_node->first_token_index = latest_eaten_token_index(parser);
     
     Node * previous_sibling;
     while(!accept_token(parser, Token_CloseParenteses))
@@ -1131,7 +1128,7 @@ void parse_arguments(Parser * parser, Node * parent_node)
             break;
         }
     }
-    parent_node->last_token_index = parser->current_token_index - 1;
+    parent_node->last_token_index = latest_eaten_token_index(parser);
 }
 
 void parse_block(Parser * parser, Node * parent_node);
@@ -1141,7 +1138,7 @@ Node * parse_statement(Parser * parser)
     Node * statement_node = new_node(parser);
     if (accept_token(parser, Token_If))
     {
-        statement_node->first_token_index = parser->current_token_index - 1;
+        statement_node->first_token_index = latest_eaten_token_index(parser);
         
         statement_node->type = Node_Stmt_If;
         
@@ -1158,7 +1155,7 @@ Node * parse_statement(Parser * parser)
         statement_node->first_child = condition_node;
         
         Node * condition_expression_node = parse_expression(parser);
-        condition_node->last_token_index = parser->current_token_index - 1;
+        condition_node->last_token_index = latest_eaten_token_index(parser);
         condition_node->first_child = condition_expression_node;
         expect_token(parser, Token_CloseParenteses);
         
@@ -1181,13 +1178,13 @@ Node * parse_statement(Parser * parser)
         
         // Note: if-statemets (or any other block-ending statements) do not require a Semocolon at the end!
         
-        statement_node->last_token_index = parser->current_token_index - 1;
+        statement_node->last_token_index = latest_eaten_token_index(parser);
     }
     else if (accept_token(parser, Token_For))
     {
         // For
         
-        statement_node->first_token_index = parser->current_token_index - 1;
+        statement_node->first_token_index = latest_eaten_token_index(parser);
         
         statement_node->type = Node_Stmt_For;
         
@@ -1202,7 +1199,7 @@ Node * parse_statement(Parser * parser)
         Node * init_expression_node = parse_expression(parser);
         
         init_node->first_child = init_expression_node;
-        init_node->last_token_index = parser->current_token_index - 1;
+        init_node->last_token_index = latest_eaten_token_index(parser);
         
         statement_node->first_child = init_node;
         
@@ -1217,7 +1214,7 @@ Node * parse_statement(Parser * parser)
         
         Node * condition_expression_node = parse_expression(parser);
         
-        condition_node->last_token_index = parser->current_token_index - 1;
+        condition_node->last_token_index = latest_eaten_token_index(parser);
         condition_node->first_child = condition_expression_node;
         
         expect_token(parser, Token_Semicolon);
@@ -1230,7 +1227,7 @@ Node * parse_statement(Parser * parser)
         condition_node->next_sibling = update_node;
         
         Node * update_expression_node = parse_expression(parser);
-        update_node->last_token_index = parser->current_token_index - 1;
+        update_node->last_token_index = latest_eaten_token_index(parser);
         update_node->first_child = update_expression_node;
         
         expect_token(parser, Token_CloseParenteses);
@@ -1243,13 +1240,13 @@ Node * parse_statement(Parser * parser)
         
         update_node->next_sibling = for_body_node;
         
-        statement_node->last_token_index = parser->current_token_index - 1;
+        statement_node->last_token_index = latest_eaten_token_index(parser);
     }
     else if (accept_token(parser, Token_Foreach))
     {
         // Foreach
         
-        statement_node->first_token_index = parser->current_token_index - 1;
+        statement_node->first_token_index = latest_eaten_token_index(parser);
         
         statement_node->type = Node_Stmt_Foreach;
         
@@ -1264,7 +1261,7 @@ Node * parse_statement(Parser * parser)
         Node * array_expression_node = parse_expression(parser);
         
         array_node->first_child = array_expression_node;
-        array_node->last_token_index = parser->current_token_index - 1;
+        array_node->last_token_index = latest_eaten_token_index(parser);
         
         statement_node->first_child = array_node;
         
@@ -1283,7 +1280,7 @@ Node * parse_statement(Parser * parser)
         value_var_node->type = Node_Stmt_Foreach_Value_Var;
         value_var_node->first_token_index = parser->current_token_index;
         
-        value_var_node->last_token_index = parser->current_token_index - 1;
+        value_var_node->last_token_index = latest_eaten_token_index(parser);
         
         if (accept_token(parser, Token_Arrow)) {
             
@@ -1324,11 +1321,11 @@ Node * parse_statement(Parser * parser)
         
         value_var_node->next_sibling = foreach_body_node;
         
-        statement_node->last_token_index = parser->current_token_index - 1;
+        statement_node->last_token_index = latest_eaten_token_index(parser);
     }
     else if (accept_token(parser, Token_Function))
     {
-        statement_node->first_token_index = parser->current_token_index - 1;
+        statement_node->first_token_index = latest_eaten_token_index(parser);
         
         if (expect_token(parser, Token_Identifier))
         {
@@ -1355,29 +1352,29 @@ Node * parse_statement(Parser * parser)
             log("ERROR: no function name found!");
         }
         
-        statement_node->last_token_index = parser->current_token_index - 1;
+        statement_node->last_token_index = latest_eaten_token_index(parser);
     }
     else if (accept_token(parser, Token_Continue))
     {
-        statement_node->first_token_index = parser->current_token_index - 1;
+        statement_node->first_token_index = latest_eaten_token_index(parser);
         
         statement_node->type = Node_Stmt_Continue;
         expect_token(parser, Token_Semicolon); 
         
-        statement_node->last_token_index = parser->current_token_index - 1;
+        statement_node->last_token_index = latest_eaten_token_index(parser);
     }
     else if (accept_token(parser, Token_Break))
     {
-        statement_node->first_token_index = parser->current_token_index - 1;
+        statement_node->first_token_index = latest_eaten_token_index(parser);
         
         statement_node->type = Node_Stmt_Break;
         expect_token(parser, Token_Semicolon); 
         
-        statement_node->last_token_index = parser->current_token_index - 1;
+        statement_node->last_token_index = latest_eaten_token_index(parser);
     }
     else if (accept_token(parser, Token_Return))
     {
-        statement_node->first_token_index = parser->current_token_index - 1;
+        statement_node->first_token_index = latest_eaten_token_index(parser);
         
         statement_node->type = Node_Stmt_Return;
         
@@ -1386,7 +1383,7 @@ Node * parse_statement(Parser * parser)
         
         expect_token(parser, Token_Semicolon); 
             
-        statement_node->last_token_index = parser->current_token_index - 1;
+        statement_node->last_token_index = latest_eaten_token_index(parser);
 }
     else
     {
@@ -1415,7 +1412,7 @@ Node * parse_statement(Parser * parser)
         
         expect_token(parser, Token_Semicolon); 
         
-        statement_node->last_token_index = parser->current_token_index - 1;
+        statement_node->last_token_index = latest_eaten_token_index(parser);
     }
     // TODO implement more variants of statements
     
@@ -1461,12 +1458,12 @@ void parse_block(Parser * parser, Node * parent_node)
 {
     if (expect_token(parser, Token_OpenBrace))
     {
-        parent_node->first_token_index = parser->current_token_index - 1;
+        parent_node->first_token_index = latest_eaten_token_index(parser);
         
         parse_statements(parser, parent_node);    
         // Note: Token_CloseBrace is already eaten by parse_statements
         
-        parent_node->last_token_index = parser->current_token_index - 1;
+        parent_node->last_token_index = latest_eaten_token_index(parser);
     }
     else 
     {
@@ -1483,9 +1480,9 @@ Node * parse_program(Parser * parser)
     
     if (expect_token(parser, Token_StartOfPhp))
     {
-        root_node->first_token_index = parser->current_token_index - 1;
+        root_node->first_token_index = latest_eaten_token_index(parser);
         parse_statements(parser, root_node);    
-        root_node->last_token_index = parser->current_token_index - 1;
+        root_node->last_token_index = latest_eaten_token_index(parser);
     }
     else {
         // TODO: Program doesn't start with StartOfPhp
