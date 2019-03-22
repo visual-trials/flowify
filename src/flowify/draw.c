@@ -247,11 +247,19 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     // TODO: we probably want flags here!
     if (flow_element->type == FlowElement_PassThrough || 
         flow_element->type == FlowElement_Hidden ||
-        flow_element->type == FlowElement_Assignment || 
         flow_element->type == FlowElement_BinaryOperator ||
         flow_element->type == FlowElement_Return)
     {
         draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow);
+    }
+    else if (flow_element->type == FlowElement_Assignment)
+    {
+        FlowElement * assignee_element = flow_element->first_child;
+        FlowElement * right_side_expression_element = assignee_element->next_sibling;
+        
+        // TODO: the last argument is probably not quite right: the right_side_expression_element should be *inside* the assignment, not be next in flow of the assignee
+        // draw_straight_element(flowifier, assignee_element, flow_element->previous_in_flow, right_side_expression_element);
+        draw_elements(flowifier, right_side_expression_element);
     }
     else if (flow_element->type == FlowElement_If)
     {

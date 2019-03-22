@@ -49,6 +49,37 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
     }
     else if (flow_element->type == FlowElement_Assignment)
     {
+        FlowElement * assignee_element = flow_element->first_child;
+        FlowElement * right_side_expression_element = assignee_element->next_sibling;
+        
+        i32 top_margin = bending_radius;
+        i32 bottom_margin = bending_radius;
+        i32 left_margin = bending_radius;
+        i32 right_margin = bending_radius;
+            
+        layout_elements(flowifier, assignee_element);
+        
+        assignee_element->position.x = left_margin;
+        assignee_element->position.y = top_margin;
+        
+        layout_elements(flowifier, right_side_expression_element);
+        
+        right_side_expression_element->position.x = left_margin;
+        right_side_expression_element->position.y = top_margin + assignee_element->size.height;
+        
+        i32 total_width = assignee_element->size.width;
+        if (right_side_expression_element->size.width > assignee_element->size.width)
+        {
+            total_width = right_side_expression_element->size.width;
+        }
+        flow_element->size.width = left_margin + total_width + right_margin;
+        flow_element->size.height = top_margin + assignee_element->size.height + right_side_expression_element->size.height + bottom_margin;
+        
+        flow_element->is_highlightable = true;
+    }
+    else if (flow_element->type == FlowElement_Variable ||
+             flow_element->type == FlowElement_Assignee)
+    {
         flow_element->size.width = get_width_based_on_source_text(flowifier, flow_element);
         flow_element->size.height = default_element_height;
         flow_element->is_highlightable = true;
@@ -376,6 +407,8 @@ void absolute_layout_elements(Flowifier * flowifier, FlowElement * flow_element,
         flow_element->type == FlowElement_PassBack || 
         flow_element->type == FlowElement_Hidden || 
         flow_element->type == FlowElement_Assignment || 
+        flow_element->type == FlowElement_Assignee || 
+        flow_element->type == FlowElement_Variable || 
         flow_element->type == FlowElement_BinaryOperator ||
         flow_element->type == FlowElement_Return)
     {
