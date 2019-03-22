@@ -1090,6 +1090,8 @@ void parse_arguments(Parser * parser, Node * parent_node)
 {
     expect_token(parser, Token_OpenParenteses);
     
+    parent_node->first_token_index = parser->current_token_index - 1;
+    
     Node * previous_sibling;
     while(!accept_token(parser, Token_CloseParenteses))
     {
@@ -1121,6 +1123,7 @@ void parse_arguments(Parser * parser, Node * parent_node)
             break;
         }
     }
+    parent_node->last_token_index = parser->current_token_index - 1;
 }
 
 void parse_block(Parser * parser, Node * parent_node);
