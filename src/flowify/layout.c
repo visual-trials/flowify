@@ -403,128 +403,20 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
 
 void absolute_layout_elements(Flowifier * flowifier, FlowElement * flow_element, Pos2d absolute_parent_position)
 {
-    if (flow_element->type == FlowElement_PassThrough || 
-        flow_element->type == FlowElement_PassBack || 
-        flow_element->type == FlowElement_Hidden || 
-        flow_element->type == FlowElement_Assignment || 
-        flow_element->type == FlowElement_Assignee || 
-        flow_element->type == FlowElement_Variable || 
-        flow_element->type == FlowElement_BinaryOperator ||
-        flow_element->type == FlowElement_Return)
+    flow_element->absolute_position = add_position_to_position(flow_element->position, absolute_parent_position);
+    
+    FlowElement * child_element = flow_element->first_child;
+    if (child_element)
     {
-        flow_element->absolute_position = add_position_to_position(flow_element->position, absolute_parent_position);
-    }
-    else if (flow_element->type == FlowElement_If)
-    {
-        flow_element->absolute_position = add_position_to_position(flow_element->position, absolute_parent_position);
-        
-        FlowElement * if_cond_element = flow_element->first_child;
-        FlowElement * if_split_element = if_cond_element->next_sibling;
-        FlowElement * if_then_element = if_split_element->next_sibling;
-        FlowElement * if_else_element = if_then_element->next_sibling;
-        FlowElement * if_join_element = if_else_element->next_sibling;
-
-        absolute_layout_elements(flowifier, if_cond_element, flow_element->absolute_position);
-        absolute_layout_elements(flowifier, if_split_element, flow_element->absolute_position);
-        absolute_layout_elements(flowifier, if_then_element, flow_element->absolute_position);
-        absolute_layout_elements(flowifier, if_else_element, flow_element->absolute_position);
-        absolute_layout_elements(flowifier, if_join_element, flow_element->absolute_position);
-    }
-    else if (flow_element->type == FlowElement_IfCond ||
-             flow_element->type == FlowElement_IfSplit ||
-             flow_element->type == FlowElement_IfJoin
-             )
-    {
-        flow_element->absolute_position = add_position_to_position(flow_element->position, absolute_parent_position);
-    }
-    else if (flow_element->type == FlowElement_For)
-    {
-        flow_element->absolute_position = add_position_to_position(flow_element->position, absolute_parent_position);
-        
-        FlowElement * for_start_element = flow_element->first_child;
-        FlowElement * for_init_element = for_start_element->next_sibling;
-        FlowElement * for_join_element = for_init_element->next_sibling;
-        FlowElement * for_cond_element = for_join_element->next_sibling;
-        FlowElement * for_split_element = for_cond_element->next_sibling;
-        FlowElement * for_body_element = for_split_element->next_sibling;
-        FlowElement * for_update_element = for_body_element->next_sibling;
-        FlowElement * for_passright_element = for_update_element->next_sibling;
-        FlowElement * for_passup_element = for_passright_element->next_sibling;
-        FlowElement * for_passleft_element = for_passup_element->next_sibling;
-        FlowElement * for_passdown_element = for_passleft_element->next_sibling;
-        FlowElement * for_passthrough_element = for_passdown_element->next_sibling;
-        FlowElement * for_done_element = for_passthrough_element->next_sibling;
-
-        absolute_layout_elements(flowifier, for_start_element, flow_element->absolute_position);
-        absolute_layout_elements(flowifier, for_init_element, flow_element->absolute_position);
-        absolute_layout_elements(flowifier, for_join_element, flow_element->absolute_position);
-        absolute_layout_elements(flowifier, for_cond_element, flow_element->absolute_position);
-        absolute_layout_elements(flowifier, for_split_element, flow_element->absolute_position);
-        absolute_layout_elements(flowifier, for_body_element, flow_element->absolute_position);
-        absolute_layout_elements(flowifier, for_update_element, flow_element->absolute_position);
-        absolute_layout_elements(flowifier, for_passright_element, flow_element->absolute_position);
-        absolute_layout_elements(flowifier, for_passup_element, flow_element->absolute_position);
-        absolute_layout_elements(flowifier, for_passleft_element, flow_element->absolute_position);
-        absolute_layout_elements(flowifier, for_passdown_element, flow_element->absolute_position);
-        absolute_layout_elements(flowifier, for_passthrough_element, flow_element->absolute_position);
-        absolute_layout_elements(flowifier, for_done_element, flow_element->absolute_position);
-    }
-    else if (flow_element->type == FlowElement_ForStart ||
-             flow_element->type == FlowElement_ForInit ||
-             flow_element->type == FlowElement_ForJoin ||
-             flow_element->type == FlowElement_ForCond ||
-             flow_element->type == FlowElement_ForSplit ||
-             flow_element->type == FlowElement_ForUpdate ||
-             flow_element->type == FlowElement_ForDone
-             )
-    {
-        flow_element->absolute_position = add_position_to_position(flow_element->position, absolute_parent_position);
-    }
-    else if (flow_element->type == FlowElement_Foreach)
-    {
-        flow_element->absolute_position = add_position_to_position(flow_element->position, absolute_parent_position);
-        
-        // FIXME: implement this!
-    }
-    else if (flow_element->type == FlowElement_FunctionCall)
-    {
-        flow_element->absolute_position = add_position_to_position(flow_element->position, absolute_parent_position);
-        
-        FlowElement * function_element = flow_element->first_child;
-
-        absolute_layout_elements(flowifier, function_element, flow_element->absolute_position);
-    }
-    else if (flow_element->type == FlowElement_Function)
-    {
-        flow_element->absolute_position = add_position_to_position(flow_element->position, absolute_parent_position);
-        
-        FlowElement * function_body_element = flow_element->first_child;
-
-        absolute_layout_elements(flowifier, function_body_element, flow_element->absolute_position);
-    }
-    else if (flow_element->type == FlowElement_Root ||
-             flow_element->type == FlowElement_FunctionBody ||
-             flow_element->type == FlowElement_IfThen ||
-             flow_element->type == FlowElement_IfElse ||
-             flow_element->type == FlowElement_ForBody
-             )
-    {
-        flow_element->absolute_position = add_position_to_position(flow_element->position, absolute_parent_position);
-        
-        FlowElement * child_element = flow_element->first_child;
-        if (child_element)
+        do
         {
-            do
-            {
-                absolute_layout_elements(flowifier, child_element, flow_element->absolute_position);
-            }
-            while ((child_element = child_element->next_sibling));
+            absolute_layout_elements(flowifier, child_element, flow_element->absolute_position);
         }
-        
-        if (flow_element->type == FlowElement_Root)
-        {
-            flowifier->has_absolute_positions = true;
-        }
+        while ((child_element = child_element->next_sibling));
     }
     
+    if (flow_element->type == FlowElement_Root)
+    {
+        flowifier->has_absolute_positions = true;
+    }
 }
