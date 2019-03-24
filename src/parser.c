@@ -338,6 +338,50 @@ String get_source_text_from_ast_node(Parser * parser, Node * node)
 void parse_arguments(Parser * parser, Node * parent_node);
 Node * parse_expression(Parser * parser);
 
+Node * add_child_expression_node(Parser * parser, NodeType node_type, Node * parent_node)
+{
+    Node * child_node = new_node(parser);
+    
+    child_node->type = node_type;
+    child_node->first_token_index = parser->current_token_index;
+
+    Node * child_expression_node = parse_expression(parser);
+    
+    child_node->first_child = child_expression_node;
+    child_node->last_token_index = latest_eaten_token_index(parser);
+    
+    add_child_node(child_node, parent_node);
+    
+    return child_node;
+}
+
+Node * add_child_variable_node(Parser * parser, NodeType node_type, Node * parent_node, b32 allow_variable_reference = false)
+{
+    i32 first_token_index = parser->current_token_index;
+    
+    if (allow_variable_reference)
+    {
+        if (accept_token(parser, Token_Ampersand))
+        {
+            // FIXME: do something with the &: set "variable_node->by_reference = true"
+        }
+    }
+   
+    expect_token(parser, Token_VariableIdentifier);
+    Token * variable_token = latest_eaten_token(parser);
+    
+    Node * variable_node = new_node(parser);
+    variable_node->type = node_type;
+    variable_node->identifier = variable_token->text;
+    
+    variable_node->first_token_index = first_token_index;
+    variable_node->last_token_index = latest_eaten_token_index(parser);
+    
+    add_child_node(variable_node, parent_node);
+    
+    return variable_node;
+}
+
 void parse_variable_assignment(Parser * parser, Node * sub_expression_node)
 {
     // Left side of the expression (a variable)
@@ -373,47 +417,17 @@ Node * parse_sub_expression(Parser * parser)
     else if (accept_token(parser, Token_PlusPlus))
     {
         sub_expression_node = new_node(parser);
-        
         sub_expression_node->first_token_index = latest_eaten_token_index(parser);
-        
-        expect_token(parser, Token_VariableIdentifier);
-        
-        Token * variable_token = latest_eaten_token(parser);
-        
         sub_expression_node->type = Node_Expr_PreInc;
-        sub_expression_node->identifier = variable_token->text;
-            
-        Node * variable_node = new_node(parser);
-        variable_node->type = Node_Expr_Variable;
-        
-        variable_node->first_token_index = latest_eaten_token_index(parser);
-        variable_node->last_token_index = latest_eaten_token_index(parser);
-            
-        sub_expression_node->first_child = variable_node;
-        
+        add_child_variable_node(parser, Node_Expr_Variable, sub_expression_node);
         sub_expression_node->last_token_index = latest_eaten_token_index(parser);
     }
     else if (accept_token(parser, Token_MinusMinus))
     {
         sub_expression_node = new_node(parser);
-        
         sub_expression_node->first_token_index = latest_eaten_token_index(parser);
-        
-        expect_token(parser, Token_VariableIdentifier);
-        
-        Token * variable_token = latest_eaten_token(parser);
-        sub_expression_node->identifier = variable_token->text;
-        
         sub_expression_node->type = Node_Expr_PreDec;
-            
-        Node * variable_node = new_node(parser);
-        variable_node->type = Node_Expr_Variable;
-            
-        variable_node->first_token_index = latest_eaten_token_index(parser);
-        variable_node->last_token_index = latest_eaten_token_index(parser);
-            
-        sub_expression_node->first_child = variable_node;
-        
+        add_child_variable_node(parser, Node_Expr_Variable, sub_expression_node);
         sub_expression_node->last_token_index = latest_eaten_token_index(parser);
     }
     else if (accept_token(parser, Token_VariableIdentifier))
@@ -450,7 +464,7 @@ Node * parse_sub_expression(Parser * parser)
         }
         else if (accept_token(parser, Token_MinusMinus))
         {
-            // TODO: we should only allow '++' *right* behind a variableIdentifier!
+            // TODO: we should only allow '--' *right* behind a variableIdentifier!
             sub_expression_node->type = Node_Expr_PostDec;
                 
             Node * variable_node = new_node(parser);
@@ -653,23 +667,6 @@ Node * parse_expression(Parser * parser)
     return expression_node;
 }
 
-Node * add_child_expression_node(Parser * parser, NodeType node_type, Node * parent_node)
-{
-    Node * child_node = new_node(parser);
-    
-    child_node->type = node_type;
-    child_node->first_token_index = parser->current_token_index;
-
-    Node * child_expression_node = parse_expression(parser);
-    
-    child_node->first_child = child_expression_node;
-    child_node->last_token_index = latest_eaten_token_index(parser);
-    
-    add_child_node(child_node, parent_node);
-    
-    return child_node;
-}
-
 void parse_arguments(Parser * parser, Node * parent_node)
 {
     expect_token(parser, Token_OpenParenteses);
@@ -763,64 +760,32 @@ Node * parse_statement(Parser * parser)
     else if (accept_token(parser, Token_For))
     {
         // For
-        
         statement_node->first_token_index = latest_eaten_token_index(parser);
-        
         statement_node->type = Node_Stmt_For;
         
         expect_token(parser, Token_OpenParenteses);
         
         // For_Init
-        
-        // add_child_expression_node(Node_Stmt_For_Init, statement_node);
-        
-        Node * init_node = new_node(parser);
-        init_node->type = Node_Stmt_For_Init;
-        init_node->first_token_index = parser->current_token_index;
-
-        Node * init_expression_node = parse_expression(parser);
-        
-        init_node->first_child = init_expression_node;
-        init_node->last_token_index = latest_eaten_token_index(parser);
-        
-        statement_node->first_child = init_node;
+        add_child_expression_node(parser, Node_Stmt_For_Init, statement_node);
         
         expect_token(parser, Token_Semicolon);
         
         // For_Cond
-        
-        Node * condition_node = new_node(parser);
-        condition_node->type = Node_Stmt_For_Cond;
-        condition_node->first_token_index = parser->current_token_index;
-        init_node->next_sibling = condition_node;
-        
-        Node * condition_expression_node = parse_expression(parser);
-        
-        condition_node->last_token_index = latest_eaten_token_index(parser);
-        condition_node->first_child = condition_expression_node;
+        add_child_expression_node(parser, Node_Stmt_For_Cond, statement_node);
         
         expect_token(parser, Token_Semicolon);
         
         // For_Update
-        
-        Node * update_node = new_node(parser);
-        update_node->type = Node_Stmt_For_Update;
-        update_node->first_token_index = parser->current_token_index;
-        condition_node->next_sibling = update_node;
-        
-        Node * update_expression_node = parse_expression(parser);
-        update_node->last_token_index = latest_eaten_token_index(parser);
-        update_node->first_child = update_expression_node;
+        add_child_expression_node(parser, Node_Stmt_For_Update, statement_node);
         
         expect_token(parser, Token_CloseParenteses);
         
         // For_Body
-        
         Node * for_body_node = new_node(parser);
         for_body_node->type = Node_Stmt_For_Body;
         parse_block(parser, for_body_node);
         
-        update_node->next_sibling = for_body_node;
+        add_child_node(for_body_node, statement_node);
         
         statement_node->last_token_index = latest_eaten_token_index(parser);
     }
@@ -835,63 +800,22 @@ Node * parse_statement(Parser * parser)
         expect_token(parser, Token_OpenParenteses);
         
         // Foreach_Array
-        
-        Node * array_node = new_node(parser);
-        array_node->type = Node_Stmt_Foreach_Array;
-        array_node->first_token_index = parser->current_token_index;
-
-        Node * array_expression_node = parse_expression(parser);
-        
-        array_node->first_child = array_expression_node;
-        array_node->last_token_index = latest_eaten_token_index(parser);
-        
-        statement_node->first_child = array_node;
+        add_child_expression_node(parser, Node_Stmt_Foreach_Array, statement_node);
         
         expect_token(parser, Token_As);
 
         // Foreach_Value_Var
         
         // We always expect a variable, which (by default) is the Foreach_Value_Var
-        if (accept_token(parser, Token_Ampersand))
-        {
-            // FIXME: do something with the &
-        }
-        expect_token(parser, Token_VariableIdentifier);
-        
-        Node * value_var_node = new_node(parser);
-        value_var_node->type = Node_Stmt_Foreach_Value_Var;
-        value_var_node->first_token_index = parser->current_token_index;
-        
-        value_var_node->last_token_index = latest_eaten_token_index(parser);
+        add_child_variable_node(parser, Node_Stmt_Foreach_Value_Var, statement_node, true);
         
         if (accept_token(parser, Token_Arrow)) {
             
-            if (accept_token(parser, Token_Ampersand))
-            {
-                // FIXME: do something with the &
-            }
-            expect_token(parser, Token_VariableIdentifier);
-            
-            // Foreach_Value_Var --becomes--> Foreach_Key_Var
-            
             // If there is an "=>", the first variable was the Key_Var instead, the next variable becomes the Value_Var
-            Node * key_var_node = value_var_node;
-            key_var_node->type = Node_Stmt_Foreach_Key_Var;
-            
-            // Foreach_Value_Var (new)
-            
-            value_var_node = new_node(parser);
-            value_var_node->type = Node_Stmt_Foreach_Value_Var;
-            value_var_node->first_token_index = parser->current_token_index;
-            value_var_node->last_token_index = parser->current_token_index; // TODO: is this correct??
-            
-            array_node->next_sibling = key_var_node;
-            
-            key_var_node->next_sibling = value_var_node;
-        }
-        else
-        {
-            array_node->next_sibling = value_var_node;
+            Node * key_var_node = statement_node->last_child;
+            key_var_node->type = Node_Stmt_Foreach_Key_Var;  // Foreach_Value_Var --becomes--> Foreach_Key_Var
+
+            add_child_variable_node(parser, Node_Stmt_Foreach_Value_Var, statement_node, true);
         }
         
         expect_token(parser, Token_CloseParenteses);
@@ -901,7 +825,7 @@ Node * parse_statement(Parser * parser)
         foreach_body_node->type = Node_Stmt_Foreach_Body;
         parse_block(parser, foreach_body_node);
         
-        value_var_node->next_sibling = foreach_body_node;
+        add_child_node(foreach_body_node, statement_node);
         
         statement_node->last_token_index = latest_eaten_token_index(parser);
     }
@@ -918,7 +842,7 @@ Node * parse_statement(Parser * parser)
             
             Node * function_arguments_node = new_node(parser);
             function_arguments_node->type = Node_Stmt_Function_Args;
-            statement_node->first_child = function_arguments_node;
+            add_child_node(function_arguments_node, statement_node);
             
             parse_arguments(parser, function_arguments_node);
 
@@ -956,17 +880,12 @@ Node * parse_statement(Parser * parser)
     }
     else if (accept_token(parser, Token_Return))
     {
-        statement_node->first_token_index = latest_eaten_token_index(parser);
-        
-        statement_node->type = Node_Stmt_Return;
-        
-        Node * expression_node = parse_expression(parser);
-        statement_node->first_child = expression_node;
+        add_child_expression_node(parser, Node_Stmt_Return, statement_node);
         
         expect_token(parser, Token_Semicolon); 
             
         statement_node->last_token_index = latest_eaten_token_index(parser);
-}
+    }
     else
     {
         statement_node->first_token_index = parser->current_token_index; // Note: the expression hasn't started yet, so no need to do - 1 here
@@ -990,7 +909,7 @@ Node * parse_statement(Parser * parser)
             statement_node = 0; // TODO: we should "free" this expression_node (but an error occured so it might nog matter)
             return statement_node;
         }
-        statement_node->first_child = expression_node;
+        add_child_node(expression_node, statement_node);
         
         expect_token(parser, Token_Semicolon); 
         
