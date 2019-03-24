@@ -218,8 +218,10 @@ struct Node
     
     HighlightedLinePart highlighted_line_part;
     
-    Node * next_sibling;
     Node * first_child;
+    Node * last_child;
+    
+    Node * next_sibling;
 };
 
 struct Parser
@@ -295,9 +297,23 @@ Node * new_node(Parser * parser)
     Node * new_node = (Node *)add_to_array(&parser->nodes, &empty_node);
     
     new_node->first_child = 0;
+    new_node->last_child = 0;
     new_node->next_sibling = 0;
     new_node->type = Node_Unknown;
     return new_node;
+}
+
+void add_child_node(Node * child_node, Node * parent_node)
+{
+    if (!parent_node->first_child)
+    {
+        parent_node->first_child = child_node;
+    }
+    else
+    {
+        parent_node->last_child->next_sibling = child_node;
+    }
+    parent_node->last_child = child_node;
 }
 
 String get_source_text_from_ast_node(Parser * parser, Node * node)
@@ -637,6 +653,23 @@ Node * parse_expression(Parser * parser)
     return expression_node;
 }
 
+Node * add_child_expression_node(Parser * parser, NodeType node_type, Node * parent_node)
+{
+    Node * child_node = new_node(parser);
+    
+    child_node->type = node_type;
+    child_node->first_token_index = parser->current_token_index;
+
+    Node * child_expression_node = parse_expression(parser);
+    
+    child_node->first_child = child_expression_node;
+    child_node->last_token_index = latest_eaten_token_index(parser);
+    
+    add_child_node(child_node, parent_node);
+    
+    return child_node;
+}
+
 void parse_arguments(Parser * parser, Node * parent_node)
 {
     expect_token(parser, Token_OpenParenteses);
@@ -678,6 +711,7 @@ void parse_arguments(Parser * parser, Node * parent_node)
 }
 
 void parse_block(Parser * parser, Node * parent_node);
+
 
 Node * parse_statement(Parser * parser)
 {
@@ -737,6 +771,8 @@ Node * parse_statement(Parser * parser)
         expect_token(parser, Token_OpenParenteses);
         
         // For_Init
+        
+        // add_child_expression_node(Node_Stmt_For_Init, statement_node);
         
         Node * init_node = new_node(parser);
         init_node->type = Node_Stmt_For_Init;
