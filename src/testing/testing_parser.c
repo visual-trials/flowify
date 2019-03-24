@@ -81,7 +81,7 @@ extern "C" {
         Node * root_node = parse_program(parser);
         
         // Dump parse result
-        dump_tree(root_node, &world->dump_text);
+        dump_parse_tree(root_node, &world->dump_text);
         
         split_string_into_scrollable_lines(world->dump_text.string, scrollable_ast_dump);
     }
