@@ -383,8 +383,10 @@ Node * add_child_variable_node(Parser * parser, NodeType node_type, Node * paren
     return variable_node;
 }
 
-void parse_variable_assignment(Parser * parser, Node * sub_expression_node, Token * variable_token)
+void parse_variable_assignment(Parser * parser, NodeType node_type, Node * sub_expression_node, Token * variable_token)
 {
+    sub_expression_node->type = node_type;
+    
     // Left side of the expression (a variable)
     Node * variable_node = new_node(parser);
     variable_node->type = Node_Expr_Variable;
@@ -478,28 +480,23 @@ Node * parse_sub_expression(Parser * parser)
         }
         else if (accept_token(parser, Token_AssignMultiply))
         {
-            sub_expression_node->type = Node_Expr_AssignOp_Multiply;
-            parse_variable_assignment(parser, sub_expression_node, variable_token);
+            parse_variable_assignment(parser, Node_Expr_AssignOp_Multiply, sub_expression_node, variable_token);
         }
         else if (accept_token(parser, Token_AssignDivide))
         {
-            sub_expression_node->type = Node_Expr_AssignOp_Divide;
-            parse_variable_assignment(parser, sub_expression_node, variable_token);
+            parse_variable_assignment(parser, Node_Expr_AssignOp_Divide, sub_expression_node, variable_token);
         }
         else if (accept_token(parser, Token_AssignPlus))
         {
-            sub_expression_node->type = Node_Expr_AssignOp_Plus;
-            parse_variable_assignment(parser, sub_expression_node, variable_token);
+            parse_variable_assignment(parser, Node_Expr_AssignOp_Plus, sub_expression_node, variable_token);
         }
         else if (accept_token(parser, Token_AssignMinus))
         {
-            sub_expression_node->type = Node_Expr_AssignOp_Minus;
-            parse_variable_assignment(parser, sub_expression_node, variable_token);
+            parse_variable_assignment(parser, Node_Expr_AssignOp_Minus, sub_expression_node, variable_token);
         }
         else if (accept_token(parser, Token_Assign))
         {
-            sub_expression_node->type = Node_Expr_Assign;
-            parse_variable_assignment(parser, sub_expression_node, variable_token);
+            parse_variable_assignment(parser, Node_Expr_Assign, sub_expression_node, variable_token);
         }
         else
         {
