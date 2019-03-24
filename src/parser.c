@@ -572,6 +572,18 @@ Node * parse_sub_expression(Parser * parser)
    
 }
 
+Node * parse_binary_op_expression(Parser * parser, NodeType node_type, Node * left_sub_expression)
+{
+    Node * expression_node = new_node(parser);
+    expression_node->first_token_index = left_sub_expression->first_token_index;
+    expression_node->type = node_type;
+    Node * right_sub_expression = parse_sub_expression(parser);
+    add_child_node(left_sub_expression, expression_node);
+    add_child_node(right_sub_expression, expression_node);
+    expression_node->last_token_index = latest_eaten_token_index(parser);
+    return expression_node;
+}
+
 Node * parse_expression(Parser * parser)
 {
     Node * expression_node = 0;
@@ -587,73 +599,31 @@ Node * parse_expression(Parser * parser)
     
     if (accept_token(parser, Token_Greater))
     {
-        expression_node = new_node(parser);
-        expression_node->first_token_index = left_sub_expression->first_token_index;
-        expression_node->type = Node_Expr_BinaryOp_Greater;
-        Node * right_sub_expression = parse_sub_expression(parser);
-        add_child_node(left_sub_expression, expression_node);
-        add_child_node(right_sub_expression, expression_node);
-        expression_node->last_token_index = latest_eaten_token_index(parser);
+        parse_binary_op_expression(parser, Node_Expr_BinaryOp_Greater, left_sub_expression);
     }
     else if (accept_token(parser, Token_Smaller))
     {
-        expression_node = new_node(parser);
-        expression_node->first_token_index = left_sub_expression->first_token_index;
-        expression_node->type = Node_Expr_BinaryOp_Smaller;
-        Node * right_sub_expression = parse_sub_expression(parser);
-        add_child_node(left_sub_expression, expression_node);
-        add_child_node(right_sub_expression, expression_node);
-        expression_node->last_token_index = latest_eaten_token_index(parser);
+        parse_binary_op_expression(parser, Node_Expr_BinaryOp_Smaller, left_sub_expression);
     }
     else if (accept_token(parser, Token_Equal))
     {
-        expression_node = new_node(parser);
-        expression_node->first_token_index = left_sub_expression->first_token_index;
-        expression_node->type = Node_Expr_BinaryOp_Equal;
-        Node * right_sub_expression = parse_sub_expression(parser);
-        add_child_node(left_sub_expression, expression_node);
-        add_child_node(right_sub_expression, expression_node);
-        expression_node->last_token_index = latest_eaten_token_index(parser);
+        parse_binary_op_expression(parser, Node_Expr_BinaryOp_Equal, left_sub_expression);
     }
     else if (accept_token(parser, Token_Multiply))
     {
-        expression_node = new_node(parser);
-        expression_node->first_token_index = left_sub_expression->first_token_index;
-        expression_node->type = Node_Expr_BinaryOp_Multiply;
-        Node * right_sub_expression = parse_sub_expression(parser);
-        add_child_node(left_sub_expression, expression_node);
-        add_child_node(right_sub_expression, expression_node);
-        expression_node->last_token_index = latest_eaten_token_index(parser);
+        parse_binary_op_expression(parser, Node_Expr_BinaryOp_Multiply, left_sub_expression);
     }
     else if (accept_token(parser, Token_Divide))
     {
-        expression_node = new_node(parser);
-        expression_node->first_token_index = left_sub_expression->first_token_index;
-        expression_node->type = Node_Expr_BinaryOp_Divide;
-        Node * right_sub_expression = parse_sub_expression(parser);
-        add_child_node(left_sub_expression, expression_node);
-        add_child_node(right_sub_expression, expression_node);
-        expression_node->last_token_index = latest_eaten_token_index(parser);
+        parse_binary_op_expression(parser, Node_Expr_BinaryOp_Divide, left_sub_expression);
     }
     else if (accept_token(parser, Token_Plus))
     {
-        expression_node = new_node(parser);
-        expression_node->first_token_index = left_sub_expression->first_token_index;
-        expression_node->type = Node_Expr_BinaryOp_Plus;
-        Node * right_sub_expression = parse_sub_expression(parser);
-        add_child_node(left_sub_expression, expression_node);
-        add_child_node(right_sub_expression, expression_node);
-        expression_node->last_token_index = latest_eaten_token_index(parser);
+        parse_binary_op_expression(parser, Node_Expr_BinaryOp_Plus, left_sub_expression);
     }
     else if (accept_token(parser, Token_Minus))
     {
-        expression_node = new_node(parser);
-        expression_node->first_token_index = left_sub_expression->first_token_index;
-        expression_node->type = Node_Expr_BinaryOp_Minus;
-        Node * right_sub_expression = parse_sub_expression(parser);
-        add_child_node(left_sub_expression, expression_node);
-        add_child_node(right_sub_expression, expression_node);
-        expression_node->last_token_index = latest_eaten_token_index(parser);
+        parse_binary_op_expression(parser, Node_Expr_BinaryOp_Minus, left_sub_expression);
     }
     else
     {
