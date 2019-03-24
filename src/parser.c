@@ -697,7 +697,7 @@ Node * parse_statement(Parser * parser)
         then_node->type = Node_Stmt_If_Then;
         parse_block(parser, then_node);
         
-        condition_node->next_sibling = then_node;
+        add_child_node(then_node, statement_node);
         
         if (accept_token(parser, Token_Else))
         {
@@ -706,7 +706,7 @@ Node * parse_statement(Parser * parser)
             else_node->type = Node_Stmt_If_Else;
             parse_block(parser, else_node);
             
-            then_node->next_sibling = else_node;
+            add_child_node(then_node, statement_node);
         }
         
         // Note: if-statemets (or any other block-ending statements) do not require a Semocolon at the end!
@@ -804,7 +804,7 @@ Node * parse_statement(Parser * parser)
             function_body_node->type = Node_Stmt_Function_Body;
             parse_block(parser, function_body_node);
             
-            function_arguments_node->next_sibling = function_body_node;
+            add_child_node(function_body_node, statement_node);
         }
         else
         {
