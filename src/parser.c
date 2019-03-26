@@ -72,10 +72,10 @@ sub_expr :=
     
 */
 
-void parse_arguments(Parser * parser, Node * parent_node);
+Node * parse_arguments(Parser * parser, NodeType node_type);
 Node * parse_expression(Parser * parser);
 
-Node * parse_child_expression_node(Parser * parser, NodeType node_type, Node * parent_node)
+Node * parse_child_expression_node(Parser * parser, NodeType node_type)
 {
     Node * child_node = start_node(parser, node_type);
 
@@ -85,12 +85,10 @@ Node * parse_child_expression_node(Parser * parser, NodeType node_type, Node * p
     
     end_node(parser, child_node);
     
-    add_child_node(child_node, parent_node);
-    
     return child_node;
 }
 
-Node * parse_child_variable_node(Parser * parser, NodeType node_type, Node * parent_node, b32 allow_variable_reference = false)
+Node * parse_child_variable_node(Parser * parser, NodeType node_type, b32 allow_variable_reference = false)
 {
     Node * variable_node = start_node(parser, node_type);
     
@@ -108,8 +106,6 @@ Node * parse_child_variable_node(Parser * parser, NodeType node_type, Node * par
     variable_node->identifier = variable_token->text;
     
     end_node(parser, variable_node);
-    
-    add_child_node(variable_node, parent_node);
     
     return variable_node;
 }
@@ -154,7 +150,8 @@ Node * parse_sub_expression(Parser * parser)
     {
         sub_expression_node = start_node(parser, Node_Expr_PreInc, StartOnLatestToken);
         
-        parse_child_variable_node(parser, Node_Expr_Variable, sub_expression_node);
+        Node * expression_var_node = parse_child_variable_node(parser, Node_Expr_Variable, true);
+        add_child_node(expression_var_node, sub_expression_node);
         
         end_node(parser, sub_expression_node);
     }
@@ -162,7 +159,8 @@ Node * parse_sub_expression(Parser * parser)
     {
         sub_expression_node = start_node(parser, Node_Expr_PreDec, StartOnLatestToken);
         
-        parse_child_variable_node(parser, Node_Expr_Variable, sub_expression_node);
+        Node * expression_var_node = parse_child_variable_node(parser, Node_Expr_Variable, true);
+        add_child_node(expression_var_node, sub_expression_node);
         
         end_node(parser, sub_expression_node);
     }
@@ -275,7 +273,8 @@ Node * parse_sub_expression(Parser * parser)
         Token * function_call_identifier_token = latest_eaten_token(parser);
         sub_expression_node->identifier = function_call_identifier_token->text;
         
-        parse_arguments(parser, sub_expression_node);
+        Node * arguments_node = parse_arguments(parser, Node_Expr_FuncCall_Args);
+        add_child_node(arguments_node, sub_expression_node);
         
         end_node(parser, sub_expression_node);
     }
@@ -356,12 +355,11 @@ Node * parse_expression(Parser * parser)
     return expression_node;
 }
 
-// FIXME: move first_token_index and last_token_index outside this function by using start_node and end_node
-void parse_arguments(Parser * parser, Node * parent_node)
+Node * parse_arguments(Parser * parser, NodeType node_type)
 {
-    expect_token(parser, Token_OpenParenteses);
+    Node * arguments_node = start_node(parser, node_type);
     
-    parent_node->first_token_index = latest_eaten_token_index(parser);
+    expect_token(parser, Token_OpenParenteses);
     
     while(!accept_token(parser, Token_CloseParenteses))
     {
@@ -373,7 +371,7 @@ void parse_arguments(Parser * parser, Node * parent_node)
         Node * argument_node = parse_expression(parser);
         if (argument_node)
         {
-            add_child_node(argument_node, parent_node);
+            add_child_node(argument_node, arguments_node);
             
             // TODO: Only allow next argument if it comma separated
             accept_token(parser, Token_Comma);
@@ -384,132 +382,118 @@ void parse_arguments(Parser * parser, Node * parent_node)
             break;
         }
     }
-    parent_node->last_token_index = latest_eaten_token_index(parser);
+    
+    end_node(parser, arguments_node);
+    
+    return arguments_node;
 }
 
-void parse_block(Parser * parser, Node * parent_node);
+Node * parse_block(Parser * parser, NodeType node_type);
 
 
 Node * parse_statement(Parser * parser)
 {
-    Node * statement_node = 0;
-    
     if (accept_token(parser, Token_If))
     {
-        statement_node = start_node(parser, Node_Stmt_If, StartOnLatestToken);
+        Node * if_node = start_node(parser, Node_Stmt_If, StartOnLatestToken);
         
         // Note: we do not allow single-line bodies atm (without braces)
 
         // If-condition
-        if (!expect_token(parser, Token_OpenParenteses))
-        {
-            log("ERROR: Expected Token_OpenParenteses but did NOT get it after if-statement!");
-        }
-        Node * condition_node = new_node(parser);
-        condition_node->type = Node_Stmt_If_Cond;
-        condition_node->first_token_index = parser->current_token_index;
+        expect_token(parser, Token_OpenParenteses);
         
-        add_child_node(condition_node, statement_node);
-        
-        Node * condition_expression_node = parse_expression(parser);
-        
-        condition_node->last_token_index = latest_eaten_token_index(parser);
-        
-        add_child_node(condition_expression_node, condition_node);
-        
+        Node * condition_node = parse_child_expression_node(parser, Node_Stmt_If_Cond);
+        add_child_node(condition_node, if_node);
+       
         expect_token(parser, Token_CloseParenteses);
         
         // If-then
-        Node * then_node = new_node(parser);
-        then_node->type = Node_Stmt_If_Then;
-        // FIXME: shouldnt first_token_index and last_token_index be set for then_node?
-        
-        parse_block(parser, then_node);
-        
-        add_child_node(then_node, statement_node);
+        Node * then_node = parse_block(parser, Node_Stmt_If_Then);
+        add_child_node(then_node, if_node);
         
         if (accept_token(parser, Token_Else))
         {
             // If-else
-            Node * else_node = new_node(parser);
-            else_node->type = Node_Stmt_If_Else;
-            // FIXME: shouldnt first_token_index and last_token_index be set for else_node?
-            parse_block(parser, else_node);
-            
-            add_child_node(else_node, statement_node);
+            Node * else_node = parse_block(parser, Node_Stmt_If_Else);
+            add_child_node(else_node, if_node);
         }
         
         // Note: if-statemets (or any other block-ending statements) do not require a Semocolon at the end!
         
-        end_node(parser, statement_node);
+        end_node(parser, if_node);
+        
+        return if_node;
     }
     else if (accept_token(parser, Token_For))
     {
         // For
-        statement_node = start_node(parser, Node_Stmt_For, StartOnLatestToken);
+        Node * for_node = start_node(parser, Node_Stmt_For, StartOnLatestToken);
         
         expect_token(parser, Token_OpenParenteses);
         
         // For_Init
-        parse_child_expression_node(parser, Node_Stmt_For_Init, statement_node);
+        Node * init_node = parse_child_expression_node(parser, Node_Stmt_For_Init);
+        add_child_node(init_node, for_node);
         
         expect_token(parser, Token_Semicolon);
         
         // For_Cond
-        parse_child_expression_node(parser, Node_Stmt_For_Cond, statement_node);
+        Node * cond_node = parse_child_expression_node(parser, Node_Stmt_For_Cond);
+        add_child_node(cond_node, for_node);
         
         expect_token(parser, Token_Semicolon);
         
         // For_Update
-        parse_child_expression_node(parser, Node_Stmt_For_Update, statement_node);
+        Node * update_node = parse_child_expression_node(parser, Node_Stmt_For_Update);
+        add_child_node(update_node, for_node);
         
         expect_token(parser, Token_CloseParenteses);
         
         // For_Body
-        Node * for_body_node = new_node(parser);
-        for_body_node->type = Node_Stmt_For_Body;
-        parse_block(parser, for_body_node);
+        Node * for_body_node = parse_block(parser, Node_Stmt_For_Body);
+        add_child_node(for_body_node, for_node);
         
-        add_child_node(for_body_node, statement_node);
+        end_node(parser, for_node);
         
-        end_node(parser, statement_node);
+        return for_node;
     }
     else if (accept_token(parser, Token_Foreach))
     {
         // Foreach
-        statement_node = start_node(parser, Node_Stmt_Foreach, StartOnLatestToken);
+        Node * foreach_node = start_node(parser, Node_Stmt_Foreach, StartOnLatestToken);
         
         expect_token(parser, Token_OpenParenteses);
         
         // Foreach_Array
-        parse_child_expression_node(parser, Node_Stmt_Foreach_Array, statement_node);
+        Node * foreach_array_node = parse_child_expression_node(parser, Node_Stmt_Foreach_Array);
+        add_child_node(foreach_array_node, foreach_node);
         
         expect_token(parser, Token_As);
 
         // Foreach_Value_Var
         
         // We always expect a variable, which (by default) is the Foreach_Value_Var
-        parse_child_variable_node(parser, Node_Stmt_Foreach_Value_Var, statement_node, true);
+        Node * foreach_first_var_node = parse_child_variable_node(parser, Node_Stmt_Foreach_Value_Var, true);
+        add_child_node(foreach_first_var_node, foreach_node);
         
         if (accept_token(parser, Token_Arrow)) {
             
             // If there is an "=>", the first variable was the Key_Var instead, the next variable becomes the Value_Var
-            Node * key_var_node = statement_node->last_child;
-            key_var_node->type = Node_Stmt_Foreach_Key_Var;  // Foreach_Value_Var --becomes--> Foreach_Key_Var
+            foreach_first_var_node->type = Node_Stmt_Foreach_Key_Var;  // Foreach_Value_Var --becomes--> Foreach_Key_Var
 
-            parse_child_variable_node(parser, Node_Stmt_Foreach_Value_Var, statement_node, true);
+            Node * foreach_second_var_node = parse_child_variable_node(parser, Node_Stmt_Foreach_Value_Var, true);
+            add_child_node(foreach_second_var_node, foreach_node);
         }
         
         expect_token(parser, Token_CloseParenteses);
         
         // Foreach_Body
-        Node * foreach_body_node = new_node(parser);
-        foreach_body_node->type = Node_Stmt_Foreach_Body;
-        parse_block(parser, foreach_body_node);
+        Node * foreach_body_node = parse_block(parser, Node_Stmt_Foreach_Body);
+        add_child_node(foreach_body_node, foreach_node);
         
-        add_child_node(foreach_body_node, statement_node);
+        end_node(parser, foreach_node);
         
-        end_node(parser, statement_node);
+        return foreach_node;
     }
     else if (accept_token(parser, Token_Function))
     {
@@ -517,24 +501,20 @@ Node * parse_statement(Parser * parser)
         {
             Token * function_identifier_token = latest_eaten_token(parser);
 
-            statement_node = start_node(parser, Node_Stmt_Function, StartOnTokenBeforeLatestToken);
+            Node * function_node = start_node(parser, Node_Stmt_Function, StartOnTokenBeforeLatestToken);
         
-            statement_node->identifier = function_identifier_token->text;
+            function_node->identifier = function_identifier_token->text;
             
-            Node * function_arguments_node = new_node(parser);
-            function_arguments_node->type = Node_Stmt_Function_Args;
-            add_child_node(function_arguments_node, statement_node);
-            
-            parse_arguments(parser, function_arguments_node);
+            Node * function_arguments_node = parse_arguments(parser, Node_Stmt_Function_Args);
+            add_child_node(function_arguments_node, function_node);
 
             // Function body
-            Node * function_body_node = new_node(parser);
-            function_body_node->type = Node_Stmt_Function_Body;
-            parse_block(parser, function_body_node);
+            Node * function_body_node = parse_block(parser, Node_Stmt_Function_Body);
+            add_child_node(function_body_node, function_node);
             
-            add_child_node(function_body_node, statement_node);
-            
-            end_node(parser, statement_node);
+            end_node(parser, function_node);
+        
+            return function_node;
         }
         else
         {
@@ -544,38 +524,44 @@ Node * parse_statement(Parser * parser)
     }
     else if (accept_token(parser, Token_Continue))
     {
-        statement_node = start_node(parser, Node_Stmt_Continue, StartOnLatestToken);
+        Node * continue_node = start_node(parser, Node_Stmt_Continue, StartOnLatestToken);
         
         expect_token(parser, Token_Semicolon); 
         
-        end_node(parser, statement_node);
+        end_node(parser, continue_node);
+        
+        return continue_node;
     }
     else if (accept_token(parser, Token_Break))
     {
-        statement_node = start_node(parser, Node_Stmt_Break, StartOnLatestToken);
+        Node * break_node = start_node(parser, Node_Stmt_Break, StartOnLatestToken);
         
         expect_token(parser, Token_Semicolon); 
         
-        end_node(parser, statement_node);
+        end_node(parser, break_node);
+        
+        return break_node;
     }
     else if (accept_token(parser, Token_Return))
     {
-        statement_node = start_node(parser, Node_Stmt_Return, StartOnLatestToken);
+        Node * return_node = start_node(parser, Node_Stmt_Return, StartOnLatestToken);
         
         Node * return_expression_node = parse_expression(parser);
         
-        add_child_node(return_expression_node, statement_node);
+        add_child_node(return_expression_node, return_node);
         
         expect_token(parser, Token_Semicolon); 
             
-        end_node(parser, statement_node);
+        end_node(parser, return_node);
+        
+        return return_node;
     }
     else
     {
         // We assume its a statement with only an expression
         
         // Note: the expression hasn't started yet, so no need to do StartOnLatestToken here
-        statement_node = start_node(parser, Node_Stmt_Expr);
+        Node * statement_expression_node = start_node(parser, Node_Stmt_Expr);
         
         Node * expression_node = parse_expression(parser);
         if (!expression_node)
@@ -598,18 +584,20 @@ Node * parse_statement(Parser * parser)
             log("Line number:");
             log_int(token->line_index + 1);
             
-            statement_node = 0; // TODO: we should "free" this expression_node (but an error occured so it might nog matter)
-            return statement_node;
+            return 0;
         }
-        add_child_node(expression_node, statement_node);
+        add_child_node(expression_node, statement_expression_node);
         
         expect_token(parser, Token_Semicolon); 
         
-        end_node(parser, statement_node);
+        end_node(parser, statement_expression_node);
+        
+        return statement_expression_node;
     }
     // TODO implement more variants of statements
     
-    return statement_node;
+    // TODO: if we reach this point, we didn't find a statement, which is an ERROR.
+    return 0;
 }
 
 void parse_statements(Parser * parser, Node * parent_node)
@@ -636,23 +624,23 @@ void parse_statements(Parser * parser, Node * parent_node)
     
 }
 
-void parse_block(Parser * parser, Node * parent_node)
+Node * parse_block(Parser * parser, NodeType node_type)
 {
+    Node * block_node = start_node(parser, node_type);
+    
     if (expect_token(parser, Token_OpenBrace))
     {
-        parent_node->first_token_index = latest_eaten_token_index(parser);
-        
-        parse_statements(parser, parent_node);    
+        parse_statements(parser, block_node);
         // Note: Token_CloseBrace is already eaten by parse_statements
-        
-        parent_node->last_token_index = latest_eaten_token_index(parser);
     }
     else 
     {
         log("ERROR: did NOT found open brace!");
     }
 
-    // TODO: we should probably return a boolean that parser went ok or not
+    end_node(parser, block_node);
+    
+    return block_node;
 }
 
 Node * parse_program(Parser * parser)
