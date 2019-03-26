@@ -193,6 +193,15 @@ void next_token(Parser * parser)
     parser->current_token_index++;
 }
 
+i32 get_earlier_eaten_token_index(Parser * parser, i32 token_index_offset)
+{
+    assert(parser->current_token_index + token_index_offset >= 0);
+    assert(parser->current_token_index + token_index_offset < parser->tokenizer->tokens.nr_of_items);
+    
+    return parser->current_token_index + token_index_offset;
+}
+
+// FIXME: deprecated?
 i32 latest_eaten_token_index(Parser * parser)
 {
     assert(parser->current_token_index - 1 >= 0);
@@ -201,6 +210,7 @@ i32 latest_eaten_token_index(Parser * parser)
     return parser->current_token_index - 1;
 }
 
+// FIXME: use get_earlier_eaten_token_index instead?
 Token * latest_eaten_token(Parser * parser)
 {
     Tokenizer * tokenizer = parser->tokenizer;
@@ -247,6 +257,30 @@ Node * new_node(Parser * parser)
     new_node->next_sibling = 0;
     new_node->type = Node_Unknown;
     return new_node;
+}
+
+#define StartOnLatestToken -1
+#define StartOnTokenBeforeLatestToken -2
+
+Node * start_node(Parser * parser, NodeType node_type, i32 token_index_offset)
+{
+    Node * node = new_node(parser);
+    node->first_token_index = get_earlier_eaten_token_index(parser, token_index_offset);
+    node->type = node_type;
+    return node;
+}
+
+Node * start_node(Parser * parser, NodeType node_type = Node_Unknown)
+{
+    Node * node = new_node(parser);
+    node->first_token_index = parser->current_token_index;
+    node->type = node_type;
+    return node;
+}
+
+void end_node(Parser * parser, Node * node)
+{
+    node->last_token_index = latest_eaten_token_index(parser);
 }
 
 void add_child_node(Node * child_node, Node * parent_node)

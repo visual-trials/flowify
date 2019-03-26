@@ -77,15 +77,13 @@ Node * parse_expression(Parser * parser);
 
 Node * parse_child_expression_node(Parser * parser, NodeType node_type, Node * parent_node)
 {
-    Node * child_node = new_node(parser);
-    child_node->type = node_type;
-    child_node->first_token_index = parser->current_token_index;
+    Node * child_node = start_node(parser, node_type);
 
     Node * child_expression_node = parse_expression(parser);
     
     add_child_node(child_expression_node, child_node);
     
-    child_node->last_token_index = latest_eaten_token_index(parser);
+    end_node(parser, child_node);
     
     add_child_node(child_node, parent_node);
     
@@ -94,7 +92,7 @@ Node * parse_child_expression_node(Parser * parser, NodeType node_type, Node * p
 
 Node * parse_child_variable_node(Parser * parser, NodeType node_type, Node * parent_node, b32 allow_variable_reference = false)
 {
-    i32 first_token_index = parser->current_token_index;
+    Node * variable_node = start_node(parser, node_type);
     
     if (allow_variable_reference)
     {
@@ -107,31 +105,23 @@ Node * parse_child_variable_node(Parser * parser, NodeType node_type, Node * par
     expect_token(parser, Token_VariableIdentifier);
     Token * variable_token = latest_eaten_token(parser);
     
-    Node * variable_node = new_node(parser);
-    variable_node->type = node_type;
-    variable_node->first_token_index = first_token_index;
-    
     variable_node->identifier = variable_token->text;
     
-    variable_node->last_token_index = latest_eaten_token_index(parser);
+    end_node(parser, variable_node);
     
     add_child_node(variable_node, parent_node);
     
     return variable_node;
 }
 
-void parse_variable_assignment(Parser * parser, NodeType node_type, Node * sub_expression_node, Token * variable_token)
+Node * parse_variable_assignment(Parser * parser, NodeType node_type, Token * variable_token, i32 token_index_offset)
 {
-    sub_expression_node->type = node_type;
+    Node * sub_expression_node = start_node(parser, node_type, token_index_offset);
     
     // Left side of the expression (a variable)
-    Node * variable_node = new_node(parser);
-    variable_node->type = Node_Expr_Variable;
-    variable_node->first_token_index = sub_expression_node->first_token_index; // The sub expression starts with the variable, so we take its first_token_index
-    
+    Node * variable_node = start_node(parser, Node_Expr_Variable, token_index_offset); // The sub expression starts with the variable, so it has the same starting token
     variable_node->identifier = variable_token->text;
-
-    variable_node->last_token_index = sub_expression_node->first_token_index; // We assume the variable only takes one token
+    end_node(parser, variable_node);  // We assume the variable only takes one token
     
     add_child_node(variable_node, sub_expression_node);
 
@@ -139,6 +129,8 @@ void parse_variable_assignment(Parser * parser, NodeType node_type, Node * sub_e
     Node * child_expression_node = parse_expression(parser);
 
     add_child_node(child_expression_node, sub_expression_node);
+    
+    return sub_expression_node;
 }
 
 Node * parse_sub_expression(Parser * parser)
@@ -158,28 +150,23 @@ Node * parse_sub_expression(Parser * parser)
     }
     else if (accept_token(parser, Token_PlusPlus))
     {
-        sub_expression_node = new_node(parser);
-        sub_expression_node->first_token_index = latest_eaten_token_index(parser);
-        sub_expression_node->type = Node_Expr_PreInc;
+        sub_expression_node = start_node(parser, Node_Expr_PreInc, StartOnLatestToken);
         
         parse_child_variable_node(parser, Node_Expr_Variable, sub_expression_node);
         
-        sub_expression_node->last_token_index = latest_eaten_token_index(parser);
+        end_node(parser, sub_expression_node);
     }
     else if (accept_token(parser, Token_MinusMinus))
     {
-        sub_expression_node = new_node(parser);
-        sub_expression_node->first_token_index = latest_eaten_token_index(parser);
-        sub_expression_node->type = Node_Expr_PreDec;
+        sub_expression_node = start_node(parser, Node_Expr_PreDec, StartOnLatestToken);
         
         parse_child_variable_node(parser, Node_Expr_Variable, sub_expression_node);
         
-        sub_expression_node->last_token_index = latest_eaten_token_index(parser);
+        end_node(parser, sub_expression_node);
     }
     else if (accept_token(parser, Token_VariableIdentifier))
     {
-        sub_expression_node = new_node(parser);
-        sub_expression_node->first_token_index = latest_eaten_token_index(parser);
+        // sub_expression_node = start_node_on_latest_token(parser);
         
         Token * variable_token = latest_eaten_token(parser);
         
@@ -199,102 +186,96 @@ Node * parse_sub_expression(Parser * parser)
         else if (accept_token(parser, Token_PlusPlus))
         {
             // TODO: we should only allow '++' *right* behind a variableIdentifier!
-            sub_expression_node->type = Node_Expr_PostInc;
+            sub_expression_node = start_node(parser, Node_Expr_PostInc, -1);
                 
-            Node * variable_node = new_node(parser);
-            variable_node->type = Node_Expr_Variable;
-            variable_node->first_token_index = sub_expression_node->first_token_index; // The sub expression starts with the variable, so we take its first_token_index
-            
-            variable_node->last_token_index = sub_expression_node->first_token_index; // We assume the variable only takes one token
+            // The variable_node starts with the variable, and we assume the variable only takes one token
+            // FIXME: we should call a function to set the identifier here! (parse_child_variable_node?)
+            Node * variable_node = start_node(parser, Node_Expr_Variable, -1);
+            end_node(parser, variable_node);
             
             add_child_node(variable_node, sub_expression_node);
+            
+            end_node(parser, sub_expression_node);
         }
         else if (accept_token(parser, Token_MinusMinus))
         {
             // TODO: we should only allow '--' *right* behind a variableIdentifier!
-            sub_expression_node->type = Node_Expr_PostDec;
+            // FIXME: we should call a function to set the identifier here! (parse_child_variable_node?)
+            sub_expression_node = start_node(parser, Node_Expr_PostDec, StartOnLatestToken);
+            // sub_expression_node->type = Node_Expr_PostDec;
                 
-            Node * variable_node = new_node(parser);
-            variable_node->type = Node_Expr_Variable;
-            variable_node->first_token_index = sub_expression_node->first_token_index; // The sub expression starts with the variable, so we take its first_token_index
-            
-            variable_node->last_token_index = sub_expression_node->first_token_index; // We assume the variable only takes one token
+            Node * variable_node = start_node(parser, Node_Expr_Variable, -1);
+            end_node(parser, variable_node);
 
             add_child_node(variable_node, sub_expression_node);
+            
+            end_node(parser, sub_expression_node);
         }
         else if (accept_token(parser, Token_AssignMultiply))
         {
-            parse_variable_assignment(parser, Node_Expr_AssignOp_Multiply, sub_expression_node, variable_token);
+            sub_expression_node = parse_variable_assignment(parser, Node_Expr_AssignOp_Multiply, variable_token, -2);
         }
         else if (accept_token(parser, Token_AssignDivide))
         {
-            parse_variable_assignment(parser, Node_Expr_AssignOp_Divide, sub_expression_node, variable_token);
+            sub_expression_node = parse_variable_assignment(parser, Node_Expr_AssignOp_Divide, variable_token, -2);
         }
         else if (accept_token(parser, Token_AssignPlus))
         {
-            parse_variable_assignment(parser, Node_Expr_AssignOp_Plus, sub_expression_node, variable_token);
+            sub_expression_node = parse_variable_assignment(parser, Node_Expr_AssignOp_Plus, variable_token, -2);
         }
         else if (accept_token(parser, Token_AssignMinus))
         {
-            parse_variable_assignment(parser, Node_Expr_AssignOp_Minus, sub_expression_node, variable_token);
+            sub_expression_node = parse_variable_assignment(parser, Node_Expr_AssignOp_Minus, variable_token, -2);
         }
         else if (accept_token(parser, Token_Assign))
         {
-            parse_variable_assignment(parser, Node_Expr_Assign, sub_expression_node, variable_token);
+            sub_expression_node = parse_variable_assignment(parser, Node_Expr_Assign, variable_token, -2);
         }
         else
         {
             // If the variable was not followed by anything, we assume the expression only contains the variable
-            sub_expression_node->type = Node_Expr_Variable;
+            sub_expression_node = start_node(parser, Node_Expr_Variable, -1);
+            end_node(parser, sub_expression_node);
         }
         
-        sub_expression_node->last_token_index = latest_eaten_token_index(parser);
     }
     else if (accept_token(parser, Token_Number))
     {
-        sub_expression_node = new_node(parser);
-        sub_expression_node->first_token_index = latest_eaten_token_index(parser);
-        sub_expression_node->type = Node_Scalar_Number;
+        sub_expression_node = start_node(parser, Node_Scalar_Number, StartOnLatestToken);
         
         Token * number_token = latest_eaten_token(parser);
         sub_expression_node->value = number_token->text;
         
-        sub_expression_node->last_token_index = latest_eaten_token_index(parser);
+        end_node(parser, sub_expression_node);
     }
     else if (accept_token(parser, Token_Float))
     {
-        sub_expression_node = new_node(parser);
-        sub_expression_node->first_token_index = latest_eaten_token_index(parser);
-        sub_expression_node->type = Node_Scalar_Float;
+        sub_expression_node = start_node(parser, Node_Scalar_Float, StartOnLatestToken);
         
         Token * float_token = latest_eaten_token(parser);
         sub_expression_node->value = float_token->text;
         
-        sub_expression_node->last_token_index = latest_eaten_token_index(parser);
+        end_node(parser, sub_expression_node);
     }
     else if (accept_token(parser, Token_SingleQuotedString))
     {
-        sub_expression_node = new_node(parser);
-        sub_expression_node->first_token_index = latest_eaten_token_index(parser);
-        sub_expression_node->type = Node_Scalar_String;
+        sub_expression_node = start_node(parser, Node_Scalar_String, StartOnLatestToken);
         
         Token * string_token = latest_eaten_token(parser);
         sub_expression_node->value = string_token->text;
         
-        sub_expression_node->last_token_index = latest_eaten_token_index(parser);
+        end_node(parser, sub_expression_node);
     }
     else if (accept_token(parser, Token_Identifier))
     {
-        sub_expression_node = new_node(parser);
-        sub_expression_node->first_token_index = latest_eaten_token_index(parser);
-        sub_expression_node->type = Node_Expr_FuncCall;
+        sub_expression_node = start_node(parser, Node_Expr_FuncCall, StartOnLatestToken);
         
         Token * function_call_identifier_token = latest_eaten_token(parser);
         sub_expression_node->identifier = function_call_identifier_token->text;
         
         parse_arguments(parser, sub_expression_node);
         
-        sub_expression_node->last_token_index = latest_eaten_token_index(parser);
+        end_node(parser, sub_expression_node);
     }
     else
     {
@@ -312,15 +293,13 @@ Node * parse_sub_expression(Parser * parser)
 
 Node * parse_binary_op_expression(Parser * parser, NodeType node_type, Node * left_sub_expression)
 {
-    Node * expression_node = new_node(parser);
-    expression_node->type = node_type;
-    expression_node->first_token_index = left_sub_expression->first_token_index;
+    Node * expression_node = start_node(parser, node_type);
     
     Node * right_sub_expression = parse_sub_expression(parser);
     add_child_node(left_sub_expression, expression_node);
     add_child_node(right_sub_expression, expression_node);
     
-    expression_node->last_token_index = latest_eaten_token_index(parser);
+    end_node(parser, expression_node);
     
     return expression_node;
 }
