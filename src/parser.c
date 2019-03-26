@@ -390,12 +390,11 @@ void parse_block(Parser * parser, Node * parent_node);
 
 Node * parse_statement(Parser * parser)
 {
-    Node * statement_node = new_node(parser);
+    Node * statement_node = 0;
+    
     if (accept_token(parser, Token_If))
     {
-        statement_node->first_token_index = latest_eaten_token_index(parser);
-        
-        statement_node->type = Node_Stmt_If;
+        statement_node = start_node(parser, Node_Stmt_If, StartOnLatestToken);
         
         // Note: we do not allow single-line bodies atm (without braces)
 
@@ -440,13 +439,12 @@ Node * parse_statement(Parser * parser)
         
         // Note: if-statemets (or any other block-ending statements) do not require a Semocolon at the end!
         
-        statement_node->last_token_index = latest_eaten_token_index(parser);
+        end_node(parser, statement_node);
     }
     else if (accept_token(parser, Token_For))
     {
         // For
-        statement_node->first_token_index = latest_eaten_token_index(parser);
-        statement_node->type = Node_Stmt_For;
+        statement_node = start_node(parser, Node_Stmt_For, StartOnLatestToken);
         
         expect_token(parser, Token_OpenParenteses);
         
@@ -472,13 +470,13 @@ Node * parse_statement(Parser * parser)
         
         add_child_node(for_body_node, statement_node);
         
-        statement_node->last_token_index = latest_eaten_token_index(parser);
+        end_node(parser, statement_node);
     }
     else if (accept_token(parser, Token_Foreach))
     {
         // Foreach
-        statement_node->first_token_index = latest_eaten_token_index(parser);
-        statement_node->type = Node_Stmt_Foreach;
+        statement_node = start_node(parser, Node_Stmt_Foreach, StartOnLatestToken);
+        
         expect_token(parser, Token_OpenParenteses);
         
         // Foreach_Array
@@ -509,17 +507,16 @@ Node * parse_statement(Parser * parser)
         
         add_child_node(foreach_body_node, statement_node);
         
-        statement_node->last_token_index = latest_eaten_token_index(parser);
+        end_node(parser, statement_node);
     }
     else if (accept_token(parser, Token_Function))
     {
-        statement_node->first_token_index = latest_eaten_token_index(parser);
-        
         if (expect_token(parser, Token_Identifier))
         {
             Token * function_identifier_token = latest_eaten_token(parser);
 
-            statement_node->type = Node_Stmt_Function;
+            statement_node = start_node(parser, Node_Stmt_Function, StartOnTokenBeforeLatestToken);
+        
             statement_node->identifier = function_identifier_token->text;
             
             Node * function_arguments_node = new_node(parser);
@@ -534,46 +531,49 @@ Node * parse_statement(Parser * parser)
             parse_block(parser, function_body_node);
             
             add_child_node(function_body_node, statement_node);
+            
+            end_node(parser, statement_node);
         }
         else
         {
             log("ERROR: no function name found!");
         }
         
-        statement_node->last_token_index = latest_eaten_token_index(parser);
     }
     else if (accept_token(parser, Token_Continue))
     {
-        statement_node->first_token_index = latest_eaten_token_index(parser);
+        statement_node = start_node(parser, Node_Stmt_Continue, StartOnLatestToken);
         
-        statement_node->type = Node_Stmt_Continue;
         expect_token(parser, Token_Semicolon); 
         
-        statement_node->last_token_index = latest_eaten_token_index(parser);
+        end_node(parser, statement_node);
     }
     else if (accept_token(parser, Token_Break))
     {
-        statement_node->first_token_index = latest_eaten_token_index(parser);
+        statement_node = start_node(parser, Node_Stmt_Break, StartOnLatestToken);
         
-        statement_node->type = Node_Stmt_Break;
         expect_token(parser, Token_Semicolon); 
         
-        statement_node->last_token_index = latest_eaten_token_index(parser);
+        end_node(parser, statement_node);
     }
     else if (accept_token(parser, Token_Return))
     {
-        parse_child_expression_node(parser, Node_Stmt_Return, statement_node);
+        statement_node = start_node(parser, Node_Stmt_Return, StartOnLatestToken);
+        
+        Node * return_expression_node = parse_expression(parser);
+        
+        add_child_node(return_expression_node, statement_node);
         
         expect_token(parser, Token_Semicolon); 
             
-        statement_node->last_token_index = latest_eaten_token_index(parser);
+        end_node(parser, statement_node);
     }
     else
     {
-        statement_node->first_token_index = parser->current_token_index; // Note: the expression hasn't started yet, so no need to do - 1 here
-        
         // We assume its a statement with only an expression
-        statement_node->type = Node_Stmt_Expr;
+        
+        // Note: the expression hasn't started yet, so no need to do StartOnLatestToken here
+        statement_node = start_node(parser, Node_Stmt_Expr);
         
         Node * expression_node = parse_expression(parser);
         if (!expression_node)
@@ -603,7 +603,7 @@ Node * parse_statement(Parser * parser)
         
         expect_token(parser, Token_Semicolon); 
         
-        statement_node->last_token_index = latest_eaten_token_index(parser);
+        end_node(parser, statement_node);
     }
     // TODO implement more variants of statements
     
