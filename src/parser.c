@@ -365,7 +365,7 @@ Node * parse_arguments(Parser * parser, NodeType node_type)
         }
         else
         {
-            log("ERROR: invalid argument (not an expression) in function call or declaration");
+            log("ERROR: invalid argument (not an expression) in function call");
             break;
         }
     }
@@ -388,12 +388,12 @@ Node * parse_parameters(Parser * parser, NodeType node_type)
         {
             add_child_node(parameter_node, parameters_node);
             
-            // TODO: Only allow next argument if it comma separated
+            // TODO: Only allow next parameter if it comma separated
             accept_token(parser, Token_Comma);
         }
         else
         {
-            log("ERROR: invalid argument (not an expression) in function call or declaration");
+            log("ERROR: invalid parameter (not a variable) in function declaration");
             break;
         }
     }
