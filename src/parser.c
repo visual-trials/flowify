@@ -590,6 +590,7 @@ Node * parse_expression(Parser * parser)
     if (!left_sub_expression)
     {
         // if no expression was found, returning 0 (so the caller known no expression was found)
+        log("ERROR: found no left sub expression");
         expression_node = 0;  // TODO: we should "free" this expression_node (but an error occured so it might nog matter)
         return expression_node;
     }
@@ -855,6 +856,8 @@ Node * parse_statement(Parser * parser)
             Token * token = &tokens[parser->current_token_index];
             log("Next token starts with:");
             log(token->text);
+            log("Line number:");
+            log_int(token->line_index + 1);
             
             statement_node = 0; // TODO: we should "free" this expression_node (but an error occured so it might nog matter)
             return statement_node;
