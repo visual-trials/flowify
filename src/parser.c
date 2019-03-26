@@ -114,20 +114,22 @@ Node * parse_variable(Parser * parser, NodeType node_type, b32 allow_variable_re
     return variable_node;
 }
 
-Node * parse_variable_assignment(Parser * parser, NodeType node_type, Node * variable_node, i32 token_index_offset)
+Node * parse_variable_assignment(Parser * parser, NodeType node_type, Node * variable_node)
 {
-    Node * sub_expression_node = start_node(parser, node_type, token_index_offset);
+    Node * variable_assignment_node = start_node(parser, node_type);
+    // We set the first_token_index of the variable_assignment_node to the first_token_index of the variable_node
+    variable_assignment_node->first_token_index = variable_node->first_token_index;
     
     // Left side of the expression (a variable)
-    add_child_node(variable_node, sub_expression_node);
+    add_child_node(variable_node, variable_assignment_node);
 
     // Right side of the expression (an expression)
     Node * child_expression_node = parse_expression(parser);
-    add_child_node(child_expression_node, sub_expression_node);
+    add_child_node(child_expression_node, variable_assignment_node);
     
-    end_node(parser, sub_expression_node);
+    end_node(parser, variable_assignment_node);
     
-    return sub_expression_node;
+    return variable_assignment_node;
 }
 
 Node * parse_binary_op_expression(Parser * parser, NodeType node_type, Node * left_sub_expression)
@@ -204,7 +206,7 @@ Node * parse_sub_expression(Parser * parser)
         else if (accept_token(parser, Token_PlusPlus))
         {
             // TODO: we should only allow '++' *right* behind a variableIdentifier!
-            sub_expression_node = start_node(parser, Node_Expr_PostInc, StartOnLatestToken);
+            sub_expression_node = start_node(parser, Node_Expr_PostInc, StartOnTokenBeforeLatestToken);
                 
             add_child_node(variable_node, sub_expression_node);
             
@@ -213,7 +215,7 @@ Node * parse_sub_expression(Parser * parser)
         else if (accept_token(parser, Token_MinusMinus))
         {
             // TODO: we should only allow '--' *right* behind a variableIdentifier!
-            sub_expression_node = start_node(parser, Node_Expr_PostDec, StartOnLatestToken);
+            sub_expression_node = start_node(parser, Node_Expr_PostDec, StartOnTokenBeforeLatestToken);
                 
             add_child_node(variable_node, sub_expression_node);
             
@@ -221,23 +223,23 @@ Node * parse_sub_expression(Parser * parser)
         }
         else if (accept_token(parser, Token_AssignMultiply))
         {
-            sub_expression_node = parse_variable_assignment(parser, Node_Expr_AssignOp_Multiply, variable_node, StartOnTokenBeforeLatestToken);
+            sub_expression_node = parse_variable_assignment(parser, Node_Expr_AssignOp_Multiply, variable_node);
         }
         else if (accept_token(parser, Token_AssignDivide))
         {
-            sub_expression_node = parse_variable_assignment(parser, Node_Expr_AssignOp_Divide, variable_node, StartOnTokenBeforeLatestToken);
+            sub_expression_node = parse_variable_assignment(parser, Node_Expr_AssignOp_Divide, variable_node);
         }
         else if (accept_token(parser, Token_AssignPlus))
         {
-            sub_expression_node = parse_variable_assignment(parser, Node_Expr_AssignOp_Plus, variable_node, StartOnTokenBeforeLatestToken);
+            sub_expression_node = parse_variable_assignment(parser, Node_Expr_AssignOp_Plus, variable_node);
         }
         else if (accept_token(parser, Token_AssignMinus))
         {
-            sub_expression_node = parse_variable_assignment(parser, Node_Expr_AssignOp_Minus, variable_node, StartOnTokenBeforeLatestToken);
+            sub_expression_node = parse_variable_assignment(parser, Node_Expr_AssignOp_Minus, variable_node);
         }
         else if (accept_token(parser, Token_Assign))
         {
-            sub_expression_node = parse_variable_assignment(parser, Node_Expr_Assign, variable_node, StartOnTokenBeforeLatestToken);
+            sub_expression_node = parse_variable_assignment(parser, Node_Expr_Assign, variable_node);
         }
         else
         {
