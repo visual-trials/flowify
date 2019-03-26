@@ -166,22 +166,25 @@ Node * parse_sub_expression(Parser * parser)
     }
     else if (accept_token(parser, Token_VariableIdentifier))
     {
-        // sub_expression_node = start_node_on_latest_token(parser);
-        
         Token * variable_token = latest_eaten_token(parser);
         
         if (accept_token(parser, Token_OpenBracket))
         {
-            i32 first_token_index = latest_eaten_token_index(parser);
+            sub_expression_node = start_node(parser, Node_Expr_Array_Access, StartOnTokenBeforeLatestToken); // Note: we assume that the variable takes only one token! (is Ampersand possible here?) 
             
-            // FIXME: we lose the current sub_expression_node! (which we just created)
-            sub_expression_node = parse_expression(parser);
-            sub_expression_node->first_token_index = first_token_index;
-            // FIXME: type is not set here!
+            // The variable_node starts with the variable, and we assume the variable only takes one token
+            // FIXME: we should call a function to set the identifier here! (parse_child_variable_node?)
+            Node * variable_node = start_node(parser, Node_Expr_Variable, StartOnTokenBeforeLatestToken);
+            end_node(parser, variable_node);
+            
+            add_child_node(variable_node, sub_expression_node);
+            
+            Node * access_expression_node = parse_expression(parser);
+            add_child_node(access_expression_node, sub_expression_node);
             
             expect_token(parser, Token_CloseBracket);
-            
-            sub_expression_node->last_token_index = latest_eaten_token_index(parser);
+
+            end_node(parser, sub_expression_node);
         }
         else if (accept_token(parser, Token_PlusPlus))
         {
