@@ -132,15 +132,17 @@ Node * parse_variable_assignment(Parser * parser, NodeType node_type, Node * var
 
 Node * parse_binary_op_expression(Parser * parser, NodeType node_type, Node * left_sub_expression)
 {
-    Node * expression_node = start_node(parser, node_type);
+    Node * binary_expression_node = start_node(parser, node_type);
+    // We set the first_token_index of the binary_expression to the first_token_index of the left_sub_expression
+    binary_expression_node->first_token_index = left_sub_expression->first_token_index;
     
     Node * right_sub_expression = parse_sub_expression(parser);
-    add_child_node(left_sub_expression, expression_node);
-    add_child_node(right_sub_expression, expression_node);
+    add_child_node(left_sub_expression, binary_expression_node);
+    add_child_node(right_sub_expression, binary_expression_node);
     
-    end_node(parser, expression_node);
+    end_node(parser, binary_expression_node);
     
-    return expression_node;
+    return binary_expression_node;
 }
 
 Node * parse_sub_expression(Parser * parser)
