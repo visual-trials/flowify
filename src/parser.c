@@ -137,6 +137,8 @@ Node * parse_sub_expression(Parser * parser)
     
     if (accept_token(parser, Token_OpenParenteses))
     {
+        // TODO: do we want this expression node the include or exclude the parentheses?
+        
         i32 first_token_index = latest_eaten_token_index(parser);
         
         sub_expression_node = parse_expression(parser);
