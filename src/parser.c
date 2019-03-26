@@ -664,14 +664,15 @@ Node * parse_block(Parser * parser, NodeType node_type)
 
 Node * parse_program(Parser * parser)
 {
-    Node * root_node = new_node(parser);
-    root_node->type = Node_Root;
+    Node * root_node = 0;
     
     if (expect_token(parser, Token_StartOfPhp))
     {
-        root_node->first_token_index = latest_eaten_token_index(parser);
+        root_node = start_node(parser, Node_Root);
+        
         parse_statements(parser, root_node);    
-        root_node->last_token_index = latest_eaten_token_index(parser);
+        
+        end_node(parser, root_node);
     }
     else {
         // TODO: Program doesn't start with StartOfPhp
