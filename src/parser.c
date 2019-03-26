@@ -851,11 +851,17 @@ Node * parse_statement(Parser * parser)
             log("ERROR: found no expression where expression was expected");
             
             // TODO: create a helper-function that log the current position!
+            
+            Token * latest_token = latest_eaten_token(parser);
+            log("Latest eaten token is:");
+            log(latest_token->text);
+            
             Tokenizer * tokenizer = parser->tokenizer;
             Token * tokens = (Token *)tokenizer->tokens.items;
             Token * token = &tokens[parser->current_token_index];
-            log("Next token starts with:");
+            log("Next token is:");
             log(token->text);
+            
             log("Line number:");
             log_int(token->line_index + 1);
             
