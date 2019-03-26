@@ -44,7 +44,7 @@ enum NodeType
     Node_Stmt_Foreach_Body,
     
     Node_Stmt_Function,
-    Node_Stmt_Function_Args,
+    Node_Stmt_Function_Params,
     Node_Stmt_Function_Body,
     
     Node_Stmt_Return,
@@ -114,7 +114,7 @@ const char * node_type_names[] = {
     "Stmt_Foreach_Body",
     
     "Stmt_Function",
-    "Stmt_Function_Args",
+    "Stmt_Function_Params",
     "Stmt_Function_Body",
     
     "Stmt_Return",

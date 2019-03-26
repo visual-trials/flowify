@@ -41,7 +41,10 @@ statement =
     | expr ";"
 
 arguments =
-    "(" [ [&]expr { ", " ["&"]expr } ] ")"
+    "(" [ expr { ", " expr } ] ")"
+    
+parameters =
+    "(" [ [&]var { ", " ["&"]var } ] ")"
 
 expr =
     sub_expr "<" sub_expr
@@ -74,6 +77,7 @@ sub_expr :=
 
 Node * parse_arguments(Parser * parser, NodeType node_type);
 Node * parse_expression(Parser * parser);
+Node * parse_sub_expression(Parser * parser);
 
 Node * parse_child_expression_node(Parser * parser, NodeType node_type)
 {
@@ -88,7 +92,7 @@ Node * parse_child_expression_node(Parser * parser, NodeType node_type)
     return child_node;
 }
 
-Node * parse_child_variable_node(Parser * parser, NodeType node_type, b32 allow_variable_reference = false)
+Node * parse_variable(Parser * parser, NodeType node_type, b32 allow_variable_reference = false)
 {
     Node * variable_node = start_node(parser, node_type);
     
@@ -110,25 +114,33 @@ Node * parse_child_variable_node(Parser * parser, NodeType node_type, b32 allow_
     return variable_node;
 }
 
-Node * parse_variable_assignment(Parser * parser, NodeType node_type, Token * variable_token, i32 token_index_offset)
+Node * parse_variable_assignment(Parser * parser, NodeType node_type, Node * variable_node, i32 token_index_offset)
 {
     Node * sub_expression_node = start_node(parser, node_type, token_index_offset);
     
     // Left side of the expression (a variable)
-    Node * variable_node = start_node(parser, Node_Expr_Variable, token_index_offset); // The sub expression starts with the variable, so it has the same starting token
-    variable_node->identifier = variable_token->text;
-    end_node(parser, variable_node, token_index_offset);  // We assume the variable only takes one token, so it ends where it starts
-    
     add_child_node(variable_node, sub_expression_node);
 
     // Right side of the expression (an expression)
     Node * child_expression_node = parse_expression(parser);
-
     add_child_node(child_expression_node, sub_expression_node);
     
     end_node(parser, sub_expression_node);
     
     return sub_expression_node;
+}
+
+Node * parse_binary_op_expression(Parser * parser, NodeType node_type, Node * left_sub_expression)
+{
+    Node * expression_node = start_node(parser, node_type);
+    
+    Node * right_sub_expression = parse_sub_expression(parser);
+    add_child_node(left_sub_expression, expression_node);
+    add_child_node(right_sub_expression, expression_node);
+    
+    end_node(parser, expression_node);
+    
+    return expression_node;
 }
 
 Node * parse_sub_expression(Parser * parser)
@@ -152,8 +164,8 @@ Node * parse_sub_expression(Parser * parser)
     {
         sub_expression_node = start_node(parser, Node_Expr_PreInc, StartOnLatestToken);
         
-        Node * expression_var_node = parse_child_variable_node(parser, Node_Expr_Variable, true);
-        add_child_node(expression_var_node, sub_expression_node);
+        Node * variable_node = parse_variable(parser, Node_Expr_Variable, true);
+        add_child_node(variable_node, sub_expression_node);
         
         end_node(parser, sub_expression_node);
     }
@@ -161,8 +173,8 @@ Node * parse_sub_expression(Parser * parser)
     {
         sub_expression_node = start_node(parser, Node_Expr_PreDec, StartOnLatestToken);
         
-        Node * expression_var_node = parse_child_variable_node(parser, Node_Expr_Variable, true);
-        add_child_node(expression_var_node, sub_expression_node);
+        Node * variable_node = parse_variable(parser, Node_Expr_Variable, true);
+        add_child_node(variable_node, sub_expression_node);
         
         end_node(parser, sub_expression_node);
     }
@@ -170,14 +182,13 @@ Node * parse_sub_expression(Parser * parser)
     {
         Token * variable_token = latest_eaten_token(parser);
         
+        Node * variable_node = start_node(parser, Node_Expr_Variable, StartOnLatestToken);
+        variable_node->identifier = variable_token->text;
+        end_node(parser, variable_node);
+            
         if (accept_token(parser, Token_OpenBracket))
         {
             sub_expression_node = start_node(parser, Node_Expr_Array_Access, StartOnTokenBeforeLatestToken); // Note: we assume that the variable takes only one token! (is Ampersand possible here?) 
-            
-            // The variable_node starts with the variable, and we assume the variable only takes one token
-            // FIXME: we should call a function to set the identifier here! (parse_child_variable_node?)
-            Node * variable_node = start_node(parser, Node_Expr_Variable, StartOnTokenBeforeLatestToken);
-            end_node(parser, variable_node);
             
             add_child_node(variable_node, sub_expression_node);
             
@@ -193,11 +204,6 @@ Node * parse_sub_expression(Parser * parser)
             // TODO: we should only allow '++' *right* behind a variableIdentifier!
             sub_expression_node = start_node(parser, Node_Expr_PostInc, StartOnLatestToken);
                 
-            // The variable_node starts with the variable, and we assume the variable only takes one token
-            // FIXME: we should call a function to set the identifier here! (parse_child_variable_node?)
-            Node * variable_node = start_node(parser, Node_Expr_Variable, StartOnLatestToken);
-            end_node(parser, variable_node);
-            
             add_child_node(variable_node, sub_expression_node);
             
             end_node(parser, sub_expression_node);
@@ -205,42 +211,36 @@ Node * parse_sub_expression(Parser * parser)
         else if (accept_token(parser, Token_MinusMinus))
         {
             // TODO: we should only allow '--' *right* behind a variableIdentifier!
-            // FIXME: we should call a function to set the identifier here! (parse_child_variable_node?)
             sub_expression_node = start_node(parser, Node_Expr_PostDec, StartOnLatestToken);
-            // sub_expression_node->type = Node_Expr_PostDec;
                 
-            Node * variable_node = start_node(parser, Node_Expr_Variable, StartOnLatestToken);
-            end_node(parser, variable_node);
-
             add_child_node(variable_node, sub_expression_node);
             
             end_node(parser, sub_expression_node);
         }
         else if (accept_token(parser, Token_AssignMultiply))
         {
-            sub_expression_node = parse_variable_assignment(parser, Node_Expr_AssignOp_Multiply, variable_token, StartOnTokenBeforeLatestToken);
+            sub_expression_node = parse_variable_assignment(parser, Node_Expr_AssignOp_Multiply, variable_node, StartOnTokenBeforeLatestToken);
         }
         else if (accept_token(parser, Token_AssignDivide))
         {
-            sub_expression_node = parse_variable_assignment(parser, Node_Expr_AssignOp_Divide, variable_token, StartOnTokenBeforeLatestToken);
+            sub_expression_node = parse_variable_assignment(parser, Node_Expr_AssignOp_Divide, variable_node, StartOnTokenBeforeLatestToken);
         }
         else if (accept_token(parser, Token_AssignPlus))
         {
-            sub_expression_node = parse_variable_assignment(parser, Node_Expr_AssignOp_Plus, variable_token, StartOnTokenBeforeLatestToken);
+            sub_expression_node = parse_variable_assignment(parser, Node_Expr_AssignOp_Plus, variable_node, StartOnTokenBeforeLatestToken);
         }
         else if (accept_token(parser, Token_AssignMinus))
         {
-            sub_expression_node = parse_variable_assignment(parser, Node_Expr_AssignOp_Minus, variable_token, StartOnTokenBeforeLatestToken);
+            sub_expression_node = parse_variable_assignment(parser, Node_Expr_AssignOp_Minus, variable_node, StartOnTokenBeforeLatestToken);
         }
         else if (accept_token(parser, Token_Assign))
         {
-            sub_expression_node = parse_variable_assignment(parser, Node_Expr_Assign, variable_token, StartOnTokenBeforeLatestToken);
+            sub_expression_node = parse_variable_assignment(parser, Node_Expr_Assign, variable_node, StartOnTokenBeforeLatestToken);
         }
         else
         {
             // If the variable was not followed by anything, we assume the expression only contains the variable
-            sub_expression_node = start_node(parser, Node_Expr_Variable, StartOnLatestToken);
-            end_node(parser, sub_expression_node);
+            sub_expression_node = variable_node;
         }
         
     }
@@ -295,19 +295,6 @@ Node * parse_sub_expression(Parser * parser)
     
     return sub_expression_node;
    
-}
-
-Node * parse_binary_op_expression(Parser * parser, NodeType node_type, Node * left_sub_expression)
-{
-    Node * expression_node = start_node(parser, node_type);
-    
-    Node * right_sub_expression = parse_sub_expression(parser);
-    add_child_node(left_sub_expression, expression_node);
-    add_child_node(right_sub_expression, expression_node);
-    
-    end_node(parser, expression_node);
-    
-    return expression_node;
 }
 
 Node * parse_expression(Parser * parser)
@@ -368,11 +355,6 @@ Node * parse_arguments(Parser * parser, NodeType node_type)
     
     while(!accept_token(parser, Token_CloseParenteses))
     {
-        if (accept_token(parser, Token_Ampersand))
-        {
-            // FIXME: do something with the &
-        }
-        
         Node * argument_node = parse_expression(parser);
         if (argument_node)
         {
@@ -391,6 +373,34 @@ Node * parse_arguments(Parser * parser, NodeType node_type)
     end_node(parser, arguments_node);
     
     return arguments_node;
+}
+
+Node * parse_parameters(Parser * parser, NodeType node_type)
+{
+    Node * parameters_node = start_node(parser, node_type);
+    
+    expect_token(parser, Token_OpenParenteses);
+    
+    while(!accept_token(parser, Token_CloseParenteses))
+    {
+        Node * parameter_node = parse_variable(parser, Node_Expr_Variable, true);
+        if (parameter_node)
+        {
+            add_child_node(parameter_node, parameters_node);
+            
+            // TODO: Only allow next argument if it comma separated
+            accept_token(parser, Token_Comma);
+        }
+        else
+        {
+            log("ERROR: invalid argument (not an expression) in function call or declaration");
+            break;
+        }
+    }
+    
+    end_node(parser, parameters_node);
+    
+    return parameters_node;
 }
 
 Node * parse_block(Parser * parser, NodeType node_type);
@@ -478,7 +488,7 @@ Node * parse_statement(Parser * parser)
         // Foreach_Value_Var
         
         // We always expect a variable, which (by default) is the Foreach_Value_Var
-        Node * foreach_first_var_node = parse_child_variable_node(parser, Node_Stmt_Foreach_Value_Var, true);
+        Node * foreach_first_var_node = parse_variable(parser, Node_Stmt_Foreach_Value_Var, true);
         add_child_node(foreach_first_var_node, foreach_node);
         
         if (accept_token(parser, Token_Arrow)) {
@@ -486,7 +496,7 @@ Node * parse_statement(Parser * parser)
             // If there is an "=>", the first variable was the Key_Var instead, the next variable becomes the Value_Var
             foreach_first_var_node->type = Node_Stmt_Foreach_Key_Var;  // Foreach_Value_Var --becomes--> Foreach_Key_Var
 
-            Node * foreach_second_var_node = parse_child_variable_node(parser, Node_Stmt_Foreach_Value_Var, true);
+            Node * foreach_second_var_node = parse_variable(parser, Node_Stmt_Foreach_Value_Var, true);
             add_child_node(foreach_second_var_node, foreach_node);
         }
         
@@ -510,8 +520,8 @@ Node * parse_statement(Parser * parser)
         
             function_node->identifier = function_identifier_token->text;
             
-            Node * function_arguments_node = parse_arguments(parser, Node_Stmt_Function_Args);
-            add_child_node(function_arguments_node, function_node);
+            Node * function_parameters_node = parse_parameters(parser, Node_Stmt_Function_Params);
+            add_child_node(function_parameters_node, function_node);
 
             // Function body
             Node * function_body_node = parse_block(parser, Node_Stmt_Function_Body);
