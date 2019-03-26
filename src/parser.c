@@ -455,7 +455,7 @@ Node * parse_statement(Parser * parser)
             // FIXME: shouldnt first_token_index and last_token_index be set for else_node?
             parse_block(parser, else_node);
             
-            add_child_node(then_node, statement_node);
+            add_child_node(else_node, statement_node);
         }
         
         // Note: if-statemets (or any other block-ending statements) do not require a Semocolon at the end!
