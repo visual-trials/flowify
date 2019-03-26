@@ -109,9 +109,10 @@ Node * parse_child_variable_node(Parser * parser, NodeType node_type, Node * par
     
     Node * variable_node = new_node(parser);
     variable_node->type = node_type;
+    variable_node->first_token_index = first_token_index;
+    
     variable_node->identifier = variable_token->text;
     
-    variable_node->first_token_index = first_token_index;
     variable_node->last_token_index = latest_eaten_token_index(parser);
     
     add_child_node(variable_node, parent_node);
@@ -126,9 +127,10 @@ void parse_variable_assignment(Parser * parser, NodeType node_type, Node * sub_e
     // Left side of the expression (a variable)
     Node * variable_node = new_node(parser);
     variable_node->type = Node_Expr_Variable;
+    variable_node->first_token_index = sub_expression_node->first_token_index; // The sub expression starts with the variable, so we take its first_token_index
+    
     variable_node->identifier = variable_token->text;
 
-    variable_node->first_token_index = sub_expression_node->first_token_index; // The sub expression starts with the variable, so we take its first_token_index
     variable_node->last_token_index = sub_expression_node->first_token_index; // We assume the variable only takes one token
     
     add_child_node(variable_node, sub_expression_node);
@@ -159,7 +161,9 @@ Node * parse_sub_expression(Parser * parser)
         sub_expression_node = new_node(parser);
         sub_expression_node->first_token_index = latest_eaten_token_index(parser);
         sub_expression_node->type = Node_Expr_PreInc;
+        
         parse_child_variable_node(parser, Node_Expr_Variable, sub_expression_node);
+        
         sub_expression_node->last_token_index = latest_eaten_token_index(parser);
     }
     else if (accept_token(parser, Token_MinusMinus))
@@ -167,7 +171,9 @@ Node * parse_sub_expression(Parser * parser)
         sub_expression_node = new_node(parser);
         sub_expression_node->first_token_index = latest_eaten_token_index(parser);
         sub_expression_node->type = Node_Expr_PreDec;
+        
         parse_child_variable_node(parser, Node_Expr_Variable, sub_expression_node);
+        
         sub_expression_node->last_token_index = latest_eaten_token_index(parser);
     }
     else if (accept_token(parser, Token_VariableIdentifier))
@@ -181,8 +187,10 @@ Node * parse_sub_expression(Parser * parser)
         {
             i32 first_token_index = latest_eaten_token_index(parser);
             
+            // FIXME: we lose the current sub_expression_node! (which we just created)
             sub_expression_node = parse_expression(parser);
             sub_expression_node->first_token_index = first_token_index;
+            // FIXME: type is not set here!
             
             expect_token(parser, Token_CloseBracket);
             
@@ -195,8 +203,8 @@ Node * parse_sub_expression(Parser * parser)
                 
             Node * variable_node = new_node(parser);
             variable_node->type = Node_Expr_Variable;
-                
             variable_node->first_token_index = sub_expression_node->first_token_index; // The sub expression starts with the variable, so we take its first_token_index
+            
             variable_node->last_token_index = sub_expression_node->first_token_index; // We assume the variable only takes one token
             
             add_child_node(variable_node, sub_expression_node);
@@ -208,8 +216,8 @@ Node * parse_sub_expression(Parser * parser)
                 
             Node * variable_node = new_node(parser);
             variable_node->type = Node_Expr_Variable;
-                
             variable_node->first_token_index = sub_expression_node->first_token_index; // The sub expression starts with the variable, so we take its first_token_index
+            
             variable_node->last_token_index = sub_expression_node->first_token_index; // We assume the variable only takes one token
 
             add_child_node(variable_node, sub_expression_node);
@@ -246,10 +254,9 @@ Node * parse_sub_expression(Parser * parser)
     {
         sub_expression_node = new_node(parser);
         sub_expression_node->first_token_index = latest_eaten_token_index(parser);
+        sub_expression_node->type = Node_Scalar_Number;
         
         Token * number_token = latest_eaten_token(parser);
-        
-        sub_expression_node->type = Node_Scalar_Number;
         sub_expression_node->value = number_token->text;
         
         sub_expression_node->last_token_index = latest_eaten_token_index(parser);
@@ -258,10 +265,9 @@ Node * parse_sub_expression(Parser * parser)
     {
         sub_expression_node = new_node(parser);
         sub_expression_node->first_token_index = latest_eaten_token_index(parser);
+        sub_expression_node->type = Node_Scalar_Float;
         
         Token * float_token = latest_eaten_token(parser);
-        
-        sub_expression_node->type = Node_Scalar_Float;
         sub_expression_node->value = float_token->text;
         
         sub_expression_node->last_token_index = latest_eaten_token_index(parser);
@@ -270,10 +276,9 @@ Node * parse_sub_expression(Parser * parser)
     {
         sub_expression_node = new_node(parser);
         sub_expression_node->first_token_index = latest_eaten_token_index(parser);
+        sub_expression_node->type = Node_Scalar_String;
         
         Token * string_token = latest_eaten_token(parser);
-        
-        sub_expression_node->type = Node_Scalar_String;
         sub_expression_node->value = string_token->text;
         
         sub_expression_node->last_token_index = latest_eaten_token_index(parser);
@@ -282,11 +287,11 @@ Node * parse_sub_expression(Parser * parser)
     {
         sub_expression_node = new_node(parser);
         sub_expression_node->first_token_index = latest_eaten_token_index(parser);
+        sub_expression_node->type = Node_Expr_FuncCall;
         
         Token * function_call_identifier_token = latest_eaten_token(parser);
-
-        sub_expression_node->type = Node_Expr_FuncCall;
         sub_expression_node->identifier = function_call_identifier_token->text;
+        
         parse_arguments(parser, sub_expression_node);
         
         sub_expression_node->last_token_index = latest_eaten_token_index(parser);
@@ -308,12 +313,15 @@ Node * parse_sub_expression(Parser * parser)
 Node * parse_binary_op_expression(Parser * parser, NodeType node_type, Node * left_sub_expression)
 {
     Node * expression_node = new_node(parser);
-    expression_node->first_token_index = left_sub_expression->first_token_index;
     expression_node->type = node_type;
+    expression_node->first_token_index = left_sub_expression->first_token_index;
+    
     Node * right_sub_expression = parse_sub_expression(parser);
     add_child_node(left_sub_expression, expression_node);
     add_child_node(right_sub_expression, expression_node);
+    
     expression_node->last_token_index = latest_eaten_token_index(parser);
+    
     return expression_node;
 }
 
@@ -419,16 +427,22 @@ Node * parse_statement(Parser * parser)
         Node * condition_node = new_node(parser);
         condition_node->type = Node_Stmt_If_Cond;
         condition_node->first_token_index = parser->current_token_index;
+        
         add_child_node(condition_node, statement_node);
         
         Node * condition_expression_node = parse_expression(parser);
+        
         condition_node->last_token_index = latest_eaten_token_index(parser);
+        
         add_child_node(condition_expression_node, condition_node);
+        
         expect_token(parser, Token_CloseParenteses);
         
         // If-then
         Node * then_node = new_node(parser);
         then_node->type = Node_Stmt_If_Then;
+        // FIXME: shouldnt first_token_index and last_token_index be set for then_node?
+        
         parse_block(parser, then_node);
         
         add_child_node(then_node, statement_node);
@@ -438,6 +452,7 @@ Node * parse_statement(Parser * parser)
             // If-else
             Node * else_node = new_node(parser);
             else_node->type = Node_Stmt_If_Else;
+            // FIXME: shouldnt first_token_index and last_token_index be set for else_node?
             parse_block(parser, else_node);
             
             add_child_node(then_node, statement_node);
