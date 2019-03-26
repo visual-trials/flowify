@@ -16,6 +16,7 @@
 
  */
  
+// TODO: Keep this in sync with token_type_names below!
 enum TokenType
 {
     Token_Unknown,
@@ -42,7 +43,6 @@ enum TokenType
     Token_Float,
     Token_Identifier,
     Token_VariableIdentifier,  // starts with $
-    
     
     Token_If,
     Token_Else,
@@ -77,6 +77,69 @@ enum TokenType
     Token_Equal,
     
     Token_EndOfStream    
+};
+
+// TODO: Keep this in sync with the enum above!
+// TODO: DON'T FORGET THE COMMAS!!
+const char * token_type_names[] = {
+    "Unknown",
+    
+    "StartOfPhp",
+    "EndOfPhp",
+    
+    "OpenParenteses",
+    "CloseParenteses",
+    
+    "OpenBracket",
+    "CloseBracket",
+    
+    "OpenBrace",
+    "CloseBrace",
+    
+    "Colon",
+    "Semicolon",
+    "Comma",
+    "Ampersand", // &
+    
+    "SingleQuotedString",
+    "Number",
+    "Float",
+    "Identifier",
+    "VariableIdentifier",  // starts with $
+    
+    "If",
+    "Else",
+    "For",
+    "Foreach",
+    "As",
+    "Arrow",  // TODO: What should be the name of this: "=>"
+    
+    "Function",
+    "Break",
+    "Continue",
+    "Return",
+    
+    "Assign",
+    "AssignMultiply",
+    "AssignDivide",
+    "AssignPlus",
+    "AssignMinus",
+    
+    "Multiply",
+    "Divide",
+    "Plus",
+    "PlusPlus",
+    "Minus",
+    "MinusMinus",
+    
+    "Smaller",
+    "SmallerOrEqual",
+    "Greater",
+    "GreaterOrEqual",
+    
+    "Equal",
+    
+    "EndOfStream"
 };
 
 struct Token

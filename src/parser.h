@@ -246,8 +246,38 @@ b32 expect_token(Parser * parser, i32 token_type)  // TODO: somehow we can't use
     {
         return true;
     }
-    // FIXME: give a better error!
-    log("ERROR: required token not found!");
+    
+    char error_message_buffer[500] = {};
+    String error_message = cstring_to_string(error_message_buffer);
+    
+    // Start of error message
+    String append_text = cstring_to_string("ERROR: required token (");
+    append_string(&error_message, &append_text);
+    
+    // Expected token type
+    String expected_token_type_string = cstring_to_string(token_type_names[token_type]);
+    append_string(&error_message, &expected_token_type_string);
+    
+    append_text = cstring_to_string(") not found at line ");
+    append_string(&error_message, &append_text);
+    
+    // Line number
+    Tokenizer * tokenizer = parser->tokenizer;
+    Token * tokens = (Token *)tokenizer->tokens.items;
+    Token * token = &tokens[parser->current_token_index];
+    
+    ShortString decimal_shortstring;
+    int_to_string(token->line_index + 1, &decimal_shortstring);
+    String decimal_string = shortstring_to_string(&decimal_shortstring);
+    append_string(&error_message, &decimal_string);
+
+    // Next token
+    append_text = cstring_to_string(". Next token is: ");
+    append_string(&error_message, &append_text);
+    append_string(&error_message, &token->text);
+    
+    log(error_message);
+    
     return false;
 }
 
