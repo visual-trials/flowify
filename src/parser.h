@@ -201,7 +201,6 @@ i32 get_earlier_eaten_token_index(Parser * parser, i32 token_index_offset)
     return parser->current_token_index + token_index_offset;
 }
 
-// FIXME: deprecated?
 i32 latest_eaten_token_index(Parser * parser)
 {
     assert(parser->current_token_index - 1 >= 0);
@@ -210,7 +209,6 @@ i32 latest_eaten_token_index(Parser * parser)
     return parser->current_token_index - 1;
 }
 
-// FIXME: use get_earlier_eaten_token_index instead?
 Token * latest_eaten_token(Parser * parser)
 {
     Tokenizer * tokenizer = parser->tokenizer;
@@ -270,7 +268,7 @@ Node * start_node(Parser * parser, NodeType node_type, i32 token_index_offset)
     return node;
 }
 
-Node * start_node(Parser * parser, NodeType node_type = Node_Unknown)
+Node * start_node(Parser * parser, NodeType node_type)
 {
     Node * node = new_node(parser);
     node->first_token_index = parser->current_token_index;
