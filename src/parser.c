@@ -354,6 +354,7 @@ Node * parse_expression(Parser * parser)
     return expression_node;
 }
 
+// FIXME: move first_token_index and last_token_index outside this function by using start_node and end_node
 void parse_arguments(Parser * parser, Node * parent_node)
 {
     expect_token(parser, Token_OpenParenteses);
