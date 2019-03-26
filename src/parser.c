@@ -597,31 +597,31 @@ Node * parse_expression(Parser * parser)
     
     if (accept_token(parser, Token_Greater))
     {
-        parse_binary_op_expression(parser, Node_Expr_BinaryOp_Greater, left_sub_expression);
+        expression_node = parse_binary_op_expression(parser, Node_Expr_BinaryOp_Greater, left_sub_expression);
     }
     else if (accept_token(parser, Token_Smaller))
     {
-        parse_binary_op_expression(parser, Node_Expr_BinaryOp_Smaller, left_sub_expression);
+        expression_node = parse_binary_op_expression(parser, Node_Expr_BinaryOp_Smaller, left_sub_expression);
     }
     else if (accept_token(parser, Token_Equal))
     {
-        parse_binary_op_expression(parser, Node_Expr_BinaryOp_Equal, left_sub_expression);
+        expression_node = parse_binary_op_expression(parser, Node_Expr_BinaryOp_Equal, left_sub_expression);
     }
     else if (accept_token(parser, Token_Multiply))
     {
-        parse_binary_op_expression(parser, Node_Expr_BinaryOp_Multiply, left_sub_expression);
+        expression_node = parse_binary_op_expression(parser, Node_Expr_BinaryOp_Multiply, left_sub_expression);
     }
     else if (accept_token(parser, Token_Divide))
     {
-        parse_binary_op_expression(parser, Node_Expr_BinaryOp_Divide, left_sub_expression);
+        expression_node = parse_binary_op_expression(parser, Node_Expr_BinaryOp_Divide, left_sub_expression);
     }
     else if (accept_token(parser, Token_Plus))
     {
-        parse_binary_op_expression(parser, Node_Expr_BinaryOp_Plus, left_sub_expression);
+        expression_node = parse_binary_op_expression(parser, Node_Expr_BinaryOp_Plus, left_sub_expression);
     }
     else if (accept_token(parser, Token_Minus))
     {
-        parse_binary_op_expression(parser, Node_Expr_BinaryOp_Minus, left_sub_expression);
+        expression_node = parse_binary_op_expression(parser, Node_Expr_BinaryOp_Minus, left_sub_expression);
     }
     else
     {
