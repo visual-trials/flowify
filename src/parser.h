@@ -283,6 +283,11 @@ void end_node(Parser * parser, Node * node)
     node->last_token_index = latest_eaten_token_index(parser);
 }
 
+void end_node(Parser * parser, Node * node, i32 token_index_offset)
+{
+    node->last_token_index = get_earlier_eaten_token_index(parser, token_index_offset);
+}
+
 void add_child_node(Node * child_node, Node * parent_node)
 {
     if (!parent_node->first_child)
