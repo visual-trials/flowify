@@ -116,8 +116,9 @@ struct FlowElement
     Node * ast_node;
     String source_text;
     
-    // These 4 FlowElements represent a parental and sibling "hierarchy" (mostly used for "looping" through all elements)
+    // These 5 FlowElements represent a parental and sibling "hierarchy" (mostly used for "looping" through all elements)
     FlowElement * first_child;
+    FlowElement * last_child;
     FlowElement * parent;
     
     FlowElement * next_sibling;
@@ -297,6 +298,7 @@ FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowEleme
     new_flow_element->source_text = get_source_text_from_ast_node(parser, ast_node);
     
     new_flow_element->first_child = 0;
+    new_flow_element->last_child = 0;
     new_flow_element->parent = 0;
     new_flow_element->next_sibling = 0;
     new_flow_element->previous_sibling = 0;
@@ -351,6 +353,21 @@ void add_function_element(Flowifier * flowifier, FlowElement * function_element)
         flowifier->latest_function->next_function = function_element;
     }
     flowifier->latest_function = function_element;
+}
+
+void add_child_element(FlowElement * child_element, FlowElement * parent_element)
+{
+    if (!parent_element->first_child)
+    {
+        parent_element->first_child = child_element;
+        child_element->parent = parent_element;
+    }
+    else
+    {
+        parent_element->last_child->next_sibling = child_element;
+        child_element->previous_sibling = parent_element->last_child;
+    }
+    parent_element->last_child = child_element;
 }
 
 void add_sibling(FlowElement * existing_sibling, FlowElement * new_sibling)
