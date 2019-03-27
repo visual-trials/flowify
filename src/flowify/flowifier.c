@@ -39,7 +39,7 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
             add_child_element(assignee_element, assignment_expression_element);
 
             FlowElement * right_side_expression_element = flowify_expression(flowifier, expression_node->first_child->next_sibling);
-            add_child_element(assignee_element, right_side_expression_element);
+            add_child_element(right_side_expression_element, assignment_expression_element);
             
             new_expression_element = assignment_expression_element;
             // TODO: new_expression_element->first_in_flow ?= right_side_expression_element->first_in_flow;
