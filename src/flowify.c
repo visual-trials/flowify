@@ -200,9 +200,9 @@ extern "C" {
         if (flowifier->has_absolute_positions)
         {
             i32 old_selected_element_index = flowifier->interaction.selected_element_index;
-            process_interactions(flowifier, input, world->root_element);
+            // FIXME: turned off for now: process_interactions(flowifier, input, world->root_element);
             // TODO: we should also re-generate the detail-string when the absolute position changes of the element
-            if (old_selected_element_index != flowifier->interaction.selected_element_index)
+            // FIXME: turned off for now: if (old_selected_element_index != flowifier->interaction.selected_element_index)
             {
                 FlowElement * newly_selected_flow_element = &flow_elements[flowifier->interaction.selected_element_index];
                 
@@ -223,8 +223,41 @@ extern "C" {
         update_scrollable_text(&world->scrollable_flowify_dump, input);
         
         layout_elements(flowifier, world->root_element);
+
+        // Up/Down the highlighted index
         
-        world->iteration++;
+        KeyboardInput * keyboard = &input->keyboard;
+        
+        b32 arrow_up_pressed = false;
+        b32 arrow_down_pressed = false;
+        for (i32 sequence_key_index = 0; sequence_key_index < keyboard->sequence_keys_length; sequence_key_index++)
+        {
+            b32 is_down = (b32)keyboard->sequence_keys_up_down[sequence_key_index * 2];
+            u8 key_code = keyboard->sequence_keys_up_down[sequence_key_index * 2 + 1];
+            
+            if (is_down)
+            {
+                if (key_code == Key_ArrowUp)
+                {
+                    arrow_up_pressed = true;
+                }
+                
+                if (key_code == Key_ArrowDown)
+                {
+                    arrow_down_pressed = true;
+                }
+            }
+        }
+        
+        if (arrow_up_pressed) {
+            flowifier->interaction.highlighted_element_index--;
+            flowifier->interaction.selected_element_index = flowifier->interaction.highlighted_element_index;
+        }
+        
+        if (arrow_down_pressed) {
+            flowifier->interaction.highlighted_element_index++;
+            flowifier->interaction.selected_element_index = flowifier->interaction.highlighted_element_index;
+        }
         
         if (flowifier->interaction.highlighted_element_index > 0 && world->iteration > 60) // every second (and if it is a valid selected element)
         {
@@ -254,6 +287,7 @@ extern "C" {
                 flowifier->interaction.highlighted_element_index++;
             }
         }
+        
         
     }
     
@@ -371,7 +405,7 @@ extern "C" {
             detail_rect.size.height = 644; // TODO: we should choose a different width here right?
             
             detail_rect.position.x += world->root_element->size.width + 20;
-            detail_rect.position.y = selected_flow_element->absolute_position.y + selected_flow_element->size.height / 2 - detail_rect.size.height / 4;
+            // detail_rect.position.y = selected_flow_element->absolute_position.y + selected_flow_element->size.height / 2 - detail_rect.size.height / 4;
             
             draw_rounded_rectangle(detail_rect.position, detail_rect.size, flowifier->bending_radius, 
                                    flowifier->detail_line_color, flowifier->detail_fill_color, flowifier->detail_line_width);
