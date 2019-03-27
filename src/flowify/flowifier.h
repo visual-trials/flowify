@@ -214,7 +214,7 @@ struct Flowifier
     i32 default_element_height;
 };
 
-FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowElementType flow_element_type);
+FlowElement * new_element(Flowifier * flowifier, Node * ast_node, FlowElementType flow_element_type);
 
 void init_flowifier(Flowifier * flowifier, Parser * parser)
 {
@@ -277,10 +277,10 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     init_dynamic_array(&flowifier->flow_elements, sizeof(FlowElement), (Color4){0,255,255,255}, cstring_to_string("Flowifier"));
     
     // Note: we start elements with index = 1 (by creating a dummy here). That way we can use index 0 as being no-index.
-    FlowElement * dummy_element = new_flow_element(flowifier, 0, FlowElement_Unknown);
+    FlowElement * dummy_element = new_element(flowifier, 0, FlowElement_Unknown);
 }
 
-FlowElement * new_flow_element(Flowifier * flowifier, Node * ast_node, FlowElementType flow_element_type)
+FlowElement * new_element(Flowifier * flowifier, Node * ast_node, FlowElementType flow_element_type)
 {
     Parser * parser = flowifier->parser;
     

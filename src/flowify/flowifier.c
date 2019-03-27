@@ -33,9 +33,9 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
             expression_node->type == Node_Expr_AssignOp_Minus ||
             expression_node->type == Node_Expr_AssignOp_Concat)
         {
-            FlowElement * assignment_expression_element = new_flow_element(flowifier, expression_node, FlowElement_Assignment);
+            FlowElement * assignment_expression_element = new_element(flowifier, expression_node, FlowElement_Assignment);
             
-            FlowElement * assignee_element = new_flow_element(flowifier, expression_node->first_child, FlowElement_Assignee);
+            FlowElement * assignee_element = new_element(flowifier, expression_node->first_child, FlowElement_Assignee);
             add_child_element(assignee_element, assignment_expression_element);
 
             FlowElement * right_side_expression_element = flowify_expression(flowifier, expression_node->first_child->next_sibling);
@@ -50,7 +50,7 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
                  expression_node->type == Node_Expr_PostInc ||
                  expression_node->type == Node_Expr_PostDec)
         {
-            new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_UnaryOperator);
+            new_expression_element = new_element(flowifier, expression_node, FlowElement_UnaryOperator);
         }
         else if (expression_node->type == Node_Expr_BinaryOp_Multiply ||
                  expression_node->type == Node_Expr_BinaryOp_Divide ||
@@ -60,7 +60,7 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
                  expression_node->type == Node_Expr_BinaryOp_Greater ||
                  expression_node->type == Node_Expr_BinaryOp_Equal)
         {
-            FlowElement * binary_op_expression_element = new_flow_element(flowifier, expression_node, FlowElement_BinaryOperator);
+            FlowElement * binary_op_expression_element = new_element(flowifier, expression_node, FlowElement_BinaryOperator);
             
             FlowElement * left_operand_element = flowify_expression(flowifier, expression_node->first_child);
             add_child_element(left_operand_element, binary_op_expression_element);
@@ -83,7 +83,7 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
             
             if (function_element)
             {
-                new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_FunctionCall);
+                new_expression_element = new_element(flowifier, expression_node, FlowElement_FunctionCall);
                 add_child_element(function_element, new_expression_element);
 
                 new_expression_element->first_in_flow = function_element->first_in_flow;
@@ -93,10 +93,10 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
             {
                 // log("Unknown function:");
                 // log(identifier);
-                new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_FunctionCall);
+                new_expression_element = new_element(flowifier, expression_node, FlowElement_FunctionCall);
                 
                 // TODO: is it corrent that the hidden element has no corresponding ast-node?
-                FlowElement * hidden_function_element = new_flow_element(flowifier, 0, FlowElement_Hidden);
+                FlowElement * hidden_function_element = new_element(flowifier, 0, FlowElement_Hidden);
                 add_child_element(hidden_function_element, new_expression_element);
                 
                 new_expression_element->first_in_flow = hidden_function_element;
@@ -105,18 +105,18 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
         }
         else if (expression_node->type == Node_Expr_Variable)
         {
-            new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_Variable);
+            new_expression_element = new_element(flowifier, expression_node, FlowElement_Variable);
         }
         else if (expression_node->type == Node_Scalar_Number)
         {
             // TODO: add the (constant) value to the flow element
-            new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_Scalar);
+            new_expression_element = new_element(flowifier, expression_node, FlowElement_Scalar);
         }
         else
         {
             // Unknown expression
             // TODO: log that we found an unknown expression!
-            new_expression_element = new_flow_element(flowifier, expression_node, FlowElement_Unknown);
+            new_expression_element = new_element(flowifier, expression_node, FlowElement_Unknown);
         }
     }
     
@@ -151,13 +151,13 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
     }
     else if (statement_node->type == Node_Stmt_If)
     {
-        FlowElement * if_element = new_flow_element(flowifier, statement_node, FlowElement_If);
+        FlowElement * if_element = new_element(flowifier, statement_node, FlowElement_If);
         
         Node * if_cond_node = statement_node->first_child;
         Node * if_then_node = if_cond_node->next_sibling;
         Node * if_else_node = if_then_node->next_sibling;
         
-        FlowElement * if_cond_element = new_flow_element(flowifier, if_cond_node, FlowElement_IfCond); 
+        FlowElement * if_cond_element = new_element(flowifier, if_cond_node, FlowElement_IfCond); 
         if (if_cond_node && if_cond_node->first_child)
         {
             FlowElement * cond_expression_element = flowify_expression(flowifier, if_cond_node->first_child);
@@ -165,43 +165,43 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         }
         else
         {
-            FlowElement * cond_passthrough_element = new_flow_element(flowifier, 0, FlowElement_PassThrough);
+            FlowElement * cond_passthrough_element = new_element(flowifier, 0, FlowElement_PassThrough);
             add_child_element(cond_passthrough_element, if_cond_element);
             
             // TODO: whould we set first_in_flow and last_in_flow?
         }
         
-        FlowElement * if_split_element = new_flow_element(flowifier, if_cond_node, FlowElement_IfSplit); 
+        FlowElement * if_split_element = new_element(flowifier, if_cond_node, FlowElement_IfSplit); 
         
-        FlowElement * if_then_element = new_flow_element(flowifier, if_then_node, FlowElement_IfThen);
+        FlowElement * if_then_element = new_element(flowifier, if_then_node, FlowElement_IfThen);
         if (if_then_node && if_then_node->first_child)
         {
             flowify_statements(flowifier, if_then_element);
         }
         else
         {
-            FlowElement * then_passthrough_element = new_flow_element(flowifier, 0, FlowElement_PassThrough);
+            FlowElement * then_passthrough_element = new_element(flowifier, 0, FlowElement_PassThrough);
             add_child_element(then_passthrough_element, if_then_element);
             
             if_then_element->first_in_flow = then_passthrough_element;
             if_then_element->last_in_flow = then_passthrough_element;
         }
         
-        FlowElement * if_else_element = new_flow_element(flowifier, if_else_node, FlowElement_IfElse);
+        FlowElement * if_else_element = new_element(flowifier, if_else_node, FlowElement_IfElse);
         if (if_else_node && if_else_node->first_child)
         {
             flowify_statements(flowifier, if_else_element);
         }
         else
         {
-            FlowElement * else_passthrough_element = new_flow_element(flowifier, 0, FlowElement_PassThrough);
+            FlowElement * else_passthrough_element = new_element(flowifier, 0, FlowElement_PassThrough);
             add_child_element(else_passthrough_element, if_else_element);
 
             if_else_element->first_in_flow = else_passthrough_element;
             if_else_element->last_in_flow = else_passthrough_element;
         }
         
-        FlowElement * if_join_element = new_flow_element(flowifier, 0, FlowElement_IfJoin);
+        FlowElement * if_join_element = new_element(flowifier, 0, FlowElement_IfJoin);
         
         add_child_element(if_cond_element, if_element);
         add_child_element(if_split_element, if_element);
@@ -216,16 +216,16 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
     }
     else if (statement_node->type == Node_Stmt_For)
     {
-        FlowElement * for_element = new_flow_element(flowifier, statement_node, FlowElement_For);
+        FlowElement * for_element = new_element(flowifier, statement_node, FlowElement_For);
         
         Node * for_init_node = statement_node->first_child;
         Node * for_cond_node = for_init_node->next_sibling;
         Node * for_update_node = for_cond_node->next_sibling;
         Node * for_body_node = for_update_node->next_sibling;
         
-        FlowElement * for_start_element = new_flow_element(flowifier, 0, FlowElement_ForStart); 
+        FlowElement * for_start_element = new_element(flowifier, 0, FlowElement_ForStart); 
         
-        FlowElement * for_init_element = new_flow_element(flowifier, for_init_node, FlowElement_ForInit); 
+        FlowElement * for_init_element = new_element(flowifier, for_init_node, FlowElement_ForInit); 
         if (for_init_node && for_init_node->first_child)
         {
             FlowElement * init_expression_element = flowify_expression(flowifier, for_init_node->first_child);
@@ -233,15 +233,15 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         }
         else
         {
-            FlowElement * init_passthrough_element = new_flow_element(flowifier, 0, FlowElement_PassThrough);
+            FlowElement * init_passthrough_element = new_element(flowifier, 0, FlowElement_PassThrough);
             add_child_element(init_passthrough_element, for_init_element);
             
             // TODO: whould we set first_in_flow and last_in_flow?
         }
         
-        FlowElement * for_join_element = new_flow_element(flowifier, 0, FlowElement_ForJoin); 
+        FlowElement * for_join_element = new_element(flowifier, 0, FlowElement_ForJoin); 
         
-        FlowElement * for_cond_element = new_flow_element(flowifier, for_cond_node, FlowElement_ForCond); 
+        FlowElement * for_cond_element = new_element(flowifier, for_cond_node, FlowElement_ForCond); 
         if (for_cond_node && for_cond_node->first_child)
         {
             FlowElement * cond_expression_element = flowify_expression(flowifier, for_cond_node->first_child);
@@ -249,29 +249,29 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         }
         else
         {
-            FlowElement * cond_passthrough_element = new_flow_element(flowifier, 0, FlowElement_PassThrough);
+            FlowElement * cond_passthrough_element = new_element(flowifier, 0, FlowElement_PassThrough);
             add_child_element(cond_passthrough_element, for_cond_element);
             
             // TODO: whould we set first_in_flow and last_in_flow?
         }
         
-        FlowElement * for_split_element = new_flow_element(flowifier, 0, FlowElement_ForSplit); 
+        FlowElement * for_split_element = new_element(flowifier, 0, FlowElement_ForSplit); 
         
-        FlowElement * for_body_element = new_flow_element(flowifier, for_body_node, FlowElement_ForBody); 
+        FlowElement * for_body_element = new_element(flowifier, for_body_node, FlowElement_ForBody); 
         if (for_body_node && for_body_node->first_child)
         {
             flowify_statements(flowifier, for_body_element);
         }
         else
         {
-            FlowElement * body_passthrough_element = new_flow_element(flowifier, 0, FlowElement_PassThrough);
+            FlowElement * body_passthrough_element = new_element(flowifier, 0, FlowElement_PassThrough);
             add_child_element(body_passthrough_element, for_body_element);
             
             for_body_element->first_in_flow = body_passthrough_element;
             for_body_element->last_in_flow = body_passthrough_element;
         }
         
-        FlowElement * for_update_element = new_flow_element(flowifier, for_update_node, FlowElement_ForUpdate); 
+        FlowElement * for_update_element = new_element(flowifier, for_update_node, FlowElement_ForUpdate); 
         if (for_update_node && for_update_node->first_child)
         {
             FlowElement * update_expression_element = flowify_expression(flowifier, for_update_node->first_child);
@@ -279,20 +279,20 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         }
         else
         {
-            FlowElement * update_passthrough_element = new_flow_element(flowifier, 0, FlowElement_PassThrough);
+            FlowElement * update_passthrough_element = new_element(flowifier, 0, FlowElement_PassThrough);
             add_child_element(update_passthrough_element, for_update_element);
             
             // TODO: whould we set first_in_flow and last_in_flow?
         }
         
-        FlowElement * for_passright_element = new_flow_element(flowifier, 0, FlowElement_PassBack);
-        FlowElement * for_passup_element = new_flow_element(flowifier, 0, FlowElement_PassBack);
-        FlowElement * for_passleft_element = new_flow_element(flowifier, 0, FlowElement_PassBack);
-        FlowElement * for_passdown_element = new_flow_element(flowifier, 0, FlowElement_PassBack);
+        FlowElement * for_passright_element = new_element(flowifier, 0, FlowElement_PassBack);
+        FlowElement * for_passup_element = new_element(flowifier, 0, FlowElement_PassBack);
+        FlowElement * for_passleft_element = new_element(flowifier, 0, FlowElement_PassBack);
+        FlowElement * for_passdown_element = new_element(flowifier, 0, FlowElement_PassBack);
             
-        FlowElement * for_passthrough_element = new_flow_element(flowifier, 0, FlowElement_PassThrough);
+        FlowElement * for_passthrough_element = new_element(flowifier, 0, FlowElement_PassThrough);
         
-        FlowElement * for_done_element = new_flow_element(flowifier, 0, FlowElement_ForDone); 
+        FlowElement * for_done_element = new_element(flowifier, 0, FlowElement_ForDone); 
         
         add_child_element(for_start_element, for_element);        
         add_child_element(for_init_element, for_element);
@@ -315,7 +315,7 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
     }
     else if (statement_node->type == Node_Stmt_Foreach)
     {
-        FlowElement * foreach_element = new_flow_element(flowifier, statement_node, FlowElement_Foreach);
+        FlowElement * foreach_element = new_element(flowifier, statement_node, FlowElement_Foreach);
         
         // TODO: flowify foreach statement
         
@@ -326,13 +326,13 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
     }
     else if (statement_node->type == Node_Stmt_Function)
     {
-        FlowElement * function_element = new_flow_element(flowifier, statement_node, FlowElement_Function);
+        FlowElement * function_element = new_element(flowifier, statement_node, FlowElement_Function);
         
         // TODO: flowify function arguments
         
         Node * function_body_node = statement_node->first_child->next_sibling;
         
-        FlowElement * function_body_element = new_flow_element(flowifier, function_body_node, FlowElement_FunctionBody);
+        FlowElement * function_body_element = new_element(flowifier, function_body_node, FlowElement_FunctionBody);
         
         flowify_statements(flowifier, function_body_element);
         
@@ -348,7 +348,7 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
     }
     else if (statement_node->type == Node_Stmt_Return)
     {
-        FlowElement * return_element = new_flow_element(flowifier, statement_node, FlowElement_Return);
+        FlowElement * return_element = new_element(flowifier, statement_node, FlowElement_Return);
         
         Node * expression_node = statement_node->first_child;
         
@@ -363,7 +363,7 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
     }
     else if (statement_node->type == Node_Stmt_Break)
     {
-        FlowElement * break_element = new_flow_element(flowifier, statement_node, FlowElement_Break);
+        FlowElement * break_element = new_element(flowifier, statement_node, FlowElement_Break);
         
         // TODO: flowify break statement
         
@@ -374,7 +374,7 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
     }
     else if (statement_node->type == Node_Stmt_Continue)
     {
-        FlowElement * continue_element = new_flow_element(flowifier, statement_node, FlowElement_Continue);
+        FlowElement * continue_element = new_element(flowifier, statement_node, FlowElement_Continue);
         
         // TODO: flowify continue statement
         

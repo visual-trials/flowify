@@ -110,7 +110,7 @@ extern "C" {
         
         // Flowify
         // FIXME: create the root_element inside flowify_statements (and put it in the Flowifier-struct
-        FlowElement * root_element = new_flow_element(flowifier, root_node, FlowElement_Root);
+        FlowElement * root_element = new_element(flowifier, root_node, FlowElement_Root);
         flowify_statements(flowifier, root_element);
         
         // FIXME: put root_element inside the Flowifier-struct!
