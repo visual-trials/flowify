@@ -366,14 +366,9 @@ void add_child_element(FlowElement * child_element, FlowElement * parent_element
     {
         parent_element->last_child->next_sibling = child_element;
         child_element->previous_sibling = parent_element->last_child;
+        child_element->parent = parent_element;
     }
     parent_element->last_child = child_element;
-}
-
-void add_sibling(FlowElement * existing_sibling, FlowElement * new_sibling)
-{
-    existing_sibling->next_sibling = new_sibling;
-    new_sibling->previous_sibling = existing_sibling;
 }
 
 void append_cstring_detail(const char * title, const char * value, DynamicString * detail_text, b32 append_newline = true)
