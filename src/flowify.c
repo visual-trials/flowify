@@ -400,7 +400,7 @@ extern "C" {
             
             Rect2d detail_rect = {};
             
-            detail_rect.position = world->root_element->absolute_position;
+            detail_rect.position = world->root_element->rect_abs.position;
             detail_rect.size.width = 500; // TODO: we should choose a different width here right?
             detail_rect.size.height = 644; // TODO: we should choose a different width here right?
             

@@ -430,14 +430,15 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
 
 void absolute_layout_elements(Flowifier * flowifier, FlowElement * flow_element, Pos2d absolute_parent_position)
 {
-    flow_element->absolute_position = add_position_to_position(flow_element->rect.position, absolute_parent_position);
+    flow_element->rect_abs.size = flow_element->rect.size;
+    flow_element->rect_abs.position = add_position_to_position(flow_element->rect.position, absolute_parent_position);
     
     FlowElement * child_element = flow_element->first_child;
     if (child_element)
     {
         do
         {
-            absolute_layout_elements(flowifier, child_element, flow_element->absolute_position);
+            absolute_layout_elements(flowifier, child_element, flow_element->rect_abs.position);
         }
         while ((child_element = child_element->next_sibling));
     }

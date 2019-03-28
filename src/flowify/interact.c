@@ -20,7 +20,7 @@
 // TODO: we should check whether these mouse or touch interactions are within the Window of the flowified elements
 void process_interactions(Flowifier * flowifier, Input * input, FlowElement * flow_element)
 {
-    HoveredOrPressed element_hovered_or_pressed = check_hovered_or_pressed(flow_element->absolute_position, flow_element->rect.size, input);
+    HoveredOrPressed element_hovered_or_pressed = check_hovered_or_pressed(flow_element->rect_abs.position, flow_element->rect_abs.size, input);
     
     if (flow_element->type == FlowElement_Root)
     {

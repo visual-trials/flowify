@@ -140,8 +140,9 @@ struct FlowElement
     b32 is_highlightable;
     
     Rect2d rect;
+    Rect2d rect_abs;
+    
     // TODO: i32 scale;
-    Pos2d absolute_position;
     
     // TODO: Pos2d left_top_absolute_position;
     // TODO: Pos2d bottom_right_absolute_position;
@@ -317,8 +318,11 @@ FlowElement * new_element(Flowifier * flowifier, Node * ast_node, FlowElementTyp
     new_flow_element->rect.size.width = 0;
     new_flow_element->rect.size.height = 0;
     
-    new_flow_element->absolute_position.x = 0;
-    new_flow_element->absolute_position.y = 0;
+    new_flow_element->rect_abs.position.x = 0;
+    new_flow_element->rect_abs.position.y = 0;
+    
+    new_flow_element->rect_abs.size.width = 0;
+    new_flow_element->rect_abs.size.height = 0;
 
     new_flow_element->is_selectable = true;
     new_flow_element->is_highlightable = false;
@@ -476,8 +480,8 @@ void generate_element_detail(FlowElement * element, DynamicString * detail_text)
     append_integer_detail("height", element->rect.size.height, detail_text);
     append_newline(detail_text);
     
-    append_integer_detail("abs.x", element->absolute_position.x, detail_text);
-    append_integer_detail("abs.y", element->absolute_position.y, detail_text);
+    append_integer_detail("abs.x", element->rect_abs.position.x, detail_text);
+    append_integer_detail("abs.y", element->rect_abs.position.y, detail_text);
     append_newline(detail_text);
     
     append_boolean_detail("is_selectable", element->is_selectable, detail_text);
