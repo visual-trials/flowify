@@ -247,6 +247,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     // TODO: we probably want flags here!
     if (flow_element->type == FlowElement_PassThrough || 
         flow_element->type == FlowElement_Hidden ||
+        flow_element->type == FlowElement_Scalar ||
         flow_element->type == FlowElement_BinaryOperator ||
         flow_element->type == FlowElement_Return)
     {
