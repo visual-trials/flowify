@@ -173,7 +173,7 @@ void draw_splitting_element(Flowifier * flowifier, FlowElement * left_element, F
 }
 
 void draw_straight_element(Flowifier * flowifier, FlowElement * flow_element, FlowElement * element_previous_in_flow, 
-                           FlowElement * element_next_in_flow)
+                           FlowElement * element_next_in_flow, b32 draw_source_text = true)
 {
     Color4 fill_color = flowifier->unhighlighted_color;
     if (flowifier->interaction.highlighted_element_index == flow_element->index)
@@ -203,7 +203,7 @@ void draw_straight_element(Flowifier * flowifier, FlowElement * flow_element, Fl
                                         flowifier->bending_radius, flowifier->line_width, 
                                         flowifier->line_color, fill_color, fill_color);
     
-    if (flow_element->source_text.length)
+    if (draw_source_text && flow_element->source_text.length)
     {
         Size2d source_text_size = get_text_size(&flow_element->source_text, flowifier->font);
         
@@ -219,7 +219,7 @@ void draw_straight_element(Flowifier * flowifier, FlowElement * flow_element, Fl
     draw_element_rectangle(flowifier, flow_element);
 }
 
-void draw_rectangle_element(Flowifier * flowifier, FlowElement * flow_element)
+void draw_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, b32 draw_rectangle = true)
 {
     Color4 fill_color = flowifier->unhighlighted_color;
     if (flowifier->interaction.highlighted_element_index == flow_element->index)
@@ -227,7 +227,10 @@ void draw_rectangle_element(Flowifier * flowifier, FlowElement * flow_element)
         fill_color = flowifier->highlighted_color;
     }
     
-    draw_rounded_rectangle(flow_element->rect_abs, flowifier->bending_radius, flowifier->line_color, fill_color, flowifier->line_width);
+    if (draw_rectangle)
+    {
+        draw_rounded_rectangle(flow_element->rect_abs, flowifier->bending_radius, flowifier->line_color, fill_color, flowifier->line_width);
+    }
     
     if (flow_element->source_text.length)
     {
@@ -254,11 +257,14 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     // TODO: we probably want flags here!
     if (flow_element->type == FlowElement_PassThrough || 
         flow_element->type == FlowElement_Hidden ||
-        flow_element->type == FlowElement_Scalar ||
-        flow_element->type == FlowElement_BinaryOperator ||
         flow_element->type == FlowElement_Return)
     {
         draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow);
+    }
+    if (flow_element->type == FlowElement_Scalar ||
+        flow_element->type == FlowElement_BinaryOperator)
+    {
+        draw_rectangle_element(flowifier, flow_element);
     }
     else if (flow_element->type == FlowElement_Assignment)
     {
@@ -266,9 +272,10 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * assignment_operator_element = assignee_element->next_sibling;
         FlowElement * right_side_expression_element = assignment_operator_element->next_sibling;
         
-        // TODO: the last argument is probably not quite right: the right_side_expression_element should be *inside* the assignment, not be next in flow of the assignee
-        draw_straight_element(flowifier, assignee_element, flow_element->previous_in_flow, assignment_operator_element);
-        draw_straight_element(flowifier, assignment_operator_element, assignee_element, right_side_expression_element);
+        draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, false);
+        
+        draw_rectangle_element(flowifier, assignee_element);
+        draw_rectangle_element(flowifier, assignment_operator_element, false);
         draw_elements(flowifier, right_side_expression_element);
     }
     else if (flow_element->type == FlowElement_If)
