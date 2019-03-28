@@ -123,6 +123,10 @@ Node * parse_variable_assignment(Parser * parser, NodeType node_type, Node * var
     // Left side of the expression (a variable)
     add_child_node(variable_node, variable_assignment_node);
 
+    // The assignment operator acts as the identifier of the assignment-expression (note: we assume its has just been comsumed, so we get the latest token)
+    Token * assignment_operator_token = latest_eaten_token(parser);
+    variable_assignment_node->identifier = assignment_operator_token->text;
+
     // Right side of the expression (an expression)
     Node * child_expression_node = parse_expression(parser);
     add_child_node(child_expression_node, variable_assignment_node);

@@ -33,12 +33,21 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
             expression_node->type == Node_Expr_AssignOp_Minus ||
             expression_node->type == Node_Expr_AssignOp_Concat)
         {
+            Node * assignee_node = expression_node->first_child;
+            Node * right_side_expression_node = assignee_node->next_sibling;
+            
             FlowElement * assignment_expression_element = new_element(flowifier, expression_node, FlowElement_Assignment);
             
-            FlowElement * assignee_element = new_element(flowifier, expression_node->first_child, FlowElement_Assignee);
+            FlowElement * assignee_element = new_element(flowifier, assignee_node, FlowElement_Assignee);
             add_child_element(assignee_element, assignment_expression_element);
+            
+            // Note: we set the ast-node of the operator itself to the whole assignment-expression (because the operator itself is not an ast-node by itself)
+            FlowElement * assignment_operator_element = new_element(flowifier, expression_node, FlowElement_AssignmentOperator);
+            // TODO: we use the identifier of the expression (which is filled with the operator itself) as the "source_text" of this element! (little dirty)
+            assignment_operator_element->source_text = expression_node->identifier;
+            add_child_element(assignment_operator_element, assignment_expression_element);
 
-            FlowElement * right_side_expression_element = flowify_expression(flowifier, expression_node->first_child->next_sibling);
+            FlowElement * right_side_expression_element = flowify_expression(flowifier, right_side_expression_node);
             add_child_element(right_side_expression_element, assignment_expression_element);
             
             new_expression_element = assignment_expression_element;

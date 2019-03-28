@@ -55,6 +55,7 @@ enum FlowElementType
     FlowElement_Hidden,         // TODO: using this to signify the contents of a function we don't know it's implementation of
     FlowElement_Assignment,
     FlowElement_Assignee,
+    FlowElement_AssignmentOperator,
     FlowElement_UnaryOperator,
     FlowElement_BinaryOperator,
     FlowElement_FunctionCall,   // TODO: is this redundant?
@@ -101,6 +102,7 @@ const char * flow_element_type_names[] = {
     "Hidden",
     "Assignment",
     "Assignee",
+    "AssignmentOperator",
     "UnaryOperator",
     "BinaryOperator",
     "FunctionCall",   // TODO: is this redundant?
@@ -384,6 +386,18 @@ void append_cstring_detail(const char * title, const char * value, DynamicString
     }
 }
 
+void append_string_detail(const char * title, String value, DynamicString * detail_text, b32 append_newline = true)
+{
+    append_string(detail_text, cstring_to_string(title));
+    append_string(detail_text, cstring_to_string(": "));
+    append_string(detail_text, value);
+    
+    if (append_newline)
+    {
+        append_string(detail_text, cstring_to_string("\n"));
+    }
+}
+
 void append_integer_detail(const char * title, i32 int_value, DynamicString * detail_text, b32 append_newline = true)
 {
     ShortString decimal_string = {}; // TODO: this is hurting the stack a bit. Maybe pass it instead?
@@ -452,6 +466,7 @@ void generate_element_detail(FlowElement * element, DynamicString * detail_text)
 {
     append_integer_detail("index", element->index, detail_text);
     append_cstring_detail("type", flow_element_type_names[element->type], detail_text);
+    // TODO: we only want to see the first line (and/or be able to hover over this): append_string_detail("source", element->source_text, detail_text);
     append_newline(detail_text);
     
     append_integer_detail("x", element->position.x, detail_text);
