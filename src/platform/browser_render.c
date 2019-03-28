@@ -96,6 +96,11 @@ void draw_rounded_rectangle(Pos2d position, Size2d size, i32 r,
     jsDrawRoundedRect(position.x, position.y, size.width, size.height, r, line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
 }
 
+void draw_rounded_rectangle(Rect2d rect, i32 r, Color4 line_color, Color4 fill_color, i32 line_width)
+{
+    draw_rounded_rectangle(rect.position, rect.size, r, line_color, fill_color, line_width);
+}
+
 void draw_cornered_lane_segment(HorLine hor_line, VertLine vert_line, 
                                 i32 radius, Color4 line_color, Color4 fill_color, i32 line_width)
 {
@@ -138,6 +143,11 @@ void draw_rectangle(Pos2d position, Size2d size,
     i32 fill_color_alpha = (i32)fill_color.a;
     
     jsDrawRect(position.x, position.y, size.width, size.height, line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
+}
+
+void draw_rectangle(Rect2d rect, Color4 line_color, Color4 fill_color, i32 line_width)
+{
+    draw_rectangle(rect.position, rect.size, line_color, fill_color, line_width);
 }
 
 void draw_line(Pos2d start_position, Pos2d end_position, 

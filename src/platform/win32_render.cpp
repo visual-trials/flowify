@@ -89,6 +89,11 @@ void draw_rectangle(Pos2d position, Size2d size, Color4 line_color, Color4 fill_
 
 }
 
+void draw_rectangle(Rect2d rect, Color4 line_color, Color4 fill_color, i32 line_width)
+{
+    draw_rectangle(rect.position, rect.size, line_color, fill_color, line_width);
+}
+
 void draw_line(Pos2d start_position, Pos2d end_position, Color4 line_color, i32 line_width)
 {
     D2D1_POINT_2F start_pos, end_pos;
@@ -129,6 +134,11 @@ void draw_rounded_rectangle(Pos2d position, Size2d size, i32 r, Color4 line_colo
         release_brush(line_brush);
     }
     
+}
+
+void draw_rounded_rectangle(Rect2d rect, i32 r, Color4 line_color, Color4 fill_color, i32 line_width)
+{
+    draw_rounded_rectangle(rect.position, rect.size, r, line_color, fill_color, line_width);
 }
 
 void draw_cornered_lane_segment(HorLine hor_line, VertLine vert_line, 
