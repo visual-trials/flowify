@@ -28,6 +28,41 @@ i32 get_width_based_on_source_text(Flowifier * flowifier, FlowElement * flow_ele
     }
 }
 
+// TODO: add ability to top, center or bottom vertically align
+Size2d layout_horizontally(Rect2d * first_rect, Rect2d * second_rect, Rect2d * third_rect, i32 in_between_distance, i32 horizontal_margin, i32 vertical_margin)
+{
+    Size2d outer_size = {};
+    
+    // Outer width and horizontal positions
+    i32 outer_width = horizontal_margin;
+    first_rect->position.x = outer_width;
+    outer_width += first_rect->size.width + in_between_distance;
+    second_rect->position.x = outer_width;
+    outer_width += second_rect->size.width + in_between_distance;
+    third_rect->position.x = outer_width;
+    outer_width += third_rect->size.width + horizontal_margin;
+    outer_size.width = outer_width;
+    
+    // Outer height
+    i32 largest_height = first_rect->size.height;
+    if (second_rect->size.height > largest_height)
+    {
+        largest_height = second_rect->size.height;
+    }
+    if (third_rect->size.height > largest_height)
+    {
+        largest_height = third_rect->size.height;
+    }
+    outer_size.height = vertical_margin + largest_height + vertical_margin;
+    
+    // Vertical positions (center aligned)
+    first_rect->position.y = vertical_margin + (largest_height / 2) - (first_rect->size.height / 2);
+    second_rect->position.y = vertical_margin + (largest_height / 2) - (second_rect->size.height / 2);
+    third_rect->position.y = vertical_margin + (largest_height / 2) - (third_rect->size.height / 2);
+    
+    return outer_size;
+}
+
 void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
 {
     i32 bending_radius = flowifier->bending_radius;
@@ -53,26 +88,29 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * assignment_operator_element = assignee_element->next_sibling;
         FlowElement * right_side_expression_element = assignment_operator_element->next_sibling;
         
+        /*
         i32 top_margin = bending_radius;
         i32 bottom_margin = bending_radius;
         i32 left_margin = bending_radius;
         i32 right_margin = bending_radius;
+        */
             
         layout_elements(flowifier, assignee_element);
         
-        assignee_element->position.x = left_margin;
-        assignee_element->position.y = top_margin;
+        // assignee_element->position.x = left_margin;
+        // assignee_element->position.y = top_margin;
         
         layout_elements(flowifier, assignment_operator_element);
         
-        assignment_operator_element->position.x = left_margin;
-        assignment_operator_element->position.y = top_margin + assignee_element->size.height;
+        // assignment_operator_element->position.x = left_margin;
+        // assignment_operator_element->position.y = top_margin + assignee_element->size.height;
         
         layout_elements(flowifier, right_side_expression_element);
         
-        right_side_expression_element->position.x = left_margin;
-        right_side_expression_element->position.y = top_margin + assignee_element->size.height + assignment_operator_element->size.height;
+        // right_side_expression_element->position.x = left_margin;
+        // right_side_expression_element->position.y = top_margin + assignee_element->size.height + assignment_operator_element->size.height;
         
+        /*
         i32 total_width = assignee_element->size.width;
         if (right_side_expression_element->size.width > assignee_element->size.width)
         {
@@ -80,6 +118,25 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         }
         flow_element->size.width = left_margin + total_width + right_margin;
         flow_element->size.height = top_margin + assignee_element->size.height + assignment_operator_element->size.height + right_side_expression_element->size.height + bottom_margin;
+        */
+
+        i32 in_between_distance = 0;
+        i32 horizontal_margin = bending_radius;
+        i32 vertical_margin = bending_radius;
+
+        // FIXME: we need the FlowElements to have Rect2d instead of size + position!
+        Rect2d first_rect = {};
+        Rect2d second_rect = {};
+        Rect2d third_rect = {};
+        first_rect.size = assignee_element->size;
+        second_rect.size = assignment_operator_element->size;
+        third_rect.size = right_side_expression_element->size;
+        
+        flow_element->size = layout_horizontally(&first_rect, &second_rect, &third_rect, in_between_distance, horizontal_margin, vertical_margin);
+        
+        assignee_element->position = first_rect.position;
+        assignment_operator_element->position = second_rect.position;
+        right_side_expression_element->position = third_rect.position;
         
         flow_element->is_highlightable = true;
     }
@@ -369,7 +426,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         i32 summed_children_height = 0;
         i32 largest_child_width = 0;
         
-        i32 verical_margin = 0; // TODO: we need vertical margin when connections between elements have to run horizintal
+        i32 verical_margin = 0; // TODO: we need vertical margin when connections between elements have to run horizontal
         
         FlowElement * child_element = flow_element->first_child;
         
