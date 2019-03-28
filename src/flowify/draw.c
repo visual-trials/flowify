@@ -258,7 +258,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * right_side_expression_element = assignee_element->next_sibling;
         
         // TODO: the last argument is probably not quite right: the right_side_expression_element should be *inside* the assignment, not be next in flow of the assignee
-        // draw_straight_element(flowifier, assignee_element, flow_element->previous_in_flow, right_side_expression_element);
+        draw_straight_element(flowifier, assignee_element, flow_element->previous_in_flow, right_side_expression_element);
         draw_elements(flowifier, right_side_expression_element);
     }
     else if (flow_element->type == FlowElement_If)
