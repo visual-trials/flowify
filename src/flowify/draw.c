@@ -219,6 +219,32 @@ void draw_straight_element(Flowifier * flowifier, FlowElement * flow_element, Fl
     draw_element_rectangle(flowifier, flow_element);
 }
 
+void draw_rectangle_element(Flowifier * flowifier, FlowElement * flow_element)
+{
+    Color4 fill_color = flowifier->unhighlighted_color;
+    if (flowifier->interaction.highlighted_element_index == flow_element->index)
+    {
+        fill_color = flowifier->highlighted_color;
+    }
+    
+    draw_rounded_rectangle(flow_element->rect_abs, flowifier->bending_radius, flowifier->line_color, fill_color, flowifier->line_width);
+    
+    if (flow_element->source_text.length)
+    {
+        Size2d source_text_size = get_text_size(&flow_element->source_text, flowifier->font);
+        
+        // TODO: create a function: draw_text_in_rect()
+        Pos2d text_position = {};
+        text_position = flow_element->rect_abs.position;
+        text_position.x += (flow_element->rect_abs.size.width - source_text_size.width) / 2;
+        text_position.y += (flow_element->rect_abs.size.height - source_text_size.height) / 2;
+        
+        draw_text(text_position, &flow_element->source_text, flowifier->font, flowifier->text_color);
+    }
+    
+    draw_element_rectangle(flowifier, flow_element);
+}
+
 void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
 {
     // TODO: add is_position_of and position_originates_from

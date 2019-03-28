@@ -89,9 +89,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * right_side_expression_element = assignment_operator_element->next_sibling;
         
         layout_elements(flowifier, assignee_element);
-        
         layout_elements(flowifier, assignment_operator_element);
-        
         layout_elements(flowifier, right_side_expression_element);
 
         i32 in_between_distance = 0;
