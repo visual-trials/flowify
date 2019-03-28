@@ -385,7 +385,7 @@ extern "C" {
         
         Pos2d absolute_position;
         // FIXME: hack!
-        // Aligned right: absolute_position.x = input->screen.width - root_element->size.width - 100 + world->flowify_horizontal_offset; 
+        // Aligned right: absolute_position.x = input->screen.width - root_element->rect.size.width - 100 + world->flowify_horizontal_offset; 
         absolute_position.x = 100 + world->flowify_horizontal_offset; 
         absolute_position.y = 50 + world->flowify_vertical_offset; 
         absolute_layout_elements(flowifier, root_element, absolute_position);
@@ -404,8 +404,8 @@ extern "C" {
             detail_rect.size.width = 500; // TODO: we should choose a different width here right?
             detail_rect.size.height = 644; // TODO: we should choose a different width here right?
             
-            detail_rect.position.x += world->root_element->size.width + 20;
-            // detail_rect.position.y = selected_flow_element->absolute_position.y + selected_flow_element->size.height / 2 - detail_rect.size.height / 4;
+            detail_rect.position.x += world->root_element->rect.size.width + 20;
+            // detail_rect.position.y = selected_flow_element->absolute_position.y + selected_flow_element->rect.size.height / 2 - detail_rect.size.height / 4;
             
             draw_rounded_rectangle(detail_rect.position, detail_rect.size, flowifier->bending_radius, 
                                    flowifier->detail_line_color, flowifier->detail_fill_color, flowifier->detail_line_width);

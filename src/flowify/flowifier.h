@@ -139,8 +139,7 @@ struct FlowElement
     b32 is_selectable;
     b32 is_highlightable;
     
-    Size2d size;
-    Pos2d position;
+    Rect2d rect;
     // TODO: i32 scale;
     Pos2d absolute_position;
     
@@ -312,11 +311,11 @@ FlowElement * new_element(Flowifier * flowifier, Node * ast_node, FlowElementTyp
     
     new_flow_element->next_function = 0;
     
-    new_flow_element->position.x = 0;
-    new_flow_element->position.y = 0;
+    new_flow_element->rect.position.x = 0;
+    new_flow_element->rect.position.y = 0;
     
-    new_flow_element->size.width = 0;
-    new_flow_element->size.height = 0;
+    new_flow_element->rect.size.width = 0;
+    new_flow_element->rect.size.height = 0;
     
     new_flow_element->absolute_position.x = 0;
     new_flow_element->absolute_position.y = 0;
@@ -469,12 +468,12 @@ void generate_element_detail(FlowElement * element, DynamicString * detail_text)
     // TODO: we only want to see the first line (and/or be able to hover over this): append_string_detail("source", element->source_text, detail_text);
     append_newline(detail_text);
     
-    append_integer_detail("x", element->position.x, detail_text);
-    append_integer_detail("y", element->position.y, detail_text);
+    append_integer_detail("x", element->rect.position.x, detail_text);
+    append_integer_detail("y", element->rect.position.y, detail_text);
     append_newline(detail_text);
     
-    append_integer_detail("width", element->size.width, detail_text);
-    append_integer_detail("height", element->size.height, detail_text);
+    append_integer_detail("width", element->rect.size.width, detail_text);
+    append_integer_detail("height", element->rect.size.height, detail_text);
     append_newline(detail_text);
     
     append_integer_detail("abs.x", element->absolute_position.x, detail_text);

@@ -20,15 +20,15 @@ void draw_element_rectangle(Flowifier * flowifier, FlowElement * flow_element)
 {
     if (flowifier->interaction.hovered_element_index == flow_element->index)
     {
-        draw_rectangle(flow_element->absolute_position, flow_element->size, flowifier->hovered_color, flowifier->hovered_fill, flowifier->hovered_line_width);
+        draw_rectangle(flow_element->absolute_position, flow_element->rect.size, flowifier->hovered_color, flowifier->hovered_fill, flowifier->hovered_line_width);
     }
     if (flowifier->interaction.selected_element_index == flow_element->index)
     {
-        draw_rectangle(flow_element->absolute_position, flow_element->size, flowifier->selected_color, flowifier->selected_fill, flowifier->selected_line_width);
+        draw_rectangle(flow_element->absolute_position, flow_element->rect.size, flowifier->selected_color, flowifier->selected_fill, flowifier->selected_line_width);
     }
     if (flowifier->show_help_rectangles)
     {
-        draw_rectangle(flow_element->absolute_position, flow_element->size, flowifier->help_rectangle_color, flowifier->help_rectangle_fill, flowifier->help_rectangle_line_width);
+        draw_rectangle(flow_element->absolute_position, flow_element->rect.size, flowifier->help_rectangle_color, flowifier->help_rectangle_fill, flowifier->help_rectangle_line_width);
     }
 }
 
@@ -110,24 +110,24 @@ void draw_joining_element(Flowifier * flowifier, FlowElement * left_element, Flo
     // Right element position + size
     Rect2d right_rect = {};
     right_rect.position = right_element->absolute_position;
-    right_rect.size = right_element->size;
+    right_rect.size = right_element->rect.size;
     
     // Left element position + size
     Rect2d left_rect = {};
     left_rect.position = left_element->absolute_position;
-    left_rect.size = left_element->size;
+    left_rect.size = left_element->rect.size;
     
     // Joining element positions + size
     Rect2d middle_rect = {};
     middle_rect.position = joining_element->absolute_position;
-    middle_rect.size = joining_element->size;
+    middle_rect.size = joining_element->rect.size;
     
     Rect2d bottom_rect = {-1,-1,-1,-1};
     
     if (element_next_in_flow)
     {
         bottom_rect.position = element_next_in_flow->absolute_position;
-        bottom_rect.size = element_next_in_flow->size;
+        bottom_rect.size = element_next_in_flow->rect.size;
     }
     
     draw_lane_segments_for_4_rectangles(bottom_rect, false, left_rect, right_rect, middle_rect, 
@@ -157,23 +157,23 @@ void draw_splitting_element(Flowifier * flowifier, FlowElement * left_element, F
     if (element_previous_in_flow)
     {
         top_rect.position = element_previous_in_flow->absolute_position;
-        top_rect.size = element_previous_in_flow->size;
+        top_rect.size = element_previous_in_flow->rect.size;
     }
     
     // If-start rectangle (middle)
     Rect2d middle_rect = {};
     middle_rect.position = splitting_element->absolute_position;
-    middle_rect.size = splitting_element->size;
+    middle_rect.size = splitting_element->rect.size;
     
     // If-then rectangle (right)
     Rect2d right_rect = {};
     right_rect.position = right_element->absolute_position;
-    right_rect.size = right_element->size;
+    right_rect.size = right_element->rect.size;
     
     // If-else rectangle (left)
     Rect2d left_rect = {};
     left_rect.position = left_element->absolute_position;
-    left_rect.size = left_element->size;
+    left_rect.size = left_element->rect.size;
 
     draw_lane_segments_for_4_rectangles(top_rect, true, left_rect, right_rect, middle_rect, 
                                         flowifier->bending_radius, flowifier->line_width, 
@@ -203,19 +203,19 @@ void draw_straight_element(Flowifier * flowifier, FlowElement * flow_element, Fl
     Rect2d bottom_rect = no_rect;
     
     Pos2d position = flow_element->absolute_position;
-    Size2d size = flow_element->size;
+    Size2d size = flow_element->rect.size;
     middle_rect.position = position;
     middle_rect.size = size;
     
     if (element_previous_in_flow)
     {
         top_rect.position = element_previous_in_flow->absolute_position;
-        top_rect.size = element_previous_in_flow->size;
+        top_rect.size = element_previous_in_flow->rect.size;
     }
     if (element_next_in_flow)
     {
         bottom_rect.position = element_next_in_flow->absolute_position;
-        bottom_rect.size = element_next_in_flow->size;
+        bottom_rect.size = element_next_in_flow->rect.size;
     }
     
     draw_lane_segments_for_3_rectangles(top_rect, middle_rect, bottom_rect, 
@@ -313,23 +313,23 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         // FIXME: we need a get_rect_from_element-function!
         Rect2d update_rect = {};
         update_rect.position = for_update_element->absolute_position;
-        update_rect.size = for_update_element->size;
+        update_rect.size = for_update_element->rect.size;
         
         Rect2d passright_rect = {};
         passright_rect.position = for_passright_element->absolute_position;
-        passright_rect.size = for_passright_element->size;
+        passright_rect.size = for_passright_element->rect.size;
         
         Rect2d passup_rect = {};
         passup_rect.position = for_passup_element->absolute_position;
-        passup_rect.size = for_passup_element->size;
+        passup_rect.size = for_passup_element->rect.size;
         
         Rect2d passleft_rect = {};
         passleft_rect.position = for_passleft_element->absolute_position;
-        passleft_rect.size = for_passleft_element->size;
+        passleft_rect.size = for_passleft_element->rect.size;
         
         Rect2d passdown_rect = {};
         passdown_rect.position = for_passdown_element->absolute_position;
-        passdown_rect.size = for_passdown_element->size;
+        passdown_rect.size = for_passdown_element->rect.size;
         
         HorLine hor_line = get_bottom_line_from_rect(update_rect);
         VertLine vert_line = get_left_line_from_rect(passright_rect);
@@ -366,7 +366,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     else if (flow_element->type == FlowElement_FunctionCall)
     {
         Pos2d position = flow_element->absolute_position;
-        Size2d size = flow_element->size;
+        Size2d size = flow_element->rect.size;
         
         // FIXME: workaround to create more vertical margin (here we substract from the size)
         position.y += flowifier->bending_radius;
@@ -407,7 +407,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         if (flow_element->type == FlowElement_Root)
         {
             // TODO: determine fill color depending on odd/even depth
-            draw_rounded_rectangle(position, flow_element->size, flowifier->bending_radius, 
+            draw_rounded_rectangle(position, flow_element->rect.size, flowifier->bending_radius, 
                                    flowifier->function_line_color, flowifier->function_odd_fill_color, flowifier->function_line_width);
         }
                                
