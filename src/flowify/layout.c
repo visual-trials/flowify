@@ -98,19 +98,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         i32 horizontal_margin = bending_radius;
         i32 vertical_margin = bending_radius;
 
-        // FIXME: we need the FlowElements to have Rect2d instead of size + position!
-        Rect2d first_rect = {};
-        Rect2d second_rect = {};
-        Rect2d third_rect = {};
-        first_rect.size = assignee_element->rect.size;
-        second_rect.size = assignment_operator_element->rect.size;
-        third_rect.size = right_side_expression_element->rect.size;
-        
-        flow_element->rect.size = layout_horizontally(&first_rect, &second_rect, &third_rect, in_between_distance, horizontal_margin, vertical_margin);
-        
-        assignee_element->rect.position = first_rect.position;
-        assignment_operator_element->rect.position = second_rect.position;
-        right_side_expression_element->rect.position = third_rect.position;
+        flow_element->rect.size = layout_horizontally(&assignee_element->rect, &assignment_operator_element->rect, &right_side_expression_element->rect, in_between_distance, horizontal_margin, vertical_margin);
         
         flow_element->is_highlightable = true;
     }
