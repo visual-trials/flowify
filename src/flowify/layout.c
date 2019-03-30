@@ -115,18 +115,19 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         flow_element->rect.size.width = default_element_width / 2;
         flow_element->rect.size.height = default_element_height;
     }
-    else if (flow_element->type == FlowElement_IfCond)
+    else if (flow_element->type == FlowElement_IfCond ||
+             flow_element->type == FlowElement_ForCond)
     {
-        FlowElement * if_keyword_element = flow_element->first_child;
-        FlowElement * cond_expression_element = if_keyword_element->next_sibling;
+        FlowElement * keyword_element = flow_element->first_child;
+        FlowElement * cond_expression_element = keyword_element->next_sibling;
         
-        if_keyword_element->rect.size = get_size_based_on_source_text(flowifier, if_keyword_element, flowifier->variable_margin);
+        keyword_element->rect.size = get_size_based_on_source_text(flowifier, keyword_element, flowifier->variable_margin);
         
         layout_elements(flowifier, cond_expression_element);
         
         i32 in_between_distance = 0; // FIXME: put this in Flowifier!
 
-        flow_element->rect.size = layout_horizontally(&if_keyword_element->rect, &cond_expression_element->rect, 
+        flow_element->rect.size = layout_horizontally(&keyword_element->rect, &cond_expression_element->rect, 
                                                       in_between_distance, flowifier->expression_margin);
                                                       
         flow_element->is_highlightable = true;
@@ -224,7 +225,6 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         // TODO: we should layout if_cond to get its (proper) width and height
         if_cond_element->rect.position = current_position;
-        // if_cond_element->rect.size = get_size_based_on_source_text(flowifier, if_cond_element, flowifier->statement_margin);
         if_cond_element->is_highlightable = true;
         
         current_position.y += if_cond_element->rect.size.height;
@@ -274,14 +274,13 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * for_passthrough_element = for_passdown_element->next_sibling;
         FlowElement * for_done_element = for_passthrough_element->next_sibling;
         
+        layout_elements(flowifier, for_cond_element);
         layout_elements(flowifier, for_body_element);
         
         // TODO: we should layout for_init to get its (proper) width and height
         for_init_element->rect.size = get_size_based_on_source_text(flowifier, for_init_element, flowifier->statement_margin);
         for_init_element->is_highlightable = true;
         
-        // TODO: we should layout for_cond to get its (proper) width and height
-        for_cond_element->rect.size = get_size_based_on_source_text(flowifier, for_cond_element, flowifier->statement_margin);
         for_cond_element->is_highlightable = true;
         
         // TODO: we should layout for_update to get its (proper) width and height

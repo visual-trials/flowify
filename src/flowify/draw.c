@@ -288,17 +288,18 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     {
         draw_rectangle_element(flowifier, flow_element, flowifier->scalar_style, true, true);
     }
-    else if (flow_element->type == FlowElement_IfCond)
+    else if (flow_element->type == FlowElement_IfCond ||
+             flow_element->type == FlowElement_ForCond)
     {
         i32 expression_depth = 0; // FIXME: fill this with the depth of the expression-stack! We should probably store this in FlowElement
         FlowStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
         
-        FlowElement * if_keyword_element = flow_element->first_child;
-        FlowElement * cond_expression_element = if_keyword_element->next_sibling;
+        FlowElement * keyword_element = flow_element->first_child;
+        FlowElement * cond_expression_element = keyword_element->next_sibling;
         
         draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, false);
         
-        draw_rectangle_element(flowifier, if_keyword_element, expression_style, false, true);
+        draw_rectangle_element(flowifier, keyword_element, expression_style, false, true);
         // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
         draw_elements(flowifier, cond_expression_element);
     }
@@ -359,7 +360,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * if_else_element = if_then_element->next_sibling;
         FlowElement * if_join_element = if_else_element->next_sibling;
 
-        // FIXME: we should draw the if-cond in a way so that the the side-lines are drawn AND the if-cond-expression is drawn here
+        // TODO: we  draw the if-cond in a way so that the side-lines are drawn AND the if-cond-expression is drawn
         draw_straight_element(flowifier, if_cond_element, if_cond_element->previous_in_flow, if_split_element);
         draw_elements(flowifier, if_cond_element);
         
@@ -391,7 +392,9 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         draw_joining_element(flowifier, for_init_element, for_passdown_element, for_join_element, for_cond_element);
         
+        // TODO: we  draw the if-cond in a way so that the side-lines are drawn AND the if-cond-expression is drawn
         draw_straight_element(flowifier, for_cond_element, for_join_element, for_split_element);
+        draw_elements(flowifier, for_cond_element);
         
         draw_splitting_element(flowifier, for_passthrough_element, for_body_element->first_in_flow, for_split_element, for_cond_element);
         

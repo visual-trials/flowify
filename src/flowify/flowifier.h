@@ -34,6 +34,7 @@ enum FlowElementType
     FlowElement_IfJoin,
     
     FlowElement_For,
+    FlowElement_ForKeyword,
     FlowElement_ForStart,
     FlowElement_ForInit,
     FlowElement_ForJoin,
@@ -84,6 +85,7 @@ const char * flow_element_type_names[] = {
     "IfJoin",
     
     "For",
+    "ForKeyword",
     "ForStart",
     "ForInit",
     "ForJoin",

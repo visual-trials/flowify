@@ -263,7 +263,13 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         FlowElement * for_join_element = new_element(flowifier, 0, FlowElement_ForJoin); 
         
         FlowElement * for_cond_element = new_element(flowifier, for_cond_node, FlowElement_ForCond); 
-        // Add for-keyword as child element here!
+
+        // Note: we set the ast-node of the for-keyword itself to the whole for-cond-expression (because the keyword itself is not an ast-node by itself)
+        FlowElement * for_keyword_element = new_element(flowifier, for_cond_node, FlowElement_ForKeyword);
+        // TODO: we use the identifier of the for-cond-expression (which is filled with the keyword itself) as the "source_text" of this element! (little dirty)
+        for_keyword_element->source_text = for_cond_node->identifier;
+        add_child_element(for_keyword_element, for_cond_element);
+
         if (for_cond_node && for_cond_node->first_child)
         {
             FlowElement * cond_expression_element = flowify_expression(flowifier, for_cond_node->first_child);
