@@ -162,6 +162,12 @@ struct FlowInteraction
     i32 hovered_element_index;
 };
 
+struct FlowMargin
+{
+    i32 vertical;
+    i32 horizontal;
+};
+
 struct FlowStyle
 {
     Color4 line_color;
@@ -246,14 +252,11 @@ struct Flowifier
         
     // Layout, sizes
     
-    i32 expression_vertical_margin;
-    i32 expression_horizontal_margin;
+    FlowMargin expression_margin;
     
-    i32 variable_vertical_margin;
-    i32 variable_horizontal_margin;
+    FlowMargin variable_margin;
     
-    i32 statement_vertical_margin;
-    i32 statement_horizontal_margin;
+    FlowMargin statement_margin;
     
     i32 bending_radius;
     i32 if_middle_margin;
@@ -336,14 +339,14 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     flowifier->character_width = white_space_size.width;
     flowifier->character_height = white_space_size.height;
     
-    flowifier->expression_vertical_margin = 10;
-    flowifier->expression_horizontal_margin = 10;
+    flowifier->expression_margin.vertical = 10;
+    flowifier->expression_margin.horizontal = 14;
     
-    flowifier->variable_vertical_margin = 10;
-    flowifier->variable_horizontal_margin = 10;
+    flowifier->variable_margin.vertical = 10;
+    flowifier->variable_margin.horizontal = 14;
     
-    flowifier->statement_vertical_margin = 20;
-    flowifier->statement_horizontal_margin = 20;
+    flowifier->statement_margin.vertical = 20;
+    flowifier->statement_margin.horizontal = 20;
     
     flowifier->bending_radius = 20;
     flowifier->if_middle_margin = 80;
