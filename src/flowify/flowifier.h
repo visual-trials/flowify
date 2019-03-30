@@ -173,31 +173,51 @@ struct Flowifier
     FlowInteraction interaction;
     
     // Colors and line widths
+    
+    // FIXME: give these a better name: statement_line_color and statement_fill_color, statement_line_width
     Color4 line_color;
     Color4 text_color;
-    
-    Color4 unhighlighted_color;
-    Color4 highlighted_color;
     i32 line_width;
     
+    // TODO: make a separate struct for highlighted and unhighlighted colors, line widths!
+    Color4 unhighlighted_color;
+    Color4 highlighted_color;
+    
     b32 show_help_rectangles;
+    
+    // TODO: make a struct for 2 colors, 1 line width!
     Color4 help_rectangle_color;
     Color4 help_rectangle_fill;
     i32 help_rectangle_line_width;
     
+    // TODO: make a struct for 2 colors, 1 line width!
     Color4 hovered_color;
     Color4 hovered_fill;
     i32 hovered_line_width;
     
+    // TODO: make a struct for 2 colors, 1 line width!
     Color4 selected_color;
     Color4 selected_fill;
     i32 selected_line_width;
     
+    // TODO: make a struct for 3 colors, 1 line width!
     Color4 function_line_color;
     Color4 function_even_fill_color;
     Color4 function_odd_fill_color;
     i32 function_line_width;
     
+    // TODO: make a struct for 3 colors, 1 line width!
+    Color4 expression_line_color;
+    Color4 expression_even_fill_color;
+    Color4 expression_odd_fill_color;
+    i32 expression_line_width;
+    
+    // TODO: make a struct for 2 colors, 1 line width!
+    Color4 variable_line_color;
+    Color4 variable_fill_color;
+    i32 variable_line_width;
+    
+    // TODO: make a struct for 2 colors, 1 line width!
     Color4 detail_line_color;
     Color4 detail_fill_color;
     i32 detail_line_width;
@@ -207,6 +227,19 @@ struct Flowifier
     i32 character_width;
         
     // Layout, sizes
+    
+    i32 expression_vertical_margin;
+    i32 expression_horizontal_margin;
+    i32 expression_corner_radius;
+    
+    i32 variable_vertical_margin;
+    i32 variable_horizontal_margin;
+    i32 variable_corner_radius;
+    
+    i32 statement_vertical_margin;
+    i32 statement_horizontal_margin;
+    i32 statement_corner_radius;
+    
     i32 bending_radius;
     i32 if_middle_margin;
     i32 for_middle_margin;
@@ -256,6 +289,15 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     flowifier->function_odd_fill_color  = (Color4){ 245, 245, 245, 100}; // FIXME: remove alpha
     flowifier->function_line_width = 2;
     
+    flowifier->expression_line_color = (Color4){ 200, 255, 200, 255};
+    flowifier->expression_even_fill_color = (Color4){ 235, 255, 235, 255};
+    flowifier->expression_odd_fill_color  = (Color4){ 245, 255, 245, 255};
+    flowifier->expression_line_width = 2;
+    
+    flowifier->variable_line_color = (Color4){ 255, 200, 200, 255};
+    flowifier->variable_fill_color = (Color4){ 255, 235, 235, 255};
+    flowifier->variable_line_width = 2;
+    
     flowifier->detail_line_color = (Color4){ 200, 200, 200, 255};
     flowifier->detail_fill_color = (Color4){ 255, 255, 255, 200};
     flowifier->detail_line_width = 2;
@@ -267,6 +309,18 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     copy_char_to_string(' ', &white_space);
     Size2d white_space_size = get_text_size(&white_space, flowifier->font);
     flowifier->character_width = white_space_size.width;
+    
+    flowifier->expression_vertical_margin = 10;
+    flowifier->expression_horizontal_margin = 10;
+    flowifier->expression_corner_radius = 10;
+    
+    flowifier->variable_vertical_margin = 10;
+    flowifier->variable_horizontal_margin = 10;
+    flowifier->variable_corner_radius = 10;
+    
+    flowifier->statement_vertical_margin = 20;
+    flowifier->statement_horizontal_margin = 20;
+    flowifier->statement_corner_radius = 20;
     
     flowifier->bending_radius = 20;
     flowifier->if_middle_margin = 80;
