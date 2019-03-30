@@ -460,6 +460,9 @@ Node * parse_statement(Parser * parser)
         // For
         Node * for_node = start_node(parser, Node_Stmt_For, StartOnLatestToken);
         
+        // TODO: currently we set "for" as identifier of the for-cond expression to (later on) draw this text. We probably want to signify a for-keyword a different way.
+        Token * for_token = latest_eaten_token(parser);
+        
         expect_token(parser, Token_OpenParenteses);
         
         // For_Init
@@ -470,6 +473,7 @@ Node * parse_statement(Parser * parser)
         
         // For_Cond
         Node * cond_node = parse_child_expression_node(parser, Node_Stmt_For_Cond);
+        cond_node->identifier = for_token->text; // TODO: this is a little weird: the 'for'-token is not really part of the cond-expression
         add_child_node(cond_node, for_node);
         
         expect_token(parser, Token_Semicolon);
