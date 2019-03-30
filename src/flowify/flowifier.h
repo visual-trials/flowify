@@ -47,6 +47,7 @@ enum FlowElementType
     FlowElement_PassThrough,
     FlowElement_PassBack,
     
+    FlowElement_ReturnKeyword,
     FlowElement_Return,
     FlowElement_Break,
     FlowElement_Continue,
@@ -95,6 +96,7 @@ const char * flow_element_type_names[] = {
     "PassThrough",
     "PassBack",
     
+    "ReturnKeyword",
     "Return",
     "Break",
     "Continue",

@@ -121,8 +121,6 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
     }
     else if (flow_element->type == FlowElement_BinaryOperation)
     {
-        // FIXME: we are not using verical_margin and horizontal_margin for variables, expression or scalars here!
-        
         FlowElement * left_side_expression_element = flow_element->first_child;
         FlowElement * binary_operator_element = left_side_expression_element->next_sibling;
         FlowElement * right_side_expression_element = binary_operator_element->next_sibling;

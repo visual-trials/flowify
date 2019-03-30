@@ -364,10 +364,14 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
     {
         FlowElement * return_element = new_element(flowifier, statement_node, FlowElement_Return);
         
+        // Note: we set the ast-node of the return-keyword itself to the whole return-statement (because the keyword itself is not an ast-node by itself)
+        FlowElement * return_keyword_element = new_element(flowifier, statement_node, FlowElement_ReturnKeyword);
+        // TODO: we use the identifier of the statement (which is filled with the keyword itself) as the "source_text" of this element! (little dirty)
+        return_keyword_element->source_text = statement_node->identifier;
+        add_child_element(return_keyword_element, return_element);
+        
         Node * expression_node = statement_node->first_child;
-        
         FlowElement * new_expression_element = flowify_expression(flowifier, expression_node);
-        
         add_child_element(new_expression_element, return_element);
         
         return_element->first_in_flow = return_element;

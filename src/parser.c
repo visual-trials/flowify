@@ -573,6 +573,10 @@ Node * parse_statement(Parser * parser)
     {
         Node * return_node = start_node(parser, Node_Stmt_Return, StartOnLatestToken);
         
+        // TODO: currently we set "return" as identifier of the return expression to (later on) draw this text. We probably want to signify a return a different way.
+        Token * return_token = latest_eaten_token(parser);
+        return_node->identifier = return_token->text;
+            
         Node * return_expression_node = parse_expression(parser);
         
         add_child_node(return_expression_node, return_node);
