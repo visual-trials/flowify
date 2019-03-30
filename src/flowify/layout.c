@@ -92,11 +92,12 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         layout_elements(flowifier, assignment_operator_element);
         layout_elements(flowifier, right_side_expression_element);
 
-        i32 in_between_distance = 0;
-        i32 horizontal_margin = bending_radius;
-        i32 vertical_margin = bending_radius;
+        i32 in_between_distance = 0; // FIXME: put this in Flowifier!
+        i32 horizontal_margin = flowifier->expression_horizontal_margin;
+        i32 vertical_margin = flowifier->expression_vertical_margin;
 
-        flow_element->rect.size = layout_horizontally(&assignee_element->rect, &assignment_operator_element->rect, &right_side_expression_element->rect, in_between_distance, horizontal_margin, vertical_margin);
+        flow_element->rect.size = layout_horizontally(&assignee_element->rect, &assignment_operator_element->rect, &right_side_expression_element->rect, 
+                                                      in_between_distance, horizontal_margin, vertical_margin);
         
         flow_element->is_highlightable = true;
     }
