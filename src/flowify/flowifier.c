@@ -76,7 +76,6 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
 
             FlowElement * binary_operator_element = new_element(flowifier, expression_node, FlowElement_BinaryOperator);
             // TODO: we use the identifier of the expression (which is filled with the operator itself) as the "source_text" of this element! (little dirty)
-            // FIXME: this source_text is not filled!
             binary_operator_element->source_text = expression_node->identifier;
             add_child_element(binary_operator_element, binary_op_expression_element);
             
