@@ -223,7 +223,6 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         Pos2d current_position = start_position;
         
-        // TODO: we should layout if_cond to get its (proper) width and height
         if_cond_element->rect.position = current_position;
         if_cond_element->is_highlightable = true;
         
@@ -274,17 +273,15 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * for_passthrough_element = for_passdown_element->next_sibling;
         FlowElement * for_done_element = for_passthrough_element->next_sibling;
         
+        layout_elements(flowifier, for_init_element);
         layout_elements(flowifier, for_cond_element);
         layout_elements(flowifier, for_body_element);
+        layout_elements(flowifier, for_update_element);
         
-        // TODO: we should layout for_init to get its (proper) width and height
-        for_init_element->rect.size = get_size_based_on_source_text(flowifier, for_init_element, flowifier->statement_margin);
         for_init_element->is_highlightable = true;
         
         for_cond_element->is_highlightable = true;
         
-        // TODO: we should layout for_update to get its (proper) width and height
-        for_update_element->rect.size = get_size_based_on_source_text(flowifier, for_update_element, flowifier->statement_margin);
         for_update_element->is_highlightable = true;
         
         i32 for_body_height = for_body_element->rect.size.height;
@@ -434,7 +431,9 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
              flow_element->type == FlowElement_FunctionBody ||
              flow_element->type == FlowElement_IfThen ||
              flow_element->type == FlowElement_IfElse ||
-             flow_element->type == FlowElement_ForBody)
+             flow_element->type == FlowElement_ForInit ||
+             flow_element->type == FlowElement_ForBody ||
+             flow_element->type == FlowElement_ForUpdate)
     {
         // FIXME: position shouldnt be set here!
         flow_element->rect.position.x = 0;

@@ -282,6 +282,10 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     else if (flow_element->type == FlowElement_Variable ||
         flow_element->type == FlowElement_UnaryOperator)
     {
+        // FIXME: we should put bars on the sides of a UnaryExpression IF its a statement!!
+        // FIXME: we should put bars on the sides of a UnaryExpression IF its a statement!!
+        // FIXME: we should put bars on the sides of a UnaryExpression IF its a statement!!
+        
         draw_rectangle_element(flowifier, flow_element, flowifier->variable_style, true, true);
     }
     else if (flow_element->type == FlowElement_Scalar)
@@ -388,7 +392,8 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
 
         draw_straight_element(flowifier, for_start_element, for_start_element->previous_in_flow, for_init_element);
         
-        draw_straight_element(flowifier, for_init_element, for_start_element, 0);
+        draw_elements(flowifier, for_init_element);
+        // draw_straight_element(flowifier, for_init_element, for_start_element, 0);
         
         draw_joining_element(flowifier, for_init_element, for_passdown_element, for_join_element, for_cond_element);
         
@@ -400,7 +405,8 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         draw_elements(flowifier, for_body_element);
         
-        draw_straight_element(flowifier, for_update_element, for_body_element->last_in_flow, 0);
+        draw_elements(flowifier, for_update_element);
+        // draw_straight_element(flowifier, for_update_element, for_body_element->last_in_flow, 0);
         
         Rect2d update_rect = for_update_element->rect_abs;
         
@@ -477,7 +483,9 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
              flow_element->type == FlowElement_FunctionBody ||
              flow_element->type == FlowElement_IfThen ||
              flow_element->type == FlowElement_IfElse ||
-             flow_element->type == FlowElement_ForBody
+             flow_element->type == FlowElement_ForInit ||
+             flow_element->type == FlowElement_ForBody ||
+             flow_element->type == FlowElement_ForUpdate
              )
     {
         if (flow_element->type == FlowElement_Root)
