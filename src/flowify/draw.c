@@ -280,7 +280,8 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     {
         draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow);
     }
-    if (flow_element->type == FlowElement_Variable)
+    if (flow_element->type == FlowElement_Variable ||
+        flow_element->type == FlowElement_UnaryOperator)
     {
         draw_rectangle_element(flowifier, flow_element, flowifier->variable_style);
     }

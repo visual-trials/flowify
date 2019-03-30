@@ -103,6 +103,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
     }
     else if (flow_element->type == FlowElement_Variable ||
              flow_element->type == FlowElement_Scalar ||
+             flow_element->type == FlowElement_UnaryOperator ||
              flow_element->type == FlowElement_AssignmentOperator ||
              flow_element->type == FlowElement_Assignee)
     {
