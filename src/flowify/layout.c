@@ -34,6 +34,27 @@ Size2d get_size_based_on_source_text(Flowifier * flowifier, FlowElement * flow_e
 }
 
 // TODO: add ability to top, center or bottom vertically align
+Size2d layout_horizontally(Rect2d * first_rect, i32 in_between_distance, FlowMargin margin)
+{
+    Size2d outer_size = {};
+    
+    // Outer width and horizontal positions
+    i32 outer_width = margin.horizontal;
+    first_rect->position.x = outer_width;
+    outer_width += first_rect->size.width + margin.horizontal;
+    outer_size.width = outer_width;
+    
+    // Outer height
+    i32 largest_height = first_rect->size.height;
+    outer_size.height = margin.vertical + largest_height + margin.vertical;
+    
+    // Vertical positions (center aligned)
+    first_rect->position.y = margin.vertical + (largest_height / 2) - (first_rect->size.height / 2);
+    
+    return outer_size;
+}
+
+// TODO: add ability to top, center or bottom vertically align
 Size2d layout_horizontally(Rect2d * first_rect, Rect2d * second_rect, i32 in_between_distance, FlowMargin margin)
 {
     Size2d outer_size = {};
@@ -115,9 +136,21 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         flow_element->rect.size.width = default_element_width / 2;
         flow_element->rect.size.height = default_element_height;
     }
+    else if (flow_element->type == FlowElement_IfCond)
+    {
+        FlowElement * expression_element = flow_element->first_child;
+        
+        layout_elements(flowifier, expression_element);
+
+        i32 in_between_distance = 0; // FIXME: put this in Flowifier!
+
+        // TODO: only one element, so layout_horizontally doesn't really make sense here (but it does add margins)
+        flow_element->rect.size = layout_horizontally(&expression_element->rect, in_between_distance, flowifier->expression_margin);
+        
+        flow_element->is_highlightable = true;
+    }
     else if (flow_element->type == FlowElement_Assignment)
     {
-        // FIXME: we are not using verical_margin and horizontal_margin for variables, expression or scalars here!
         FlowElement * assignee_element = flow_element->first_child;
         FlowElement * assignment_operator_element = assignee_element->next_sibling;
         FlowElement * right_side_expression_element = assignment_operator_element->next_sibling;
@@ -418,7 +451,6 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
     }
     else if (flow_element->type == FlowElement_Root ||
              flow_element->type == FlowElement_FunctionBody ||
-             flow_element->type == FlowElement_IfCond ||   // TODO: IfCond doesn't contain statement as children (like the others do). Instead it contains 1 expression.
              flow_element->type == FlowElement_IfThen ||
              flow_element->type == FlowElement_IfElse ||
              flow_element->type == FlowElement_ForBody)
