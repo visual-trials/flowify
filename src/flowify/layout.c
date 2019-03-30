@@ -105,6 +105,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
     else if (flow_element->type == FlowElement_Variable ||
              flow_element->type == FlowElement_Scalar ||
              flow_element->type == FlowElement_UnaryOperator ||
+             flow_element->type == FlowElement_BinaryOperator ||
              flow_element->type == FlowElement_AssignmentOperator ||
              flow_element->type == FlowElement_Assignee)
     {
@@ -113,12 +114,27 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         flow_element->rect.size.height = default_element_height;
         flow_element->is_highlightable = true;
     }
-    else if (flow_element->type == FlowElement_BinaryOperator)
+    else if (flow_element->type == FlowElement_BinaryOperation)
     {
         // FIXME: we are not using verical_margin and horizontal_margin for variables, expression or scalars here!
-        flow_element->rect.size.width = get_width_based_on_source_text(flowifier, flow_element);
-        flow_element->rect.size.height = default_element_height;
+        
+        FlowElement * left_side_expression_element = flow_element->first_child;
+        FlowElement * binary_operator_element = left_side_expression_element->next_sibling;
+        FlowElement * right_side_expression_element = binary_operator_element->next_sibling;
+        
+        layout_elements(flowifier, left_side_expression_element);
+        layout_elements(flowifier, binary_operator_element);
+        layout_elements(flowifier, right_side_expression_element);
+
+        i32 in_between_distance = 0; // FIXME: put this in Flowifier!
+        i32 horizontal_margin = flowifier->expression_horizontal_margin;
+        i32 vertical_margin = flowifier->expression_vertical_margin;
+
+        flow_element->rect.size = layout_horizontally(&left_side_expression_element->rect, &binary_operator_element->rect, &right_side_expression_element->rect, 
+                                                      in_between_distance, horizontal_margin, vertical_margin);
+        
         flow_element->is_highlightable = true;
+        
     }
     else if (flow_element->type == FlowElement_Return)
     {

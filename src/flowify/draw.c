@@ -238,7 +238,7 @@ FlowStyle get_style_by_oddness(FlowStyleEvenOdd style_even_odd, b32 is_odd)
     return style;
 }
 
-void draw_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, FlowStyle style, b32 draw_rectangle = true)
+void draw_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, FlowStyle style, b32 draw_rectangle, b32 draw_source_text)
 {
     Color4 fill_color = style.fill_color;
     if (flowifier->interaction.highlighted_element_index == flow_element->index)
@@ -251,7 +251,7 @@ void draw_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, F
         draw_rounded_rectangle(flow_element->rect_abs, style.corner_radius, style.line_color, fill_color, style.line_width);
     }
     
-    if (flow_element->source_text.length)
+    if (draw_source_text && flow_element->source_text.length)
     {
         Size2d source_text_size = get_text_size(&flow_element->source_text, flowifier->font);
         
@@ -283,18 +283,28 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     if (flow_element->type == FlowElement_Variable ||
         flow_element->type == FlowElement_UnaryOperator)
     {
-        draw_rectangle_element(flowifier, flow_element, flowifier->variable_style);
+        draw_rectangle_element(flowifier, flow_element, flowifier->variable_style, true, true);
     }
     if (flow_element->type == FlowElement_Scalar)
     {
-        draw_rectangle_element(flowifier, flow_element, flowifier->scalar_style);
+        draw_rectangle_element(flowifier, flow_element, flowifier->scalar_style, true, true);
     }
-    if (flow_element->type == FlowElement_BinaryOperator)
+    if (flow_element->type == FlowElement_BinaryOperation)
     {
         i32 expression_depth = 1; // FIXME: fill this with the depth of the expression-stack! We should probably store this in FlowElement
-        // TODO: create a wrapper around these two functions: draw_rectangle_expression_element
         FlowStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
-        draw_rectangle_element(flowifier, flow_element, expression_style);
+        
+        FlowElement * left_side_expression_element = flow_element->first_child;
+        FlowElement * binary_operator_element = left_side_expression_element->next_sibling;
+        FlowElement * right_side_expression_element = binary_operator_element->next_sibling;
+        
+        draw_rectangle_element(flowifier, flow_element, expression_style, true, false);
+        
+        // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
+        draw_elements(flowifier, left_side_expression_element);
+        draw_rectangle_element(flowifier, binary_operator_element, expression_style, false, true);
+        // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
+        draw_elements(flowifier, right_side_expression_element);
     }
     else if (flow_element->type == FlowElement_Assignment)
     {
@@ -308,8 +318,8 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         // TODO: use expression_style here too
         draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, false);
         
-        draw_rectangle_element(flowifier, assignee_element, flowifier->variable_style);
-        draw_rectangle_element(flowifier, assignment_operator_element, expression_style, false);
+        draw_rectangle_element(flowifier, assignee_element, flowifier->variable_style, true, true);
+        draw_rectangle_element(flowifier, assignment_operator_element, expression_style, false, true);
         // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
         draw_elements(flowifier, right_side_expression_element);
     }

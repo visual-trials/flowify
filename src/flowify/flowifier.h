@@ -57,6 +57,7 @@ enum FlowElementType
     FlowElement_Assignee,
     FlowElement_AssignmentOperator,
     FlowElement_UnaryOperator,
+    FlowElement_BinaryOperation,
     FlowElement_BinaryOperator,
     FlowElement_FunctionCall,   // TODO: is this redundant?
     FlowElement_Variable,
@@ -104,6 +105,7 @@ const char * flow_element_type_names[] = {
     "Assignee",
     "AssignmentOperator",
     "UnaryOperator",
+    "BinaryOperation",
     "BinaryOperator",
     "FunctionCall",   // TODO: is this redundant?
     "Variable",

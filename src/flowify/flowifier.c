@@ -69,11 +69,17 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
                  expression_node->type == Node_Expr_BinaryOp_Greater ||
                  expression_node->type == Node_Expr_BinaryOp_Equal)
         {
-            FlowElement * binary_op_expression_element = new_element(flowifier, expression_node, FlowElement_BinaryOperator);
+            FlowElement * binary_op_expression_element = new_element(flowifier, expression_node, FlowElement_BinaryOperation);
             
             FlowElement * left_operand_element = flowify_expression(flowifier, expression_node->first_child);
             add_child_element(left_operand_element, binary_op_expression_element);
 
+            FlowElement * binary_operator_element = new_element(flowifier, expression_node, FlowElement_BinaryOperator);
+            // TODO: we use the identifier of the expression (which is filled with the operator itself) as the "source_text" of this element! (little dirty)
+            // FIXME: this source_text is not filled!
+            binary_operator_element->source_text = expression_node->identifier;
+            add_child_element(binary_operator_element, binary_op_expression_element);
+            
             FlowElement * right_operand_element = flowify_expression(flowifier, expression_node->first_child->next_sibling);
             add_child_element(right_operand_element, binary_op_expression_element);
             
