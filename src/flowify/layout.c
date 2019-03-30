@@ -168,15 +168,15 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
     else if (flow_element->type == FlowElement_Return)
     {
         FlowElement * return_keyword_element = flow_element->first_child;
-        FlowElement * return_expression = return_keyword_element->next_sibling;
+        FlowElement * return_expression_element = return_keyword_element->next_sibling;
         
         return_keyword_element->rect.size = get_size_based_on_source_text(flowifier, return_keyword_element, flowifier->variable_margin);
         
-        layout_elements(flowifier, return_expression);
+        layout_elements(flowifier, return_expression_element);
         
         i32 in_between_distance = 0; // FIXME: put this in Flowifier!
 
-        flow_element->rect.size = layout_horizontally(&return_keyword_element->rect, &return_expression->rect, 
+        flow_element->rect.size = layout_horizontally(&return_keyword_element->rect, &return_expression_element->rect, 
                                                       in_between_distance, flowifier->expression_margin);
                                                       
         flow_element->is_highlightable = true;
