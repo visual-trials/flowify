@@ -34,6 +34,34 @@ Size2d get_size_based_on_source_text(Flowifier * flowifier, FlowElement * flow_e
 }
 
 // TODO: add ability to top, center or bottom vertically align
+Size2d layout_horizontally(Rect2d * first_rect, Rect2d * second_rect, i32 in_between_distance, FlowMargin margin)
+{
+    Size2d outer_size = {};
+    
+    // Outer width and horizontal positions
+    i32 outer_width = margin.horizontal;
+    first_rect->position.x = outer_width;
+    outer_width += first_rect->size.width + in_between_distance;
+    second_rect->position.x = outer_width;
+    outer_width += second_rect->size.width + margin.horizontal;
+    outer_size.width = outer_width;
+    
+    // Outer height
+    i32 largest_height = first_rect->size.height;
+    if (second_rect->size.height > largest_height)
+    {
+        largest_height = second_rect->size.height;
+    }
+    outer_size.height = margin.vertical + largest_height + margin.vertical;
+    
+    // Vertical positions (center aligned)
+    first_rect->position.y = margin.vertical + (largest_height / 2) - (first_rect->size.height / 2);
+    second_rect->position.y = margin.vertical + (largest_height / 2) - (second_rect->size.height / 2);
+    
+    return outer_size;
+}
+
+// TODO: add ability to top, center or bottom vertically align
 Size2d layout_horizontally(Rect2d * first_rect, Rect2d * second_rect, Rect2d * third_rect, i32 in_between_distance, FlowMargin margin)
 {
     Size2d outer_size = {};
@@ -139,8 +167,18 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
     }
     else if (flow_element->type == FlowElement_Return)
     {
-        // TODO: properly flowify the return statement (and not use the size of its source here)
-        flow_element->rect.size = get_size_based_on_source_text(flowifier, flow_element, flowifier->statement_margin);
+        FlowElement * return_keyword_element = flow_element->first_child;
+        FlowElement * return_expression = return_keyword_element->next_sibling;
+        
+        return_keyword_element->rect.size = get_size_based_on_source_text(flowifier, return_keyword_element, flowifier->variable_margin);
+        
+        layout_elements(flowifier, return_expression);
+        
+        i32 in_between_distance = 0; // FIXME: put this in Flowifier!
+
+        flow_element->rect.size = layout_horizontally(&return_keyword_element->rect, &return_expression->rect, 
+                                                      in_between_distance, flowifier->expression_margin);
+                                                      
         flow_element->is_highlightable = true;
     }
     else if (flow_element->type == FlowElement_If)
