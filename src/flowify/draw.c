@@ -219,9 +219,28 @@ void draw_straight_element(Flowifier * flowifier, FlowElement * flow_element, Fl
     draw_element_rectangle(flowifier, flow_element);
 }
 
-void draw_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, b32 draw_rectangle = true)
+FlowStyle get_style_by_oddness(FlowStyleEvenOdd style_even_odd, b32 is_odd)
 {
-    Color4 fill_color = flowifier->unhighlighted_color;
+    FlowStyle style = {};
+    style.line_color = style_even_odd.line_color;
+    style.corner_radius = style_even_odd.corner_radius;
+    style.line_width = style_even_odd.line_width;
+    
+    if (is_odd)
+    {
+        style.fill_color = style_even_odd.odd_fill_color;
+    }
+    else
+    {
+        style.fill_color = style_even_odd.even_fill_color;
+    }
+    
+    return style;
+}
+
+void draw_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, FlowStyle style, b32 draw_rectangle = true)
+{
+    Color4 fill_color = style.fill_color;
     if (flowifier->interaction.highlighted_element_index == flow_element->index)
     {
         fill_color = flowifier->highlighted_color;
@@ -229,7 +248,7 @@ void draw_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, b
     
     if (draw_rectangle)
     {
-        draw_rounded_rectangle(flow_element->rect_abs, flowifier->bending_radius, flowifier->line_color, fill_color, flowifier->line_width);
+        draw_rounded_rectangle(flow_element->rect_abs, style.corner_radius, style.line_color, fill_color, style.line_width);
     }
     
     if (flow_element->source_text.length)
@@ -261,21 +280,36 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     {
         draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow);
     }
-    if (flow_element->type == FlowElement_Scalar ||
-        flow_element->type == FlowElement_BinaryOperator)
+    if (flow_element->type == FlowElement_Variable)
     {
-        draw_rectangle_element(flowifier, flow_element);
+        draw_rectangle_element(flowifier, flow_element, flowifier->variable_style);
+    }
+    if (flow_element->type == FlowElement_Scalar)
+    {
+        draw_rectangle_element(flowifier, flow_element, flowifier->scalar_style);
+    }
+    if (flow_element->type == FlowElement_BinaryOperator)
+    {
+        i32 expression_depth = 1; // FIXME: fill this with the depth of the expression-stack! We should probably store this in FlowElement
+        // TODO: create a wrapper around these two functions: draw_rectangle_expression_element
+        FlowStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
+        draw_rectangle_element(flowifier, flow_element, expression_style);
     }
     else if (flow_element->type == FlowElement_Assignment)
     {
+        i32 expression_depth = 0; // FIXME: fill this with the depth of the expression-stack! We should probably store this in FlowElement
+        FlowStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
+        
         FlowElement * assignee_element = flow_element->first_child;
         FlowElement * assignment_operator_element = assignee_element->next_sibling;
         FlowElement * right_side_expression_element = assignment_operator_element->next_sibling;
         
+        // TODO: use expression_style here too
         draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, false);
         
-        draw_rectangle_element(flowifier, assignee_element);
-        draw_rectangle_element(flowifier, assignment_operator_element, false);
+        draw_rectangle_element(flowifier, assignee_element, flowifier->variable_style);
+        draw_rectangle_element(flowifier, assignment_operator_element, expression_style, false);
+        // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
         draw_elements(flowifier, right_side_expression_element);
     }
     else if (flow_element->type == FlowElement_If)

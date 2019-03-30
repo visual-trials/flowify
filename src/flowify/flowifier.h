@@ -191,14 +191,16 @@ struct Flowifier
     
     // Colors and line widths
     
+    Color4 text_color;
+    
     // FIXME: give these a better name: statement_line_color and statement_fill_color, statement_line_width
     Color4 line_color;
-    Color4 text_color;
+    // FIXME: isnt the unhighlighted_color == statement_fill_color?
+    Color4 unhighlighted_color;
     i32 statement_corner_radius;
     i32 line_width;
     
-    // TODO: make a separate struct for highlighted and unhighlighted colors, line widths!
-    Color4 unhighlighted_color;
+    // TODO: should we add highlighted_color to the Style struct? or is the highlighted_color the same for alle types of elements?
     Color4 highlighted_color;
     
     b32 show_help_rectangles;
@@ -227,6 +229,8 @@ struct Flowifier
     FlowStyleEvenOdd expression_style;
     
     FlowStyle variable_style;
+    
+    FlowStyle scalar_style;
     
     // TODO: make a struct for 2 colors, 1 line width!
     Color4 detail_line_color;
@@ -277,6 +281,7 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     flowifier->statement_corner_radius = 20;
     flowifier->line_width = 4;
     
+    // FIXME: isnt the unhighlighted_color == statement_fill_color?
     flowifier->unhighlighted_color = (Color4){180, 180, 255, 255};
     flowifier->highlighted_color   = (Color4){180, 255, 180, 255};
     
@@ -308,6 +313,12 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     flowifier->variable_style.fill_color = (Color4){ 255, 235, 235, 255};
     flowifier->variable_style.corner_radius = 10;
     flowifier->variable_style.line_width = 2;
+    
+    flowifier->scalar_style.line_color = (Color4){ 255, 150, 150, 255};
+    flowifier->scalar_style.fill_color = (Color4){ 255, 200, 200, 255};
+    flowifier->scalar_style.corner_radius = 10;
+    flowifier->scalar_style.line_width = 2;
+    
     
     flowifier->detail_line_color = (Color4){ 200, 200, 200, 255};
     flowifier->detail_fill_color = (Color4){ 255, 255, 255, 200};
