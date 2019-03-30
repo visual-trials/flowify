@@ -142,6 +142,10 @@ Node * parse_binary_op_expression(Parser * parser, NodeType node_type, Node * le
     // We set the first_token_index of the binary_expression to the first_token_index of the left_sub_expression
     binary_expression_node->first_token_index = left_sub_expression->first_token_index;
     
+    // The binary operator acts as the identifier of the binary-expression (note: we assume its has just been comsumed, so we get the latest token)
+    Token * binary_operator_token = latest_eaten_token(parser);
+    binary_expression_node->identifier = binary_operator_token->text;
+    
     Node * right_sub_expression = parse_sub_expression(parser);
     add_child_node(left_sub_expression, binary_expression_node);
     add_child_node(right_sub_expression, binary_expression_node);
