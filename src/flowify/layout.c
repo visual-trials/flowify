@@ -84,6 +84,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
     }
     else if (flow_element->type == FlowElement_Assignment)
     {
+        // FIXME: we are not using verical_margin and horizontal_margin for variables, expression or scalars here!
         FlowElement * assignee_element = flow_element->first_child;
         FlowElement * assignment_operator_element = assignee_element->next_sibling;
         FlowElement * right_side_expression_element = assignment_operator_element->next_sibling;
@@ -107,12 +108,14 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
              flow_element->type == FlowElement_AssignmentOperator ||
              flow_element->type == FlowElement_Assignee)
     {
+        // FIXME: we are not using verical_margin and horizontal_margin for variables, expression or scalars here!
         flow_element->rect.size.width = get_width_based_on_source_text(flowifier, flow_element);
         flow_element->rect.size.height = default_element_height;
         flow_element->is_highlightable = true;
     }
     else if (flow_element->type == FlowElement_BinaryOperator)
     {
+        // FIXME: we are not using verical_margin and horizontal_margin for variables, expression or scalars here!
         flow_element->rect.size.width = get_width_based_on_source_text(flowifier, flow_element);
         flow_element->rect.size.height = default_element_height;
         flow_element->is_highlightable = true;
