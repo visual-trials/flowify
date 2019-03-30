@@ -275,21 +275,34 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     
     // TODO: we probably want flags here!
     if (flow_element->type == FlowElement_PassThrough || 
-        flow_element->type == FlowElement_Hidden ||
-        flow_element->type == FlowElement_Return)
+        flow_element->type == FlowElement_Hidden)
     {
         draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow);
     }
-    if (flow_element->type == FlowElement_Variable ||
+    else if (flow_element->type == FlowElement_Variable ||
         flow_element->type == FlowElement_UnaryOperator)
     {
         draw_rectangle_element(flowifier, flow_element, flowifier->variable_style, true, true);
     }
-    if (flow_element->type == FlowElement_Scalar)
+    else if (flow_element->type == FlowElement_Scalar)
     {
         draw_rectangle_element(flowifier, flow_element, flowifier->scalar_style, true, true);
     }
-    if (flow_element->type == FlowElement_BinaryOperation)
+    else if (flow_element->type == FlowElement_Return)
+    {
+        i32 expression_depth = 0; // FIXME: fill this with the depth of the expression-stack! We should probably store this in FlowElement
+        FlowStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
+        
+        FlowElement * return_keyword_element = flow_element->first_child;
+        FlowElement * return_expression_element = return_keyword_element->next_sibling;
+        
+        draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, false);
+        
+        draw_rectangle_element(flowifier, return_keyword_element, expression_style, false, true);
+        // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
+        draw_elements(flowifier, return_expression_element);
+    }
+    else if (flow_element->type == FlowElement_BinaryOperation)
     {
         i32 expression_depth = 1; // FIXME: fill this with the depth of the expression-stack! We should probably store this in FlowElement
         FlowStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
