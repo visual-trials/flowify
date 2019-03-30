@@ -189,6 +189,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * if_else_element = if_then_element->next_sibling;
         FlowElement * if_join_element = if_else_element->next_sibling;
         
+        layout_elements(flowifier, if_cond_element);
         layout_elements(flowifier, if_then_element);
         layout_elements(flowifier, if_else_element);
         
@@ -206,8 +207,9 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         Pos2d current_position = start_position;
         
+        // TODO: we should layout if_cond to get its (proper) width and height
         if_cond_element->rect.position = current_position;
-        if_cond_element->rect.size = get_size_based_on_source_text(flowifier, if_cond_element, flowifier->statement_margin);
+        // if_cond_element->rect.size = get_size_based_on_source_text(flowifier, if_cond_element, flowifier->statement_margin);
         if_cond_element->is_highlightable = true;
         
         current_position.y += if_cond_element->rect.size.height;
@@ -416,6 +418,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
     }
     else if (flow_element->type == FlowElement_Root ||
              flow_element->type == FlowElement_FunctionBody ||
+             flow_element->type == FlowElement_IfCond ||   // TODO: IfCond doesn't contain statement as children (like the others do). Instead it contains 1 expression.
              flow_element->type == FlowElement_IfThen ||
              flow_element->type == FlowElement_IfElse ||
              flow_element->type == FlowElement_ForBody)
