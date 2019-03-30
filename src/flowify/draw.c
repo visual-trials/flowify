@@ -288,6 +288,20 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     {
         draw_rectangle_element(flowifier, flow_element, flowifier->scalar_style, true, true);
     }
+    else if (flow_element->type == FlowElement_IfCond)
+    {
+        i32 expression_depth = 0; // FIXME: fill this with the depth of the expression-stack! We should probably store this in FlowElement
+        FlowStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
+        
+        FlowElement * if_keyword_element = flow_element->first_child;
+        FlowElement * cond_expression_element = if_keyword_element->next_sibling;
+        
+        draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, false);
+        
+        draw_rectangle_element(flowifier, if_keyword_element, expression_style, false, true);
+        // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
+        draw_elements(flowifier, cond_expression_element);
+    }
     else if (flow_element->type == FlowElement_Return)
     {
         i32 expression_depth = 0; // FIXME: fill this with the depth of the expression-stack! We should probably store this in FlowElement
@@ -458,7 +472,6 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     }
     else if (flow_element->type == FlowElement_Root ||
              flow_element->type == FlowElement_FunctionBody ||
-             flow_element->type == FlowElement_IfCond ||
              flow_element->type == FlowElement_IfThen ||
              flow_element->type == FlowElement_IfElse ||
              flow_element->type == FlowElement_ForBody

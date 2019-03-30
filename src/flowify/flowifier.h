@@ -26,6 +26,7 @@ enum FlowElementType
     FlowElement_FunctionBody,
     
     FlowElement_If,
+    FlowElement_IfKeyword,
     FlowElement_IfCond,
     FlowElement_IfSplit,
     FlowElement_IfThen,
@@ -47,8 +48,8 @@ enum FlowElementType
     FlowElement_PassThrough,
     FlowElement_PassBack,
     
-    FlowElement_ReturnKeyword,
     FlowElement_Return,
+    FlowElement_ReturnKeyword,
     FlowElement_Break,
     FlowElement_Continue,
     
@@ -75,6 +76,7 @@ const char * flow_element_type_names[] = {
     "FunctionBody",
     
     "If",
+    "IfKeyword",
     "IfCond",
     "IfSplit",
     "IfThen",
@@ -96,8 +98,8 @@ const char * flow_element_type_names[] = {
     "PassThrough",
     "PassBack",
     
-    "ReturnKeyword",
     "Return",
+    "ReturnKeyword",
     "Break",
     "Continue",
     

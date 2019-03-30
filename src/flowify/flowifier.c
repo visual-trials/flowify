@@ -172,6 +172,13 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         Node * if_else_node = if_then_node->next_sibling;
         
         FlowElement * if_cond_element = new_element(flowifier, if_cond_node, FlowElement_IfCond); 
+        
+        // Note: we set the ast-node of the if-keyword itself to the whole if-cond-expression (because the keyword itself is not an ast-node by itself)
+        FlowElement * if_keyword_element = new_element(flowifier, if_cond_node, FlowElement_IfKeyword);
+        // TODO: we use the identifier of the if-cond-expression (which is filled with the keyword itself) as the "source_text" of this element! (little dirty)
+        if_keyword_element->source_text = if_cond_node->identifier;
+        add_child_element(if_keyword_element, if_cond_element);
+        
         if (if_cond_node && if_cond_node->first_child)
         {
             FlowElement * cond_expression_element = flowify_expression(flowifier, if_cond_node->first_child);
@@ -256,6 +263,7 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         FlowElement * for_join_element = new_element(flowifier, 0, FlowElement_ForJoin); 
         
         FlowElement * for_cond_element = new_element(flowifier, for_cond_node, FlowElement_ForCond); 
+        // Add for-keyword as child element here!
         if (for_cond_node && for_cond_node->first_child)
         {
             FlowElement * cond_expression_element = flowify_expression(flowifier, for_cond_node->first_child);

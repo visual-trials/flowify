@@ -426,10 +426,14 @@ Node * parse_statement(Parser * parser)
         
         // Note: we do not allow single-line bodies atm (without braces)
 
+        // TODO: currently we set "if" as identifier of the if-cond expression to (later on) draw this text. We probably want to signify a if-keyword a different way.
+        Token * if_token = latest_eaten_token(parser);
+        
         // If-condition
         expect_token(parser, Token_OpenParenteses);
         
         Node * condition_node = parse_child_expression_node(parser, Node_Stmt_If_Cond);
+        condition_node->identifier = if_token->text; // TODO: this is a little weird: the 'if'-token is not really part of the cond-expression
         add_child_node(condition_node, if_node);
        
         expect_token(parser, Token_CloseParenteses);
