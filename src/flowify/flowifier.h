@@ -242,6 +242,7 @@ struct Flowifier
     // Font
     Font font;
     i32 character_width;
+    i32 character_height;
         
     // Layout, sizes
     
@@ -333,6 +334,7 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     copy_char_to_string(' ', &white_space);
     Size2d white_space_size = get_text_size(&white_space, flowifier->font);
     flowifier->character_width = white_space_size.width;
+    flowifier->character_height = white_space_size.height;
     
     flowifier->expression_vertical_margin = 10;
     flowifier->expression_horizontal_margin = 10;
