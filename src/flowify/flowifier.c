@@ -440,27 +440,17 @@ void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
                     
                 if (!parent_element->first_child)
                 {
-                    add_child_element(new_statement_element, parent_element);
-                    
                     // The first element is found, we assume its also the first_in_flow
                     parent_element->first_in_flow = new_statement_element;
-                    // We have only found one child (yet) so we assume its also the last_in_flow
-                    parent_element->last_in_flow = new_statement_element;
-                }
-                else 
-                {
-                    // FIXME: replace this using the new add_child_element-function and remove previous_statement_element!
-                    if (previous_statement_element)
-                    {
-                        previous_statement_element->next_sibling = new_statement_element;
-                    }
-                    new_statement_element->previous_sibling = previous_statement_element;
-                    new_statement_element->parent = parent_element;
                     
-                    // We found a new element and we already have children, so we only set last_in_flow
-                    parent_element->last_in_flow = new_statement_element;
                 }
                 
+                add_child_element(new_statement_element, parent_element);
+                
+                // We have found another child so we assume its also the last_in_flow
+                parent_element->last_in_flow = new_statement_element;
+                
+                // We set the last_in_flow of the previous child to be flowing towards the first_in_flow of the current child
                 if (previous_statement_element)
                 {
                     previous_statement_element->last_in_flow->next_in_flow = new_statement_element->first_in_flow;
