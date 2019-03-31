@@ -277,7 +277,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     if (flow_element->type == FlowElement_PassThrough || 
         flow_element->type == FlowElement_Hidden)
     {
-        draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow);
+        draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, false);
     }
     else if (flow_element->type == FlowElement_Variable ||
         flow_element->type == FlowElement_UnaryOperator)
@@ -365,7 +365,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * if_join_element = if_else_element->next_sibling;
 
         // TODO: we  draw the if-cond in a way so that the side-lines are drawn AND the if-cond-expression is drawn
-        draw_straight_element(flowifier, if_cond_element, if_cond_element->previous_in_flow, if_split_element);
+        draw_straight_element(flowifier, if_cond_element, if_cond_element->previous_in_flow, if_split_element, false);
         draw_elements(flowifier, if_cond_element);
         
         draw_splitting_element(flowifier, if_else_element->first_in_flow, if_then_element->first_in_flow, if_split_element, if_cond_element);
@@ -390,7 +390,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * for_passthrough_element = for_passdown_element->next_sibling;
         FlowElement * for_done_element = for_passthrough_element->next_sibling;
 
-        draw_straight_element(flowifier, for_start_element, for_start_element->previous_in_flow, for_init_element);
+        draw_straight_element(flowifier, for_start_element, for_start_element->previous_in_flow, for_init_element, false);
         
         draw_elements(flowifier, for_init_element);
         // draw_straight_element(flowifier, for_init_element, for_start_element, 0);
@@ -398,7 +398,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_joining_element(flowifier, for_init_element, for_passdown_element, for_join_element, for_cond_element);
         
         // TODO: we  draw the if-cond in a way so that the side-lines are drawn AND the if-cond-expression is drawn
-        draw_straight_element(flowifier, for_cond_element, for_join_element, for_split_element);
+        draw_straight_element(flowifier, for_cond_element, for_join_element, for_split_element, false);
         draw_elements(flowifier, for_cond_element);
         
         draw_splitting_element(flowifier, for_passthrough_element, for_body_element->first_in_flow, for_split_element, for_cond_element);
@@ -443,8 +443,8 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_element_rectangle(flowifier, for_passleft_element);
         draw_element_rectangle(flowifier, for_passdown_element);
         
-        draw_straight_element(flowifier, for_passthrough_element, 0, for_done_element);
-        draw_straight_element(flowifier, for_done_element, for_passthrough_element, for_done_element->next_in_flow);
+        draw_straight_element(flowifier, for_passthrough_element, 0, for_done_element, false);
+        draw_straight_element(flowifier, for_done_element, for_passthrough_element, for_done_element->next_in_flow, false);
     }
     else if (flow_element->type == FlowElement_Foreach)
     {
@@ -458,12 +458,9 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         rect.position.y += flowifier->bending_radius;
         rect.size.height -= flowifier->bending_radius * 2;
         
-        if (flow_element->type == FlowElement_FunctionCall)
-        {
-            // TODO: determine fill color depending on odd/even depth
-            draw_rounded_rectangle(rect, flowifier->bending_radius, 
-                                   flowifier->function_line_color, flowifier->function_even_fill_color, flowifier->function_line_width);
-        }
+        // TODO: determine fill color depending on odd/even depth
+        draw_rounded_rectangle(rect, flowifier->bending_radius, 
+                               flowifier->function_line_color, flowifier->function_even_fill_color, flowifier->function_line_width);
 
         draw_element_rectangle(flowifier, flow_element);
         
