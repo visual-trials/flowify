@@ -205,6 +205,12 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * if_else_element = if_then_element->next_sibling;
         FlowElement * if_join_element = if_else_element->next_sibling;
         
+        // FIXME: we should compute this based on the max width of: the splitter, if-then and if-else (+ several bending radius)
+        //        note that the top and bottom vertical margin could be different!
+        i32 vertical_margin = 150; 
+        
+        // Sizing
+        
         layout_elements(flowifier, if_cond_element);
         layout_elements(flowifier, if_then_element);
         layout_elements(flowifier, if_else_element);
@@ -215,10 +221,14 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
             then_else_height = if_else_element->rect.size.height;
         }
         
-        // FIXME: we should compute this based on the max width of: the splitter, if-then and if-else (+ several bending radius)
-        //        note that the top and bottom vertical margin could be different!
-        i32 vertical_margin = 150; 
+        if_split_element->rect.size.height = 2 * bending_radius;
+        if_split_element->rect.size.width = default_element_width;
 
+        if_join_element->rect.size.width = default_element_width;
+        if_join_element->rect.size.height = 2 * bending_radius;
+        
+        // Positioning
+        
         Pos2d start_position = {0,0};
         
         Pos2d current_position = start_position;
@@ -229,8 +239,6 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         current_position.y += if_cond_element->rect.size.height;
         
         if_split_element->rect.position = current_position;
-        if_split_element->rect.size.height = 2 * bending_radius;
-        if_split_element->rect.size.width = default_element_width;
         
         current_position.y += if_split_element->rect.size.height + vertical_margin;
         
@@ -246,8 +254,6 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         current_position.y += then_else_height + vertical_margin;
         
         if_join_element->rect.position = current_position;
-        if_join_element->rect.size.width = default_element_width;
-        if_join_element->rect.size.height = 2 * bending_radius;
         
         current_position.y += if_join_element->rect.size.height;
         
@@ -273,17 +279,6 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * for_passthrough_element = for_passdown_element->next_sibling;
         FlowElement * for_done_element = for_passthrough_element->next_sibling;
         
-        layout_elements(flowifier, for_init_element);
-        layout_elements(flowifier, for_cond_element);
-        layout_elements(flowifier, for_body_element);
-        layout_elements(flowifier, for_update_element);
-        
-        for_init_element->is_highlightable = true;
-        
-        for_cond_element->is_highlightable = true;
-        
-        for_update_element->is_highlightable = true;
-        
         i32 for_body_height = for_body_element->rect.size.height;
         
         i32 for_passback_width = 50; // TODO: should actually depend on the number of data lines going through it
@@ -295,6 +290,46 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         i32 middle_margin = 4 * bending_radius;
         i32 vertical_margin = 50; // FIXME: need to calculate this properly!
 
+        // Sizing
+        
+        layout_elements(flowifier, for_init_element);
+        layout_elements(flowifier, for_cond_element);
+        layout_elements(flowifier, for_body_element);
+        layout_elements(flowifier, for_update_element);
+        
+        for_init_element->is_highlightable = true;
+        for_cond_element->is_highlightable = true;
+        for_update_element->is_highlightable = true;
+        
+        for_start_element->rect.size.height = 2 * bending_radius;
+        for_start_element->rect.size.width = width_center_elements;
+        
+        for_join_element->rect.size.height = 2 * bending_radius;
+        for_join_element->rect.size.width = width_center_elements;
+        
+        for_split_element->rect.size.height = 2 * bending_radius;
+        for_split_element->rect.size.width = width_center_elements;
+
+        for_passright_element->rect.size.height = for_passback_width;
+        for_passright_element->rect.size.width = for_passback_height;
+        
+        for_passup_element->rect.size.height = for_passback_height;
+        for_passup_element->rect.size.width = for_passback_width;
+        
+        for_passleft_element->rect.size.height = for_passback_width;
+        for_passleft_element->rect.size.width = for_passback_height;
+        
+        for_passdown_element->rect.size.height = for_passback_height;
+        for_passdown_element->rect.size.width = for_passback_width;
+        
+        for_passthrough_element->rect.size.height = 0;
+        for_passthrough_element->rect.size.width = for_passthrough_width;
+        
+        for_done_element->rect.size.height = 2 * bending_radius;
+        for_done_element->rect.size.width = width_center_elements;
+        
+        // Positioning
+        
         Pos2d start_position = {0,0};
 
         // TODO: we want for_init and for_passthough to be aligned at their right-side! (and be to the left of the center)
@@ -306,8 +341,6 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         current_position.y += 100;  // FIXME: need to calculate this properly!
 
         for_start_element->rect.position = current_position;
-        for_start_element->rect.size.height = 2 * bending_radius;
-        for_start_element->rect.size.width = width_center_elements;
         
         current_position.y += for_start_element->rect.size.height + vertical_margin + vertical_margin;
         current_position.x -= for_init_element->rect.size.width + 2 * bending_radius - width_center_elements / 2;
@@ -318,8 +351,6 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         current_position.x += for_init_element->rect.size.width + 2 * bending_radius - width_center_elements / 2;
         
         for_join_element->rect.position = current_position;
-        for_join_element->rect.size.height = 2 * bending_radius;
-        for_join_element->rect.size.width = width_center_elements;
         
         current_position.y += for_join_element->rect.size.height + vertical_margin;
         
@@ -328,8 +359,6 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         current_position.y += for_cond_element->rect.size.height + vertical_margin;
         
         for_split_element->rect.position = current_position;
-        for_split_element->rect.size.height = 2 * bending_radius;
-        for_split_element->rect.size.width = width_center_elements;
         
         current_position.y += for_split_element->rect.size.height + vertical_margin + vertical_margin + vertical_margin;
         
@@ -349,39 +378,27 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         for_passright_element->rect.position.y = current_position_right.y;
         for_passright_element->rect.position.x = current_position_right.x + for_body_element->rect.size.width + for_right_margin / 2; // TODO: use bending radius here?
-        for_passright_element->rect.size.height = for_passback_width;
-        for_passright_element->rect.size.width = for_passback_height;
         
         current_position_right.y += for_passright_element->rect.size.height + vertical_margin;
         
         for_passup_element->rect.position.y = for_split_element->rect.position.y;
         for_passup_element->rect.position.x = current_position_right.x + for_body_element->rect.size.width + for_right_margin;
-        for_passup_element->rect.size.height = for_passback_height;
-        for_passup_element->rect.size.width = for_passback_width;
         
         for_passleft_element->rect.position.y = for_init_element->rect.position.y + for_init_element->rect.size.height - for_passback_width - for_passback_height - bending_radius;
         for_passleft_element->rect.position.x = current_position_right.x + for_body_element->rect.size.width + for_right_margin / 2; // TODO: use bending radius here?
-        for_passleft_element->rect.size.height = for_passback_width;
-        for_passleft_element->rect.size.width = for_passback_height;
         
         for_passdown_element->rect.position.y = for_init_element->rect.position.y + for_init_element->rect.size.height - for_passback_height;
         for_passdown_element->rect.position.x = for_init_element->rect.position.x + for_init_element->rect.size.width + for_middle_margin;
-        for_passdown_element->rect.size.height = for_passback_height;
-        for_passdown_element->rect.size.width = for_passback_width;
         
         // FIXME: we are assuming the body + update is always vertically larger than the for_passthrough_element
         current_position_left.y = current_position_right.y;
         
         for_passthrough_element->rect.position = current_position_left;
-        for_passthrough_element->rect.size.height = 0;
-        for_passthrough_element->rect.size.width = for_passthrough_width;
         
         current_position_left.y += for_passthrough_element->rect.size.height + bending_radius * 4;
         current_position_left.x += for_passthrough_width + 2 * bending_radius - width_center_elements / 2;
         
         for_done_element->rect.position = current_position_left;
-        for_done_element->rect.size.height = 2 * bending_radius;
-        for_done_element->rect.size.width = width_center_elements;
         
         current_position_left.y += for_done_element->rect.size.height;
         
