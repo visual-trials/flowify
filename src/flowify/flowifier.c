@@ -315,7 +315,7 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         
         FlowElement * foreach_join_element = new_element(flowifier, 0, FlowElement_ForeachJoin); 
         
-        FlowElement * foreach_cond_element = new_element(flowifier, foreach_array_node, FlowElement_ForeachCond); 
+        FlowElement * foreach_cond_element = new_element(flowifier, foreach_cond_node, FlowElement_ForeachCond); 
         // Note: we set the ast-node of the foreach-keyword itself to the whole foreach-cond-expression (because the keyword itself is not an ast-node by itself)
         FlowElement * foreach_keyword_element = new_element(flowifier, foreach_cond_node, FlowElement_ForeachKeyword);
         // TODO: we use the identifier of the foreach-cond-expression (which is filled with the keyword itself) as the "source_text" of this element! (little dirty)
