@@ -299,7 +299,63 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
     {
         FlowElement * foreach_element = new_element(flowifier, statement_node, FlowElement_Foreach);
         
-        // TODO: flowify foreach statement
+        Node * foreach_cond_node = statement_node->first_child;
+        
+        Node * foreach_array_node = foreach_cond_node->first_child;
+        Node * foreach_value_var_node = foreach_array_node->next_sibling;
+        Node * foreach_key_var_node = 0;
+        if (foreach_value_var_node->type == Node_Stmt_Foreach_Key_Var)
+        {
+            foreach_key_var_node = foreach_value_var_node;
+            foreach_value_var_node = foreach_key_var_node->next_sibling;
+        }
+        Node * foreach_body_node = foreach_cond_node->next_sibling;
+        
+        FlowElement * foreach_start_element = new_element(flowifier, 0, FlowElement_ForeachStart); 
+        
+        FlowElement * foreach_join_element = new_element(flowifier, 0, FlowElement_ForeachJoin); 
+        
+        FlowElement * foreach_cond_element = new_element(flowifier, foreach_array_node, FlowElement_ForeachCond); 
+        // Note: we set the ast-node of the foreach-keyword itself to the whole foreach-cond-expression (because the keyword itself is not an ast-node by itself)
+        FlowElement * foreach_keyword_element = new_element(flowifier, foreach_cond_node, FlowElement_ForeachKeyword);
+        // TODO: we use the identifier of the foreach-cond-expression (which is filled with the keyword itself) as the "source_text" of this element! (little dirty)
+        foreach_keyword_element->source_text = foreach_cond_node->identifier;
+        add_child_element(foreach_keyword_element, foreach_cond_element);
+        FlowElement * foreach_array_element = new_element(flowifier, foreach_array_node, FlowElement_ForeachArray); 
+        add_child_element(foreach_array_element, foreach_cond_element);
+        if (foreach_key_var_node)
+        {
+            FlowElement * foreach_key_var_element = new_element(flowifier, foreach_key_var_node, FlowElement_ForeachKeyVar); 
+            add_child_element(foreach_key_var_element, foreach_cond_element);
+        }
+        FlowElement * foreach_value_var_element = new_element(flowifier, foreach_value_var_node, FlowElement_ForeachValueVar); 
+        add_child_element(foreach_value_var_element, foreach_cond_element);
+        
+        FlowElement * foreach_split_element = new_element(flowifier, 0, FlowElement_ForeachSplit); 
+        
+        FlowElement * foreach_body_element = new_element(flowifier, foreach_body_node, FlowElement_ForeachBody); 
+        flowify_child_statements_or_passthrough(flowifier, foreach_body_node, foreach_body_element);
+        
+        FlowElement * foreach_passright_element = new_element(flowifier, 0, FlowElement_PassBack);
+        FlowElement * foreach_passup_element = new_element(flowifier, 0, FlowElement_PassBack);
+        FlowElement * foreach_passleft_element = new_element(flowifier, 0, FlowElement_PassBack);
+        FlowElement * foreach_passdown_element = new_element(flowifier, 0, FlowElement_PassBack);
+            
+        FlowElement * foreach_passthrough_element = new_element(flowifier, 0, FlowElement_PassThrough);
+        
+        FlowElement * foreach_done_element = new_element(flowifier, 0, FlowElement_ForeachDone); 
+        
+        add_child_element(foreach_start_element, foreach_element);        
+        add_child_element(foreach_join_element, foreach_element);
+        add_child_element(foreach_cond_element, foreach_element);
+        add_child_element(foreach_split_element, foreach_element);
+        add_child_element(foreach_body_element, foreach_element);
+        add_child_element(foreach_passright_element, foreach_element);
+        add_child_element(foreach_passup_element, foreach_element);
+        add_child_element(foreach_passleft_element, foreach_element);
+        add_child_element(foreach_passdown_element, foreach_element);
+        add_child_element(foreach_passthrough_element, foreach_element);
+        add_child_element(foreach_done_element, foreach_element);
         
         foreach_element->first_in_flow = foreach_element;
         foreach_element->last_in_flow = foreach_element;

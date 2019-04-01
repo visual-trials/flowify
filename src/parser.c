@@ -497,11 +497,19 @@ Node * parse_statement(Parser * parser)
         // Foreach
         Node * foreach_node = start_node(parser, Node_Stmt_Foreach, StartOnLatestToken);
         
+        // TODO: currently we set "foreach" as identifier of the foreach-cond expression to (later on) draw this text. We probably want to signify a foreach-keyword a different way.
+        Token * foreach_token = latest_eaten_token(parser);
+        
         expect_token(parser, Token_OpenParenteses);
+        
+        // ForeachCond
+        Node * foreach_cond_node = start_node(parser, Node_Stmt_Foreach_Cond, StartOnLatestToken);
+        foreach_cond_node->identifier = foreach_token->text; // TODO: this is a little weird: the 'for'-token is not really part of the cond-expression
+        add_child_node(foreach_cond_node, foreach_node);
         
         // Foreach_Array
         Node * foreach_array_node = parse_child_expression_node(parser, Node_Stmt_Foreach_Array);
-        add_child_node(foreach_array_node, foreach_node);
+        add_child_node(foreach_array_node, foreach_cond_node);
         
         expect_token(parser, Token_As);
 
@@ -509,7 +517,7 @@ Node * parse_statement(Parser * parser)
         
         // We always expect a variable, which (by default) is the Foreach_Value_Var
         Node * foreach_first_var_node = parse_variable(parser, Node_Stmt_Foreach_Value_Var, true);
-        add_child_node(foreach_first_var_node, foreach_node);
+        add_child_node(foreach_first_var_node, foreach_cond_node);
         
         if (accept_token(parser, Token_Arrow)) {
             
@@ -517,10 +525,11 @@ Node * parse_statement(Parser * parser)
             foreach_first_var_node->type = Node_Stmt_Foreach_Key_Var;  // Foreach_Value_Var --becomes--> Foreach_Key_Var
 
             Node * foreach_second_var_node = parse_variable(parser, Node_Stmt_Foreach_Value_Var, true);
-            add_child_node(foreach_second_var_node, foreach_node);
+            add_child_node(foreach_second_var_node, foreach_cond_node);
         }
         
         expect_token(parser, Token_CloseParenteses);
+        end_node(parser, foreach_cond_node);
         
         // Foreach_Body
         Node * foreach_body_node = parse_block(parser, Node_Stmt_Foreach_Body);

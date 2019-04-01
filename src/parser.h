@@ -38,6 +38,7 @@ enum NodeType
     Node_Stmt_For_Body,
     
     Node_Stmt_Foreach,
+    Node_Stmt_Foreach_Cond,
     Node_Stmt_Foreach_Array,
     Node_Stmt_Foreach_Key_Var,
     Node_Stmt_Foreach_Value_Var,
@@ -108,6 +109,7 @@ const char * node_type_names[] = {
     "Stmt_For_Body",
     
     "Stmt_Foreach",
+    "Stmt_Foreach_Cond",
     "Stmt_Foreach_Array",
     "Stmt_Foreach_Key_Var",
     "Stmt_Foreach_Value_Var",

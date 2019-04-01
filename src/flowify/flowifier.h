@@ -46,6 +46,15 @@ enum FlowElementType
     
     FlowElement_Foreach,
     FlowElement_ForeachKeyword,
+    FlowElement_ForeachStart,
+    FlowElement_ForeachJoin,
+    FlowElement_ForeachCond,
+    FlowElement_ForeachArray,
+    FlowElement_ForeachKeyVar,
+    FlowElement_ForeachValueVar,
+    FlowElement_ForeachSplit,
+    FlowElement_ForeachBody,
+    FlowElement_ForeachDone,
     
     FlowElement_PassThrough,
     FlowElement_PassBack,
@@ -98,6 +107,15 @@ const char * flow_element_type_names[] = {
     
     "Foreach",
     "ForeachKeyword",
+    "ForeachStart",
+    "ForeachJoin",
+    "ForeachCond",
+    "ForeachArray",
+    "ForeachKeyVar",
+    "ForeachValueVar",
+    "ForeachSplit",
+    "ForeachBody",
+    "ForeachDone",
     
     "PassThrough",
     "PassBack",
