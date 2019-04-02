@@ -579,7 +579,8 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
              flow_element->type == FlowElement_IfElse ||
              flow_element->type == FlowElement_ForInit ||
              flow_element->type == FlowElement_ForBody ||
-             flow_element->type == FlowElement_ForUpdate
+             flow_element->type == FlowElement_ForUpdate ||
+             flow_element->type == FlowElement_ForeachBody
              )
     {
         if (flow_element->type == FlowElement_Root)
