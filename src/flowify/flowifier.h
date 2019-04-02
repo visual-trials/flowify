@@ -97,7 +97,6 @@ const char * flow_element_type_names[] = {
     
     "For",
     "ForKeyword",
-    "ForStart",
     "ForInit",
     "ForJoin",
     "ForCond",
@@ -108,7 +107,7 @@ const char * flow_element_type_names[] = {
     
     "Foreach",
     "ForeachKeyword",
-    "ForeachStart",
+    "ForeachInit",
     "ForeachJoin",
     "ForeachCond",
     "ForeachArray",
