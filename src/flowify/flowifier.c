@@ -67,7 +67,13 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
                  expression_node->type == Node_Expr_BinaryOp_Minus ||
                  expression_node->type == Node_Expr_BinaryOp_Smaller ||
                  expression_node->type == Node_Expr_BinaryOp_Greater ||
-                 expression_node->type == Node_Expr_BinaryOp_Equal)
+                 expression_node->type == Node_Expr_BinaryOp_NotEqual ||
+                 expression_node->type == Node_Expr_BinaryOp_Equal ||
+                 expression_node->type == Node_Expr_BinaryOp_NotExactlyEqual ||
+                 expression_node->type == Node_Expr_BinaryOp_ExactlyEqual ||
+                 expression_node->type == Node_Expr_BinaryOp_LogicalAnd ||
+                 expression_node->type == Node_Expr_BinaryOp_LogicalOr
+                 )
         {
             FlowElement * binary_op_expression_element = new_element(flowifier, expression_node, FlowElement_BinaryOperation);
             
@@ -142,6 +148,10 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
         else if (expression_node->type == Node_Scalar_String)
         {
             // TODO: add the (constant) value to the flow element
+            new_expression_element = new_element(flowifier, expression_node, FlowElement_Scalar);
+        }
+        else if (expression_node->type == Node_Scalar_Null)
+        {
             new_expression_element = new_element(flowifier, expression_node, FlowElement_Scalar);
         }
         else
