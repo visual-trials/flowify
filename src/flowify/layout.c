@@ -320,7 +320,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         for_passdown_element->rect.size.width = for_passback_width;
         
         for_done_element->rect.size.height = 2 * bending_radius;
-        for_done_element->rect.size.width = width_center_elements;
+        for_done_element->rect.size.width = for_init_element->rect.size.width; // we set the width done-element to be the same as the init-element
         
         // Positioning
         
@@ -332,7 +332,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         current_position.x += for_init_element->rect.size.width + 2 * bending_radius - width_center_elements / 2;
         // TODO: we are creating some space at the top here. But we probably want the entire For-element to be move to the left, so we don't need this vertical space.
-        current_position.y += 50;  // FIXME: need to calculate this properly!
+        // current_position.y += 50;  // FIXME: need to calculate this properly!
 
         // current_position.y += for_start_element->rect.size.height + vertical_margin + vertical_margin;
         current_position.x -= for_init_element->rect.size.width + 2 * bending_radius - width_center_elements / 2;
@@ -371,7 +371,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         for_passright_element->rect.position.y = current_position_right.y;
         for_passright_element->rect.position.x = current_position_right.x + for_body_element->rect.size.width + for_right_margin / 2; // TODO: use bending radius here?
         
-        current_position_right.y += for_passright_element->rect.size.height + vertical_margin;
+        current_position_right.y += for_passright_element->rect.size.height; // We don't want margin here: + vertical_margin;
         
         for_passup_element->rect.position.y = for_split_element->rect.position.y;
         for_passup_element->rect.position.x = current_position_right.x + for_body_element->rect.size.width + for_right_margin;
@@ -385,7 +385,9 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         // FIXME: we are assuming the body + update is always vertically larger than the for_done_element
         current_position_left.y = current_position_right.y;
         
-        for_done_element->rect.position = current_position_left;
+        // We vertically-align the done element with the init-element
+        for_done_element->rect.position.x = for_init_element->rect.position.x;
+        for_done_element->rect.position.y = current_position_left.y;
         
         current_position_left.y += for_done_element->rect.size.height;
         
@@ -429,10 +431,6 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         foreach_init_element->rect.size.height = 2 * bending_radius;
         foreach_init_element->rect.size.width = default_element_width;
         
-        Rect2d foreach_init_rect = {};
-        foreach_init_rect.size.height = 2 * bending_radius;
-        foreach_init_rect.size.width = width_center_elements;
-        
         foreach_join_element->rect.size.height = 2 * bending_radius;
         foreach_join_element->rect.size.width = width_center_elements;
         
@@ -452,7 +450,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         foreach_passdown_element->rect.size.width = foreach_passback_width;
         
         foreach_done_element->rect.size.height = 2 * bending_radius;
-        foreach_done_element->rect.size.width = width_center_elements;
+        foreach_done_element->rect.size.width = foreach_init_element->rect.size.width; // we set the width done-element to be the same as the init-element
         
         // Positioning
         
@@ -464,7 +462,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         current_position.x += foreach_init_element->rect.size.width + 2 * bending_radius - width_center_elements / 2;
         // TODO: we are creating some space at the top here. But we probably want the entire For-element to be move to the left, so we don't need this vertical space.
-        current_position.y += 50;  // FIXME: need to calculate this properly!
+        // current_position.y += 50;  // FIXME: need to calculate this properly!
 
         foreach_init_element->rect.position = current_position;
         
@@ -496,7 +494,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         foreach_passright_element->rect.position.y = current_position_right.y;
         foreach_passright_element->rect.position.x = current_position_right.x + foreach_body_element->rect.size.width + foreach_right_margin / 2; // TODO: use bending radius here?
         
-        current_position_right.y += foreach_passright_element->rect.size.height + vertical_margin;
+        current_position_right.y += foreach_passright_element->rect.size.height; // We don't want margin here: + vertical_margin;
         
         foreach_passup_element->rect.position.y = foreach_split_element->rect.position.y;
         foreach_passup_element->rect.position.x = current_position_right.x + foreach_body_element->rect.size.width + foreach_right_margin;
@@ -510,7 +508,9 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         // FIXME: we are assuming the body + update is always vertically larger than the foreach_done_element
         current_position_left.y = current_position_right.y;
         
-        foreach_done_element->rect.position = current_position_left;
+        // We vertically-align the done element with the init-element
+        foreach_done_element->rect.position.x = foreach_init_element->rect.position.x;
+        foreach_done_element->rect.position.y = current_position_left.y;
         
         current_position_left.y += foreach_done_element->rect.size.height;
         
