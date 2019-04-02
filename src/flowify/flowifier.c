@@ -84,14 +84,15 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
             
             new_expression_element = binary_op_expression_element;
         }
-        else if (expression_node->type == Node_Expr_Array_Access)
+        else if (expression_node->type == Node_Expr_Variable_Array_Access)
         {
             FlowElement * array_expression_element = new_element(flowifier, expression_node, FlowElement_ArrayAccess);
         
-            FlowElement * array_identifier_element = new_element(flowifier, expression_node->first_child, FlowElement_Variable);
+            FlowElement * array_identifier_element = new_element(flowifier, expression_node, FlowElement_Variable);
+            array_identifier_element->source_text = expression_node->identifier;
             add_child_element(array_identifier_element, array_expression_element);
             
-            FlowElement * array_key_expression_element = flowify_expression(flowifier, expression_node->first_child->next_sibling);
+            FlowElement * array_key_expression_element = flowify_expression(flowifier, expression_node->first_child);
             add_child_element(array_key_expression_element, array_expression_element);
             
             new_expression_element = array_expression_element;
