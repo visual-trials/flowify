@@ -331,10 +331,8 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         FlowElement * foreach_keyword_element = new_element(flowifier, foreach_cond_node, FlowElement_ForeachKeyword);  // Note: we set the ast-node of the foreach-keyword itself to the whole foreach-cond-expression (because the keyword itself is not an ast-node by itself)
         foreach_keyword_element->source_text = foreach_cond_node->identifier;  // TODO: we use the identifier of the foreach-cond-expression (which is filled with the keyword itself) as the "source_text" of this element! (little dirty)
         add_child_element(foreach_keyword_element, foreach_cond_element);
-        FlowElement * foreach_array_element = new_element(flowifier, foreach_array_node, FlowElement_ForeachArray); 
-        add_child_element(foreach_array_element, foreach_cond_element);
-        FlowElement * array_expression_element = flowify_child_expression_or_passthrough(flowifier, foreach_array_node);
-        add_child_element(array_expression_element, foreach_array_element);
+        FlowElement * foreach_array_expression_element = flowify_child_expression_or_passthrough(flowifier, foreach_array_node);
+        add_child_element(foreach_array_expression_element, foreach_cond_element);
         
         FlowElement * as_keyword_element = new_element(flowifier, foreach_array_node, FlowElement_ForeachAsKeyword);  // Note: we set the ast-node of the as-keyword itself to the foreach-array-expression (because the keyword itself is not an ast-node by itself)
         as_keyword_element->source_text = foreach_array_node->identifier;  // TODO: we use the identifier of the foreach-array-expression (which is filled with the keyword "as") as the "source_text" of this element! (little dirty)
