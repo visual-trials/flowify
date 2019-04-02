@@ -44,6 +44,8 @@ enum TokenType
     Token_Identifier,
     Token_VariableIdentifier,  // starts with $
     
+    Token_Null,
+    
     Token_If,
     Token_Else,
     Token_For,
@@ -107,6 +109,8 @@ const char * token_type_names[] = {
     "Float",
     "Identifier",
     "VariableIdentifier",  // starts with $
+    
+    "Null",
     
     "If",
     "Else",
@@ -492,6 +496,10 @@ Token get_token(Tokenizer * tokenizer)
                 else if (equals(token.text, "return"))
                 {
                     token.type = Token_Return;
+                }
+                else if (equals(token.text, "null"))
+                {
+                    token.type = Token_Null;
                 }
                 // TODO: add more keywords
                 else

@@ -71,6 +71,7 @@ sub_expr :=
     number
     float
     single_quoted_string
+    null
     identifier arguments
     
 */
@@ -280,6 +281,15 @@ Node * parse_sub_expression(Parser * parser)
         
         Token * string_token = latest_eaten_token(parser);
         sub_expression_node->value = string_token->text;
+        
+        end_node(parser, sub_expression_node);
+    }
+    else if (accept_token(parser, Token_Null))
+    {
+        sub_expression_node = start_node(parser, Node_Scalar_Null, StartOnLatestToken);
+        
+        Token * null_token = latest_eaten_token(parser);
+        sub_expression_node->value = null_token->text;
         
         end_node(parser, sub_expression_node);
     }

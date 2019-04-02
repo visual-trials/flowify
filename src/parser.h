@@ -87,7 +87,8 @@ enum NodeType
     // Scalars
     Node_Scalar_Number,
     Node_Scalar_Float,
-    Node_Scalar_String
+    Node_Scalar_String,
+    Node_Scalar_Null
 };
 
 // TODO: Keep this in sync with the enum above!
@@ -159,7 +160,8 @@ const char * node_type_names[] = {
     // Scalars
     "Scalar_Number",
     "Scalar_Float",
-    "Scalar_String"
+    "Scalar_String",
+    "Scalar_Null"
 };
 
 struct Node
