@@ -134,6 +134,33 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
                                                       
         flow_element->is_highlightable = true;
     }
+    else if (flow_element->type == FlowElement_ForeachCond)
+    {
+        FlowElement * foreach_keyword_element = flow_element->first_child;
+        FlowElement * foreach_array_element = foreach_keyword_element->next_sibling;
+        FlowElement * as_keyword_element = foreach_array_element->next_sibling;
+        FlowElement * foreach_key_var_element = 0;
+        FlowElement * arrow_keyword_element = 0;
+        FlowElement * foreach_value_var_element = as_keyword_element->next_sibling;
+        if (foreach_value_var_element->type == FlowElement_ForeachKeyVar)
+        {
+            foreach_key_var_element = foreach_value_var_element;
+            arrow_keyword_element = foreach_key_var_element->next_sibling;
+            foreach_value_var_element = arrow_keyword_element->next_sibling;
+        }
+        
+        foreach_keyword_element->rect.size = get_size_based_on_source_text(flowifier, foreach_keyword_element, flowifier->variable_margin);
+        
+        // FIXME: we skip layouting foreach_array_element completely here (and take the expression inside it), do we need it at all?
+        layout_elements(flowifier, foreach_array_element->first_child);
+        
+        i32 in_between_distance = 0; // FIXME: put this in Flowifier!
+
+        flow_element->rect.size = layout_horizontally(&foreach_keyword_element->rect, &foreach_array_element->rect, 
+                                                      in_between_distance, flowifier->expression_margin);
+                                                      
+        flow_element->is_highlightable = true;
+    }
     else if (flow_element->type == FlowElement_Assignment)
     {
         FlowElement * assignee_element = flow_element->first_child;
@@ -165,6 +192,13 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         flow_element->rect.size = get_size_based_on_source_text(flowifier, flow_element, flowifier->variable_margin);
         flow_element->is_highlightable = true;
     }
+    else if (flow_element->type == FlowElement_ArrayAccess)
+    {
+        // FIXME: implement this!
+        flow_element->rect.size = get_size_based_on_source_text(flowifier, flow_element, flowifier->variable_margin);
+        flow_element->is_highlightable = true;
+    }
+    
     else if (flow_element->type == FlowElement_BinaryOperation)
     {
         FlowElement * left_side_expression_element = flow_element->first_child;
