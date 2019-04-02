@@ -448,7 +448,74 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     }
     else if (flow_element->type == FlowElement_Foreach)
     {
-        // FIXME: draw foreach
+        FlowElement * foreach_element = flow_element;
+        FlowElement * foreach_start_element = flow_element->first_child;
+        FlowElement * foreach_join_element = foreach_start_element->next_sibling;
+        FlowElement * foreach_cond_element = foreach_join_element->next_sibling;
+        FlowElement * foreach_split_element = foreach_cond_element->next_sibling;
+        FlowElement * foreach_body_element = foreach_split_element->next_sibling;
+        FlowElement * foreach_passright_element = foreach_body_element->next_sibling;
+        FlowElement * foreach_passup_element = foreach_passright_element->next_sibling;
+        FlowElement * foreach_passleft_element = foreach_passup_element->next_sibling;
+        FlowElement * foreach_passdown_element = foreach_passleft_element->next_sibling;
+        FlowElement * foreach_passthrough_element = foreach_passdown_element->next_sibling;
+        FlowElement * foreach_done_element = foreach_passthrough_element->next_sibling;
+
+        draw_straight_element(flowifier, foreach_start_element, foreach_start_element->previous_in_flow, foreach_join_element, false);
+        
+        // draw_elements(flowifier, foreach_init_element);
+        // draw_straight_element(flowifier, foreach_init_element, foreach_start_element, 0);
+        
+        draw_joining_element(flowifier, foreach_start_element, foreach_passdown_element, foreach_join_element, foreach_cond_element);
+        
+        // TODO: we  draw the if-cond in a way so that the side-lines are drawn AND the if-cond-expression is drawn
+        draw_straight_element(flowifier, foreach_cond_element, foreach_join_element, foreach_split_element, false);
+        draw_elements(flowifier, foreach_cond_element);
+        
+        draw_splitting_element(flowifier, foreach_passthrough_element, foreach_body_element->first_in_flow, foreach_split_element, foreach_cond_element);
+        
+        draw_elements(flowifier, foreach_body_element);
+        
+        // draw_elements(flowifier, foreach_update_element);
+        // draw_straight_element(flowifier, foreach_update_element, foreach_body_element->last_in_flow, 0);
+        
+        Rect2d last_body_element_rect = foreach_body_element->last_in_flow->rect_abs;
+        
+        Rect2d passright_rect = foreach_passright_element->rect_abs;
+        
+        Rect2d passup_rect = foreach_passup_element->rect_abs;
+        
+        Rect2d passleft_rect = foreach_passleft_element->rect_abs;
+        
+        Rect2d passdown_rect = foreach_passdown_element->rect_abs;
+        
+        HorLine hor_line = get_bottom_line_from_rect(last_body_element_rect);
+        VertLine vert_line = get_left_line_from_rect(passright_rect);
+        draw_cornered_lane_segment(hor_line, vert_line, flowifier->bending_radius, 
+                                   flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
+        
+        vert_line = get_left_line_from_rect(passright_rect);
+        hor_line = get_bottom_line_from_rect(passup_rect);
+        draw_cornered_lane_segment(hor_line, vert_line, flowifier->bending_radius, 
+                                   flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
+        
+        hor_line = get_bottom_line_from_rect(passup_rect);
+        vert_line = get_left_line_from_rect(passleft_rect);
+        draw_cornered_lane_segment(hor_line, vert_line, flowifier->bending_radius, 
+                                   flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
+
+        vert_line = get_left_line_from_rect(passleft_rect);
+        hor_line = get_bottom_line_from_rect(passdown_rect);
+        draw_cornered_lane_segment(hor_line, vert_line, flowifier->bending_radius, 
+                                   flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
+
+        draw_element_rectangle(flowifier, foreach_passright_element);
+        draw_element_rectangle(flowifier, foreach_passup_element);
+        draw_element_rectangle(flowifier, foreach_passleft_element);
+        draw_element_rectangle(flowifier, foreach_passdown_element);
+        
+        draw_straight_element(flowifier, foreach_passthrough_element, 0, foreach_done_element, false);
+        draw_straight_element(flowifier, foreach_done_element, foreach_passthrough_element, foreach_done_element->next_in_flow, false);
     }
     else if (flow_element->type == FlowElement_FunctionCall)
     {
