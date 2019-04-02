@@ -193,8 +193,18 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
     }
     else if (flow_element->type == FlowElement_ArrayAccess)
     {
-        // FIXME: implement this!
-        flow_element->rect.size = get_size_based_on_source_text(flowifier, flow_element, flowifier->variable_margin);
+        FlowElement * array_identifier_element = flow_element->first_child;
+        FlowElement * array_key_expression_element = array_identifier_element->next_sibling;
+        
+        layout_elements(flowifier, array_identifier_element);
+        layout_elements(flowifier, array_key_expression_element);
+        
+        i32 in_between_distance = 0; // FIXME: put this in Flowifier!
+
+        flow_element->rect.size = layout_horizontally(&array_identifier_element->rect, &array_key_expression_element->rect, 
+                                                      in_between_distance, flowifier->expression_margin);
+        
+        // flow_element->rect.size = get_size_based_on_source_text(flowifier, flow_element, flowifier->variable_margin);
         flow_element->is_highlightable = true;
     }
     

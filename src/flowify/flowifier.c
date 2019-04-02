@@ -88,8 +88,8 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
         {
             FlowElement * array_expression_element = new_element(flowifier, expression_node, FlowElement_ArrayAccess);
         
-            FlowElement * array_element = new_element(flowifier, expression_node->first_child, FlowElement_Variable);
-            add_child_element(array_element, array_expression_element);
+            FlowElement * array_identifier_element = new_element(flowifier, expression_node->first_child, FlowElement_Variable);
+            add_child_element(array_identifier_element, array_expression_element);
             
             FlowElement * array_key_expression_element = flowify_expression(flowifier, expression_node->first_child->next_sibling);
             add_child_element(array_key_expression_element, array_expression_element);

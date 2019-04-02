@@ -292,6 +292,18 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     {
         draw_rectangle_element(flowifier, flow_element, flowifier->scalar_style, true, true);
     }
+    else if (flow_element->type == FlowElement_ArrayAccess)
+    {
+        i32 expression_depth = 1; // FIXME: fill this with the depth of the expression-stack! We should probably store this in FlowElement
+        FlowStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
+        
+        FlowElement * array_identifier_element = flow_element->first_child;
+        FlowElement * array_key_expression_element = array_identifier_element->next_sibling;
+        
+        draw_rectangle_element(flowifier, array_identifier_element, flowifier->variable_style, true, true);
+        
+        draw_elements(flowifier, array_key_expression_element);
+    }
     else if (flow_element->type == FlowElement_IfCond ||
              flow_element->type == FlowElement_ForCond)
     {
@@ -306,6 +318,29 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_rectangle_element(flowifier, keyword_element, expression_style, false, true);
         // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
         draw_elements(flowifier, cond_expression_element);
+    }
+    else if (flow_element->type == FlowElement_ForeachCond)
+    {
+        i32 expression_depth = 0; // FIXME: fill this with the depth of the expression-stack! We should probably store this in FlowElement
+        FlowStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
+        
+        FlowElement * foreach_keyword_element = flow_element->first_child;
+        FlowElement * foreach_array_expression_element = foreach_keyword_element->next_sibling;
+        FlowElement * as_keyword_element = foreach_array_expression_element->next_sibling;
+        FlowElement * foreach_key_var_element = 0;
+        FlowElement * arrow_keyword_element = 0;
+        FlowElement * foreach_value_var_element = as_keyword_element->next_sibling;
+        if (foreach_value_var_element->type == FlowElement_ForeachKeyVar)
+        {
+            foreach_key_var_element = foreach_value_var_element;
+            arrow_keyword_element = foreach_key_var_element->next_sibling;
+            foreach_value_var_element = arrow_keyword_element->next_sibling;
+        }
+        
+        draw_rectangle_element(flowifier, foreach_keyword_element, expression_style, false, true);
+        // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
+        draw_elements(flowifier, foreach_array_expression_element);
+        
     }
     else if (flow_element->type == FlowElement_Return)
     {
