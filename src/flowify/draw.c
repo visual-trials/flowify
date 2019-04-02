@@ -376,8 +376,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     else if (flow_element->type == FlowElement_For)
     {
         FlowElement * for_element = flow_element;
-        FlowElement * for_start_element = flow_element->first_child;
-        FlowElement * for_init_element = for_start_element->next_sibling;
+        FlowElement * for_init_element = flow_element->first_child;
         FlowElement * for_join_element = for_init_element->next_sibling;
         FlowElement * for_cond_element = for_join_element->next_sibling;
         FlowElement * for_split_element = for_cond_element->next_sibling;
@@ -390,7 +389,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * for_passthrough_element = for_passdown_element->next_sibling;
         FlowElement * for_done_element = for_passthrough_element->next_sibling;
 
-        draw_straight_element(flowifier, for_start_element, for_start_element->previous_in_flow, for_init_element, false);
+        // draw_straight_element(flowifier, for_start_element, for_start_element->previous_in_flow, for_init_element, false);
         
         draw_elements(flowifier, for_init_element);
         // draw_straight_element(flowifier, for_init_element, for_start_element, 0);
@@ -449,8 +448,8 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     else if (flow_element->type == FlowElement_Foreach)
     {
         FlowElement * foreach_element = flow_element;
-        FlowElement * foreach_start_element = flow_element->first_child;
-        FlowElement * foreach_join_element = foreach_start_element->next_sibling;
+        FlowElement * foreach_init_element = flow_element->first_child;
+        FlowElement * foreach_join_element = foreach_init_element->next_sibling;
         FlowElement * foreach_cond_element = foreach_join_element->next_sibling;
         FlowElement * foreach_split_element = foreach_cond_element->next_sibling;
         FlowElement * foreach_body_element = foreach_split_element->next_sibling;
@@ -461,12 +460,12 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * foreach_passthrough_element = foreach_passdown_element->next_sibling;
         FlowElement * foreach_done_element = foreach_passthrough_element->next_sibling;
 
-        draw_straight_element(flowifier, foreach_start_element, foreach_start_element->previous_in_flow, foreach_join_element, false);
+        draw_straight_element(flowifier, foreach_init_element, foreach_init_element->previous_in_flow, foreach_join_element, false);
         
         // draw_elements(flowifier, foreach_init_element);
         // draw_straight_element(flowifier, foreach_init_element, foreach_start_element, 0);
         
-        draw_joining_element(flowifier, foreach_start_element, foreach_passdown_element, foreach_join_element, foreach_cond_element);
+        draw_joining_element(flowifier, foreach_init_element, foreach_passdown_element, foreach_join_element, foreach_cond_element);
         
         // TODO: we  draw the if-cond in a way so that the side-lines are drawn AND the if-cond-expression is drawn
         draw_straight_element(flowifier, foreach_cond_element, foreach_join_element, foreach_split_element, false);

@@ -267,8 +267,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
     }
     else if (flow_element->type == FlowElement_For)
     {
-        FlowElement * for_start_element = flow_element->first_child;
-        FlowElement * for_init_element = for_start_element->next_sibling;
+        FlowElement * for_init_element = flow_element->first_child;
         FlowElement * for_join_element = for_init_element->next_sibling;
         FlowElement * for_cond_element = for_join_element->next_sibling;
         FlowElement * for_split_element = for_cond_element->next_sibling;
@@ -288,7 +287,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         i32 for_passthrough_width = 50; // TODO: should actually depend on the number of data lines going through it
         
-        i32 width_center_elements = default_element_width; // for_start, for_join, for_split, for_done
+        i32 width_center_elements = default_element_width; // for_join, for_split, for_done
         i32 middle_margin = 4 * bending_radius;
         i32 vertical_margin = 50; // FIXME: need to calculate this properly!
 
@@ -302,9 +301,6 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         for_init_element->is_highlightable = true;
         for_cond_element->is_highlightable = true;
         for_update_element->is_highlightable = true;
-        
-        for_start_element->rect.size.height = 2 * bending_radius;
-        for_start_element->rect.size.width = width_center_elements;
         
         for_join_element->rect.size.height = 2 * bending_radius;
         for_join_element->rect.size.width = width_center_elements;
@@ -342,9 +338,9 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         // TODO: we are creating some space at the top here. But we probably want the entire For-element to be move to the left, so we don't need this vertical space.
         current_position.y += 100;  // FIXME: need to calculate this properly!
 
-        for_start_element->rect.position = current_position;
+        // for_start_element->rect.position = current_position;
         
-        current_position.y += for_start_element->rect.size.height + vertical_margin + vertical_margin;
+        // current_position.y += for_start_element->rect.size.height + vertical_margin + vertical_margin;
         current_position.x -= for_init_element->rect.size.width + 2 * bending_radius - width_center_elements / 2;
         
         for_init_element->rect.position = current_position;
@@ -412,8 +408,8 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
     }
     else if (flow_element->type == FlowElement_Foreach)
     {
-        FlowElement * foreach_start_element = flow_element->first_child;
-        FlowElement * foreach_join_element = foreach_start_element->next_sibling;
+        FlowElement * foreach_init_element = flow_element->first_child;
+        FlowElement * foreach_join_element = foreach_init_element->next_sibling;
         FlowElement * foreach_cond_element = foreach_join_element->next_sibling;
         FlowElement * foreach_split_element = foreach_cond_element->next_sibling;
         FlowElement * foreach_body_element = foreach_split_element->next_sibling;
@@ -431,7 +427,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         i32 foreach_passthrough_width = 50; // TODO: should actually depend on the number of data lines going through it
         
-        i32 width_center_elements = default_element_width; // foreach_start, foreach_join, foreach_split, foreach_done
+        i32 width_center_elements = default_element_width; // foreach_init, foreach_join, foreach_split, foreach_done
         i32 middle_margin = 4 * bending_radius;
         i32 vertical_margin = 50; // FIXME: need to calculate this properly!
         
@@ -442,8 +438,8 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         foreach_cond_element->is_highlightable = true;
         
-        foreach_start_element->rect.size.height = 2 * bending_radius;
-        foreach_start_element->rect.size.width = width_center_elements;
+        foreach_init_element->rect.size.height = 2 * bending_radius;
+        foreach_init_element->rect.size.width = default_element_width;
         
         Rect2d foreach_init_rect = {};
         foreach_init_rect.size.height = 2 * bending_radius;
@@ -481,19 +477,19 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         Pos2d current_position = start_position;
         
-        current_position.x += foreach_init_rect.size.width + 2 * bending_radius - width_center_elements / 2;
+        current_position.x += foreach_init_element->rect.size.width + 2 * bending_radius - width_center_elements / 2;
         // TODO: we are creating some space at the top here. But we probably want the entire For-element to be move to the left, so we don't need this vertical space.
         current_position.y += 100;  // FIXME: need to calculate this properly!
 
-        foreach_start_element->rect.position = current_position;
+        foreach_init_element->rect.position = current_position;
         
-        current_position.y += foreach_start_element->rect.size.height + vertical_margin + vertical_margin;
-        current_position.x -= foreach_init_rect.size.width + 2 * bending_radius - width_center_elements / 2;
+        current_position.y += foreach_init_element->rect.size.height + vertical_margin + vertical_margin;
+        current_position.x -= foreach_init_element->rect.size.width + 2 * bending_radius - width_center_elements / 2;
         
-        foreach_init_rect.position = current_position;
+        foreach_init_element->rect.position = current_position;
         
-        current_position.y += foreach_init_rect.size.height + foreach_passback_width + bending_radius + bending_radius + bending_radius;
-        current_position.x += foreach_init_rect.size.width + 2 * bending_radius - width_center_elements / 2;
+        current_position.y += foreach_init_element->rect.size.height + foreach_passback_width + bending_radius + bending_radius + bending_radius;
+        current_position.x += foreach_init_element->rect.size.width + 2 * bending_radius - width_center_elements / 2;
         
         foreach_join_element->rect.position = current_position;
         
@@ -529,11 +525,11 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         foreach_passup_element->rect.position.y = foreach_split_element->rect.position.y;
         foreach_passup_element->rect.position.x = current_position_right.x + foreach_body_element->rect.size.width + foreach_right_margin;
         
-        foreach_passleft_element->rect.position.y = foreach_init_rect.position.y + foreach_init_rect.size.height - foreach_passback_width - foreach_passback_height - bending_radius;
+        foreach_passleft_element->rect.position.y = foreach_init_element->rect.position.y + foreach_init_element->rect.size.height - foreach_passback_width - foreach_passback_height - bending_radius;
         foreach_passleft_element->rect.position.x = current_position_right.x + foreach_body_element->rect.size.width + foreach_right_margin / 2; // TODO: use bending radius here?
         
-        foreach_passdown_element->rect.position.y = foreach_init_rect.position.y + foreach_init_rect.size.height - foreach_passback_height;
-        foreach_passdown_element->rect.position.x = foreach_init_rect.position.x + foreach_init_rect.size.width + foreach_middle_margin;
+        foreach_passdown_element->rect.position.y = foreach_init_element->rect.position.y + foreach_init_element->rect.size.height - foreach_passback_height;
+        foreach_passdown_element->rect.position.x = foreach_init_element->rect.position.x + foreach_init_element->rect.size.width + foreach_middle_margin;
         
         // FIXME: we are assuming the body + update is always vertically larger than the foreach_passthrough_element
         current_position_left.y = current_position_right.y;

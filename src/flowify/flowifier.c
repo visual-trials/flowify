@@ -241,8 +241,6 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         Node * for_update_node = for_cond_node->next_sibling;
         Node * for_body_node = for_update_node->next_sibling;
         
-        FlowElement * for_start_element = new_element(flowifier, 0, FlowElement_ForStart); 
-        
         FlowElement * for_init_element = new_element(flowifier, for_init_node, FlowElement_ForInit); 
         FlowElement * init_expression_element = flowify_child_expression_or_passthrough(flowifier, for_init_node);
         add_child_element(init_expression_element, for_init_element);
@@ -276,7 +274,6 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         
         FlowElement * for_done_element = new_element(flowifier, 0, FlowElement_ForDone); 
         
-        add_child_element(for_start_element, for_element);        
         add_child_element(for_init_element, for_element);
         add_child_element(for_join_element, for_element);
         add_child_element(for_cond_element, for_element);
@@ -290,7 +287,7 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         add_child_element(for_passthrough_element, for_element);
         add_child_element(for_done_element, for_element);
         
-        for_element->first_in_flow = for_start_element;
+        for_element->first_in_flow = for_init_element;
         for_element->last_in_flow = for_done_element;
         
         new_statement_element = for_element;
@@ -311,7 +308,7 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         }
         Node * foreach_body_node = foreach_cond_node->next_sibling;
         
-        FlowElement * foreach_start_element = new_element(flowifier, 0, FlowElement_ForeachStart); 
+        FlowElement * foreach_init_element = new_element(flowifier, 0, FlowElement_ForeachInit); 
         
         FlowElement * foreach_join_element = new_element(flowifier, 0, FlowElement_ForeachJoin); 
         
@@ -353,7 +350,7 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         
         FlowElement * foreach_done_element = new_element(flowifier, 0, FlowElement_ForeachDone); 
         
-        add_child_element(foreach_start_element, foreach_element);        
+        add_child_element(foreach_init_element, foreach_element);        
         add_child_element(foreach_join_element, foreach_element);
         add_child_element(foreach_cond_element, foreach_element);
         add_child_element(foreach_split_element, foreach_element);
@@ -365,8 +362,8 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         add_child_element(foreach_passthrough_element, foreach_element);
         add_child_element(foreach_done_element, foreach_element);
         
-        foreach_element->first_in_flow = foreach_element;
-        foreach_element->last_in_flow = foreach_element;
+        foreach_element->first_in_flow = foreach_init_element;
+        foreach_element->last_in_flow = foreach_done_element;
         
         new_statement_element = foreach_element;
     }

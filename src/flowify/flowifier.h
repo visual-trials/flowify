@@ -35,7 +35,6 @@ enum FlowElementType
     
     FlowElement_For,
     FlowElement_ForKeyword,
-    FlowElement_ForStart,
     FlowElement_ForInit,
     FlowElement_ForJoin,
     FlowElement_ForCond,
@@ -46,7 +45,7 @@ enum FlowElementType
     
     FlowElement_Foreach,
     FlowElement_ForeachKeyword,
-    FlowElement_ForeachStart,
+    FlowElement_ForeachInit,
     FlowElement_ForeachJoin,
     FlowElement_ForeachCond,
     FlowElement_ForeachArray,
