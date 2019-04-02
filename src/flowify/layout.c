@@ -347,6 +347,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         current_position.y += for_join_element->rect.size.height + vertical_margin;
         
         for_cond_element->rect.position = current_position;
+        // TODO: do we want to center cond? for_cond_element->rect.position.x += width_center_elements / 2 - for_cond_element->rect.size.width / 2;
         
         current_position.y += for_cond_element->rect.size.height + vertical_margin;
         
@@ -474,6 +475,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         current_position.y += foreach_join_element->rect.size.height + vertical_margin;
         
         foreach_cond_element->rect.position = current_position;
+        // TODO: do we want to center cond? foreach_cond_element->rect.position.x += width_center_elements / 2 - foreach_cond_element->rect.size.width / 2;
         
         current_position.y += foreach_cond_element->rect.size.height + vertical_margin;
         
