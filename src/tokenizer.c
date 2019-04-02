@@ -79,6 +79,9 @@ enum TokenType
     Token_Equal,
     Token_ExactlyEqual,
     
+    Token_LogicalAnd,
+    Token_LogicalOr,
+    
     Token_EndOfStream    
 };
 
@@ -144,6 +147,9 @@ const char * token_type_names[] = {
     
     "Equal",
     "ExactlyEqual",
+    
+    "LogicalAnd",
+    "LogicalOr",
     
     "EndOfStream"
 };
@@ -279,7 +285,35 @@ Token get_token(Tokenizer * tokenizer)
         case ':': {token.type = Token_Colon;} break;
         case ';': {token.type = Token_Semicolon;} break;
         case ',': {token.type = Token_Comma;} break;
-        case '&': {token.type = Token_Ampersand;} break;
+        
+        case '&': {
+            if (tokenizer->at[0] == '&')   // "&&"
+            {
+                tokenizer->at++;
+                token.type = Token_LogicalAnd;
+                token.text.length = tokenizer->at - token.text.data;
+            }
+            else
+            {
+                token.type = Token_Ampersand;
+            }
+            
+        } break;
+        
+        case '|': {
+            if (tokenizer->at[0] == '|')   // "||"
+            {
+                tokenizer->at++;
+                token.type = Token_LogicalOr;
+                token.text.length = tokenizer->at - token.text.data;
+            }
+            else
+            {
+                // TODO: add the bitwise-or "|" here
+                token.type = Token_Unknown;
+            }
+            
+        } break;
         
         case '\'': {
             token.type = Token_SingleQuotedString;

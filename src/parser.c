@@ -365,6 +365,15 @@ Node * parse_expression(Parser * parser)
     {
         expression_node = parse_binary_op_expression(parser, Node_Expr_BinaryOp_Minus, left_sub_expression);
     }
+    else if (accept_token(parser, Token_LogicalAnd))
+    {
+        expression_node = parse_binary_op_expression(parser, Node_Expr_BinaryOp_LogicalAnd, left_sub_expression);
+    }
+    else if (accept_token(parser, Token_LogicalOr))
+    {
+        expression_node = parse_binary_op_expression(parser, Node_Expr_BinaryOp_LogicalOr, left_sub_expression);
+    }
+    
     else
     {
         expression_node = left_sub_expression;

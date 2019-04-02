@@ -74,6 +74,8 @@ enum NodeType
     Node_Expr_BinaryOp_Greater,
     Node_Expr_BinaryOp_Equal,
     Node_Expr_BinaryOp_ExactlyEqual,
+    Node_Expr_BinaryOp_LogicalAnd,
+    Node_Expr_BinaryOp_LogicalOr,
     
     Node_Expr_Assign,
     
@@ -147,6 +149,8 @@ const char * node_type_names[] = {
     "Expr_BinaryOp_Greater",
     "Expr_BinaryOp_Equal",
     "Expr_BinaryOp_ExactlyEqual",
+    "Expr_BinaryOp_LogicalAnd",
+    "Expr_BinaryOp_LogicalOr",
     
     "Expr_Assign",
     
