@@ -541,11 +541,18 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         current_position_right.y += foreach_passright_element->rect.size.height; // We don't want margin here: + vertical_margin;
         
+        i32 most_right_x = current_position_right.x + foreach_body_element->rect.size.width;
+        /* TODO: what do we want here: do we want the pass-up to go underneath the foreach_cond or should it extend (far) to the right?
+        if (foreach_cond_element->rect.position.x + foreach_cond_element->rect.size.width > most_right_x)
+        {
+            most_right_x = foreach_cond_element->rect.position.x + foreach_cond_element->rect.size.width;
+        }
+        */
         foreach_passup_element->rect.position.y = foreach_split_element->rect.position.y;
-        foreach_passup_element->rect.position.x = current_position_right.x + foreach_body_element->rect.size.width + foreach_right_margin;
+        foreach_passup_element->rect.position.x = most_right_x + foreach_right_margin;
         
         foreach_passleft_element->rect.position.y = foreach_init_element->rect.position.y + foreach_init_element->rect.size.height - foreach_passback_width - foreach_passback_height - bending_radius;
-        foreach_passleft_element->rect.position.x = current_position_right.x + foreach_body_element->rect.size.width + foreach_right_margin / 2; // TODO: use bending radius here?
+        foreach_passleft_element->rect.position.x = most_right_x + foreach_right_margin / 2; // TODO: use bending radius here?
         
         foreach_passdown_element->rect.position.y = foreach_init_element->rect.position.y + foreach_init_element->rect.size.height - foreach_passback_height;
         foreach_passdown_element->rect.position.x = foreach_init_element->rect.position.x + foreach_init_element->rect.size.width + foreach_middle_margin;
