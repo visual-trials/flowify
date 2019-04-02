@@ -54,6 +54,10 @@ expr =
     sub_expr "*" sub_expr
     sub_expr "==" sub_expr
     sub_expr
+
+// TODO: you probably want to add assign_expr here, which can be used for two ways of assignments:
+//   $variable = ...
+//   $variable['sdfsdf'] = ...
     
 sub_expr :=
     "(" expr ")"
