@@ -336,7 +336,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         current_position.x += for_init_element->rect.size.width + 2 * bending_radius - width_center_elements / 2;
         // TODO: we are creating some space at the top here. But we probably want the entire For-element to be move to the left, so we don't need this vertical space.
-        current_position.y += 100;  // FIXME: need to calculate this properly!
+        current_position.y += 50;  // FIXME: need to calculate this properly!
 
         // for_start_element->rect.position = current_position;
         
@@ -479,12 +479,12 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         current_position.x += foreach_init_element->rect.size.width + 2 * bending_radius - width_center_elements / 2;
         // TODO: we are creating some space at the top here. But we probably want the entire For-element to be move to the left, so we don't need this vertical space.
-        current_position.y += 100;  // FIXME: need to calculate this properly!
+        current_position.y += 50;  // FIXME: need to calculate this properly!
 
-        foreach_init_element->rect.position = current_position;
+        // foreach_init_element->rect.position = current_position;
         
-        current_position.y += foreach_init_element->rect.size.height + vertical_margin + vertical_margin;
-        current_position.x -= foreach_init_element->rect.size.width + 2 * bending_radius - width_center_elements / 2;
+        // current_position.y += foreach_init_element->rect.size.height + vertical_margin + vertical_margin;
+        // current_position.x -= foreach_init_element->rect.size.width + 2 * bending_radius - width_center_elements / 2;
         
         foreach_init_element->rect.position = current_position;
         
