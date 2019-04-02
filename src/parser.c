@@ -497,8 +497,7 @@ Node * parse_statement(Parser * parser)
         // Foreach
         Node * foreach_node = start_node(parser, Node_Stmt_Foreach, StartOnLatestToken);
         
-        // TODO: currently we set "foreach" as identifier of the foreach-cond expression to (later on) draw this text. We probably want to signify a foreach-keyword a different way.
-        Token * foreach_token = latest_eaten_token(parser);
+        Token * foreach_token = latest_eaten_token(parser);  // TODO: currently we set "foreach" as identifier of the foreach-cond expression to (later on) draw this text. We probably want to signify a foreach-keyword a different way.
         
         expect_token(parser, Token_OpenParenteses);
         
@@ -513,6 +512,9 @@ Node * parse_statement(Parser * parser)
         
         expect_token(parser, Token_As);
 
+        Token * as_token = latest_eaten_token(parser);  // TODO: currently we set "as" as identifier of the foreach-array expression to (later on) draw this text. We probably want to signify a as-keyword a different way.
+        foreach_array_node->identifier = as_token->text; // TODO: this is a little weird: the 'as'-token is not really part of the array-expression
+        
         // Foreach_Value_Var
         
         // We always expect a variable, which (by default) is the Foreach_Value_Var
@@ -524,6 +526,9 @@ Node * parse_statement(Parser * parser)
             // If there is an "=>", the first variable was the Key_Var instead, the next variable becomes the Value_Var
             foreach_first_var_node->type = Node_Stmt_Foreach_Key_Var;  // Foreach_Value_Var --becomes--> Foreach_Key_Var
 
+            Token * arrow_token = latest_eaten_token(parser);  // TODO: currently we set "=>" as identifier of the foreach-key_var expression to (later on) draw this text. We probably want to signify a "=>"-keyword a different way.
+            foreach_first_var_node->identifier = arrow_token->text; // TODO: this is a little weird: the 'as'-token is not really part of the array-expression
+        
             Node * foreach_second_var_node = parse_variable(parser, Node_Stmt_Foreach_Value_Var, true);
             add_child_node(foreach_second_var_node, foreach_cond_node);
         }
