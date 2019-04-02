@@ -75,6 +75,7 @@ enum TokenType
     Token_GreaterOrEqual,
     
     Token_Equal,
+    Token_ExactlyEqual,
     
     Token_EndOfStream    
 };
@@ -138,6 +139,7 @@ const char * token_type_names[] = {
     "GreaterOrEqual",
     
     "Equal",
+    "ExactlyEqual",
     
     "EndOfStream"
 };
@@ -290,8 +292,17 @@ Token get_token(Tokenizer * tokenizer)
             if (tokenizer->at[0] == '=')
             {
                 tokenizer->at++;
-                token.type = Token_Equal;
-                token.text.length = tokenizer->at - token.text.data;
+                if (tokenizer->at[0] == '=')
+                {
+                    tokenizer->at++;
+                    token.type = Token_ExactlyEqual;
+                    token.text.length = tokenizer->at - token.text.data;
+                }
+                else
+                {
+                    token.type = Token_Equal;
+                    token.text.length = tokenizer->at - token.text.data;
+                }
             }
             else if (tokenizer->at[0] == '>')   // "=>"
             {
