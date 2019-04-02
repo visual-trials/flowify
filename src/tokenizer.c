@@ -77,7 +77,9 @@ enum TokenType
     Token_GreaterOrEqual,
     
     Token_Equal,
+    Token_NotEqual,
     Token_ExactlyEqual,
+    Token_NotExactlyEqual,
     
     Token_LogicalAnd,
     Token_LogicalOr,
@@ -146,7 +148,9 @@ const char * token_type_names[] = {
     "GreaterOrEqual",
     
     "Equal",
+    "NotEqual",
     "ExactlyEqual",
+    "NotExactlyEqual",
     
     "LogicalAnd",
     "LogicalOr",
@@ -324,6 +328,29 @@ Token get_token(Tokenizer * tokenizer)
             }
             tokenizer->at++;
             token.text.length = tokenizer->at - token.text.data;
+        } break;
+        
+        case '!': {
+            if (tokenizer->at[0] == '=')
+            {
+                tokenizer->at++;
+                if (tokenizer->at[0] == '=')
+                {
+                    tokenizer->at++;
+                    token.type = Token_NotExactlyEqual;
+                    token.text.length = tokenizer->at - token.text.data;
+                }
+                else
+                {
+                    token.type = Token_NotEqual;
+                    token.text.length = tokenizer->at - token.text.data;
+                }
+            }
+            else
+            {
+                // TODO: implement other tokens starting with "!"
+                token.type = Token_Unknown;
+            }
         } break;
         
         case '=': {
