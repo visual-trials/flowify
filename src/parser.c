@@ -613,12 +613,21 @@ Node * parse_statement(Parser * parser)
         Token * return_token = latest_eaten_token(parser);
         return_node->identifier = return_token->text;
             
-        Node * return_expression_node = parse_expression(parser);
-        
-        add_child_node(return_expression_node, return_node);
-        
-        expect_token(parser, Token_Semicolon); 
+        if (accept_token(parser, Token_Semicolon))
+        {
+            // The return statement has no expression.
             
+            // TODO: should we add a dummy child to the return_node?
+            
+        }
+        else
+        {
+            Node * return_expression_node = parse_expression(parser);
+            
+            add_child_node(return_expression_node, return_node);
+            
+            expect_token(parser, Token_Semicolon); 
+        }
         end_node(parser, return_node);
         
         return return_node;
