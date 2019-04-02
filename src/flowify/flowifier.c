@@ -270,8 +270,6 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         FlowElement * for_passleft_element = new_element(flowifier, 0, FlowElement_PassBack);
         FlowElement * for_passdown_element = new_element(flowifier, 0, FlowElement_PassBack);
             
-        FlowElement * for_passthrough_element = new_element(flowifier, 0, FlowElement_PassThrough);
-        
         FlowElement * for_done_element = new_element(flowifier, 0, FlowElement_ForDone); 
         
         add_child_element(for_init_element, for_element);
@@ -284,7 +282,6 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         add_child_element(for_passup_element, for_element);
         add_child_element(for_passleft_element, for_element);
         add_child_element(for_passdown_element, for_element);
-        add_child_element(for_passthrough_element, for_element);
         add_child_element(for_done_element, for_element);
         
         for_element->first_in_flow = for_init_element;
@@ -346,8 +343,6 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         FlowElement * foreach_passleft_element = new_element(flowifier, 0, FlowElement_PassBack);
         FlowElement * foreach_passdown_element = new_element(flowifier, 0, FlowElement_PassBack);
             
-        FlowElement * foreach_passthrough_element = new_element(flowifier, 0, FlowElement_PassThrough);
-        
         FlowElement * foreach_done_element = new_element(flowifier, 0, FlowElement_ForeachDone); 
         
         add_child_element(foreach_init_element, foreach_element);        
@@ -359,7 +354,6 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         add_child_element(foreach_passup_element, foreach_element);
         add_child_element(foreach_passleft_element, foreach_element);
         add_child_element(foreach_passdown_element, foreach_element);
-        add_child_element(foreach_passthrough_element, foreach_element);
         add_child_element(foreach_done_element, foreach_element);
         
         foreach_element->first_in_flow = foreach_init_element;

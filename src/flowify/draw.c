@@ -386,8 +386,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * for_passup_element = for_passright_element->next_sibling;
         FlowElement * for_passleft_element = for_passup_element->next_sibling;
         FlowElement * for_passdown_element = for_passleft_element->next_sibling;
-        FlowElement * for_passthrough_element = for_passdown_element->next_sibling;
-        FlowElement * for_done_element = for_passthrough_element->next_sibling;
+        FlowElement * for_done_element = for_passdown_element->next_sibling;
 
         // draw_straight_element(flowifier, for_start_element, for_start_element->previous_in_flow, for_init_element, false);
         
@@ -400,7 +399,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_straight_element(flowifier, for_cond_element, for_join_element, for_split_element, false);
         draw_elements(flowifier, for_cond_element);
         
-        draw_splitting_element(flowifier, for_passthrough_element, for_body_element->first_in_flow, for_split_element, for_cond_element);
+        draw_splitting_element(flowifier, for_done_element, for_body_element->first_in_flow, for_split_element, for_cond_element);
         
         draw_elements(flowifier, for_body_element);
         
@@ -442,8 +441,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_element_rectangle(flowifier, for_passleft_element);
         draw_element_rectangle(flowifier, for_passdown_element);
         
-        draw_straight_element(flowifier, for_passthrough_element, 0, for_done_element, false);
-        draw_straight_element(flowifier, for_done_element, for_passthrough_element, for_done_element->next_in_flow, false);
+        draw_straight_element(flowifier, for_done_element, 0, for_done_element->next_in_flow, false);
     }
     else if (flow_element->type == FlowElement_Foreach)
     {
@@ -457,8 +455,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * foreach_passup_element = foreach_passright_element->next_sibling;
         FlowElement * foreach_passleft_element = foreach_passup_element->next_sibling;
         FlowElement * foreach_passdown_element = foreach_passleft_element->next_sibling;
-        FlowElement * foreach_passthrough_element = foreach_passdown_element->next_sibling;
-        FlowElement * foreach_done_element = foreach_passthrough_element->next_sibling;
+        FlowElement * foreach_done_element = foreach_passdown_element->next_sibling;
 
         draw_straight_element(flowifier, foreach_init_element, foreach_init_element->previous_in_flow, foreach_join_element, false);
         
@@ -471,7 +468,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_straight_element(flowifier, foreach_cond_element, foreach_join_element, foreach_split_element, false);
         draw_elements(flowifier, foreach_cond_element);
         
-        draw_splitting_element(flowifier, foreach_passthrough_element, foreach_body_element->first_in_flow, foreach_split_element, foreach_cond_element);
+        draw_splitting_element(flowifier, foreach_done_element, foreach_body_element->first_in_flow, foreach_split_element, foreach_cond_element);
         
         draw_elements(flowifier, foreach_body_element);
         
@@ -513,8 +510,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_element_rectangle(flowifier, foreach_passleft_element);
         draw_element_rectangle(flowifier, foreach_passdown_element);
         
-        draw_straight_element(flowifier, foreach_passthrough_element, 0, foreach_done_element, false);
-        draw_straight_element(flowifier, foreach_done_element, foreach_passthrough_element, foreach_done_element->next_in_flow, false);
+        draw_straight_element(flowifier, foreach_done_element, 0, foreach_done_element->next_in_flow, false);
     }
     else if (flow_element->type == FlowElement_FunctionCall)
     {

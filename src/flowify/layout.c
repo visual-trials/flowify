@@ -277,8 +277,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * for_passup_element = for_passright_element->next_sibling;
         FlowElement * for_passleft_element = for_passup_element->next_sibling;
         FlowElement * for_passdown_element = for_passleft_element->next_sibling;
-        FlowElement * for_passthrough_element = for_passdown_element->next_sibling;
-        FlowElement * for_done_element = for_passthrough_element->next_sibling;
+        FlowElement * for_done_element = for_passdown_element->next_sibling;
         
         i32 for_body_height = for_body_element->rect.size.height;
         
@@ -320,9 +319,6 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         for_passdown_element->rect.size.height = for_passback_height;
         for_passdown_element->rect.size.width = for_passback_width;
         
-        for_passthrough_element->rect.size.height = 0;
-        for_passthrough_element->rect.size.width = for_passthrough_width;
-        
         for_done_element->rect.size.height = 2 * bending_radius;
         for_done_element->rect.size.width = width_center_elements;
         
@@ -338,8 +334,6 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         // TODO: we are creating some space at the top here. But we probably want the entire For-element to be move to the left, so we don't need this vertical space.
         current_position.y += 50;  // FIXME: need to calculate this properly!
 
-        // for_start_element->rect.position = current_position;
-        
         // current_position.y += for_start_element->rect.size.height + vertical_margin + vertical_margin;
         current_position.x -= for_init_element->rect.size.width + 2 * bending_radius - width_center_elements / 2;
         
@@ -388,13 +382,8 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         for_passdown_element->rect.position.y = for_init_element->rect.position.y + for_init_element->rect.size.height - for_passback_height;
         for_passdown_element->rect.position.x = for_init_element->rect.position.x + for_init_element->rect.size.width + for_middle_margin;
         
-        // FIXME: we are assuming the body + update is always vertically larger than the for_passthrough_element
+        // FIXME: we are assuming the body + update is always vertically larger than the for_done_element
         current_position_left.y = current_position_right.y;
-        
-        for_passthrough_element->rect.position = current_position_left;
-        
-        current_position_left.y += for_passthrough_element->rect.size.height + bending_radius * 4;
-        current_position_left.x += for_passthrough_width + 2 * bending_radius - width_center_elements / 2;
         
         for_done_element->rect.position = current_position_left;
         
@@ -417,8 +406,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * foreach_passup_element = foreach_passright_element->next_sibling;
         FlowElement * foreach_passleft_element = foreach_passup_element->next_sibling;
         FlowElement * foreach_passdown_element = foreach_passleft_element->next_sibling;
-        FlowElement * foreach_passthrough_element = foreach_passdown_element->next_sibling;
-        FlowElement * foreach_done_element = foreach_passthrough_element->next_sibling;
+        FlowElement * foreach_done_element = foreach_passdown_element->next_sibling;
         
         i32 foreach_body_height = foreach_body_element->rect.size.height;
         
@@ -463,9 +451,6 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         foreach_passdown_element->rect.size.height = foreach_passback_height;
         foreach_passdown_element->rect.size.width = foreach_passback_width;
         
-        foreach_passthrough_element->rect.size.height = 0;
-        foreach_passthrough_element->rect.size.width = foreach_passthrough_width;
-        
         foreach_done_element->rect.size.height = 2 * bending_radius;
         foreach_done_element->rect.size.width = width_center_elements;
         
@@ -481,11 +466,6 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         // TODO: we are creating some space at the top here. But we probably want the entire For-element to be move to the left, so we don't need this vertical space.
         current_position.y += 50;  // FIXME: need to calculate this properly!
 
-        // foreach_init_element->rect.position = current_position;
-        
-        // current_position.y += foreach_init_element->rect.size.height + vertical_margin + vertical_margin;
-        // current_position.x -= foreach_init_element->rect.size.width + 2 * bending_radius - width_center_elements / 2;
-        
         foreach_init_element->rect.position = current_position;
         
         current_position.y += foreach_init_element->rect.size.height + foreach_passback_width + bending_radius + bending_radius + bending_radius;
@@ -513,10 +493,6 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         current_position_right.y += foreach_body_element->rect.size.height;
         
-        // foreach_update_element->rect.position = current_position_right;
-        
-        // current_position_right.y += foreach_update_element->rect.size.height + vertical_margin;
-        
         foreach_passright_element->rect.position.y = current_position_right.y;
         foreach_passright_element->rect.position.x = current_position_right.x + foreach_body_element->rect.size.width + foreach_right_margin / 2; // TODO: use bending radius here?
         
@@ -531,13 +507,8 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         foreach_passdown_element->rect.position.y = foreach_init_element->rect.position.y + foreach_init_element->rect.size.height - foreach_passback_height;
         foreach_passdown_element->rect.position.x = foreach_init_element->rect.position.x + foreach_init_element->rect.size.width + foreach_middle_margin;
         
-        // FIXME: we are assuming the body + update is always vertically larger than the foreach_passthrough_element
+        // FIXME: we are assuming the body + update is always vertically larger than the foreach_done_element
         current_position_left.y = current_position_right.y;
-        
-        foreach_passthrough_element->rect.position = current_position_left;
-        
-        current_position_left.y += foreach_passthrough_element->rect.size.height + bending_radius * 4;
-        current_position_left.x += foreach_passthrough_width + 2 * bending_radius - width_center_elements / 2;
         
         foreach_done_element->rect.position = current_position_left;
         
