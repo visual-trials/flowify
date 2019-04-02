@@ -85,8 +85,7 @@ enum NodeType
     Node_Expr_FuncCall_Args,
     
     Node_Expr_Variable,
-    
-    Node_Expr_Array_Access, // TODO: find a better name for this: $myArray['key']
+    Node_Expr_Variable_Array_Access, // for example: $myArray['key']
     
     // Scalars
     Node_Scalar_Number,
@@ -162,8 +161,7 @@ const char * node_type_names[] = {
     "Expr_FuncCall_Args",
     
     "Expr_Variable",
-    
-    "Expr_Array_Access",
+    "Expr_Variable_Array_Access",
     
     // Scalars
     "Scalar_Number",

@@ -55,23 +55,21 @@ expr =
     sub_expr "==" sub_expr
     sub_expr
 
-// TODO: you probably want to add assign_expr here, which can be used for two ways of assignments:
-//   $variable = ...
-//   $variable['sdfsdf'] = ...
-    
+var_array_access :=
+    var "[" expr "]"
+
 sub_expr :=
     "(" expr ")"
-    "++" var
-    "--" var
-    var "[" expr "]"
-    var "++"
-    var "--"
-    var "*=" expr
-    var "/=" expr
-    var "+=" expr
-    var "-=" expr
-    var "="  expr
-    var
+    "++" var                        // TODO: is var_array_access also allowed here?
+    "--" var                        // TODO: is var_array_access also allowed here?
+    var(_array_access) "++"
+    var(_array_access) "--"
+    var(_array_access) "*=" expr
+    var(_array_access) "/=" expr
+    var(_array_access) "+=" expr
+    var(_array_access) "-=" expr
+    var(_array_access) "="  expr
+    var(_array_access)
     number
     float
     single_quoted_string
@@ -201,22 +199,19 @@ Node * parse_sub_expression(Parser * parser)
         
         Node * variable_node = start_node(parser, Node_Expr_Variable, StartOnLatestToken);
         variable_node->identifier = variable_token->text;
-        end_node(parser, variable_node);
             
         if (accept_token(parser, Token_OpenBracket))
         {
-            sub_expression_node = start_node(parser, Node_Expr_Array_Access, StartOnTokenBeforeLatestToken); // Note: we assume that the variable takes only one token! (is Ampersand possible here?) 
-            
-            add_child_node(variable_node, sub_expression_node);
+            variable_node->type = Node_Expr_Variable_Array_Access;
             
             Node * access_expression_node = parse_expression(parser);
-            add_child_node(access_expression_node, sub_expression_node);
+            add_child_node(access_expression_node, variable_node);
             
             expect_token(parser, Token_CloseBracket);
-
-            end_node(parser, sub_expression_node);
         }
-        else if (accept_token(parser, Token_PlusPlus))
+        end_node(parser, variable_node);
+        
+        if (accept_token(parser, Token_PlusPlus))
         {
             // TODO: we should only allow '++' *right* behind a variableIdentifier!
             sub_expression_node = start_node(parser, Node_Expr_PostInc, StartOnTokenBeforeLatestToken);
