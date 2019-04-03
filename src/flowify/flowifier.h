@@ -67,7 +67,6 @@ enum FlowElementType
     // Data flow elements
     FlowElement_Hidden,         // TODO: using this to signify the contents of a function we don't know it's implementation of
     FlowElement_Assignment,
-    FlowElement_Assignee,
     FlowElement_AssignmentOperator,
     FlowElement_ArrayAccess,
     FlowElement_UnaryOperator,
@@ -129,7 +128,6 @@ const char * flow_element_type_names[] = {
     // Data flow elements
     "Hidden",
     "Assignment",
-    "Assignee",
     "AssignmentOperator",
     "ArrayAccess",
     "UnaryOperator",

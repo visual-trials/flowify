@@ -185,8 +185,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         flow_element->is_highlightable = true;
     }
     else if (flow_element->type == FlowElement_Variable ||
-             flow_element->type == FlowElement_Scalar ||
-             flow_element->type == FlowElement_Assignee)
+             flow_element->type == FlowElement_Scalar)
     {
         flow_element->rect.size = get_size_based_on_source_text(flowifier, flow_element, flowifier->variable_margin);
         flow_element->is_highlightable = true;

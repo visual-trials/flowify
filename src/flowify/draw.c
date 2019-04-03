@@ -385,7 +385,8 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         // TODO: use expression_style here too
         draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, false);
         
-        draw_rectangle_element(flowifier, assignee_element, flowifier->variable_style, true, true);
+        // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
+        draw_elements(flowifier, assignee_element);
         draw_rectangle_element(flowifier, assignment_operator_element, expression_style, false, true);
         // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
         draw_elements(flowifier, right_side_expression_element);

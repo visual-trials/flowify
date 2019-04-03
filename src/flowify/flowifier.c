@@ -38,7 +38,7 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
             
             FlowElement * assignment_expression_element = new_element(flowifier, expression_node, FlowElement_Assignment);
             
-            FlowElement * assignee_element = new_element(flowifier, assignee_node, FlowElement_Assignee);
+            FlowElement * assignee_element = flowify_expression(flowifier, assignee_node);
             add_child_element(assignee_element, assignment_expression_element);
             
             // Note: we set the ast-node of the operator itself to the whole assignment-expression (because the operator itself is not an ast-node by itself)
