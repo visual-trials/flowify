@@ -184,7 +184,7 @@ extern "C" {
         update_window_dimensions(world, &input->screen);
         
         load_program_text(world->program_texts[world->current_program_text_index], world);
-        
+
     }
     
     void update_frame()
@@ -301,6 +301,12 @@ extern "C" {
         Pos2d position_button = {20, 20};
         i32 margin_between_buttons = 20;
         
+        FlowElement * root_element = world->root_element;
+        Input * input = &global_input;
+        MouseInput * mouse = &input->mouse;
+        TouchesInput * touch = &input->touch;
+        Flowifier * flowifier = &world->flowifier;
+        
         for (i32 program_text_index = 0; program_text_index < world->nr_of_program_texts; program_text_index++)
         {
             b32 button_is_active = false;
@@ -316,15 +322,12 @@ extern "C" {
             {
                 world->current_program_text_index = program_text_index;
                 load_program_text(world->program_texts[world->current_program_text_index], world);
+        
+                // TODO: right now, we immediatly layout the elements, since we will absolute_layout_elements and then draw it below
+                layout_elements(flowifier, world->root_element);
             }
         }
         
-        
-        FlowElement * root_element = world->root_element;
-        Input * input = &global_input;
-        MouseInput * mouse = &input->mouse;
-        TouchesInput * touch = &input->touch;
-        Flowifier * flowifier = &world->flowifier;
         
         if (mouse->wheel_has_moved)
         {

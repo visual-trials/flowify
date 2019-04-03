@@ -599,6 +599,9 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         layout_elements(flowifier, function_body_element);
         
+        function_body_element->rect.position.x = 0;
+        function_body_element->rect.position.y = 0;
+        
         flow_element->rect.size = function_body_element->rect.size;
     }
     else if (flow_element->type == FlowElement_Root ||
@@ -611,9 +614,6 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
              flow_element->type == FlowElement_ForeachBody
              )
     {
-        // FIXME: position shouldnt be set here!
-        flow_element->rect.position.x = 0;
-        flow_element->rect.position.y = 0;
         
         i32 top_margin = 0;
         i32 bottom_margin = 0;
@@ -623,6 +623,11 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         if (flow_element->type == FlowElement_Root)
         {
+            // TODO: we probably shouldnt set the position here, but we don't want the position
+            //       of the root-element to be the responsibility of the calling code, right?
+            flow_element->rect.position.x = 0;
+            flow_element->rect.position.y = 0;
+            
             top_margin = 20; // FIXME: get from Flowifier!
             bottom_margin = 20; // FIXME: get from Flowifier!
             
