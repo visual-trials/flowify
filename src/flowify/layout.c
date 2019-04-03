@@ -628,11 +628,11 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
             flow_element->rect.position.x = 0;
             flow_element->rect.position.y = 0;
             
-            top_margin = 20; // FIXME: get from Flowifier!
-            bottom_margin = 20; // FIXME: get from Flowifier!
+            top_margin = bending_radius;
+            bottom_margin = bending_radius;
             
-            left_margin = 20; // FIXME: get from Flowifier!
-            right_margin = 20; // FIXME: get from Flowifier!
+            left_margin = bending_radius;
+            right_margin = bending_radius;
         }
         
         i32 summed_children_height = 0;
