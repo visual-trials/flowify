@@ -146,6 +146,8 @@ struct FlowElement
     Node * ast_node;
     String source_text;
     
+    b32 is_statement;
+    
     // These 5 FlowElements represent a parental and sibling "hierarchy" (mostly used for "looping" through all elements)
     FlowElement * first_child;
     FlowElement * last_child;
@@ -293,6 +295,7 @@ struct Flowifier
 };
 
 FlowElement * new_element(Flowifier * flowifier, Node * ast_node, FlowElementType flow_element_type);
+FlowElement * new_element(Flowifier * flowifier, Node * ast_node, FlowElementType flow_element_type, b32 is_statement);
 
 void init_flowifier(Flowifier * flowifier, Parser * parser)
 {
@@ -388,6 +391,11 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
 
 FlowElement * new_element(Flowifier * flowifier, Node * ast_node, FlowElementType flow_element_type)
 {
+    return new_element(flowifier, ast_node, flow_element_type, false);
+}
+
+FlowElement * new_element(Flowifier * flowifier, Node * ast_node, FlowElementType flow_element_type, b32 is_statement)
+{
     Parser * parser = flowifier->parser;
     
     FlowElement empty_flow_element = {};
@@ -402,6 +410,8 @@ FlowElement * new_element(Flowifier * flowifier, Node * ast_node, FlowElementTyp
     new_flow_element->ast_node = ast_node;
     // FIXME: for the root element, the source_text has an extra character at the end (which doesn't look right)
     new_flow_element->source_text = get_source_text_from_ast_node(parser, ast_node);
+    
+    new_flow_element->is_statement = is_statement;
     
     new_flow_element->first_child = 0;
     new_flow_element->last_child = 0;

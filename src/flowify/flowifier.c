@@ -18,7 +18,7 @@
 
 void flowify_statements(Flowifier * flowifier, FlowElement * parent_element);
 
-FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
+FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node, b32 is_statement = false)
 {
     // TODO: we should flowify the expression! Meaning: we should track the dataflow as well (for now we only track control flow)
     
@@ -172,6 +172,8 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node)
         new_expression_element->last_in_flow = new_expression_element;
     }
     
+    new_expression_element->is_statement = is_statement;
+    
     return new_expression_element;
 }
 
@@ -214,9 +216,9 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
     {
         Node * expression_node = statement_node->first_child;
         
-        FlowElement * new_expression_element = flowify_expression(flowifier, expression_node);
+        b32 is_statement = true;
+        FlowElement * new_expression_element = flowify_expression(flowifier, expression_node, is_statement);
         
-        // TODO: should we wrap the expression element inside a statement element?
         new_statement_element = new_expression_element;
         new_statement_element->first_in_flow = new_expression_element->first_in_flow;
         new_statement_element->last_in_flow = new_expression_element->last_in_flow;

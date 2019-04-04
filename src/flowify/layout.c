@@ -589,6 +589,19 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         flow_element->rect.size.width = left_margin + function_element->rect.size.width + right_margin;
         flow_element->rect.size.height = top_margin + function_element->rect.size.height + bottom_margin;
+        
+        // If a function call is a statement, it gets extra room (unlike normal expression)
+        // This is because a normal expression won't get a rounded rectangle if its an expression (only straight bars beside it, meaning: single margings)
+        // But a function call *will* get a rounded rectangel AND straight bars beside it. So we need double de margins!
+        if (flow_element->is_statement)
+        {
+            function_element->rect.position.x += left_margin;
+            function_element->rect.position.y += top_margin; 
+            
+            flow_element->rect.size.width += left_margin + right_margin;
+            flow_element->rect.size.height += top_margin + bottom_margin;
+        }
+        
         flow_element->is_highlightable = true;
     }
     else if (flow_element->type == FlowElement_Function)

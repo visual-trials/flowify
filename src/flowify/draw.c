@@ -542,6 +542,19 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     {
         Rect2d rect = flow_element->rect_abs;
         
+        if (flow_element->is_statement)
+        {
+            draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, false);
+            
+            // FIXME: We should add a Stmt_Expr element to all statements instead (and give it margins only for function-calls!)
+            //        Other statements (previous_in_flow and next_in_flow) can then also correctly connect with that element!
+            i32 bending_radius = flowifier->bending_radius;
+            rect.position.x += bending_radius;
+            rect.position.y += bending_radius;
+            rect.size.width -= bending_radius + bending_radius;
+            rect.size.height -= bending_radius + bending_radius;
+        }
+        
         draw_rounded_rectangle(rect, flowifier->bending_radius, 
                                flowifier->function_line_color, flowifier->function_fill_color, flowifier->function_line_width);
 
