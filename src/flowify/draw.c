@@ -424,10 +424,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * for_passdown_element = for_passleft_element->next_sibling;
         FlowElement * for_done_element = for_passdown_element->next_sibling;
 
-        // draw_straight_element(flowifier, for_start_element, for_start_element->previous_in_flow, for_init_element, false);
-        
         draw_elements(flowifier, for_init_element);
-        // draw_straight_element(flowifier, for_init_element, for_start_element, 0);
         
         draw_joining_element(flowifier, for_init_element, for_passdown_element, for_join_element, for_cond_element);
         
@@ -440,7 +437,6 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_elements(flowifier, for_body_element);
         
         draw_elements(flowifier, for_update_element);
-        // draw_straight_element(flowifier, for_update_element, for_body_element->last_in_flow, 0);
         
         Rect2d update_rect = for_update_element->rect_abs;
         
@@ -495,9 +491,6 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
 
         draw_straight_element(flowifier, foreach_init_element, foreach_init_element->previous_in_flow, foreach_join_element, false);
         
-        // draw_elements(flowifier, foreach_init_element);
-        // draw_straight_element(flowifier, foreach_init_element, foreach_start_element, 0);
-        
         draw_joining_element(flowifier, foreach_init_element, foreach_passdown_element, foreach_join_element, foreach_cond_element);
         
         // TODO: we  draw the if-cond in a way so that the side-lines are drawn AND the if-cond-expression is drawn
@@ -507,9 +500,6 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_splitting_element(flowifier, foreach_done_element, foreach_body_element->first_in_flow, foreach_split_element, foreach_cond_element);
         
         draw_elements(flowifier, foreach_body_element);
-        
-        // draw_elements(flowifier, foreach_update_element);
-        // draw_straight_element(flowifier, foreach_update_element, foreach_body_element->last_in_flow, 0);
         
         Rect2d last_body_element_rect = foreach_body_element->last_in_flow->rect_abs;
         
