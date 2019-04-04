@@ -356,6 +356,42 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
         draw_elements(flowifier, return_expression_element);
     }
+    else if (flow_element->type == FlowElement_UnaryPostOperation)
+    {
+        i32 expression_depth = 0; // FIXME: fill this with the depth of the expression-stack! We should probably store this in FlowElement
+        FlowStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
+        
+        FlowElement * assignee_element = flow_element->first_child;
+        FlowElement * unary_operator_element = assignee_element->next_sibling;
+
+        if (flow_element->is_statement)
+        {
+            // TODO: use expression_style here too
+            draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, false);
+        }
+        
+        // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
+        draw_elements(flowifier, assignee_element);
+        draw_rectangle_element(flowifier, unary_operator_element, expression_style, false, true);
+    }
+    else if (flow_element->type == FlowElement_UnaryPreOperation)
+    {
+        i32 expression_depth = 0; // FIXME: fill this with the depth of the expression-stack! We should probably store this in FlowElement
+        FlowStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
+        
+        FlowElement * unary_operator_element = flow_element->first_child;
+        FlowElement * assignee_element = assignee_element->next_sibling;
+
+        if (flow_element->is_statement)
+        {
+            // TODO: use expression_style here too
+            draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, false);
+        }
+        
+        // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
+        draw_rectangle_element(flowifier, unary_operator_element, expression_style, false, true);
+        draw_elements(flowifier, assignee_element);
+    }
     else if (flow_element->type == FlowElement_BinaryOperation)
     {
         i32 expression_depth = 1; // FIXME: fill this with the depth of the expression-stack! We should probably store this in FlowElement

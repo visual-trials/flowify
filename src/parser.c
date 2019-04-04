@@ -179,6 +179,10 @@ Node * parse_sub_expression(Parser * parser)
     {
         sub_expression_node = start_node(parser, Node_Expr_PreInc, StartOnLatestToken);
         
+        // The unary operator acts as the identifier of the unary-expression (note: we assume its has just been comsumed, so we get the latest token)
+        Token * unary_operator_token = latest_eaten_token(parser);
+        sub_expression_node->identifier = unary_operator_token->text;
+    
         Node * variable_node = parse_variable(parser, Node_Expr_Variable, true);
         add_child_node(variable_node, sub_expression_node);
         
@@ -187,6 +191,10 @@ Node * parse_sub_expression(Parser * parser)
     else if (accept_token(parser, Token_MinusMinus))
     {
         sub_expression_node = start_node(parser, Node_Expr_PreDec, StartOnLatestToken);
+        
+        // The unary operator acts as the identifier of the unary-expression (note: we assume its has just been comsumed, so we get the latest token)
+        Token * unary_operator_token = latest_eaten_token(parser);
+        sub_expression_node->identifier = unary_operator_token->text;
         
         Node * variable_node = parse_variable(parser, Node_Expr_Variable, true);
         add_child_node(variable_node, sub_expression_node);
@@ -216,6 +224,10 @@ Node * parse_sub_expression(Parser * parser)
             // TODO: we should only allow '++' *right* behind a variableIdentifier!
             sub_expression_node = start_node(parser, Node_Expr_PostInc, StartOnTokenBeforeLatestToken);
                 
+            // The unary operator acts as the identifier of the unary-expression (note: we assume its has just been comsumed, so we get the latest token)
+            Token * unary_operator_token = latest_eaten_token(parser);
+            sub_expression_node->identifier = unary_operator_token->text;
+        
             add_child_node(variable_node, sub_expression_node);
             
             end_node(parser, sub_expression_node);
@@ -225,6 +237,10 @@ Node * parse_sub_expression(Parser * parser)
             // TODO: we should only allow '--' *right* behind a variableIdentifier!
             sub_expression_node = start_node(parser, Node_Expr_PostDec, StartOnTokenBeforeLatestToken);
                 
+            // The unary operator acts as the identifier of the unary-expression (note: we assume its has just been comsumed, so we get the latest token)
+            Token * unary_operator_token = latest_eaten_token(parser);
+            sub_expression_node->identifier = unary_operator_token->text;
+        
             add_child_node(variable_node, sub_expression_node);
             
             end_node(parser, sub_expression_node);

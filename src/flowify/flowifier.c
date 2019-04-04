@@ -55,11 +55,40 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node, 
             // TODO: new_expression_element->last_in_flow ?= right_side_expression_element->last_in_flow;
         }
         else if (expression_node->type == Node_Expr_PreInc ||
-                 expression_node->type == Node_Expr_PreDec ||
-                 expression_node->type == Node_Expr_PostInc ||
+                 expression_node->type == Node_Expr_PreDec)
+        {
+            Node * assignee_node = expression_node->first_child;
+            
+            FlowElement * unary_pre_operation_element = new_element(flowifier, expression_node, FlowElement_UnaryPreOperation);
+            
+            // Note: we set the ast-node of the operator itself to the whole unary-expression (because the operator itself is not an ast-node by itself)
+            FlowElement * unary_operator_element = new_element(flowifier, expression_node, FlowElement_UnaryOperator);
+            // TODO: we use the identifier of the expression (which is filled with the operator itself) as the "source_text" of this element! (little dirty)
+            unary_operator_element->source_text = expression_node->identifier;
+            add_child_element(unary_operator_element, unary_pre_operation_element);
+            
+            FlowElement * assignee_element = flowify_expression(flowifier, assignee_node);
+            add_child_element(assignee_element, unary_pre_operation_element);
+            
+            new_expression_element = unary_pre_operation_element;
+        }
+        else if (expression_node->type == Node_Expr_PostInc ||
                  expression_node->type == Node_Expr_PostDec)
         {
-            new_expression_element = new_element(flowifier, expression_node, FlowElement_UnaryOperator);
+            Node * assignee_node = expression_node->first_child;
+            
+            FlowElement * unary_post_operation_element = new_element(flowifier, expression_node, FlowElement_UnaryPostOperation);
+            
+            FlowElement * assignee_element = flowify_expression(flowifier, assignee_node);
+            add_child_element(assignee_element, unary_post_operation_element);
+            
+            // Note: we set the ast-node of the operator itself to the whole unary-expression (because the operator itself is not an ast-node by itself)
+            FlowElement * unary_operator_element = new_element(flowifier, expression_node, FlowElement_UnaryOperator);
+            // TODO: we use the identifier of the expression (which is filled with the operator itself) as the "source_text" of this element! (little dirty)
+            unary_operator_element->source_text = expression_node->identifier;
+            add_child_element(unary_operator_element, unary_post_operation_element);
+            
+            new_expression_element = unary_post_operation_element;
         }
         else if (expression_node->type == Node_Expr_BinaryOp_Multiply ||
                  expression_node->type == Node_Expr_BinaryOp_Divide ||
@@ -181,7 +210,8 @@ FlowElement * flowify_child_expression_or_passthrough(Flowifier * flowifier, Nod
 {
     if (parent_node && parent_node->first_child)
     {
-        FlowElement * expression_element = flowify_expression(flowifier, parent_node->first_child);
+        b32 is_statement = true;
+        FlowElement * expression_element = flowify_expression(flowifier, parent_node->first_child, is_statement);
         return expression_element;
     }
     else

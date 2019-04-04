@@ -177,6 +177,36 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         flow_element->is_highlightable = true;
     }
+    else if (flow_element->type == FlowElement_UnaryPostOperation)
+    {
+        FlowElement * assignee_element = flow_element->first_child;
+        FlowElement * unary_operator_element = assignee_element->next_sibling;
+        
+        layout_elements(flowifier, assignee_element);
+        layout_elements(flowifier, unary_operator_element);
+
+        i32 in_between_distance = 0; // FIXME: put this in Flowifier!
+
+        flow_element->rect.size = layout_horizontally(&assignee_element->rect, &unary_operator_element->rect, 
+                                                      in_between_distance, flowifier->expression_margin);
+        
+        flow_element->is_highlightable = true;
+    }
+    else if (flow_element->type == FlowElement_UnaryPreOperation)
+    {
+        FlowElement * unary_operator_element = flow_element->first_child;
+        FlowElement * assignee_element = assignee_element->next_sibling;
+        
+        layout_elements(flowifier, unary_operator_element);
+        layout_elements(flowifier, assignee_element);
+
+        i32 in_between_distance = 0; // FIXME: put this in Flowifier!
+
+        flow_element->rect.size = layout_horizontally(&unary_operator_element->rect, &assignee_element->rect, 
+                                                      in_between_distance, flowifier->expression_margin);
+        
+        flow_element->is_highlightable = true;
+    }
     else if (flow_element->type == FlowElement_UnaryOperator ||
              flow_element->type == FlowElement_BinaryOperator ||
              flow_element->type == FlowElement_AssignmentOperator)
