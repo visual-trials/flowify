@@ -380,7 +380,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
         
         FlowElement * unary_operator_element = flow_element->first_child;
-        FlowElement * assignee_element = assignee_element->next_sibling;
+        FlowElement * assignee_element = unary_operator_element->next_sibling;
 
         if (flow_element->is_statement)
         {
