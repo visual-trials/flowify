@@ -254,10 +254,9 @@ struct Flowifier
     Color4 selected_fill;
     i32 selected_line_width;
     
-    // TODO: make a struct for 3 colors, 1 line width!
+    // TODO: make a struct for 2 colors, 1 line width!
     Color4 function_line_color;
-    Color4 function_even_fill_color;
-    Color4 function_odd_fill_color;
+    Color4 function_fill_color;
     i32 function_line_width;
     
     FlowStyleEvenOdd expression_style;
@@ -331,8 +330,7 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     flowifier->selected_line_width = 2;
     
     flowifier->function_line_color = (Color4){ 200, 200, 200, 255};
-    flowifier->function_even_fill_color = (Color4){ 235, 235, 235, 100}; // FIXME: remove alpha
-    flowifier->function_odd_fill_color  = (Color4){ 245, 245, 245, 100}; // FIXME: remove alpha
+    flowifier->function_fill_color = (Color4){ 255, 255, 255, 255};
     flowifier->function_line_width = 2;
     
     flowifier->expression_style.line_color = (Color4){ 200, 255, 200, 255};

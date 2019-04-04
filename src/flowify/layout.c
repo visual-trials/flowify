@@ -575,23 +575,21 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
     {
         FlowElement * function_element = flow_element->first_child;
 
-         // FIXME: workaround to create more vertical margin (extra bending_radius added)
-        i32 top_margin = bending_radius + bending_radius;
-        i32 bottom_margin = bending_radius + bending_radius;
+        i32 top_margin = bending_radius;
+        i32 bottom_margin = bending_radius;
         
         i32 left_margin = bending_radius;
         i32 right_margin = bending_radius;
             
         layout_elements(flowifier, function_element);
         
+        // TODO: we might want to let the function-element and function-call-element touch at top and bottom
         function_element->rect.position.x = left_margin;
-        function_element->rect.position.y = top_margin;
+        function_element->rect.position.y = top_margin; 
         
         flow_element->rect.size.width = left_margin + function_element->rect.size.width + right_margin;
         flow_element->rect.size.height = top_margin + function_element->rect.size.height + bottom_margin;
         flow_element->is_highlightable = true;
-        
-        // flow_element->rect.size = function_element->rect.size;
     }
     else if (flow_element->type == FlowElement_Function)
     {

@@ -16,7 +16,7 @@
 
  */
 
-void draw_element_rectangle(Flowifier * flowifier, FlowElement * flow_element)
+void draw_interaction_rectangle(Flowifier * flowifier, FlowElement * flow_element)
 {
     if (flowifier->interaction.hovered_element_index == flow_element->index)
     {
@@ -130,7 +130,7 @@ void draw_joining_element(Flowifier * flowifier, FlowElement * left_element, Flo
                                         flowifier->bending_radius, flowifier->line_width, 
                                         flowifier->line_color, fill_color, fill_color);
                                        
-    draw_element_rectangle(flowifier, joining_element);
+    draw_interaction_rectangle(flowifier, joining_element);
     
 }
 
@@ -169,7 +169,7 @@ void draw_splitting_element(Flowifier * flowifier, FlowElement * left_element, F
                                         flowifier->bending_radius, flowifier->line_width, 
                                         flowifier->line_color, fill_color, fill_color);
  
-    draw_element_rectangle(flowifier, splitting_element);
+    draw_interaction_rectangle(flowifier, splitting_element);
 }
 
 void draw_straight_element(Flowifier * flowifier, FlowElement * flow_element, FlowElement * element_previous_in_flow, 
@@ -216,7 +216,7 @@ void draw_straight_element(Flowifier * flowifier, FlowElement * flow_element, Fl
         draw_text(text_position, &flow_element->source_text, flowifier->font, flowifier->text_color);
     }
     
-    draw_element_rectangle(flowifier, flow_element);
+    draw_interaction_rectangle(flowifier, flow_element);
 }
 
 FlowStyle get_style_by_oddness(FlowStyleEvenOdd style_even_odd, b32 is_odd)
@@ -264,7 +264,7 @@ void draw_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, F
         draw_text(text_position, &flow_element->source_text, flowifier->font, flowifier->text_color);
     }
     
-    draw_element_rectangle(flowifier, flow_element);
+    draw_interaction_rectangle(flowifier, flow_element);
 }
 
 void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
@@ -472,10 +472,10 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_cornered_lane_segment(hor_line, vert_line, flowifier->bending_radius, 
                                    flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
 
-        draw_element_rectangle(flowifier, for_passright_element);
-        draw_element_rectangle(flowifier, for_passup_element);
-        draw_element_rectangle(flowifier, for_passleft_element);
-        draw_element_rectangle(flowifier, for_passdown_element);
+        draw_interaction_rectangle(flowifier, for_passright_element);
+        draw_interaction_rectangle(flowifier, for_passup_element);
+        draw_interaction_rectangle(flowifier, for_passleft_element);
+        draw_interaction_rectangle(flowifier, for_passdown_element);
         
         draw_straight_element(flowifier, for_done_element, 0, for_done_element->next_in_flow, false);
     }
@@ -541,10 +541,10 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_cornered_lane_segment(hor_line, vert_line, flowifier->bending_radius, 
                                    flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
 
-        draw_element_rectangle(flowifier, foreach_passright_element);
-        draw_element_rectangle(flowifier, foreach_passup_element);
-        draw_element_rectangle(flowifier, foreach_passleft_element);
-        draw_element_rectangle(flowifier, foreach_passdown_element);
+        draw_interaction_rectangle(flowifier, foreach_passright_element);
+        draw_interaction_rectangle(flowifier, foreach_passup_element);
+        draw_interaction_rectangle(flowifier, foreach_passleft_element);
+        draw_interaction_rectangle(flowifier, foreach_passdown_element);
         
         draw_straight_element(flowifier, foreach_done_element, 0, foreach_done_element->next_in_flow, false);
     }
@@ -552,15 +552,10 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     {
         Rect2d rect = flow_element->rect_abs;
         
-        // FIXME: workaround to create more vertical margin (here we substract from the size)
-        rect.position.y += flowifier->bending_radius;
-        rect.size.height -= flowifier->bending_radius * 2;
-        
-        // TODO: determine fill color depending on odd/even depth
         draw_rounded_rectangle(rect, flowifier->bending_radius, 
-                               flowifier->function_line_color, flowifier->function_even_fill_color, flowifier->function_line_width);
+                               flowifier->function_line_color, flowifier->function_fill_color, flowifier->function_line_width);
 
-        draw_element_rectangle(flowifier, flow_element);
+        draw_interaction_rectangle(flowifier, flow_element);
         
         // Drawing the function itself
         
@@ -586,9 +581,8 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     {
         if (flow_element->type == FlowElement_Root)
         {
-            // TODO: determine fill color depending on odd/even depth
             draw_rounded_rectangle(flow_element->rect_abs, flowifier->bending_radius, 
-                                   flowifier->function_line_color, flowifier->function_odd_fill_color, flowifier->function_line_width);
+                                   flowifier->function_line_color, flowifier->function_fill_color, flowifier->function_line_width);
         }
                                
         FlowElement * child_element = flow_element->first_child;
@@ -604,6 +598,6 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     }
     
     // TODO: this will double-draw in case of primitive elements
-    draw_element_rectangle(flowifier, flow_element);
+    draw_interaction_rectangle(flowifier, flow_element);
     
 }
