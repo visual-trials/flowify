@@ -206,11 +206,10 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node, 
     return new_expression_element;
 }
 
-FlowElement * flowify_child_expression_or_passthrough(Flowifier * flowifier, Node * parent_node)
+FlowElement * flowify_child_expression_or_passthrough(Flowifier * flowifier, Node * parent_node, b32 is_statement = false)
 {
     if (parent_node && parent_node->first_child)
     {
-        b32 is_statement = true;
         FlowElement * expression_element = flowify_expression(flowifier, parent_node->first_child, is_statement);
         return expression_element;
     }
@@ -302,7 +301,8 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         Node * for_body_node = for_update_node->next_sibling;
         
         FlowElement * for_init_element = new_element(flowifier, for_init_node, FlowElement_ForInit); 
-        FlowElement * init_expression_element = flowify_child_expression_or_passthrough(flowifier, for_init_node);
+        b32 is_statement = true;
+        FlowElement * init_expression_element = flowify_child_expression_or_passthrough(flowifier, for_init_node, is_statement);
         add_child_element(init_expression_element, for_init_element);
         
         FlowElement * for_join_element = new_element(flowifier, 0, FlowElement_ForJoin); 
@@ -322,7 +322,8 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         flowify_child_statements_or_passthrough(flowifier, for_body_node, for_body_element);
         
         FlowElement * for_update_element = new_element(flowifier, for_update_node, FlowElement_ForUpdate); 
-        FlowElement * update_expression_element = flowify_child_expression_or_passthrough(flowifier, for_update_node);
+        is_statement = true;
+        FlowElement * update_expression_element = flowify_child_expression_or_passthrough(flowifier, for_update_node, is_statement);
         add_child_element(update_expression_element, for_update_element);
         
         FlowElement * for_passright_element = new_element(flowifier, 0, FlowElement_PassBack);
