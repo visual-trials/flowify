@@ -262,6 +262,10 @@ Node * parse_sub_expression(Parser * parser)
         {
             sub_expression_node = parse_variable_assignment(parser, Node_Expr_AssignOp_Minus, variable_node);
         }
+        else if (accept_token(parser, Token_AssignConcat))
+        {
+            sub_expression_node = parse_variable_assignment(parser, Node_Expr_AssignOp_Concat, variable_node);
+        }
         else if (accept_token(parser, Token_Assign))
         {
             sub_expression_node = parse_variable_assignment(parser, Node_Expr_Assign, variable_node);
@@ -401,6 +405,10 @@ Node * parse_expression(Parser * parser)
     else if (accept_token(parser, Token_Minus))
     {
         expression_node = parse_binary_op_expression(parser, Node_Expr_BinaryOp_Minus, left_sub_expression);
+    }
+    else if (accept_token(parser, Token_Period))
+    {
+        expression_node = parse_binary_op_expression(parser, Node_Expr_BinaryOp_Concat, left_sub_expression);
     }
     else if (accept_token(parser, Token_LogicalAnd))
     {

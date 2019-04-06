@@ -33,6 +33,7 @@ enum TokenType
     Token_OpenBrace,
     Token_CloseBrace,
     
+    Token_Period,
     Token_Colon,
     Token_Semicolon,
     Token_Comma,
@@ -63,6 +64,7 @@ enum TokenType
     Token_AssignDivide,
     Token_AssignPlus,
     Token_AssignMinus,
+    Token_AssignConcat,
     
     Token_Multiply,
     Token_Divide,
@@ -104,6 +106,7 @@ const char * token_type_names[] = {
     "OpenBrace",
     "CloseBrace",
     
+    "Period",
     "Colon",
     "Semicolon",
     "Comma",
@@ -134,6 +137,7 @@ const char * token_type_names[] = {
     "AssignDivide",
     "AssignPlus",
     "AssignMinus",
+    "AssignConcat",
     
     "Multiply",
     "Divide",
@@ -439,6 +443,19 @@ Token get_token(Tokenizer * tokenizer)
             else
             {
                 token.type = Token_Minus;
+            }
+        } break;
+        
+        case '.': {
+            if (tokenizer->at[0] == '=')
+            {
+                tokenizer->at++;
+                token.type = Token_AssignConcat;
+                token.text.length = tokenizer->at - token.text.data;
+            }
+            else
+            {
+                token.type = Token_Period;
             }
         } break;
         

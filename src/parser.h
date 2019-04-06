@@ -70,6 +70,8 @@ enum NodeType
     Node_Expr_BinaryOp_Divide,
     Node_Expr_BinaryOp_Plus,
     Node_Expr_BinaryOp_Minus,
+    Node_Expr_BinaryOp_Concat,
+    
     Node_Expr_BinaryOp_Smaller,
     Node_Expr_BinaryOp_Greater,
     Node_Expr_BinaryOp_Equal,
@@ -147,6 +149,8 @@ const char * node_type_names[] = {
     "Expr_BinaryOp_Divide",
     "Expr_BinaryOp_Plus",
     "Expr_BinaryOp_Minus",
+    "Expr_BinaryOp_Concat",
+    
     "Expr_BinaryOp_Smaller",
     "Expr_BinaryOp_Greater",
     "Expr_BinaryOp_Equal",

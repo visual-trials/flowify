@@ -94,6 +94,7 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node, 
                  expression_node->type == Node_Expr_BinaryOp_Divide ||
                  expression_node->type == Node_Expr_BinaryOp_Plus ||
                  expression_node->type == Node_Expr_BinaryOp_Minus ||
+                 expression_node->type == Node_Expr_BinaryOp_Concat ||
                  expression_node->type == Node_Expr_BinaryOp_Smaller ||
                  expression_node->type == Node_Expr_BinaryOp_Greater ||
                  expression_node->type == Node_Expr_BinaryOp_NotEqual ||
