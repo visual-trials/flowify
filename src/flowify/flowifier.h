@@ -317,7 +317,7 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     flowifier->line_color          = (Color4){  0,   0,   0, 255};
     flowifier->text_color          = (Color4){  0,   0,   0, 255};
     flowifier->statement_corner_radius = 20;
-    flowifier->line_width = 4;
+    flowifier->line_width = 2;
     
     // FIXME: isnt the unhighlighted_color == statement_fill_color?
     flowifier->unhighlighted_color = (Color4){180, 180, 255, 255};
@@ -361,7 +361,7 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     flowifier->detail_fill_color = (Color4){ 255, 255, 255, 200};
     flowifier->detail_line_width = 2;
     
-    flowifier->font.height = 20;
+    flowifier->font.height = 18;
     flowifier->font.family = Font_CourierNew;
     
     ShortString white_space;

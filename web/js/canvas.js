@@ -25,6 +25,9 @@ Flowify.canvas = function () {
     my.canvasElement = document.getElementById("canvas")
     my.context2d = my.canvasElement.getContext("2d")
     
+    // FIXME: we need a proper way of drawing shadows
+    my.drawShadows = true
+    
     my.usingPhysicalPixels = false
     my.scale = 1
 
@@ -154,13 +157,33 @@ Flowify.canvas = function () {
                 ctx.arcTo(x, y + height, x, y, r)
                 ctx.arcTo(x, y, x + width, y, r)
                 ctx.closePath()
+
+                if (my.drawShadows) {
+                    ctx.shadowOffsetX = 3
+                    ctx.shadowOffsetY = 3
+                    ctx.shadowBlur    = 7
+                }
+                if (lineColorAlpha) {
+                    if (my.drawShadows) {
+                        ctx.shadowColor   = "#222222"
+                    }
+                    ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
+                    ctx.lineWidth = lineWidth
+                    ctx.stroke()
+                }
                 
                 if (fillColorAlpha) {
+                    if (my.drawShadows) {
+                        ctx.shadowColor = "transparent";
+                    }
                     ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
                     ctx.fill()
                 }
 
                 if (lineColorAlpha) {
+                    if (my.drawShadows) {
+                        ctx.shadowColor = "transparent";
+                    }
                     ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
                     ctx.lineWidth = lineWidth
                     ctx.stroke()
@@ -168,6 +191,73 @@ Flowify.canvas = function () {
             },
             
             _jsDrawCorneredLaneSegment: function (horLeftX, horRightX, horY, vertX, vertTopY, vertBottomY, radius, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
+                
+                if (my.drawShadows) {
+                    ctx.shadowOffsetX = 3
+                    ctx.shadowOffsetY = 3
+                    ctx.shadowBlur    = 7
+                    
+                    if (lineColorAlpha) {
+                        // Draw borders
+                        
+                        ctx.beginPath()     
+                        
+                        ctx.moveTo(horLeftX, horY)
+                        if (vertX < horLeftX) {
+                            // The lane ends to the left of the beginning (we are drawing West)
+                            if (vertBottomY < horY) {
+                                // The lane ends to the top of the beginning (we are drawing West -> North)
+                                
+                                ctx.arcTo(horLeftX, vertBottomY, horLeftX - radius, vertBottomY, radius)
+                                ctx.lineTo(vertX, vertBottomY)
+                                
+                                ctx.moveTo(vertX, vertTopY)
+                                
+                                ctx.arcTo(horRightX, vertTopY, horRightX, vertTopY + radius, radius)
+                            }
+                            else {
+                                // The lane ends to the bottom of the beginning (we are drawing West -> South)
+                                
+                                ctx.arcTo(horLeftX, vertTopY, horLeftX - radius, vertTopY, radius)
+                                ctx.lineTo(vertX, vertTopY)
+                                
+                                ctx.moveTo(vertX, vertBottomY)
+                                
+                                ctx.arcTo(horRightX, vertBottomY, horRightX, vertBottomY - radius, radius)
+                            }
+                        }
+                        else {
+                            // The lane ends to the right of the beginning (we are drawing East)
+                            if (vertBottomY < horY) {
+                                // The lane ends to the top of the beginning (we are drawing East -> North)
+                                
+                                ctx.arcTo(horLeftX, vertTopY, horLeftX + radius, vertTopY, radius)
+                                ctx.lineTo(vertX, vertTopY)
+                                
+                                ctx.moveTo(vertX, vertBottomY)
+                                
+                                ctx.arcTo(horRightX, vertBottomY, horRightX, vertBottomY + radius, radius)
+                            }
+                            else {
+                                // The lane ends to the bottom of the beginning (we are drawing East -> South)
+                                
+                                ctx.arcTo(horLeftX, vertBottomY, horLeftX + radius, vertBottomY, radius)
+                                ctx.lineTo(vertX, vertBottomY)
+                                
+                                ctx.moveTo(vertX, vertTopY)
+                                
+                                ctx.arcTo(horRightX, vertTopY, horRightX, vertTopY - radius, radius)
+                            }
+                        }
+                        ctx.lineTo(horRightX, horY)
+                        if (my.drawShadows) {
+                            ctx.shadowColor   = "#222222"
+                        }
+                        ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
+                        ctx.lineWidth = lineWidth
+                        ctx.stroke()
+                    }
+                }
                 
                 if (fillColorAlpha) {
                     // Draw background
@@ -224,6 +314,9 @@ Flowify.canvas = function () {
                     ctx.lineTo(horRightX, horY)
                     ctx.closePath()
                 
+                    if (my.drawShadows) {
+                        ctx.shadowColor = "transparent";
+                    }
                     ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
                     ctx.fill()
                 }
@@ -281,6 +374,9 @@ Flowify.canvas = function () {
                         }
                     }
                     ctx.lineTo(horRightX, horY)
+                    if (my.drawShadows) {
+                        ctx.shadowColor = "transparent";
+                    }
                     ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
                     ctx.lineWidth = lineWidth
                     ctx.stroke()
@@ -288,6 +384,63 @@ Flowify.canvas = function () {
             },
             
             _jsDrawLaneSegment: function (leftTopX, rightTopX, topY, leftBottomX, rightBottomX, bottomY, leftMiddleY, rightMiddleY, radius, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
+                
+                if (my.drawShadows) {
+                    ctx.shadowOffsetX = 3
+                    ctx.shadowOffsetY = 3
+                    ctx.shadowBlur    = 7
+                    if (lineColorAlpha) {
+                        // Draw left side
+                        ctx.beginPath()     
+                        ctx.moveTo(leftTopX, topY)
+                        if (leftBottomX < leftTopX) {
+                            // bottom is to the left of the top
+                            ctx.arcTo(leftTopX, leftMiddleY, leftTopX - radius, leftMiddleY, radius)
+                            ctx.arcTo(leftBottomX, leftMiddleY, leftBottomX, leftMiddleY + radius, radius)
+                            ctx.lineTo(leftBottomX, bottomY)
+                        }
+                        else if (leftBottomX > leftTopX) {
+                            // bottom is to the right of the top
+                            ctx.arcTo(leftTopX, leftMiddleY, leftTopX + radius, leftMiddleY, radius)
+                            ctx.arcTo(leftBottomX, leftMiddleY, leftBottomX, leftMiddleY + radius, radius)
+                            ctx.lineTo(leftBottomX, bottomY)
+                        }
+                        else {
+                            // straight vertical line
+                            ctx.lineTo(leftBottomX, bottomY)
+                        }
+                        ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
+                        ctx.lineWidth = lineWidth
+                        ctx.stroke()
+                        
+                        // Draw right side
+                        
+                        ctx.beginPath()     
+                        ctx.moveTo(rightTopX, topY)
+                        if (rightBottomX < rightTopX) {
+                            // bottom is to the left of the top
+                            ctx.arcTo(rightTopX, rightMiddleY, rightTopX - radius, rightMiddleY, radius)
+                            ctx.arcTo(rightBottomX, rightMiddleY, rightBottomX, rightMiddleY + radius, radius)
+                            ctx.lineTo(rightBottomX, bottomY)
+                        }
+                        else if (rightBottomX > rightTopX) {
+                            // bottom is to the right of the top
+                            ctx.arcTo(rightTopX, rightMiddleY, rightTopX + radius, rightMiddleY, radius)
+                            ctx.arcTo(rightBottomX, rightMiddleY, rightBottomX, rightMiddleY + radius, radius)
+                            ctx.lineTo(rightBottomX, bottomY)
+                        }
+                        else {
+                            // straight vertical line
+                            ctx.lineTo(rightBottomX, bottomY)
+                        }
+                        if (my.drawShadows) {
+                            ctx.shadowColor   = "#222222"
+                        }
+                        ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
+                        ctx.lineWidth = lineWidth
+                        ctx.stroke()
+                    }
+                }
                 
                 if (fillColorAlpha) {
                     // Draw background
@@ -334,6 +487,9 @@ Flowify.canvas = function () {
                     
                     ctx.closePath()
                 
+                    if (my.drawShadows) {
+                        ctx.shadowColor = "transparent";
+                    }
                     ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
                     ctx.fill()
                 }
@@ -381,6 +537,9 @@ Flowify.canvas = function () {
                     else {
                         // straight vertical line
                         ctx.lineTo(rightBottomX, bottomY)
+                    }
+                    if (my.drawShadows) {
+                        ctx.shadowColor = "transparent";
                     }
                     ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
                     ctx.lineWidth = lineWidth
