@@ -73,6 +73,7 @@ sub_expr :=
     number
     float
     single_quoted_string
+    "[" "]"                         // TODO: we should allow for non-empty arrays!
     null
     identifier arguments
     
@@ -296,6 +297,19 @@ Node * parse_sub_expression(Parser * parser)
         
         Token * string_token = latest_eaten_token(parser);
         sub_expression_node->value = string_token->text;
+        
+        end_node(parser, sub_expression_node);
+    }
+    else if (accept_token(parser, Token_OpenBracket))
+    {
+        sub_expression_node = start_node(parser, Node_Scalar_EmptyArray, StartOnLatestToken);
+        
+        Token * open_bracket_token = latest_eaten_token(parser);
+        sub_expression_node->value = open_bracket_token->text;
+        
+        // TODO: we should allow for non-empty arrays
+        
+        expect_token(parser, Token_CloseBracket);
         
         end_node(parser, sub_expression_node);
     }

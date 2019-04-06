@@ -179,6 +179,11 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node, 
             // TODO: add the (constant) value to the flow element
             new_expression_element = new_element(flowifier, expression_node, FlowElement_Scalar);
         }
+        else if (expression_node->type == Node_Scalar_EmptyArray)
+        {
+            // TODO: add the (constant) value to the flow element
+            new_expression_element = new_element(flowifier, expression_node, FlowElement_Scalar);
+        }
         else if (expression_node->type == Node_Scalar_Null)
         {
             new_expression_element = new_element(flowifier, expression_node, FlowElement_Scalar);
