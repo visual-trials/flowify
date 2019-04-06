@@ -52,6 +52,7 @@ expr =
     sub_expr "-" sub_expr
     sub_expr "+" sub_expr
     sub_expr "*" sub_expr
+    sub_expr "." sub_expr
     sub_expr "==" sub_expr
     sub_expr
 
@@ -68,6 +69,7 @@ sub_expr :=
     var(_array_access) "/=" expr
     var(_array_access) "+=" expr
     var(_array_access) "-=" expr
+    var(_array_access) ".=" expr
     var(_array_access) "="  expr
     var(_array_access)
     number
@@ -314,6 +316,24 @@ Node * parse_sub_expression(Parser * parser)
         // TODO: we should allow for non-empty arrays
         
         expect_token(parser, Token_CloseBracket);
+        
+        end_node(parser, sub_expression_node);
+    }
+    else if (accept_token(parser, Token_True))
+    {
+        sub_expression_node = start_node(parser, Node_Scalar_True, StartOnLatestToken);
+        
+        Token * true_token = latest_eaten_token(parser);
+        sub_expression_node->value = true_token->text;
+        
+        end_node(parser, sub_expression_node);
+    }
+    else if (accept_token(parser, Token_False))
+    {
+        sub_expression_node = start_node(parser, Node_Scalar_False, StartOnLatestToken);
+        
+        Token * false_token = latest_eaten_token(parser);
+        sub_expression_node->value = false_token->text;
         
         end_node(parser, sub_expression_node);
     }

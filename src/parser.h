@@ -94,6 +94,8 @@ enum NodeType
     Node_Scalar_Float,
     Node_Scalar_String,
     Node_Scalar_EmptyArray, // TODO: we should allow for non-empty array
+    Node_Scalar_True,
+    Node_Scalar_False,
     Node_Scalar_Null
 };
 
@@ -173,6 +175,8 @@ const char * node_type_names[] = {
     "Scalar_Float",
     "Scalar_String",
     "Scalar_EmptyArray",
+    "Scalar_True",
+    "Scalar_False",
     "Scalar_Null"
 };
 

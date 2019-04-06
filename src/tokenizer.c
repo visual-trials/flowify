@@ -45,6 +45,8 @@ enum TokenType
     Token_Identifier,
     Token_VariableIdentifier,  // starts with $
     
+    Token_True,
+    Token_False,
     Token_Null,
     
     Token_If,
@@ -118,6 +120,8 @@ const char * token_type_names[] = {
     "Identifier",
     "VariableIdentifier",  // starts with $
     
+    "True",
+    "False",
     "Null",
     
     "If",
@@ -574,6 +578,14 @@ Token get_token(Tokenizer * tokenizer)
                 else if (equals(token.text, "return"))
                 {
                     token.type = Token_Return;
+                }
+                else if (equals(token.text, "true"))
+                {
+                    token.type = Token_True;
+                }
+                else if (equals(token.text, "false"))
+                {
+                    token.type = Token_False;
                 }
                 else if (equals(token.text, "null"))
                 {

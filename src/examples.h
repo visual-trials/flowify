@@ -174,7 +174,7 @@ const char * large_example =
     "    // FIXME: check if php file has been read correctly!\n"
     "    $oldCode = file_get_contents($fileToFlowifyWithoutExtention . '.bck');\n"
     "    if ($oldCode === false) {\n"
-    "        $oldCode = "";\n"
+    "        $oldCode = '';\n"                                                            // TODO: changed double-quote to single quote here
     "    }\n"
     "    $newCode = file_get_contents($fileToFlowifyWithoutExtention . '.php');\n"
     "    if ($newCode === false) {\n"
