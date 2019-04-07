@@ -170,6 +170,8 @@ struct FlowElement
     // This FlowElement represents a chained-list of all functions
     FlowElement * next_function; // TODO: we should probably not store this in FlowElement
     
+    b32 is_collapsed;
+    
     b32 is_selectable;
     b32 is_highlightable;
     
@@ -442,6 +444,7 @@ FlowElement * new_element(Flowifier * flowifier, Node * ast_node, FlowElementTyp
     new_flow_element->rect_abs.size.width = 0;
     new_flow_element->rect_abs.size.height = 0;
 
+    new_flow_element->is_collapsed = false;
     new_flow_element->is_selectable = true;
     new_flow_element->is_highlightable = false;
     

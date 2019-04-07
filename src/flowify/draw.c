@@ -596,11 +596,17 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
 
         draw_interaction_rectangle(flowifier, flow_element);
         
-        // Drawing the function itself
+        // Drawing the function itself (if not collapsed)
         
         FlowElement * function_element = flow_element->first_child;
-
-        draw_elements(flowifier, function_element);
+        if (!function_element->is_collapsed)
+        {
+            draw_elements(flowifier, function_element);
+        }
+        else
+        {
+            // TODO: what to draw if the function is collapsed?
+        }
     }
     else if (flow_element->type == FlowElement_Function)
     {

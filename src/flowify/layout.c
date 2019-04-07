@@ -610,8 +610,17 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         i32 left_margin = bending_radius;
         i32 right_margin = bending_radius;
-            
-        layout_elements(flowifier, function_element);
+        
+        if (function_element->is_collapsed)
+        {
+            // FIXME: what should be the size of what is normally the function (inside a collapsed function call)?
+            function_element->rect.size.width = default_element_width;
+            function_element->rect.size.height = default_element_height;
+        }
+        else
+        {
+            layout_elements(flowifier, function_element);
+        }
         
         // TODO: we might want to let the function-element and function-call-element touch at top and bottom
         function_element->rect.position.x = left_margin;
