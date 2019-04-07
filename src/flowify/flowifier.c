@@ -150,7 +150,7 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node, 
                 add_child_element(function_element, new_expression_element);
                 
                 // TODO: should the function always be collapsed by default?
-                function_element->is_collapsed = true;
+                new_expression_element->is_collapsed = true;
 
                 new_expression_element->first_in_flow = function_element->first_in_flow;
                 new_expression_element->last_in_flow = function_element->last_in_flow;

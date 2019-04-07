@@ -22,6 +22,9 @@ void process_interactions(Flowifier * flowifier, Input * input, FlowElement * fl
 {
     HoveredOrPressed element_hovered_or_pressed = check_hovered_or_pressed(flow_element->rect_abs.position, flow_element->rect_abs.size, input);
     
+    // TODO: we need to be able to detect collapsing/expanding using Touch! (double click mouse == single tap touch (without drag: so by letting go quickly))?
+    // TODO: but we do NOT KNOW whether the "pressed" came from the mouse or touch!
+    
     if (flow_element->type == FlowElement_Root)
     {
         // Resetting hovered_element_index each time we start to process interactions
@@ -39,17 +42,22 @@ void process_interactions(Flowifier * flowifier, Input * input, FlowElement * fl
         }
     }
     
-    if (element_hovered_or_pressed.is_hovered || element_hovered_or_pressed.is_pressed)
+    if (element_hovered_or_pressed.is_hovered || element_hovered_or_pressed.is_pressed || element_hovered_or_pressed.is_pressed_twice)
     {
         // If the element is hovered, we remember it as the hovered element
         if (element_hovered_or_pressed.is_hovered)
         {
             flowifier->interaction.hovered_element_index = flow_element->index;
         }
-        // If the element is hovered, we remember it as the selected element
+        // If the element is pressed, we remember it as the selected element
         if (element_hovered_or_pressed.is_pressed)
         {
             flowifier->interaction.selected_element_index = flow_element->index;
+        }
+        // If the element is pressed twice, we remember it as the acted-upon element
+        if (element_hovered_or_pressed.is_pressed_twice)
+        {
+            flowifier->interaction.acted_upon_element_index = flow_element->index;
         }
         
         if (flow_element->first_child)

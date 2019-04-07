@@ -611,7 +611,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         i32 left_margin = bending_radius;
         i32 right_margin = bending_radius;
         
-        if (function_element->is_collapsed)
+        if (flow_element->is_collapsed)
         {
             // FIXME: what should be the size of what is normally the function (inside a collapsed function call)?
             function_element->rect.size.width = default_element_width;

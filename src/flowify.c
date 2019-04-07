@@ -200,7 +200,22 @@ extern "C" {
         if (flowifier->has_absolute_positions)
         {
             i32 old_selected_element_index = flowifier->interaction.selected_element_index;
-            // FIXME: turned off for now: process_interactions(flowifier, input, world->root_element);
+            // FIXME: turned off for now: 
+            process_interactions(flowifier, input, world->root_element);
+            
+            if (flowifier->interaction.acted_upon_element_index)
+            {
+                FlowElement * acted_upon_element = &flow_elements[flowifier->interaction.acted_upon_element_index];
+                
+                if (acted_upon_element->type == FlowElement_FunctionCall)
+                {
+                    acted_upon_element->is_collapsed = !acted_upon_element->is_collapsed;
+                    log("acted upon function call element!");
+                }
+                
+                flowifier->interaction.acted_upon_element_index = 0;
+            }
+
             // TODO: we should also re-generate the detail-string when the absolute position changes of the element
             // FIXME: turned off for now: if (old_selected_element_index != flowifier->interaction.selected_element_index)
             {

@@ -32,6 +32,7 @@ struct HoveredOrPressed
 {
     b32 is_hovered;
     b32 is_pressed;
+    b32 is_pressed_twice;
 };
 
 HoveredOrPressed check_hovered_or_pressed(Pos2d position, Size2d size, Input * input)
@@ -49,6 +50,11 @@ HoveredOrPressed check_hovered_or_pressed(Pos2d position, Size2d size, Input * i
         {
             result.is_pressed = true;
         }
+        if (mouse_input->left_button_has_gone_down_twice)
+        {
+            result.is_pressed_twice = true;
+        }
+        
     }
     
     if (touches_input->touch_count == 1)

@@ -599,7 +599,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         // Drawing the function itself (if not collapsed)
         
         FlowElement * function_element = flow_element->first_child;
-        if (!function_element->is_collapsed)
+        if (!flow_element->is_collapsed)
         {
             draw_elements(flowifier, function_element);
         }

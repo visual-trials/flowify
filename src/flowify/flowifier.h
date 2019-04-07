@@ -192,6 +192,7 @@ struct FlowElement
 struct FlowInteraction
 {
     i32 highlighted_element_index;
+    i32 acted_upon_element_index;
     i32 selected_element_index;
     i32 hovered_element_index;
 };
@@ -312,6 +313,7 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     
     flowifier->interaction.highlighted_element_index = 0;
     flowifier->interaction.selected_element_index = 0;
+    flowifier->interaction.acted_upon_element_index = 0;
     flowifier->interaction.hovered_element_index = 0;
     
     flowifier->has_absolute_positions = false;
