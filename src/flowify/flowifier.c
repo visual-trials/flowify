@@ -16,6 +16,7 @@
 
  */
 
+void flowify_expressions(Flowifier * flowifier, FlowElement * parent_element);
 void flowify_statements(Flowifier * flowifier, FlowElement * parent_element);
 
 FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node, b32 is_statement = false)
@@ -135,39 +136,53 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node, 
         }
         else if (expression_node->type == Node_Expr_FuncCall)
         {
-            String identifier = expression_node->identifier;
+            Node * function_call_node = expression_node;
+            Node * function_call_arguments_node = function_call_node->first_child;
+            
+            // Function Call
+            
+            FlowElement * function_call_element = new_element(flowifier, function_call_node, FlowElement_FunctionCall);
+
+            FlowElement * function_call_identifier = new_element(flowifier, function_call_node, FlowElement_FunctionCallIdentifier);
+            add_child_element(function_call_identifier, function_call_element);
+                
+            FlowElement * function_call_arguments = new_element(flowifier, function_call_arguments_node, FlowElement_FunctionCallArguments);
+            add_child_element(function_call_arguments, function_call_element);
+            flowify_expressions(flowifier, function_call_arguments);
+            
+            // Function
             
             // FIXME: we should CLONE the function element, since this INSTANCE will be placed somewhere else
             //        and connected to (its previous_in_flow and next_in_flow will be) different elements compared
             //        to another call of the same function!
             log("Trying to find function");
-            log(identifier);
-            FlowElement * function_element = get_function_element(flowifier, identifier);
-            
+            log(function_call_node->identifier);
+            FlowElement * function_element = get_function_element(flowifier, function_call_node->identifier);
+
             if (function_element)
             {
-                new_expression_element = new_element(flowifier, expression_node, FlowElement_FunctionCall);
-                add_child_element(function_element, new_expression_element);
+                add_child_element(function_element, function_call_element);
                 
-                // TODO: should the function always be collapsed by default?
-                new_expression_element->is_collapsed = true;
+                // TODO: should the function_call always be collapsed by default?
+                function_call_element->is_collapsed = true;
 
-                new_expression_element->first_in_flow = function_element->first_in_flow;
-                new_expression_element->last_in_flow = function_element->last_in_flow;
+                function_call_element->first_in_flow = function_element->first_in_flow;
+                function_call_element->last_in_flow = function_element->last_in_flow;
             }
             else
             {
                 // log("Unknown function:");
                 // log(identifier);
-                new_expression_element = new_element(flowifier, expression_node, FlowElement_FunctionCall);
                 
                 // TODO: is it corrent that the hidden element has no corresponding ast-node?
                 FlowElement * hidden_function_element = new_element(flowifier, 0, FlowElement_Hidden);
-                add_child_element(hidden_function_element, new_expression_element);
+                add_child_element(hidden_function_element, function_call_element);
                 
-                new_expression_element->first_in_flow = hidden_function_element;
-                new_expression_element->last_in_flow = hidden_function_element;
+                function_call_element->first_in_flow = hidden_function_element;
+                function_call_element->last_in_flow = hidden_function_element;
             }
+            
+            new_expression_element = function_call_element;
         }
         else if (expression_node->type == Node_Expr_Variable)
         {
@@ -221,6 +236,23 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node, 
     new_expression_element->is_statement = is_statement;
     
     return new_expression_element;
+}
+
+void flowify_expressions(Flowifier * flowifier, FlowElement * parent_element)
+{
+    Node * parent_node = parent_element->ast_node;
+    
+    Node * expression_node = parent_node->first_child;
+    if (expression_node) // There are expressions (in the parent)
+    {
+        do // Loop through all expressions (in the parent)
+        {
+            FlowElement * new_expression_element = flowify_expression(flowifier, expression_node);
+                
+            add_child_element(new_expression_element, parent_element);
+        }
+        while((expression_node = expression_node->next_sibling));
+    }
 }
 
 FlowElement * flowify_child_expression_or_passthrough(Flowifier * flowifier, Node * parent_node, b32 is_statement = false)
@@ -443,7 +475,7 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
     {
         FlowElement * function_element = new_element(flowifier, statement_node, FlowElement_Function);
         
-        // TODO: flowify function arguments
+        // TODO: flowify function parameters
         
         Node * function_body_node = statement_node->first_child->next_sibling;
         

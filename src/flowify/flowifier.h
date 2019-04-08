@@ -23,6 +23,7 @@ enum FlowElementType
     // Control flow elements
     FlowElement_Root,
     FlowElement_Function,
+    FlowElement_FunctionParameters,
     FlowElement_FunctionBody,
     
     FlowElement_If,
@@ -74,7 +75,9 @@ enum FlowElementType
     FlowElement_UnaryOperator,
     FlowElement_BinaryOperation,
     FlowElement_BinaryOperator,
-    FlowElement_FunctionCall,   // TODO: is this redundant?
+    FlowElement_FunctionCall,
+    FlowElement_FunctionCallIdentifier,
+    FlowElement_FunctionCallArguments,
     FlowElement_Variable,
     FlowElement_Scalar
 };
@@ -86,6 +89,7 @@ const char * flow_element_type_names[] = {
     // Control flow elements
     "Root",
     "Function",
+    "FunctionParameters",
     "FunctionBody",
     
     "If",
@@ -137,7 +141,9 @@ const char * flow_element_type_names[] = {
     "UnaryOperator",
     "BinaryOperation",
     "BinaryOperator",
-    "FunctionCall",   // TODO: is this redundant?
+    "FunctionCall",
+    "FunctionCallIdentifier",
+    "FunctionCallArguments",
     "Variable",
     "Scalar"
 };

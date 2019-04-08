@@ -614,8 +614,8 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         if (flow_element->is_collapsed)
         {
             // FIXME: what should be the size of what is normally the function (inside a collapsed function call)?
-            function_element->rect.size.width = default_element_width;
-            function_element->rect.size.height = default_element_height;
+            function_element->rect.size.width = 0; //default_element_width;
+            function_element->rect.size.height = 0; //default_element_height;
         }
         else
         {
