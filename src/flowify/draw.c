@@ -576,11 +576,19 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     }
     else if (flow_element->type == FlowElement_FunctionCall)
     {
-        Rect2d rect = flow_element->rect_abs;
+        FlowElement * function_call_element = flow_element;
+        FlowElement * function_call_identifier = function_call_element->first_child;
+        FlowElement * function_call_arguments = function_call_identifier->next_sibling;
+        FlowElement * function_element = function_call_arguments->next_sibling;
         
-        if (flow_element->is_statement)
+        i32 expression_depth = 0; // FIXME: fill this with the depth of the expression-stack! We should probably store this in FlowElement
+        FlowStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
+        
+        Rect2d rect = function_call_element->rect_abs;
+        
+        if (function_call_element->is_statement)
         {
-            draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, false);
+            draw_straight_element(flowifier, function_call_element, function_call_element->previous_in_flow, function_call_element->next_in_flow, false);
             
             // FIXME: We should add a Stmt_Expr element to all statements instead (and give it margins only for function-calls!)
             //        Other statements (previous_in_flow and next_in_flow) can then also correctly connect with that element!
@@ -594,12 +602,16 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_rounded_rectangle(rect, flowifier->bending_radius, 
                                flowifier->function_line_color, flowifier->function_fill_color, flowifier->function_line_width);
 
-        draw_interaction_rectangle(flowifier, flow_element);
+        draw_interaction_rectangle(flowifier, function_call_element);
         
-        // Drawing the function itself (if not collapsed)
+        // Drawing the Function call
         
-        FlowElement * function_element = flow_element->first_child;
-        if (!flow_element->is_collapsed)
+        draw_rectangle_element(flowifier, function_call_identifier, expression_style, false, true);
+        draw_elements(flowifier, function_call_arguments);
+        
+        // Drawing the Function itself (if not collapsed)
+        
+        if (!function_call_element->is_collapsed)
         {
             draw_elements(flowifier, function_element);
         }
@@ -613,6 +625,19 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * function_body_element = flow_element->first_child;
 
         draw_elements(flowifier, function_body_element);
+    }
+    else if (flow_element->type == FlowElement_FunctionCallArguments ||
+             flow_element->type == FlowElement_FunctionParameters)
+    {
+        FlowElement * child_element = flow_element->first_child;
+        if (child_element)
+        {
+            do
+            {
+                draw_elements(flowifier, child_element);
+            }
+            while ((child_element = child_element->next_sibling));
+        }
     }
     else if (flow_element->type == FlowElement_Root ||
              flow_element->type == FlowElement_FunctionBody ||

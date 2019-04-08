@@ -144,6 +144,8 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node, 
             FlowElement * function_call_element = new_element(flowifier, function_call_node, FlowElement_FunctionCall);
 
             FlowElement * function_call_identifier = new_element(flowifier, function_call_node, FlowElement_FunctionCallIdentifier);
+            // TODO: we use the identifier of the expression (which is filled with identifier of the function call) as the "source_text" of this element! (little dirty)
+            function_call_identifier->source_text = function_call_node->identifier;
             add_child_element(function_call_identifier, function_call_element);
                 
             FlowElement * function_call_arguments = new_element(flowifier, function_call_arguments_node, FlowElement_FunctionCallArguments);

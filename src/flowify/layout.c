@@ -603,7 +603,10 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
     }
     else if (flow_element->type == FlowElement_FunctionCall)
     {
-        FlowElement * function_element = flow_element->first_child;
+        FlowElement * function_call_element = flow_element;
+        FlowElement * function_call_identifier = function_call_element->first_child;
+        FlowElement * function_call_arguments = function_call_identifier->next_sibling;
+        FlowElement * function_element = function_call_arguments->next_sibling;
 
         i32 top_margin = bending_radius;
         i32 bottom_margin = bending_radius;
@@ -611,37 +614,61 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         i32 left_margin = bending_radius;
         i32 right_margin = bending_radius;
         
-        if (flow_element->is_collapsed)
+        // Function call
+        
+        function_call_identifier->rect.size = get_size_based_on_source_text(flowifier, function_call_identifier, flowifier->variable_margin);
+        
+        layout_elements(flowifier, function_call_arguments);
+        
+        i32 in_between_distance = 0; // FIXME: put this in Flowifier!
+
+        function_call_element->rect.size = layout_horizontally(&function_call_identifier->rect, &function_call_arguments->rect, 
+                                                               in_between_distance, flowifier->expression_margin);
+        
+        // Function
+        
+        if (function_call_element->is_collapsed)
         {
             // FIXME: what should be the size of what is normally the function (inside a collapsed function call)?
+            //        OR should we always layout it completely, but don't count its size when sizing the function call?
             function_element->rect.size.width = 0; //default_element_width;
             function_element->rect.size.height = 0; //default_element_height;
         }
         else
         {
             layout_elements(flowifier, function_element);
+            
+            function_element->rect.position.x = left_margin;
+            function_element->rect.position.y = function_call_element->rect.size.height + in_between_distance; 
+
+            if (left_margin + function_element->rect.size.width + right_margin > function_call_element->rect.size.width)
+            {
+                function_call_element->rect.size.width = left_margin + function_element->rect.size.width + right_margin;
+            }
+            function_call_element->rect.size.height += in_between_distance + function_element->rect.size.height;
         }
-        
-        // TODO: we might want to let the function-element and function-call-element touch at top and bottom
-        function_element->rect.position.x = left_margin;
-        function_element->rect.position.y = top_margin; 
-        
-        flow_element->rect.size.width = left_margin + function_element->rect.size.width + right_margin;
-        flow_element->rect.size.height = top_margin + function_element->rect.size.height + bottom_margin;
         
         // If a function call is a statement, it gets extra room (unlike normal expression)
         // This is because a normal expression won't get a rounded rectangle if its an expression (only straight bars beside it, meaning: single margings)
         // But a function call *will* get a rounded rectangel AND straight bars beside it. So we need double de margins!
-        if (flow_element->is_statement)
+        if (function_call_element->is_statement)
         {
+            // TODO: There is probably a better way to do this! (for example: create a current_position and start with these margins?)
+            
+            function_call_identifier->rect.position.x += left_margin;
+            function_call_identifier->rect.position.y += top_margin; 
+            
+            function_call_arguments->rect.position.x += left_margin;
+            function_call_arguments->rect.position.y += top_margin; 
+            
             function_element->rect.position.x += left_margin;
             function_element->rect.position.y += top_margin; 
             
-            flow_element->rect.size.width += left_margin + right_margin;
-            flow_element->rect.size.height += top_margin + bottom_margin;
+            function_call_element->rect.size.width += left_margin + right_margin;
+            function_call_element->rect.size.height += top_margin + bottom_margin;
         }
         
-        flow_element->is_highlightable = true;
+        function_call_element->is_highlightable = true;
     }
     else if (flow_element->type == FlowElement_Function)
     {
@@ -653,6 +680,56 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         function_body_element->rect.position.y = 0;
         
         flow_element->rect.size = function_body_element->rect.size;
+    }
+    else if (flow_element->type == FlowElement_FunctionCallArguments ||
+             flow_element->type == FlowElement_FunctionParameters)
+    {
+        
+        i32 top_margin = 0;
+        i32 bottom_margin = 0;
+        
+        i32 left_margin = 0;
+        i32 right_margin = 0;
+        
+        i32 summed_children_width = 0;
+        i32 largest_child_height = 0;
+        
+        i32 horizontal_margin = 0;
+        
+        FlowElement * child_element = flow_element->first_child;
+        
+        b32 is_first_element = true;
+        if (child_element)
+        {
+            do
+            {
+                layout_elements(flowifier, child_element);
+                
+                Size2d child_size = child_element->rect.size;
+                
+                if (!is_first_element)
+                {
+                    summed_children_width += horizontal_margin;
+                }
+                
+                child_element->rect.position.x = left_margin + summed_children_width;
+                child_element->rect.position.y = top_margin;
+                
+                summed_children_width += child_size.width;
+                if (child_size.height > largest_child_height)
+                {
+                    largest_child_height = child_size.height;
+                }
+                
+                is_first_element = false;
+            }
+            while ((child_element = child_element->next_sibling));
+            
+        }
+    
+        flow_element->rect.size.width = left_margin + summed_children_width + right_margin; 
+        flow_element->rect.size.height = top_margin + largest_child_height + bottom_margin;
+        
     }
     else if (flow_element->type == FlowElement_Root ||
              flow_element->type == FlowElement_FunctionBody ||
