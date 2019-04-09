@@ -315,6 +315,7 @@ FlowElement * flowify_parameters(Flowifier * flowifier, Node * function_call_arg
 {
     FlowElement * parameters_element = new_element(flowifier, function_call_arguments_node, FlowElement_FunctionParameterAssignments);
         
+    FlowElement * previous_assignment_element = 0;
     Node * function_call_argument_node = function_call_arguments_node->first_child;
     Node * function_parameter_node = function_parameters_node->first_child;
     if (function_call_argument_node && function_parameter_node) // There is at least one argument AND one parameter
@@ -344,6 +345,16 @@ FlowElement * flowify_parameters(Flowifier * flowifier, Node * function_call_arg
             add_child_element(right_side_expression_element, assignment_expression_element);
             
             add_child_element(assignment_expression_element, parameters_element);
+            
+            
+            // We set the last_in_flow of the previous assignment to be flowing towards the first_in_flow of the current assignment
+            if (previous_assignment_element)
+            {
+                previous_assignment_element->next_in_flow = assignment_expression_element;
+                assignment_expression_element->previous_in_flow = previous_assignment_element;
+            }
+            previous_assignment_element = assignment_expression_element;
+            
             
             function_call_argument_node = function_call_argument_node->next_sibling;
             function_parameter_node = function_parameter_node->next_sibling;

@@ -741,8 +741,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         flow_element->rect.size = function_body_element->rect.size;
     }
-    else if (flow_element->type == FlowElement_FunctionCallArguments ||
-             flow_element->type == FlowElement_FunctionParameterAssignments)
+    else if (flow_element->type == FlowElement_FunctionCallArguments)
     {
         
         i32 top_margin = 0;
@@ -798,7 +797,8 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
              flow_element->type == FlowElement_ForInit ||
              flow_element->type == FlowElement_ForBody ||
              flow_element->type == FlowElement_ForUpdate ||
-             flow_element->type == FlowElement_ForeachBody
+             flow_element->type == FlowElement_ForeachBody ||
+             flow_element->type == FlowElement_FunctionParameterAssignments
              )
     {
         
