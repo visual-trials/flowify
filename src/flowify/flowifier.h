@@ -289,6 +289,7 @@ struct Flowifier
     Font font;
     i32 character_width;
     i32 character_height;
+    u8 ascii_characters[256]; // TODO: this is now used to create Strings for "source_text" using only 1 character
         
     // Layout, sizes
     
@@ -379,6 +380,10 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     Size2d white_space_size = get_text_size(&white_space, flowifier->font);
     flowifier->character_width = white_space_size.width;
     flowifier->character_height = white_space_size.height;
+    for (i32 ascii_character_index = 0; ascii_character_index < 256; ascii_character_index++)
+    {
+        flowifier->ascii_characters[ascii_character_index] = (u8)ascii_character_index;
+    }
     
     flowifier->expression_margin.vertical = 10;
     flowifier->expression_margin.horizontal = 14;

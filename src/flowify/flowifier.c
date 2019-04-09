@@ -327,8 +327,12 @@ FlowElement * flowify_parameters(Flowifier * flowifier, Node * function_call_arg
             
             // Note: we set the ast-node of the operator itself to the function-call-argument-expression (because the operator itself is not an ast-node by itself)
             FlowElement * assignment_operator_element = new_element(flowifier, function_call_argument_node, FlowElement_AssignmentOperator);
-            // TODO: we cannot the identifier of the expression as the "source_text" here! (dirty doesn't work, so we have to deal with this during drawing!)
-            // assignment_operator_element->source_text = function_call_argument_node->identifier;
+            // TODO: we cannot the identifier of the expression as the "source_text" here! 
+            // we can't use actual source code, so we "create" some on-the-fly (that we don't have to allocate)
+            String equal_sign = {};
+            equal_sign.data = &flowifier->ascii_characters['='];
+            equal_sign.length = 1;
+            assignment_operator_element->source_text = equal_sign;
             add_child_element(assignment_operator_element, assignment_expression_element);
 
             FlowElement * right_side_expression_element = flowify_expression(flowifier, function_call_argument_node);
