@@ -158,8 +158,8 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node, 
             // FIXME: we should CLONE the function element, since this INSTANCE will be placed somewhere else
             //        and connected to (its previous_in_flow and next_in_flow will be) different elements compared
             //        to another call of the same function!
-            log("Trying to find function");
-            log(function_call_node->identifier);
+            //log("Trying to find function");
+            //log(function_call_node->identifier);
             FlowElement * function_element = get_function_element(flowifier, function_call_node->identifier);
 
             if (function_element)
