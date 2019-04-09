@@ -632,14 +632,31 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         i32 in_between_distance = bending_radius; // FIXME: put this in Flowifier!
 
+        // If a function call is a statement, it gets extra room (unlike normal expression)
+        // This is because a normal expression won't get a rounded rectangle if its an expression (only straight bars beside it, meaning: single margings)
+        // But a function call *will* get a rounded rectangel AND straight bars beside it. So we need double de margins!
+        // FIXME: it is much more convenient to have a wrapper-element "Stmt_Expr" which has these margins!
+        FlowMargin margins_to_use_for_identifier = flowifier->expression_margin;
+        if (function_call_element->is_statement)
+        {
+            margins_to_use_for_identifier.horizontal += left_margin + right_margin;
+            margins_to_use_for_identifier.vertical += top_margin + bottom_margin;
+            
+            //Double all margins
+            left_margin += left_margin;
+            right_margin += right_margin;
+            top_margin += top_margin;
+            bottom_margin += bottom_margin;
+        }
+        
         Rect2d function_identifier_rect = {};
         function_identifier_rect.size = layout_horizontally(&function_call_identifier->rect, &function_call_arguments->rect, 
-                                                            in_between_distance, flowifier->expression_margin);
+                                                            in_between_distance, margins_to_use_for_identifier);
         
         total_width = function_identifier_rect.size.width;
         
-        current_position.x = left_margin;
-        current_position.y = function_identifier_rect.size.height; // TODO: does this already include the top_margin?
+        current_position.x += left_margin;
+        current_position.y += function_identifier_rect.size.height - bottom_margin; // TODO: does this already include the top_margin?
         
         if (function_call_arguments->next_sibling->type == FlowElement_Hidden)
         {
@@ -669,7 +686,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
                 
                 // Parameter Assignments
                 
-                current_position.y += in_between_distance / 2;
+                current_position.y += in_between_distance;
                 
                 layout_elements(flowifier, parameters_element);
                 
@@ -697,33 +714,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
             }
         }
         
-        // If a function call is a statement, it gets extra room (unlike normal expression)
-        // This is because a normal expression won't get a rounded rectangle if its an expression (only straight bars beside it, meaning: single margings)
-        // But a function call *will* get a rounded rectangel AND straight bars beside it. So we need double de margins!
-        
-        /* 
-        
-        FIXME
-        
-        if (function_call_element->is_statement)
-        {
-            // TODO: There is probably a better way to do this! (for example: create a current_position and start with these margins?)
-            
-            function_call_identifier->rect.position.x += left_margin;
-            function_call_identifier->rect.position.y += top_margin; 
-            
-            function_call_arguments->rect.position.x += left_margin;
-            function_call_arguments->rect.position.y += top_margin; 
-            
-            function_element->rect.position.x += left_margin;
-            function_element->rect.position.y += top_margin; 
-            
-            function_call_element->rect.size.width += left_margin + right_margin;
-            function_call_element->rect.size.height += top_margin + bottom_margin;
-        }
-        */
-        
-        total_height = current_position.y - start_position.y;
+        total_height = current_position.y + bottom_margin - start_position.y;
         
         function_call_element->rect.size.width = total_width;
         function_call_element->rect.size.height = total_height;
