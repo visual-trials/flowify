@@ -606,53 +606,102 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * function_call_element = flow_element;
         FlowElement * function_call_identifier = function_call_element->first_child;
         FlowElement * function_call_arguments = function_call_identifier->next_sibling;
-        FlowElement * function_element = function_call_arguments->next_sibling;
-
+        
         i32 top_margin = bending_radius;
         i32 bottom_margin = bending_radius;
         
         i32 left_margin = bending_radius;
         i32 right_margin = bending_radius;
         
-        // Function call
+        i32 total_width = 0;
+        i32 total_height = 0;
         
+        Pos2d start_position = {0,0};
+
+        Pos2d current_position = start_position;
+        
+        // Function call identifier and arguments
+        
+        // FIXME: collapse only the arguments when collapsed, but not the identifier!
+        
+        // if (!function_call_element->is_collapsed)
+            
         function_call_identifier->rect.size = get_size_based_on_source_text(flowifier, function_call_identifier, flowifier->variable_margin);
         
         layout_elements(flowifier, function_call_arguments);
         
         i32 in_between_distance = bending_radius; // FIXME: put this in Flowifier!
 
-        function_call_element->rect.size = layout_horizontally(&function_call_identifier->rect, &function_call_arguments->rect, 
-                                                               in_between_distance, flowifier->expression_margin);
+        Rect2d function_identifier_rect = {};
+        function_identifier_rect.size = layout_horizontally(&function_call_identifier->rect, &function_call_arguments->rect, 
+                                                            in_between_distance, flowifier->expression_margin);
         
-        // Function
+        total_width = function_identifier_rect.size.width;
         
-        if (function_call_element->is_collapsed)
+        current_position.x = left_margin;
+        current_position.y = function_identifier_rect.size.height; // TODO: does this already include the top_margin?
+        
+        current_position.y += in_between_distance; // TODO: is this correct?
+        
+        if (function_call_arguments->next_sibling->type == FlowElement_Hidden)
         {
-            // If the function is collapsed, we set its size to something (very) small
-            function_element->rect.size.width = 0; //default_element_width;
-            function_element->rect.size.height = 0; //default_element_height;
+            FlowElement * hidden_function = function_call_arguments->next_sibling;
             
-            function_element->rect.position.x = left_margin;
-            function_element->rect.position.y = top_margin; 
+            // TODO: should we somehow show the hidden element? Does it have a layouting effect?
         }
         else
         {
-            layout_elements(flowifier, function_element);
-        
-            function_element->rect.position.x = left_margin;
-            function_element->rect.position.y = function_call_element->rect.size.height + in_between_distance; 
-
-            if (left_margin + function_element->rect.size.width + right_margin > function_call_element->rect.size.width)
+            FlowElement * parameters_element = function_call_arguments->next_sibling;
+            FlowElement * function_element = parameters_element->next_sibling;
+            
+            if (function_call_element->is_collapsed)
             {
-                function_call_element->rect.size.width = left_margin + function_element->rect.size.width + right_margin;
+                // Collapsed function
+                
+                // If the function is collapsed, we set its size to something (very) small
+                function_element->rect.size.width = 0; //default_element_width;
+                function_element->rect.size.height = 0; //default_element_height;
+                
+                // FIXME: remove this?
+                function_element->rect.position.x = left_margin;
+                function_element->rect.position.y = top_margin; 
             }
-            function_call_element->rect.size.height += in_between_distance + function_element->rect.size.height;
+            else
+            {
+                // Parameter Assignments
+                
+                layout_elements(flowifier, parameters_element);
+                
+                parameters_element->rect.position = current_position;
+                
+                if (left_margin + parameters_element->rect.size.width + right_margin > total_width)
+                {
+                    total_width = left_margin + parameters_element->rect.size.width + right_margin;
+                }
+                current_position.y += in_between_distance + parameters_element->rect.size.height;
+                
+                // Function
+                
+                layout_elements(flowifier, function_element);
+            
+                function_element->rect.position = current_position;
+                
+                if (left_margin + function_element->rect.size.width + right_margin > total_width)
+                {
+                    total_width = left_margin + function_element->rect.size.width + right_margin;
+                }
+                current_position.y += in_between_distance + function_element->rect.size.height;
+            }
         }
         
         // If a function call is a statement, it gets extra room (unlike normal expression)
         // This is because a normal expression won't get a rounded rectangle if its an expression (only straight bars beside it, meaning: single margings)
         // But a function call *will* get a rounded rectangel AND straight bars beside it. So we need double de margins!
+        
+        /* 
+        
+        FIXME
+        
         if (function_call_element->is_statement)
         {
             // TODO: There is probably a better way to do this! (for example: create a current_position and start with these margins?)
@@ -669,13 +718,18 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
             function_call_element->rect.size.width += left_margin + right_margin;
             function_call_element->rect.size.height += top_margin + bottom_margin;
         }
+        */
+        
+        total_height = current_position.y + bottom_margin -  start_position.y;
+        
+        function_call_element->rect.size.width = total_width;
+        function_call_element->rect.size.height = total_height;
         
         function_call_element->is_highlightable = true;
     }
     else if (flow_element->type == FlowElement_Function)
     {
-        FlowElement * function_parameters_element = flow_element->first_child;
-        FlowElement * function_body_element = function_parameters_element->next_sibling;
+        FlowElement * function_body_element = flow_element->first_child;
         
         layout_elements(flowifier, function_body_element);
         

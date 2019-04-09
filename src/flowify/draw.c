@@ -609,21 +609,38 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_rectangle_element(flowifier, function_call_identifier, expression_style, false, true);
         draw_elements(flowifier, function_call_arguments);
         
-        // Drawing the Function itself (if not collapsed)
+        // Drawing the Function itself (if not collapsed and if not hidden)
         
-        if (!function_call_element->is_collapsed)
+        if (function_call_arguments->next_sibling->type == FlowElement_Hidden)
         {
-            draw_elements(flowifier, function_element);
+            FlowElement * hidden_function = function_call_arguments->next_sibling;
+            
+            // TODO: should we somehow show the hidden element? Does it have a layouting effect?
         }
         else
         {
-            // TODO: what to draw if the function is collapsed?
+            FlowElement * parameters_element = function_call_arguments->next_sibling;
+            FlowElement * function_element = parameters_element->next_sibling;
+
+            if (!function_call_element->is_collapsed)
+            {
+                // Parameter Assignments
+                
+                draw_elements(flowifier, parameters_element);
+                    
+                // Function
+                
+                draw_elements(flowifier, function_element);
+            }
+            else
+            {
+                // TODO: what to draw if the function is collapsed?
+            }
         }
     }
     else if (flow_element->type == FlowElement_Function)
     {
-        FlowElement * function_parameters_element = flow_element->first_child;
-        FlowElement * function_body_element = function_parameters_element->next_sibling;
+        FlowElement * function_body_element = flow_element->first_child;
 
         draw_elements(flowifier, function_body_element);
     }
