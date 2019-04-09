@@ -16,6 +16,7 @@
 
  */
 
+FlowElement * flowify_parameters(Flowifier * flowifier, Node * function_call_arguments_node, Node * function_parameters_node);
 void flowify_expressions(Flowifier * flowifier, FlowElement * parent_element);
 void flowify_statements(Flowifier * flowifier, FlowElement * parent_element);
 
@@ -163,8 +164,6 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node, 
 
             if (function_element)
             {
-                add_child_element(function_element, function_call_element);
-                
                 // Right now, a function_call is always be collapsed by default
                 function_call_element->is_collapsed = true;
 
@@ -172,6 +171,19 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node, 
                 //       So first_in_flow and last_in_flow are probably deprecated!
                 //function_call_element->first_in_flow = function_element->first_in_flow;
                 //function_call_element->last_in_flow = function_element->last_in_flow;
+                
+                Node * function_node = function_element->ast_node;
+                Node * function_parameters_node = function_node->first_child;
+                
+                Node * function_call_arguments_node = function_call_arguments->ast_node;
+            
+                FlowElement * parameters_element = flowify_parameters(flowifier, function_call_arguments_node, function_parameters_node);
+                
+                add_child_element(parameters_element, function_call_element);        
+                
+                // TODO: we need to "attach" the flow from the paramter-assignments to the start of the function-body!
+                
+                add_child_element(function_element, function_call_element);
             }
             else
             {
@@ -246,23 +258,6 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node, 
     return new_expression_element;
 }
 
-void flowify_expressions(Flowifier * flowifier, FlowElement * parent_element)
-{
-    Node * parent_node = parent_element->ast_node;
-    
-    Node * expression_node = parent_node->first_child;
-    if (expression_node) // There are expressions (in the parent)
-    {
-        do // Loop through all expressions (in the parent)
-        {
-            FlowElement * new_expression_element = flowify_expression(flowifier, expression_node);
-                
-            add_child_element(new_expression_element, parent_element);
-        }
-        while((expression_node = expression_node->next_sibling));
-    }
-}
-
 FlowElement * flowify_child_expression_or_passthrough(Flowifier * flowifier, Node * parent_node, b32 is_statement = false)
 {
     if (parent_node && parent_node->first_child)
@@ -292,6 +287,64 @@ void flowify_child_statements_or_passthrough(Flowifier * flowifier, Node * body_
         body_element->first_in_flow = body_passthrough_element;
         body_element->last_in_flow = body_passthrough_element;
     }
+}
+
+void flowify_expressions(Flowifier * flowifier, FlowElement * parent_element)
+{
+    Node * parent_node = parent_element->ast_node;
+    
+    Node * expression_node = parent_node->first_child;
+    if (expression_node) // There are expressions (in the parent)
+    {
+        do // Loop through all expressions (in the parent)
+        {
+            FlowElement * new_expression_element = flowify_expression(flowifier, expression_node);
+                
+            add_child_element(new_expression_element, parent_element);
+        }
+        while((expression_node = expression_node->next_sibling));
+    }
+}
+
+FlowElement * flowify_parameters(Flowifier * flowifier, Node * function_call_arguments_node, Node * function_parameters_node)
+{
+    FlowElement * parameters_element = new_element(flowifier, function_call_arguments_node, FlowElement_FunctionParameterAssignments);
+        
+    Node * function_call_argument_node = function_call_arguments_node->first_child;
+    Node * function_parameter_node = function_parameters_node->first_child;
+    if (function_call_argument_node && function_parameter_node) // There is at least one argument AND one parameter
+    {
+        // TODO: make this a while loop instead!
+        
+        do // Loop through all parameters and arguments simultaniously
+        {
+            // Note: right now the assignment-expression is represented by the function-call-argument (not the function-parameter)
+            FlowElement * assignment_expression_element = new_element(flowifier, function_call_argument_node, FlowElement_Assignment);
+            
+            // TODO: these are variables-only. No need to call flowify_expression here!
+            FlowElement * assignee_element = flowify_expression(flowifier, function_parameter_node);
+            add_child_element(assignee_element, assignment_expression_element);
+            
+            // Note: we set the ast-node of the operator itself to the function-call-argument-expression (because the operator itself is not an ast-node by itself)
+            FlowElement * assignment_operator_element = new_element(flowifier, function_call_argument_node, FlowElement_AssignmentOperator);
+            // TODO: we cannot the identifier of the expression as the "source_text" here! (dirty doesn't work, so we have to deal with this during drawing!)
+            // assignment_operator_element->source_text = function_call_argument_node->identifier;
+            add_child_element(assignment_operator_element, assignment_expression_element);
+
+            FlowElement * right_side_expression_element = flowify_expression(flowifier, function_call_argument_node);
+            add_child_element(right_side_expression_element, assignment_expression_element);
+            
+            add_child_element(assignment_expression_element, parameters_element);
+            
+            function_call_argument_node = function_call_argument_node->next_sibling;
+            function_parameter_node = function_parameter_node->next_sibling;
+        }
+        while(function_call_argument_node && function_parameter_node);
+    }
+    
+    // TODO: not supporting optional arguments!
+    
+    return parameters_element;
 }
 
 FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
@@ -486,15 +539,11 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         
         FlowElement * function_element = new_element(flowifier, statement_node, FlowElement_Function);
         
-        FlowElement * function_parameters_element = new_element(flowifier, function_parameters_node, FlowElement_FunctionParameters);
-        
-        add_child_element(function_parameters_element, function_element);        
-        
         FlowElement * function_body_element = new_element(flowifier, function_body_node, FlowElement_FunctionBody);
         
         flowify_statements(flowifier, function_body_element);
         
-        add_child_element(function_body_element, function_element);        
+        add_child_element(function_body_element, function_element);
         
         // TODO: we might want to say that the first_in_flow of a function is actually the first statement element in the function?
         // Note that flowify_statements(...) (see above) already set first_in_flow and last_in_flow (to the first and last statement 

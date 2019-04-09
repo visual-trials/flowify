@@ -23,7 +23,7 @@ enum FlowElementType
     // Control flow elements
     FlowElement_Root,
     FlowElement_Function,
-    FlowElement_FunctionParameters,
+    FlowElement_FunctionParameterAssignments,
     FlowElement_FunctionBody,
     
     FlowElement_If,
@@ -89,7 +89,7 @@ const char * flow_element_type_names[] = {
     // Control flow elements
     "Root",
     "Function",
-    "FunctionParameters",
+    "FunctionParameterAssignments",
     "FunctionBody",
     
     "If",

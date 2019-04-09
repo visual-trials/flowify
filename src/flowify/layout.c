@@ -685,7 +685,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         flow_element->rect.size = function_body_element->rect.size;
     }
     else if (flow_element->type == FlowElement_FunctionCallArguments ||
-             flow_element->type == FlowElement_FunctionParameters)
+             flow_element->type == FlowElement_FunctionParameterAssignments)
     {
         
         i32 top_margin = 0;

@@ -628,7 +628,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_elements(flowifier, function_body_element);
     }
     else if (flow_element->type == FlowElement_FunctionCallArguments ||
-             flow_element->type == FlowElement_FunctionParameters)
+             flow_element->type == FlowElement_FunctionParameterAssignments)
     {
         FlowElement * child_element = flow_element->first_child;
         if (child_element)
