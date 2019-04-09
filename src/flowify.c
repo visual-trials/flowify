@@ -207,6 +207,23 @@ extern "C" {
             {
                 FlowElement * acted_upon_element = &flow_elements[flowifier->interaction.acted_upon_element_index];
                 
+                // TODO: right now when a FunctionBody or FunctionCallIdentifier is double-clicked,
+                //       we do as-if the FunctionCall is clicked. We probably shouldn't hardcode this here
+                //       but instead set properties on these objects to indicatie what the 
+                //       double-click-take-over-element should be.
+                
+                if (acted_upon_element->type == FlowElement_FunctionCallIdentifier)
+                {
+                    acted_upon_element = acted_upon_element->parent;
+                    flowifier->interaction.acted_upon_element_index = acted_upon_element->index;
+                }
+                
+                if (acted_upon_element->type == FlowElement_FunctionBody)
+                {
+                    acted_upon_element = acted_upon_element->parent->parent;
+                    flowifier->interaction.acted_upon_element_index = acted_upon_element->index;
+                }
+                
                 if (acted_upon_element->type == FlowElement_FunctionCall)
                 {
                     acted_upon_element->is_collapsed = !acted_upon_element->is_collapsed;

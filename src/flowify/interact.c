@@ -58,6 +58,12 @@ void process_interactions(Flowifier * flowifier, Input * input, FlowElement * fl
         if (element_hovered_or_pressed.is_pressed_twice)
         {
             flowifier->interaction.acted_upon_element_index = flow_element->index;
+            
+            // TODO: right now, we unselect the acted_upon elements, so its colors won't be so in-your-face
+            if (flowifier->interaction.selected_element_index == flow_element->index)
+            {
+                flowifier->interaction.selected_element_index = 0;
+            }
         }
         
         if (flow_element->first_child)
