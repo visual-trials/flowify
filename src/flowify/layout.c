@@ -629,15 +629,17 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         if (function_call_element->is_collapsed)
         {
-            // FIXME: what should be the size of what is normally the function (inside a collapsed function call)?
-            //        OR should we always layout it completely, but don't count its size when sizing the function call?
+            // If the function is collapsed, we set its size to something (very) small
             function_element->rect.size.width = 0; //default_element_width;
             function_element->rect.size.height = 0; //default_element_height;
+            
+            function_element->rect.position.x = left_margin;
+            function_element->rect.position.y = top_margin; 
         }
         else
         {
             layout_elements(flowifier, function_element);
-            
+        
             function_element->rect.position.x = left_margin;
             function_element->rect.position.y = function_call_element->rect.size.height + in_between_distance; 
 

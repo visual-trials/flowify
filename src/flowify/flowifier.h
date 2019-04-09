@@ -609,8 +609,14 @@ void generate_element_detail(FlowElement * element, DynamicString * detail_text)
     append_integer_detail("height", element->rect.size.height, detail_text);
     append_newline(detail_text);
     
+    /*
     append_integer_detail("abs.x", element->rect_abs.position.x, detail_text);
     append_integer_detail("abs.y", element->rect_abs.position.y, detail_text);
+    append_newline(detail_text);
+    */
+    
+    append_boolean_detail("is_statement", element->is_statement, detail_text);
+    append_boolean_detail("is_collapsed", element->is_collapsed, detail_text);
     append_newline(detail_text);
     
     append_boolean_detail("is_selectable", element->is_selectable, detail_text);
