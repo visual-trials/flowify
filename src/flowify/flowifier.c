@@ -179,9 +179,14 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node, 
             
                 FlowElement * parameters_element = flowify_parameters(flowifier, function_call_arguments_node, function_parameters_node);
                 
-                add_child_element(parameters_element, function_call_element);        
+                add_child_element(parameters_element, function_call_element);
                 
-                // TODO: we need to "attach" the flow from the paramter-assignments to the start of the function-body!
+                // We need to "attach" the flow from the eind of the paramter-assignments to the start of the function-body
+                if (parameters_element->last_child && function_element->first_in_flow)
+                {
+                    parameters_element->last_child->next_in_flow = function_element->first_in_flow;
+                    function_element->first_in_flow->previous_in_flow = parameters_element->last_child;
+                }
                 
                 add_child_element(function_element, function_call_element);
             }

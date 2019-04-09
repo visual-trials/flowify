@@ -641,8 +641,6 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         current_position.x = left_margin;
         current_position.y = function_identifier_rect.size.height; // TODO: does this already include the top_margin?
         
-        current_position.y += in_between_distance; // TODO: is this correct?
-        
         if (function_call_arguments->next_sibling->type == FlowElement_Hidden)
         {
             FlowElement * hidden_function = function_call_arguments->next_sibling;
@@ -668,7 +666,10 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
             }
             else
             {
+                
                 // Parameter Assignments
+                
+                current_position.y += in_between_distance / 2;
                 
                 layout_elements(flowifier, parameters_element);
                 
@@ -678,9 +679,11 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
                 {
                     total_width = left_margin + parameters_element->rect.size.width + right_margin;
                 }
-                current_position.y += in_between_distance + parameters_element->rect.size.height;
+                current_position.y += parameters_element->rect.size.height;
                 
                 // Function
+                
+                current_position.y += in_between_distance;
                 
                 layout_elements(flowifier, function_element);
             
@@ -690,7 +693,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
                 {
                     total_width = left_margin + function_element->rect.size.width + right_margin;
                 }
-                current_position.y += in_between_distance + function_element->rect.size.height;
+                current_position.y += function_element->rect.size.height;
             }
         }
         
@@ -720,7 +723,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         }
         */
         
-        total_height = current_position.y + bottom_margin -  start_position.y;
+        total_height = current_position.y - start_position.y;
         
         function_call_element->rect.size.width = total_width;
         function_call_element->rect.size.height = total_height;
