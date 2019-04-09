@@ -674,7 +674,8 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
     }
     else if (flow_element->type == FlowElement_Function)
     {
-        FlowElement * function_body_element = flow_element->first_child;
+        FlowElement * function_parameters_element = flow_element->first_child;
+        FlowElement * function_body_element = function_parameters_element->next_sibling;
         
         layout_elements(flowifier, function_body_element);
         

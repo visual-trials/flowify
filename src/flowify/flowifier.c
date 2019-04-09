@@ -481,11 +481,14 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
     }
     else if (statement_node->type == Node_Stmt_Function)
     {
+        Node * function_parameters_node = statement_node->first_child;
+        Node * function_body_node = function_parameters_node->next_sibling;
+        
         FlowElement * function_element = new_element(flowifier, statement_node, FlowElement_Function);
         
-        // TODO: flowify function parameters
+        FlowElement * function_parameters_element = new_element(flowifier, function_parameters_node, FlowElement_FunctionParameters);
         
-        Node * function_body_node = statement_node->first_child->next_sibling;
+        add_child_element(function_parameters_element, function_element);        
         
         FlowElement * function_body_element = new_element(flowifier, function_body_node, FlowElement_FunctionBody);
         
