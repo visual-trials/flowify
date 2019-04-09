@@ -620,7 +620,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         layout_elements(flowifier, function_call_arguments);
         
-        i32 in_between_distance = 0; // FIXME: put this in Flowifier!
+        i32 in_between_distance = bending_radius; // FIXME: put this in Flowifier!
 
         function_call_element->rect.size = layout_horizontally(&function_call_identifier->rect, &function_call_arguments->rect, 
                                                                in_between_distance, flowifier->expression_margin);
@@ -694,7 +694,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         i32 summed_children_width = 0;
         i32 largest_child_height = 0;
         
-        i32 horizontal_margin = 0;
+        i32 horizontal_margin = bending_radius;
         
         FlowElement * child_element = flow_element->first_child;
         
