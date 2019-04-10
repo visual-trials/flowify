@@ -230,7 +230,10 @@ extern "C" {
                     if (acted_upon_element->is_collapsed)
                     {
                         // TODO: if its now collapsed, the whole root element may be completely off screen.
-                        //       we might want to re-position the root element (so at least this element becomes in-view)
+                        //       we want to re-position all elements, so at least this element becomes in-view
+                        //       this is a little dirty, but it kinda works for now
+                        
+                        world->flowify_vertical_offset = -acted_upon_element->rect.position.y;
                     }
                     log("acted upon function call element!");
                 }
