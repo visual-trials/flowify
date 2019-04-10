@@ -235,7 +235,6 @@ extern "C" {
                         
                         world->flowify_vertical_offset = -acted_upon_element->rect.position.y;
                     }
-                    log("acted upon function call element!");
                 }
                 
                 flowifier->interaction.acted_upon_element_index = 0;
