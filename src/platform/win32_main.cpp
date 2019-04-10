@@ -19,8 +19,17 @@
 #include <windows.h>
 #include <stdio.h>
 
+#if DO_ASSERTIONS
 // FIXME: implement win32 version: #define assert(expression) if(!(expression)) {*(int *)0 = 0;}
 // FIXME: implement win32 version: #define assert_message(expression, message) if(!(expression)) {abort(message, __FILE__, __LINE__);}
+// BROWSER VERSION: #define assert(expression) if(!(expression)) {abort("Assertion failed!", __FILE__, __LINE__);}
+// BROWSER VERSION: #define assert_message(expression, message) if(!(expression)) {abort(message, __FILE__, __LINE__);}
+#define assert(expression)
+#define assert_message(expression, message)
+#else
+#define assert(expression)
+#define assert_message(expression, message)
+#endif
 
 LARGE_INTEGER clock_counter_before_update_and_render;
 LARGE_INTEGER clock_counter_after_update;
@@ -260,8 +269,6 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
     global_memory.base_address = game_memory_address;
     global_memory.size = dynamic_memory_size;
 
-    init_world();
-    
     WNDCLASSA window_class = {};
     window_class.style         = CS_HREDRAW|CS_VREDRAW;
     window_class.lpfnWndProc   = WindowProcedure;
@@ -296,6 +303,8 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
         MessageBox(0, "Direct2D init failed!", "Error!", MB_ICONEXCLAMATION | MB_OK);
         return 0;
     }
+    
+    init_world();
     
     // Checking if touch is enabled on this machine and if so, registering for touch messages
     i32 touch_info = GetSystemMetrics(SM_DIGITIZER);
