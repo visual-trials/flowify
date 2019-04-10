@@ -203,8 +203,10 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node, 
                 FlowElement * hidden_function_element = new_element(flowifier, 0, FlowElement_Hidden);
                 add_child_element(hidden_function_element, function_call_element);
                 
-                function_call_element->first_in_flow = hidden_function_element;
-                function_call_element->last_in_flow = hidden_function_element;
+                // TODO: we do not connect first and last statements in a body, with statements in a next or previous body anymore. 
+                //       So first_in_flow and last_in_flow are probably deprecated!
+                //function_call_element->first_in_flow = hidden_function_element;
+                //function_call_element->last_in_flow = hidden_function_element;
             }
             
             new_expression_element = function_call_element;
@@ -658,14 +660,14 @@ void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
                 if (!parent_element->first_child)
                 {
                     // The first element is found, we assume its also the first_in_flow
-                    parent_element->first_in_flow = new_statement_element;
+                    parent_element->first_in_flow = new_statement_element->first_in_flow;
                     
                 }
                 
                 add_child_element(new_statement_element, parent_element);
                 
                 // We have found another child so we assume its also the last_in_flow
-                parent_element->last_in_flow = new_statement_element;
+                parent_element->last_in_flow = new_statement_element->last_in_flow;
                 
                 // We set the last_in_flow of the previous child to be flowing towards the first_in_flow of the current child
                 if (previous_statement_element)
