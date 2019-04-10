@@ -520,7 +520,7 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
             add_child_element(foreach_key_var_element, foreach_cond_element);
             
             FlowElement * arrow_keyword_element = new_element(flowifier, foreach_key_var_node, FlowElement_ForeachArrowKeyword);  // Note: we set the ast-node of the arrow-keyword itself to the foreach-key_var-expression (because the keyword itself is not an ast-node by itself)
-            arrow_keyword_element->source_text = foreach_array_node->identifier;  // TODO: we use the identifier of the foreach-key_var-expression (which is filled with the keyword "=>") as the "source_text" of this element! (little dirty)
+            arrow_keyword_element->source_text = foreach_key_var_node->identifier;  // TODO: we use the identifier of the foreach-key_var-expression (which is filled with the keyword "=>") as the "source_text" of this element! (little dirty)
             add_child_element(arrow_keyword_element, foreach_cond_element);
         }
         FlowElement * foreach_value_var_element = new_element(flowifier, foreach_value_var_node, FlowElement_ForeachValueVar); 

@@ -280,7 +280,9 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, false);
     }
     else if (flow_element->type == FlowElement_Variable ||
-        flow_element->type == FlowElement_UnaryOperator)
+             flow_element->type == FlowElement_ForeachKeyVar ||
+             flow_element->type == FlowElement_ForeachValueVar ||
+             flow_element->type == FlowElement_UnaryOperator)
     {
         // FIXME: we should put bars on the sides of a UnaryExpression IF its a statement!!
         // FIXME: we should put bars on the sides of a UnaryExpression IF its a statement!!
@@ -291,6 +293,13 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     else if (flow_element->type == FlowElement_Scalar)
     {
         draw_rectangle_element(flowifier, flow_element, flowifier->scalar_style, true, true);
+    }
+    else if (flow_element->type == FlowElement_ForeachKeyword ||
+             flow_element->type == FlowElement_ForeachAsKeyword ||
+             flow_element->type == FlowElement_ForeachArrowKeyword)
+    {
+        // TODO: what kind of style do we need to pass here? (for now using scalar_style)
+        draw_rectangle_element(flowifier, flow_element, flowifier->scalar_style, false, true);
     }
     else if (flow_element->type == FlowElement_ArrayAccess)
     {
@@ -319,6 +328,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
         draw_elements(flowifier, cond_expression_element);
     }
+    /*
     else if (flow_element->type == FlowElement_ForeachCond)
     {
         i32 expression_depth = 0; // FIXME: fill this with the depth of the expression-stack! We should probably store this in FlowElement
@@ -342,6 +352,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_elements(flowifier, foreach_array_expression_element);
         
     }
+    */
     else if (flow_element->type == FlowElement_Return)
     {
         i32 expression_depth = 0; // FIXME: fill this with the depth of the expression-stack! We should probably store this in FlowElement
@@ -645,7 +656,8 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_elements(flowifier, function_body_element);
     }
     else if (flow_element->type == FlowElement_FunctionCallArguments ||
-             flow_element->type == FlowElement_FunctionParameterAssignments)
+             flow_element->type == FlowElement_FunctionParameterAssignments ||
+             flow_element->type == FlowElement_ForeachCond)
     {
         FlowElement * child_element = flow_element->first_child;
         if (child_element)

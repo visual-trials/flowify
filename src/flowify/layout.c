@@ -134,6 +134,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
                                                       
         flow_element->is_highlightable = true;
     }
+    /*
     else if (flow_element->type == FlowElement_ForeachCond)
     {
         FlowElement * foreach_keyword_element = flow_element->first_child;
@@ -160,6 +161,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
                                                       
         flow_element->is_highlightable = true;
     }
+    */
     else if (flow_element->type == FlowElement_Assignment)
     {
         FlowElement * assignee_element = flow_element->first_child;
@@ -215,6 +217,11 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         flow_element->is_highlightable = true;
     }
     else if (flow_element->type == FlowElement_Variable ||
+             flow_element->type == FlowElement_ForeachKeyword ||
+             flow_element->type == FlowElement_ForeachAsKeyword ||
+             flow_element->type == FlowElement_ForeachKeyVar ||
+             flow_element->type == FlowElement_ForeachArrowKeyword ||
+             flow_element->type == FlowElement_ForeachValueVar ||
              flow_element->type == FlowElement_Scalar)
     {
         flow_element->rect.size = get_size_based_on_source_text(flowifier, flow_element, flowifier->variable_margin);
@@ -732,7 +739,8 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         flow_element->rect.size = function_body_element->rect.size;
     }
-    else if (flow_element->type == FlowElement_FunctionCallArguments)
+    else if (flow_element->type == FlowElement_FunctionCallArguments ||
+             flow_element->type == FlowElement_ForeachCond)
     {
         
         i32 top_margin = 0;
@@ -745,6 +753,13 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         i32 largest_child_height = 0;
         
         i32 horizontal_margin = bending_radius;
+        // FIXME: this is a bit of a hack
+        if (flow_element->type == FlowElement_ForeachCond)
+        {
+            horizontal_margin = 0;
+            left_margin = bending_radius;
+            right_margin = bending_radius;
+        }
         
         FlowElement * child_element = flow_element->first_child;
         
@@ -772,6 +787,20 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
                 }
                 
                 is_first_element = false;
+            }
+            while ((child_element = child_element->next_sibling));
+            
+        }
+        
+        // Center vertically
+        child_element = flow_element->first_child;
+        if (child_element)
+        {
+            do
+            {
+                Size2d child_size = child_element->rect.size;
+                
+                child_element->rect.position.y = (largest_child_height / 2) - (child_size.height / 2);
             }
             while ((child_element = child_element->next_sibling));
             
