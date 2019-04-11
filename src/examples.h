@@ -81,21 +81,21 @@ const char * simple_if_program_text =
 const char * simple_if_else_program_text = 
     "<?php\n"
     "\n"
-    "$myVar = 34;\n"
+    "$myVariable = 34;\n"
     "\n"
     "$b = 76;\n"
     "\n"
     "\n"
     "if ($b > 50) {\n"
     "   $b = 50;\n"
-    "   $myVar += 10;\n"
+    "   $myVariable += 10;\n"
     "}\n"
     "else {\n"
     "   $b = 30;\n"
-    "   $myVar *= 12;\n"
+    "   $myVariable *= 12;\n"
     "}\n"
     "\n"
-    "$c = $myVar + $b;\n"
+    "$c = $myVariable + $b;\n"
 ;
 
 const char * simple_for = 
