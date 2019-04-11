@@ -469,7 +469,8 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         // We vertically-align the done element with the init-element
         for_done_element->rect.position.x = for_init_element->rect.position.x;
-        for_done_element->rect.position.y = current_position_left.y;
+        // We make the done-element end where the pass-right element ended, by substracting its height
+        for_done_element->rect.position.y = current_position_left.y - for_done_element->rect.size.height; 
         
         current_position_left.y += for_done_element->rect.size.height;
         
@@ -600,7 +601,8 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         // We vertically-align the done element with the init-element
         foreach_done_element->rect.position.x = foreach_init_element->rect.position.x;
-        foreach_done_element->rect.position.y = current_position_left.y;
+        // We make the done-element end where the pass-right element ended, by substracting its height
+        foreach_done_element->rect.position.y = current_position_left.y - foreach_done_element->rect.size.height;
         
         current_position_left.y += foreach_done_element->rect.size.height;
         
