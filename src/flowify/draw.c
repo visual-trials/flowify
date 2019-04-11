@@ -322,7 +322,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * keyword_element = flow_element->first_child;
         FlowElement * cond_expression_element = keyword_element->next_sibling;
         
-        draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, false);
+        // FIXME: this is already draw in the if-element: draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, false);
         
         draw_rectangle_element(flowifier, keyword_element, expression_style, false, true);
         // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
@@ -442,16 +442,17 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     {
         FlowElement * if_element = flow_element;
         FlowElement * if_cond_element = flow_element->first_child;
-        FlowElement * if_split_element = if_cond_element->next_sibling;
-        FlowElement * if_then_element = if_split_element->next_sibling;
+//        FlowElement * if_split_element = if_cond_element->next_sibling;
+        FlowElement * if_then_element = if_cond_element->next_sibling;
         FlowElement * if_else_element = if_then_element->next_sibling;
         FlowElement * if_join_element = if_else_element->next_sibling;
 
         // TODO: we  draw the if-cond in a way so that the side-lines are drawn AND the if-cond-expression is drawn
-        draw_straight_element(flowifier, if_cond_element, if_cond_element->previous_in_flow, if_split_element, false);
+        // FIXME: what should we put here as next element? Maybe a rect from the left-top of the 'else' to the right-top of the 'then'?
+        draw_straight_element(flowifier, if_cond_element, if_cond_element->previous_in_flow, 0, false);
         draw_elements(flowifier, if_cond_element);
         
-        draw_splitting_element(flowifier, if_else_element->first_in_flow, if_then_element->first_in_flow, if_split_element, if_cond_element);
+        draw_splitting_element(flowifier, if_else_element->first_in_flow, if_then_element->first_in_flow, if_cond_element, if_cond_element);
         draw_elements(flowifier, if_then_element);
         draw_elements(flowifier, if_else_element);
         draw_joining_element(flowifier, if_else_element->last_in_flow, if_then_element->last_in_flow, if_join_element, if_element->next_in_flow);

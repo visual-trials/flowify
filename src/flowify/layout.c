@@ -281,14 +281,14 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
     else if (flow_element->type == FlowElement_If)
     {
         FlowElement * if_cond_element = flow_element->first_child;
-        FlowElement * if_split_element = if_cond_element->next_sibling;
-        FlowElement * if_then_element = if_split_element->next_sibling;
+//        FlowElement * if_split_element = if_cond_element->next_sibling;
+        FlowElement * if_then_element = if_cond_element->next_sibling;
         FlowElement * if_else_element = if_then_element->next_sibling;
         FlowElement * if_join_element = if_else_element->next_sibling;
         
         // FIXME: we should compute this based on the max width of: the splitter, if-then and if-else (+ several bending radius)
         //        note that the top and bottom vertical margin could be different!
-        i32 vertical_margin = 150; 
+        i32 vertical_margin = bending_radius; 
         
         // Sizing
         
@@ -302,11 +302,11 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
             then_else_height = if_else_element->rect.size.height;
         }
         
-        if_split_element->rect.size.height = 2 * bending_radius;
-        if_split_element->rect.size.width = default_element_width;
+//        if_split_element->rect.size.height = 2 * bending_radius;
+//        if_split_element->rect.size.width = default_element_width;
 
         if_join_element->rect.size.width = default_element_width;
-        if_join_element->rect.size.height = 2 * bending_radius;
+        if_join_element->rect.size.height = 0; // FIXME: is this correct? // 2 * bending_radius;
         
         // Positioning
         
@@ -319,9 +319,10 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         current_position.y += if_cond_element->rect.size.height;
         
-        if_split_element->rect.position = current_position;
+        current_position.y += vertical_margin;
+//        if_split_element->rect.position = current_position;
         
-        current_position.y += if_split_element->rect.size.height + vertical_margin;
+//        current_position.y += if_split_element->rect.size.height + vertical_margin;
         
         Pos2d current_position_right = current_position;
         Pos2d current_position_left = current_position;

@@ -402,7 +402,7 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         FlowElement * cond_expression_element = flowify_child_expression_or_passthrough(flowifier, if_cond_node);
         add_child_element(cond_expression_element, if_cond_element);
         
-        FlowElement * if_split_element = new_element(flowifier, if_cond_node, FlowElement_IfSplit); 
+//        FlowElement * if_split_element = new_element(flowifier, if_cond_node, FlowElement_IfSplit); 
         
         FlowElement * if_then_element = new_element(flowifier, if_then_node, FlowElement_IfThen);
         flowify_child_statements_or_passthrough(flowifier, if_then_node, if_then_element);
@@ -413,7 +413,7 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         FlowElement * if_join_element = new_element(flowifier, 0, FlowElement_IfJoin);
         
         add_child_element(if_cond_element, if_element);
-        add_child_element(if_split_element, if_element);
+//        add_child_element(if_split_element, if_element);
         add_child_element(if_then_element, if_element);
         add_child_element(if_else_element, if_element);
         add_child_element(if_join_element, if_element);

@@ -29,7 +29,7 @@ enum FlowElementType
     FlowElement_If,
     FlowElement_IfKeyword,
     FlowElement_IfCond,
-    FlowElement_IfSplit,
+//    FlowElement_IfSplit,
     FlowElement_IfThen,
     FlowElement_IfElse,
     FlowElement_IfJoin,
@@ -95,7 +95,7 @@ const char * flow_element_type_names[] = {
     "If",
     "IfKeyword",
     "IfCond",
-    "IfSplit",
+//    "IfSplit",
     "IfThen",
     "IfElse",
     "IfJoin",
@@ -400,7 +400,7 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     flowifier->for_right_margin = 100;
     
     flowifier->default_element_width = 100;
-    flowifier->default_element_height = 80;
+    flowifier->default_element_height = 40;
     
     init_dynamic_array(&flowifier->flow_elements, sizeof(FlowElement), (Color4){0,255,255,255}, cstring_to_string("Flowifier"));
     
