@@ -67,6 +67,7 @@ void draw_lane_segments_for_3_rectangles(Rect2d top_rect, Rect2d middle_rect, Re
     
 }
 
+// FIXME: is this deprecated?
 void draw_lane_segments_for_4_rectangles(Rect2d top_or_bottom_rect, b32 is_top_rect, Rect2d left_rect, Rect2d right_rect, Rect2d middle_rect, i32 bending_radius, i32 line_width, Color4 line_color, Color4 rect_color, Color4 bend_color)
 {
     Color4 no_color = {};
@@ -96,6 +97,7 @@ void draw_lane_segments_for_4_rectangles(Rect2d top_or_bottom_rect, b32 is_top_r
                       line_color, bend_color, line_width);
 }
 
+// FIXME: we only need the rects here right?
 void draw_joining_element(Flowifier * flowifier, FlowElement * left_element, FlowElement * right_element, 
                           FlowElement * joining_element, FlowElement * element_next_in_flow)
 {
@@ -126,14 +128,18 @@ void draw_joining_element(Flowifier * flowifier, FlowElement * left_element, Flo
     draw_lane_segments_for_4_rectangles(bottom_rect, false, left_rect, right_rect, middle_rect, 
                                         flowifier->bending_radius, flowifier->line_width, 
                                         flowifier->line_color, fill_color, fill_color);
+/*           
+FIXME:                             
     draw_lane_segments_for_3_rectangles(no_rect, middle_rect, bottom_rect, 
                                         flowifier->bending_radius, flowifier->line_width, 
                                         flowifier->line_color, fill_color, fill_color);
+*/
                                        
     draw_interaction_rectangle(flowifier, joining_element);
     
 }
 
+// FIXME: we only need the rects here right?
 void draw_splitting_element(Flowifier * flowifier, FlowElement * left_element, FlowElement * right_element, 
                             FlowElement * splitting_element, FlowElement * element_previous_in_flow)
 {
@@ -164,11 +170,12 @@ void draw_splitting_element(Flowifier * flowifier, FlowElement * left_element, F
     draw_lane_segments_for_4_rectangles(top_rect, true, left_rect, right_rect, middle_rect, 
                                         flowifier->bending_radius, flowifier->line_width, 
                                         flowifier->line_color, fill_color, fill_color);
-                                        
+/*                      
+FIXME:
     draw_lane_segments_for_3_rectangles(top_rect, middle_rect, no_rect, 
                                         flowifier->bending_radius, flowifier->line_width, 
                                         flowifier->line_color, fill_color, fill_color);
- 
+*/ 
     draw_interaction_rectangle(flowifier, splitting_element);
 }
 
@@ -461,10 +468,10 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     {
         FlowElement * for_element = flow_element;
         FlowElement * for_init_element = flow_element->first_child;
-        FlowElement * for_join_element = for_init_element->next_sibling;
-        FlowElement * for_cond_element = for_join_element->next_sibling;
-        FlowElement * for_split_element = for_cond_element->next_sibling;
-        FlowElement * for_body_element = for_split_element->next_sibling;
+//        FlowElement * for_join_element = for_init_element->next_sibling;
+        FlowElement * for_cond_element = for_init_element->next_sibling;
+//        FlowElement * for_split_element = for_cond_element->next_sibling;
+        FlowElement * for_body_element = for_cond_element->next_sibling;
         FlowElement * for_update_element = for_body_element->next_sibling;
         FlowElement * for_passright_element = for_update_element->next_sibling;
         FlowElement * for_passup_element = for_passright_element->next_sibling;
@@ -474,13 +481,16 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
 
         draw_elements(flowifier, for_init_element);
         
-        draw_joining_element(flowifier, for_init_element, for_passdown_element, for_join_element, for_cond_element);
+        // FIXME: what should be the last element?
+        draw_joining_element(flowifier, for_init_element, for_passdown_element, for_cond_element, 0);
         
         // TODO: we  draw the if-cond in a way so that the side-lines are drawn AND the if-cond-expression is drawn
-        draw_straight_element(flowifier, for_cond_element, for_join_element, for_split_element, false);
+        // FIXME: this element is in between a join and split, so what to do with the previous_in_flow and next_in_flow?
+        draw_straight_element(flowifier, for_cond_element, 0, 0, false);
         draw_elements(flowifier, for_cond_element);
         
-        draw_splitting_element(flowifier, for_done_element, for_body_element->first_in_flow, for_split_element, for_cond_element);
+        // FIXME: what should be the last element?
+        draw_splitting_element(flowifier, for_done_element, for_body_element->first_in_flow, for_cond_element, 0);
         
         draw_elements(flowifier, for_body_element);
         
@@ -527,25 +537,29 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     {
         FlowElement * foreach_element = flow_element;
         FlowElement * foreach_init_element = flow_element->first_child;
-        FlowElement * foreach_join_element = foreach_init_element->next_sibling;
-        FlowElement * foreach_cond_element = foreach_join_element->next_sibling;
-        FlowElement * foreach_split_element = foreach_cond_element->next_sibling;
-        FlowElement * foreach_body_element = foreach_split_element->next_sibling;
+//        FlowElement * foreach_join_element = foreach_init_element->next_sibling;
+        FlowElement * foreach_cond_element = foreach_init_element->next_sibling;
+//        FlowElement * foreach_split_element = foreach_cond_element->next_sibling;
+        FlowElement * foreach_body_element = foreach_cond_element->next_sibling;
         FlowElement * foreach_passright_element = foreach_body_element->next_sibling;
         FlowElement * foreach_passup_element = foreach_passright_element->next_sibling;
         FlowElement * foreach_passleft_element = foreach_passup_element->next_sibling;
         FlowElement * foreach_passdown_element = foreach_passleft_element->next_sibling;
         FlowElement * foreach_done_element = foreach_passdown_element->next_sibling;
 
-        draw_straight_element(flowifier, foreach_init_element, foreach_init_element->previous_in_flow, foreach_join_element, false);
+        // FIXME: what should be the last element?
+        draw_straight_element(flowifier, foreach_init_element, foreach_init_element->previous_in_flow, 0, false);
         
-        draw_joining_element(flowifier, foreach_init_element, foreach_passdown_element, foreach_join_element, foreach_cond_element);
+        // FIXME: what should be the last element?
+        draw_joining_element(flowifier, foreach_init_element, foreach_passdown_element, foreach_cond_element, 0);
         
         // TODO: we  draw the if-cond in a way so that the side-lines are drawn AND the if-cond-expression is drawn
-        draw_straight_element(flowifier, foreach_cond_element, foreach_join_element, foreach_split_element, false);
+        // FIXME: this element is in between a join and split, so what to do with the previous_in_flow and next_in_flow?
+        draw_straight_element(flowifier, foreach_cond_element, 0, 0, false);
         draw_elements(flowifier, foreach_cond_element);
         
-        draw_splitting_element(flowifier, foreach_done_element, foreach_body_element->first_in_flow, foreach_split_element, foreach_cond_element);
+        // FIXME: what should be the last element?
+        draw_splitting_element(flowifier, foreach_done_element, foreach_body_element->first_in_flow, foreach_cond_element, 0);
         
         draw_elements(flowifier, foreach_body_element);
         
