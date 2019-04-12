@@ -336,7 +336,7 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     
     flowifier->show_help_rectangles = false;
     flowifier->help_rectangle_color     = (Color4){255, 0, 0, 255};
-    flowifier->help_rectangle_fill      = (Color4){255, 0, 0, 50};
+    flowifier->help_rectangle_fill      = (Color4){255, 0, 0, 20};
     flowifier->help_rectangle_line_width = 2;
     
     flowifier->hovered_color     = (Color4){0, 0, 255, 30};
