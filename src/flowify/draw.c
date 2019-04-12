@@ -277,6 +277,22 @@ void draw_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, F
 void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
 {
     // TODO: add is_position_of and position_originates_from
+
+    /*
+    FIXME: don't draw elements that are out of screen
+    // TODO: add screen to flowifier (don't use global)
+    i32 screen_width = global_input.screen.width;
+    i32 screen_height = global_input.screen.height;
+    Pos2d position = flow_element->rect_abs.position;
+    Size2d size = flow_element->rect_abs.size;
+    if (position.x + size.width < 0 ||
+        position.x > screen_width ||
+        position.y + size.height < 0 ||
+        position.y > screen_height)
+    {
+        return;
+    }
+    */
     
     Rect2d no_rect = {-1,-1,-1,-1};
     
