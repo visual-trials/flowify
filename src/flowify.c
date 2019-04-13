@@ -159,7 +159,7 @@ extern "C" {
         world->program_texts[7] = fibonacci_recursive_early_return_program_text;
         world->nr_of_program_texts = 8;
         
-        world->current_program_text_index = 4;
+        world->current_program_text_index = 0;
         
         world->verbose_memory_usage = true;
 
@@ -346,6 +346,8 @@ extern "C" {
         TouchesInput * touch = &input->touch;
         Flowifier * flowifier = &world->flowifier;
         
+        /*
+        FIXME: turned of menu on left side!
         for (i32 program_text_index = 0; program_text_index < world->nr_of_program_texts; program_text_index++)
         {
             b32 button_is_active = false;
@@ -366,7 +368,7 @@ extern "C" {
                 layout_elements(flowifier, world->root_element);
             }
         }
-        
+        */
         
         if (mouse->wheel_has_moved)
         {
