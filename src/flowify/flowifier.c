@@ -588,9 +588,13 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         return_keyword_element->source_text = statement_node->identifier;
         add_child_element(return_keyword_element, return_element);
         
-        Node * expression_node = statement_node->first_child;
-        FlowElement * new_expression_element = flowify_expression(flowifier, expression_node);
-        add_child_element(new_expression_element, return_element);
+        // Only add expression-element if the return-statement has an expression (as its child)
+        if (statement_node->first_child)
+        {
+            Node * expression_node = statement_node->first_child;
+            FlowElement * new_expression_element = flowify_expression(flowifier, expression_node);
+            add_child_element(new_expression_element, return_element);
+        }
         
         return_element->first_in_flow = return_element;
         return_element->last_in_flow = return_element;
