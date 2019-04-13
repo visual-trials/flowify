@@ -249,6 +249,9 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node, 
             new_expression_element = new_element(flowifier, expression_node, FlowElement_Unknown);
         }
     }
+    else {
+        log("ERROR: expression node is null!!");
+    }
     
     // FIXME: HACK. We want to do this properly for each expression type
     if (!new_expression_element->first_in_flow)
