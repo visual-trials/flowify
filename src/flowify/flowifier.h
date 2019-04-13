@@ -339,12 +339,14 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     flowifier->help_rectangle_fill      = (Color4){255, 0, 0, 20};
     flowifier->help_rectangle_line_width = 2;
     
-    flowifier->hovered_color     = (Color4){0, 0, 255, 30};
-    flowifier->hovered_fill      = (Color4){0, 0, 255, 10};
+    // FIXME: set fill/stroke to 0 alpha for now: this alpha seems to cause significant performance drains (when its a very large rect)
+    flowifier->hovered_color     = (Color4){0, 0, 255, 255};
+    flowifier->hovered_fill      = (Color4){0, 0, 255, 0}; 
     flowifier->hovered_line_width = 2;
     
+    // FIXME: set fill/stroke to 0 alpha for now: this alpha seems to cause significant performance drains (when its a very large rect)
     flowifier->selected_color     = (Color4){255, 0, 255, 255};
-    flowifier->selected_fill      = (Color4){255, 0, 255, 30};
+    flowifier->selected_fill      = (Color4){255, 0, 255, 0};
     flowifier->selected_line_width = 2;
     
     flowifier->function_line_color = (Color4){ 200, 200, 200, 255};
