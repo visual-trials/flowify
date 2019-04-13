@@ -278,8 +278,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
 {
     // TODO: add is_position_of and position_originates_from
 
-    /*
-    FIXME: don't draw elements that are out of screen
+    // Don't draw elements that are out of screen
     // TODO: add screen to flowifier (don't use global)
     i32 screen_width = global_input.screen.width;
     i32 screen_height = global_input.screen.height;
@@ -292,7 +291,6 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     {
         return;
     }
-    */
     
     Rect2d no_rect = {-1,-1,-1,-1};
     
