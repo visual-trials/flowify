@@ -27,6 +27,8 @@ Flowify.canvas = function () {
     
     // FIXME: we need a proper way of drawing shadows
     my.drawShadows = true
+    my.nrOfDrawCalls = 0
+    my.showNrOfDrawCalls = true
     
     my.usingPhysicalPixels = false
     my.scale = 1
@@ -118,6 +120,14 @@ Flowify.canvas = function () {
         my.context2d.clearRect(0, 0, my.canvasElement.width, my.canvasElement.height)
         my.context2d.beginPath() // See: http://codetheory.in/why-clearrect-might-not-be-clearing-canvas-pixels/
         my.context2d.closePath()
+        
+        if (my.showNrOfDrawCalls) {
+            my.context2d.font = "10px Arial"
+            my.context2d.fillStyle = "black"
+            my.context2d.textBaseline = "top"
+            my.context2d.fillText(my.nrOfDrawCalls, 0, 0)
+        }
+        my.nrOfDrawCalls = 0
     }
     
     my.getCanvasRGBAColor = function (colorRGB, colorAlpha) {
@@ -143,10 +153,12 @@ Flowify.canvas = function () {
                 ctx.beginPath()
                 ctx.rect(x, y, width, height)
                 ctx.clip()
+                my.nrOfDrawCalls++
             },
             
             _jsUnClipRect: function () {
                 ctx.restore()
+                my.nrOfDrawCalls++
             },
             
             _jsDrawRoundedRect: function (x, y, width, height, r, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
@@ -170,6 +182,7 @@ Flowify.canvas = function () {
                     ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
                     ctx.lineWidth = lineWidth
                     ctx.stroke()
+                    my.nrOfDrawCalls++
                 }
                 
                 if (fillColorAlpha) {
@@ -178,6 +191,7 @@ Flowify.canvas = function () {
                     }
                     ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
                     ctx.fill()
+                    my.nrOfDrawCalls++
                 }
 
                 if (lineColorAlpha) {
@@ -187,6 +201,7 @@ Flowify.canvas = function () {
                     ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
                     ctx.lineWidth = lineWidth
                     ctx.stroke()
+                    my.nrOfDrawCalls++
                 }
             },
             
@@ -256,6 +271,7 @@ Flowify.canvas = function () {
                         ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
                         ctx.lineWidth = lineWidth
                         ctx.stroke()
+                        my.nrOfDrawCalls++
                     }
                 }
                 
@@ -319,6 +335,7 @@ Flowify.canvas = function () {
                     }
                     ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
                     ctx.fill()
+                    my.nrOfDrawCalls++
                 }
                 
                 if (lineColorAlpha) {
@@ -380,6 +397,7 @@ Flowify.canvas = function () {
                     ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
                     ctx.lineWidth = lineWidth
                     ctx.stroke()
+                    my.nrOfDrawCalls++
                 }
             },
             
@@ -439,6 +457,7 @@ Flowify.canvas = function () {
                         ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
                         ctx.lineWidth = lineWidth
                         ctx.stroke()
+                        my.nrOfDrawCalls++
                     }
                 }
                 
@@ -492,6 +511,7 @@ Flowify.canvas = function () {
                     }
                     ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
                     ctx.fill()
+                    my.nrOfDrawCalls++
                 }
                 
                 if (lineColorAlpha) {
@@ -544,6 +564,7 @@ Flowify.canvas = function () {
                     ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
                     ctx.lineWidth = lineWidth
                     ctx.stroke()
+                    my.nrOfDrawCalls++
                 }
             },
             
@@ -555,12 +576,14 @@ Flowify.canvas = function () {
                 if (fillColorAlpha) {
                     ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
                     ctx.fill()
+                    my.nrOfDrawCalls++
                 }
 
                 if (lineColorAlpha) {
                     ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
                     ctx.lineWidth = lineWidth
                     ctx.stroke()
+                    my.nrOfDrawCalls++
                 }
             },
             
@@ -580,6 +603,7 @@ Flowify.canvas = function () {
                     ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
                     ctx.lineWidth = lineWidth
                     ctx.stroke()
+                    my.nrOfDrawCalls++
                 }
             },
             
@@ -616,11 +640,13 @@ Flowify.canvas = function () {
                 if (fillColorAlpha) {
                     ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
                     ctx.fill()
+                    my.nrOfDrawCalls++
                 }
                 if (lineColorAlpha) {
                     ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
                     ctx.lineWidth = lineWidth
                     ctx.stroke()
+                    my.nrOfDrawCalls++
                 }
             },
             
@@ -640,6 +666,7 @@ Flowify.canvas = function () {
                 ctx.fillStyle = my.getCanvasRGBAColor(fontColorRGB, fontColorAlpha)
                 ctx.textBaseline = "top"
                 ctx.fillText(string, x, y)
+                my.nrOfDrawCalls++
             },
 
             _jsGetTextWidth: function (stringIndex, stringLength, fontHeight, fontFamilyIndex) {
@@ -655,6 +682,7 @@ Flowify.canvas = function () {
                 ctx.font = fontHeight + "px " + baseFont
                 let fontHeightPx = fontHeight
                 let textMetrics = ctx.measureText(string)
+                my.nrOfDrawCalls++
                 
                 return textMetrics.width
             },
