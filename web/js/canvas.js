@@ -122,7 +122,7 @@ Flowify.canvas = function () {
         my.context2d.closePath()
         
         if (my.showNrOfDrawCalls) {
-            my.context2d.font = "10px Arial"
+            my.context2d.font = "14px Arial"
             my.context2d.fillStyle = "black"
             my.context2d.textBaseline = "top"
             my.context2d.fillText(my.nrOfDrawCalls, 0, 0)
