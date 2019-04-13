@@ -517,9 +517,9 @@ extern "C" {
             highlighted_line_part->length = highlighted_flow_element->highlighted_line_part.length;
         }
         
-        draw_scrollable_text(scrollable_program_text);
+        // FIXME: turned off for now draw_scrollable_text(scrollable_program_text);
         // Turned off for the moment: 
-        draw_scrollable_text(scrollable_flowify_dump);
+        // draw_scrollable_text(scrollable_flowify_dump);
         
         draw_and_update_button_menu(world);
 

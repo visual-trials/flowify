@@ -26,7 +26,7 @@ Flowify.canvas = function () {
     my.context2d = my.canvasElement.getContext("2d")
     
     // FIXME: we need a proper way of drawing shadows
-    my.drawShadows = true
+    my.drawShadows = false
     my.nrOfDrawCalls = 0
     my.showNrOfDrawCalls = true
     

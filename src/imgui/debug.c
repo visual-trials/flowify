@@ -134,7 +134,7 @@ void do_frame_timing(Input * input, b32 * is_verbose)
         bar_width = 3;
         margin_between_bars = 0;
         normal_bar_height = 33;
-        nr_of_bars_to_show = MAX_NR_OF_FRAMES_FOR_TIMING / 2;
+        nr_of_bars_to_show = MAX_NR_OF_FRAMES_FOR_TIMING / 8;
     }
     
     Pos2d start_position = {};
