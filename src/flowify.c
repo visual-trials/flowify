@@ -439,6 +439,7 @@ extern "C" {
         draw_elements(flowifier, root_element);
         
         // FIXME: hack!
+        /*
         if (flowifier->interaction.selected_element_index)
         {
             FlowElement * flow_elements = (FlowElement *)flowifier->flow_elements.items;
@@ -462,6 +463,7 @@ extern "C" {
             
             draw_scrollable_text(&world->scrollable_flowify_detail);
         }
+        */
         
     }
     
