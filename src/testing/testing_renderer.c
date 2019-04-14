@@ -103,7 +103,7 @@ extern "C" {
         WorldData * world = &global_world;
         
         world->active_page_index = 1;
-        world->nr_of_pages = 6;
+        world->nr_of_pages = 2;
         
         world->iteration = 0;
         world->selected_lane_segment_index = 0;
@@ -178,6 +178,225 @@ extern "C" {
             }
         }
         
+    }
+    
+    void draw_bend_line(WorldData * world)
+    {
+        
+    }
+    
+    // TODO: make this a more general function (add arguments nr_of_buttons and current_button_index)
+    //       then return button_pressed_index (so you can show the correct page for that index)
+    void draw_and_update_button_menu(WorldData * world)
+    {
+        // Draw (and update) button menu
+        
+        Size2d size_button = {50, 50};
+        Pos2d position_button = {20, 20};
+        i32 margin_between_buttons = 20;
+        
+        for (i32 page_index = 0; page_index < world->nr_of_pages; page_index++)
+        {
+            b32 button_is_active = false;
+            if (page_index == world->active_page_index)
+            {
+                button_is_active = true;
+            }
+            
+            position_button.y = 20 + page_index * (margin_between_buttons + size_button.height);
+            b32 button_is_pressed = do_integer_button(position_button, size_button, page_index + 1, button_is_active, &global_input);
+            
+            if (button_is_pressed)
+            {
+                world->active_page_index = page_index;
+            }
+        }
+        
+    }
+    
+    void draw_lanes(WorldData * world)
+    {
+        Color4 line_color       = {  0,   0,   0, 255};
+        Color4 unselected_color = {180, 180, 255, 255};
+        Color4 selected_color   = {180, 255, 180, 255};
+        Color4 no_color         = {};
+        
+        i32 line_width = 4;
+
+        {
+            // IDEA: remember the *ENDING* x1, x2 and y of the previous segment and use it
+            //       as *STARTING* x1, x2 and y of the next segment.
+            
+            // FIXME: use array_length(lane_segments)
+            i32 lane_segments_count = sizeof(lane_segments)/sizeof(lane_segments[0]); 
+            Color4 fill_color;
+            for (i32 lane_segment_index = 0; lane_segment_index < lane_segments_count; lane_segment_index++)
+            {
+                if (lane_segment_index == world->selected_lane_segment_index)
+                {
+                    fill_color = selected_color;
+                }
+                else {
+                    fill_color = unselected_color;
+                }
+                LaneSegmentExtended lane_segment = lane_segments[lane_segment_index];
+                
+                i32 left_middle_y = lane_segment.left_top.y + (i32)((f32)(lane_segment.left_bottom.y - lane_segment.left_top.y) / (f32)2 );
+                i32 right_middle_y = left_middle_y;
+
+                draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
+                                  lane_segment.left_bottom, lane_segment.right_bottom, 
+                                  left_middle_y, right_middle_y, 20, 
+                                  line_color, fill_color, line_width);
+            }
+            
+        }
+        
+        {
+            i32 nr_of_program_lines = sizeof(program_lines) / sizeof(char *);
+            
+            Color4 black = {};
+            black.a = 255;
+            
+            Color4 grey = {};
+            grey.a = 100;
+            
+            Font font = {};
+            font.height = 20;
+            font.family = Font_CourierNew;
+
+            ShortString line_nr_text;
+            ShortString program_line_text;
+            
+            copy_char_to_string(' ', &program_line_text);
+            Size2d white_space_size = get_text_size(&program_line_text, font);
+            i32 line_height = white_space_size.height * 1.5;
+
+            Pos2d position = {};
+            Size2d size = {};
+            
+            i32 lane_segments_count = sizeof(lane_segments)/sizeof(lane_segments[0]); 
+            Color4 fill_color;
+            for (i32 lane_segment_index = 0; lane_segment_index < lane_segments_count; lane_segment_index++)
+            {
+                if (lane_segment_index == world->selected_lane_segment_index)
+                {
+                    LaneSegmentExtended lane_segment = lane_segments[lane_segment_index];
+            
+                    position.x = 750 + lane_segment.begin_text_character_index * white_space_size.width;
+                    position.y = 200 + lane_segment.begin_text_line_number * line_height - white_space_size.height / 4;
+                    
+                    size.width = (1 + lane_segment.end_text_character_index - lane_segment.begin_text_character_index) * white_space_size.width; // - white_space_size.width * 2;
+                    size.height = line_height * (1 + lane_segment.end_text_line_number - lane_segment.begin_text_line_number);
+                    draw_rectangle(position, size, no_color, selected_color, 1);
+                }
+            }
+                
+            for (i32 line_index = 0; line_index < nr_of_program_lines; line_index++)
+            {
+                int_to_string(line_index + 1, &line_nr_text);
+                Size2d line_nr_size = get_text_size(&line_nr_text, font);
+                
+                copy_cstring_to_short_string(program_lines[line_index], &program_line_text);
+                
+                draw_text((Pos2d){710 - line_nr_size.width, 200 + line_index * line_height}, &line_nr_text, font, grey);
+                draw_text((Pos2d){750, 200 + line_index * line_height}, &program_line_text, font, black);
+            }
+            
+        }
+        
+    }
+    
+    void draw_pixel_borders()
+    {
+        
+        // Also see articles about DPI awareness / High DPI screens :
+        // In browser: https://www.html5rocks.com/en/tutorials/canvas/hidpi/
+        //             https://jsfiddle.net/4JH75
+        // Native: https://docs.microsoft.com/en-us/windows/desktop/learnwin32/dpi-and-device-independent-pixels
+        //         https://docs.microsoft.com/en-us/windows/desktop/hidpi/high-dpi-desktop-application-development-on-windows
+        //         https://technet.microsoft.com/en-us/evalcenter/dn469266(v=vs.90)
+
+        // Below we are trying to figure out if and how adjacent lines/rects behave
+        
+        Color4 black = {  0,   0,   0, 255};
+        Color4 red =   {255,   0,   0, 255};
+        Color4 blue =  {  0,   0, 255, 255};
+        Color4 green = {  0, 255,   0, 255};
+        Color4 white = {255, 255, 255, 255};
+        Color4 no_color = {};
+        
+        draw_rectangle((Pos2d){0, 0}, (Size2d){2, 2}, no_color, black, 1);
+        draw_rectangle((Pos2d){2, 2}, (Size2d){3, 3}, no_color, black, 1);
+        draw_rectangle((Pos2d){10, 0}, (Size2d){2, 2}, black, no_color, 1);
+        draw_rectangle((Pos2d){12, 2}, (Size2d){3, 3}, black, no_color, 1);
+
+        draw_line((Pos2d){0, 900}, (Pos2d){50, 900}, red, 1);
+        
+        draw_line((Pos2d){5, 5}, (Pos2d){25, 25}, black, 1);
+
+        draw_line((Pos2d){5, 10}, (Pos2d){5, 25}, black, 1);
+
+        ShortString height_text;
+        int_to_string(global_input.screen.height, &height_text);
+
+        Font font = {};
+        font.height = 10;
+        font.family = Font_Arial;
+
+        draw_text((Pos2d){500, 300}, &height_text, font, black);
+        
+        black.a = 100;
+        draw_rectangle((Pos2d){100, 0}, (Size2d){50, 50}, no_color, black, 1);
+        draw_rectangle((Pos2d){150, 40}, (Size2d){50, 50}, no_color, black, 1);
+
+
+    }
+    
+    void render_frame()
+    {
+        WorldData * world = &global_world;
+        
+        if (world->active_page_index == 0)
+        {
+            draw_basic_figures(world);
+        }
+        else if (world->active_page_index == 1)
+        {
+            draw_bend_line(world);
+        }
+        /*
+        else if (world->active_page_index == 2)
+        {
+            draw_example_lanes(world, -1);
+        }
+        else if (world->active_page_index == 3)
+        {
+            draw_example_lanes(world, 0);
+        }
+        else if (world->active_page_index == 4)
+        {
+            draw_example_lanes(world, 1);
+        }
+        else if (world->active_page_index == 5)
+        {
+            draw_example_lanes(world, 2);
+        }
+        else if (world->active_page_index == 6)
+        {
+            draw_lanes(world);
+        }
+        else if (world->active_page_index == 7)
+        {
+            draw_pixel_borders();
+        }
+        */
+        
+        draw_and_update_button_menu(world);
+        
+        // Draw frame timing
+        do_frame_timing(&global_input, &world->verbose_frame_times);
+        do_physical_pixels_switch(&global_input);
     }
     
     void draw_example_lanes(WorldData * world, i32 lane_example_index)
@@ -417,214 +636,6 @@ extern "C" {
         }
         
 
-    }
-    
-    void draw_lanes(WorldData * world)
-    {
-        Color4 line_color       = {  0,   0,   0, 255};
-        Color4 unselected_color = {180, 180, 255, 255};
-        Color4 selected_color   = {180, 255, 180, 255};
-        Color4 no_color         = {};
-        
-        i32 line_width = 4;
-
-        {
-            // IDEA: remember the *ENDING* x1, x2 and y of the previous segment and use it
-            //       as *STARTING* x1, x2 and y of the next segment.
-            
-            // FIXME: use array_length(lane_segments)
-            i32 lane_segments_count = sizeof(lane_segments)/sizeof(lane_segments[0]); 
-            Color4 fill_color;
-            for (i32 lane_segment_index = 0; lane_segment_index < lane_segments_count; lane_segment_index++)
-            {
-                if (lane_segment_index == world->selected_lane_segment_index)
-                {
-                    fill_color = selected_color;
-                }
-                else {
-                    fill_color = unselected_color;
-                }
-                LaneSegmentExtended lane_segment = lane_segments[lane_segment_index];
-                
-                i32 left_middle_y = lane_segment.left_top.y + (i32)((f32)(lane_segment.left_bottom.y - lane_segment.left_top.y) / (f32)2 );
-                i32 right_middle_y = left_middle_y;
-
-                draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
-                                  lane_segment.left_bottom, lane_segment.right_bottom, 
-                                  left_middle_y, right_middle_y, 20, 
-                                  line_color, fill_color, line_width);
-            }
-            
-        }
-        
-        {
-            i32 nr_of_program_lines = sizeof(program_lines) / sizeof(char *);
-            
-            Color4 black = {};
-            black.a = 255;
-            
-            Color4 grey = {};
-            grey.a = 100;
-            
-            Font font = {};
-            font.height = 20;
-            font.family = Font_CourierNew;
-
-            ShortString line_nr_text;
-            ShortString program_line_text;
-            
-            copy_char_to_string(' ', &program_line_text);
-            Size2d white_space_size = get_text_size(&program_line_text, font);
-            i32 line_height = white_space_size.height * 1.5;
-
-            Pos2d position = {};
-            Size2d size = {};
-            
-            i32 lane_segments_count = sizeof(lane_segments)/sizeof(lane_segments[0]); 
-            Color4 fill_color;
-            for (i32 lane_segment_index = 0; lane_segment_index < lane_segments_count; lane_segment_index++)
-            {
-                if (lane_segment_index == world->selected_lane_segment_index)
-                {
-                    LaneSegmentExtended lane_segment = lane_segments[lane_segment_index];
-            
-                    position.x = 750 + lane_segment.begin_text_character_index * white_space_size.width;
-                    position.y = 200 + lane_segment.begin_text_line_number * line_height - white_space_size.height / 4;
-                    
-                    size.width = (1 + lane_segment.end_text_character_index - lane_segment.begin_text_character_index) * white_space_size.width; // - white_space_size.width * 2;
-                    size.height = line_height * (1 + lane_segment.end_text_line_number - lane_segment.begin_text_line_number);
-                    draw_rectangle(position, size, no_color, selected_color, 1);
-                }
-            }
-                
-            for (i32 line_index = 0; line_index < nr_of_program_lines; line_index++)
-            {
-                int_to_string(line_index + 1, &line_nr_text);
-                Size2d line_nr_size = get_text_size(&line_nr_text, font);
-                
-                copy_cstring_to_short_string(program_lines[line_index], &program_line_text);
-                
-                draw_text((Pos2d){710 - line_nr_size.width, 200 + line_index * line_height}, &line_nr_text, font, grey);
-                draw_text((Pos2d){750, 200 + line_index * line_height}, &program_line_text, font, black);
-            }
-            
-        }
-        
-    }
-    
-    void draw_pixel_borders()
-    {
-        
-        // Also see articles about DPI awareness / High DPI screens :
-        // In browser: https://www.html5rocks.com/en/tutorials/canvas/hidpi/
-        //             https://jsfiddle.net/4JH75
-        // Native: https://docs.microsoft.com/en-us/windows/desktop/learnwin32/dpi-and-device-independent-pixels
-        //         https://docs.microsoft.com/en-us/windows/desktop/hidpi/high-dpi-desktop-application-development-on-windows
-        //         https://technet.microsoft.com/en-us/evalcenter/dn469266(v=vs.90)
-
-        // Below we are trying to figure out if and how adjacent lines/rects behave
-        
-        Color4 black = {  0,   0,   0, 255};
-        Color4 red =   {255,   0,   0, 255};
-        Color4 blue =  {  0,   0, 255, 255};
-        Color4 green = {  0, 255,   0, 255};
-        Color4 white = {255, 255, 255, 255};
-        Color4 no_color = {};
-        
-        draw_rectangle((Pos2d){0, 0}, (Size2d){2, 2}, no_color, black, 1);
-        draw_rectangle((Pos2d){2, 2}, (Size2d){3, 3}, no_color, black, 1);
-        draw_rectangle((Pos2d){10, 0}, (Size2d){2, 2}, black, no_color, 1);
-        draw_rectangle((Pos2d){12, 2}, (Size2d){3, 3}, black, no_color, 1);
-
-        draw_line((Pos2d){0, 900}, (Pos2d){50, 900}, red, 1);
-        
-        draw_line((Pos2d){5, 5}, (Pos2d){25, 25}, black, 1);
-
-        draw_line((Pos2d){5, 10}, (Pos2d){5, 25}, black, 1);
-
-        ShortString height_text;
-        int_to_string(global_input.screen.height, &height_text);
-
-        Font font = {};
-        font.height = 10;
-        font.family = Font_Arial;
-
-        draw_text((Pos2d){500, 300}, &height_text, font, black);
-        
-        black.a = 100;
-        draw_rectangle((Pos2d){100, 0}, (Size2d){50, 50}, no_color, black, 1);
-        draw_rectangle((Pos2d){150, 40}, (Size2d){50, 50}, no_color, black, 1);
-
-
-    }
-    
-    // TODO: make this a more general function (add arguments nr_of_buttons and current_button_index)
-    //       then return button_pressed_index (so you can show the correct page for that index)
-    void draw_and_update_button_menu(WorldData * world)
-    {
-        // Draw (and update) button menu
-        
-        Size2d size_button = {50, 50};
-        Pos2d position_button = {20, 20};
-        i32 margin_between_buttons = 20;
-        
-        for (i32 page_index = 0; page_index < world->nr_of_pages; page_index++)
-        {
-            b32 button_is_active = false;
-            if (page_index == world->active_page_index)
-            {
-                button_is_active = true;
-            }
-            
-            position_button.y = 20 + page_index * (margin_between_buttons + size_button.height);
-            b32 button_is_pressed = do_integer_button(position_button, size_button, page_index + 1, button_is_active, &global_input);
-            
-            if (button_is_pressed)
-            {
-                world->active_page_index = page_index;
-            }
-        }
-        
-    }
-    
-    void render_frame()
-    {
-        WorldData * world = &global_world;
-        
-        if (world->active_page_index == 0)
-        {
-            draw_basic_figures(world);
-        }
-        else if (world->active_page_index == 1)
-        {
-            draw_example_lanes(world, -1);
-        }
-        else if (world->active_page_index == 2)
-        {
-            draw_example_lanes(world, 0);
-        }
-        else if (world->active_page_index == 3)
-        {
-            draw_example_lanes(world, 1);
-        }
-        else if (world->active_page_index == 4)
-        {
-            draw_example_lanes(world, 2);
-        }
-        else if (world->active_page_index == 5)
-        {
-            draw_lanes(world);
-        }
-        else if (world->active_page_index == 6)
-        {
-            draw_pixel_borders();
-        }
-        
-        draw_and_update_button_menu(world);
-        
-        // Draw frame timing
-        do_frame_timing(&global_input, &world->verbose_frame_times);
-        do_physical_pixels_switch(&global_input);
     }
     
 }

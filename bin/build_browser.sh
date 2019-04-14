@@ -2,7 +2,7 @@ set -e  # stop script on first error
 
 source /home/emscripten/emsdk/emsdk_env.sh
 
-PROJECT_NAME=flowify
+#PROJECT_NAME=flowify
 #PROJECT_NAME=testing/testing_file
 #PROJECT_NAME=testing/testing_parser
 #PROJECT_NAME=testing/testing_memory
@@ -11,7 +11,7 @@ PROJECT_NAME=flowify
 #PROJECT_NAME=testing/testing_keyboard
 #PROJECT_NAME=testing/testing_touch
 #PROJECT_NAME=testing/testing_mouse
-#PROJECT_NAME=testing/testing_renderer
+PROJECT_NAME=testing/testing_renderer
 
 # Debug build: DO_ASSERTIONS=1
 
