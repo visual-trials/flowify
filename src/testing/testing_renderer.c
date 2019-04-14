@@ -182,7 +182,15 @@ extern "C" {
     
     void draw_bend_line(WorldData * world)
     {
+        Color4 dot_color = {0, 0, 0, 255};
+        i32 line_width = 2;
+        Size2d dot_size = {8, 8};
         
+        Pos2d position = {400, 100};
+        draw_ellipse(position, dot_size, dot_color, dot_color, line_width);
+        
+        position.y = 200;
+        draw_ellipse(position, dot_size, dot_color, dot_color, line_width);
     }
     
     // TODO: make this a more general function (add arguments nr_of_buttons and current_button_index)
