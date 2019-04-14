@@ -145,6 +145,8 @@ extern "C" {
         
         world->iteration = 0;
         
+        world->verbose_frame_times = true;
+        
         world->flowify_vertical_offset = 0;
         world->flowify_horizontal_offset = 0;
         
