@@ -276,6 +276,8 @@ void draw_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, F
 
 void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
 {
+    assert(flow_element);
+    
     // TODO: add is_position_of and position_originates_from
 
     // Don't draw elements that are out of screen
@@ -385,8 +387,11 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, false);
         
         draw_rectangle_element(flowifier, return_keyword_element, expression_style, false, true);
-        // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
-        draw_elements(flowifier, return_expression_element);
+        if (return_expression_element)
+        {
+            // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
+            draw_elements(flowifier, return_expression_element);
+        }
     }
     else if (flow_element->type == FlowElement_UnaryPostOperation)
     {
