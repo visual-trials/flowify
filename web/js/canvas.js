@@ -178,11 +178,11 @@ Flowify.canvas = function () {
                 if (lineColorAlpha) {
                     if (my.drawShadows) {
                         ctx.shadowColor   = "#222222"
+                        ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
+                        ctx.lineWidth = lineWidth
+                        ctx.stroke()
+                        my.nrOfDrawCalls++
                     }
-                    ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
-                    ctx.lineWidth = lineWidth
-                    ctx.stroke()
-                    my.nrOfDrawCalls++
                 }
                 
                 if (fillColorAlpha) {
