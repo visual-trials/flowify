@@ -18,7 +18,6 @@
 
 void draw_interaction_rectangle(Flowifier * flowifier, FlowElement * flow_element)
 {
-return;
     if (flowifier->interaction.hovered_element_index == flow_element->index)
     {
         draw_rectangle(flow_element->rect_abs, flowifier->hovered_color, flowifier->hovered_fill, flowifier->hovered_line_width);
@@ -102,7 +101,6 @@ void draw_lane_segments_for_4_rectangles(Rect2d top_or_bottom_rect, b32 is_top_r
 void draw_joining_element(Flowifier * flowifier, FlowElement * left_element, FlowElement * right_element, 
                           FlowElement * joining_element, FlowElement * element_next_in_flow)
 {
-return;
     Color4 fill_color = flowifier->unhighlighted_color;
     if (flowifier->interaction.highlighted_element_index == joining_element->index)
     {
@@ -145,8 +143,6 @@ FIXME:
 void draw_splitting_element(Flowifier * flowifier, FlowElement * left_element, FlowElement * right_element, 
                             FlowElement * splitting_element, FlowElement * element_previous_in_flow)
 {
-return;
-
     Color4 fill_color = flowifier->unhighlighted_color;
     if (flowifier->interaction.highlighted_element_index == splitting_element->index)
     {
@@ -264,7 +260,6 @@ void draw_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, F
         draw_rounded_rectangle(flow_element->rect_abs, style.corner_radius, style.line_color, fill_color, style.line_width);
     }
     
-    /*
     if (draw_source_text && flow_element->source_text.length)
     {
         Size2d source_text_size = get_text_size(&flow_element->source_text, flowifier->font);
@@ -277,7 +272,6 @@ void draw_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, F
         
         draw_text(text_position, &flow_element->source_text, flowifier->font, flowifier->text_color);
     }
-    */
     
     draw_interaction_rectangle(flowifier, flow_element);
 }
