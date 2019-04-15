@@ -128,6 +128,66 @@ Flowify.canvas = function () {
             my.context2d.fillText(my.nrOfDrawCalls, 0, 0)
         }
         my.nrOfDrawCalls = 0
+        
+        
+        // FIXME: put this inside a nice function
+        
+        let ctx = my.context2d
+        
+        let lineColorAlpha = 255
+        let lineColorRGB = 0
+        
+        let r = 16 * 4
+        let lineWidth = 2
+        
+        let leftTopX = 400
+        //let rightTopX
+        let topY = 400
+        
+        let leftBottomX = 500
+        //let rightBottomX
+        let bottomY = 500
+        
+        let leftMiddleY = 450
+        // let rightMiddleY
+        
+        // FIXME: this assumes bottom to the right of the top!
+        let halfHorizontalDistanceTopBottom = (leftBottomX - leftTopX) / 2
+        // FIXME: this only works if halfHorizontalDistanceTopBottom < r !!
+        let angle = Math.acos((r - halfHorizontalDistanceTopBottom) / r)
+
+        ctx.strokeStyle = "#0000DD"
+        ctx.beginPath();
+        ctx.moveTo(leftTopX, topY);
+        ctx.lineTo(leftTopX, bottomY);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(leftTopX + halfHorizontalDistanceTopBottom, topY);
+        ctx.lineTo(leftTopX + halfHorizontalDistanceTopBottom, bottomY);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(leftBottomX, topY);
+        ctx.lineTo(leftBottomX, bottomY);
+        ctx.stroke();
+        
+        let startAngle = Math.PI
+        let endAngle = Math.PI - angle
+        let antiClockwise = true
+        ctx.beginPath()     
+        ctx.moveTo(leftTopX, topY)
+        ctx.arc(leftTopX + r, topY, r, startAngle, endAngle, antiClockwise)
+        // ctx.arcTo(x + width, y + height, x, y + height, r)
+        // ctx.arcTo(x, y + height, x, y, r)
+        // ctx.arcTo(x, y, x + width, y, r)
+
+        if (lineColorAlpha) {
+            ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
+            ctx.lineWidth = lineWidth
+            ctx.stroke()
+            my.nrOfDrawCalls++
+        }
+        
+        
     }
     
     my.getCanvasRGBAColor = function (colorRGB, colorAlpha) {
