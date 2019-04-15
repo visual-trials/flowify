@@ -179,16 +179,13 @@ Flowify.canvas = function () {
         ctx.stroke()
         
         
-        
         let startAngle = Math.PI
         let endAngle = Math.PI - angle
         let antiClockwise = true
         ctx.beginPath()     
         ctx.moveTo(leftTopX, topY)
         ctx.arc(leftTopX + r, topY, r, startAngle, endAngle, antiClockwise)
-        // ctx.arcTo(x + width, y + height, x, y + height, r)
-        // ctx.arcTo(x, y + height, x, y, r)
-        // ctx.arcTo(x, y, x + width, y, r)
+        ctx.arc(leftBottomX - r, topY + distanceFromTopToEndOfArc * 2, r, 2*Math.PI - angle, 0, false)
 
         if (lineColorAlpha) {
             ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
