@@ -155,20 +155,30 @@ Flowify.canvas = function () {
         let halfHorizontalDistanceTopBottom = (leftBottomX - leftTopX) / 2
         // FIXME: this only works if halfHorizontalDistanceTopBottom < r !!
         let angle = Math.acos((r - halfHorizontalDistanceTopBottom) / r)
+        let distanceFromTopToEndOfArc = Math.sin(angle) * r
 
         ctx.strokeStyle = "#0000DD"
-        ctx.beginPath();
-        ctx.moveTo(leftTopX, topY);
-        ctx.lineTo(leftTopX, bottomY);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(leftTopX + halfHorizontalDistanceTopBottom, topY);
-        ctx.lineTo(leftTopX + halfHorizontalDistanceTopBottom, bottomY);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(leftBottomX, topY);
-        ctx.lineTo(leftBottomX, bottomY);
-        ctx.stroke();
+        ctx.beginPath()
+        ctx.moveTo(leftTopX, topY)
+        ctx.lineTo(leftTopX, bottomY)
+        ctx.stroke()
+        
+        ctx.beginPath()
+        ctx.moveTo(leftTopX + halfHorizontalDistanceTopBottom, topY)
+        ctx.lineTo(leftTopX + halfHorizontalDistanceTopBottom, bottomY)
+        ctx.stroke()
+        
+        ctx.beginPath()
+        ctx.moveTo(leftBottomX, topY)
+        ctx.lineTo(leftBottomX, bottomY)
+        ctx.stroke()
+        
+        ctx.beginPath()
+        ctx.moveTo(leftTopX, topY + distanceFromTopToEndOfArc)
+        ctx.lineTo(leftBottomX, topY + distanceFromTopToEndOfArc)
+        ctx.stroke()
+        
+        
         
         let startAngle = Math.PI
         let endAngle = Math.PI - angle
