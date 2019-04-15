@@ -396,13 +396,13 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     flowifier->statement_margin.vertical = 20;
     flowifier->statement_margin.horizontal = 20;
     
-    flowifier->bending_radius = 20;
+    flowifier->bending_radius = 16;
     flowifier->if_middle_margin = 80;
     flowifier->for_middle_margin = 80;
     flowifier->for_right_margin = 100;
     
     flowifier->default_element_width = 100;
-    flowifier->default_element_height = 40;
+    flowifier->default_element_height = 64;
     
     init_dynamic_array(&flowifier->flow_elements, sizeof(FlowElement), (Color4){0,255,255,255}, cstring_to_string("Flowifier"));
     
