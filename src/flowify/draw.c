@@ -268,6 +268,15 @@ struct DrawLane
     i32 bending_radius;
     Color4 line_color;
     Color4 fill_color;
+    i32 line_width;
+};
+
+struct DrawText
+{
+    Pos2d position;
+    String text;
+    Font font;
+    Color4 color;
 };
 
 struct DrawRect
@@ -275,6 +284,7 @@ struct DrawRect
     Rect2d rect;
     Color4 line_color;
     Color4 fill_color;
+    i32 line_width;
 };
 
 struct DrawRoundedRect
@@ -283,6 +293,7 @@ struct DrawRoundedRect
     i32 radius;
     Color4 line_color;
     Color4 fill_color;
+    i32 line_width;
 };
 
 enum DrawType
