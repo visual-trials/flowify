@@ -246,76 +246,6 @@ FlowStyle get_style_by_oddness(FlowStyleEvenOdd style_even_odd, b32 is_odd)
     return style;
 }
 
-struct DrawLanePart
-{
-    Rect2d rect;
-    
-    DrawLanePart * next_part;
-};
-
-struct DrawLane
-{
-    DrawLanePart * first_part;
-    DrawLanePart * last_part;
-    
-    // TODO: how to signify that the first/last part should not have a line on either the left or right side?
-    
-    DrawLane * joins_to_lane;
-    Pos2d joining_point;
-    
-    DrawLane * splits_to_left_lane;
-    DrawLane * splits_to_right_lane;
-    Pos2d splitting_point;
-    
-    i32 bending_radius;
-    Color4 line_color;
-    Color4 fill_color;
-    i32 line_width;
-};
-
-struct DrawText
-{
-    Pos2d position;
-    String text;
-    Font font;
-    Color4 color;
-};
-
-struct DrawRect
-{
-    Rect2d rect;
-    Color4 line_color;
-    Color4 fill_color;
-    i32 line_width;
-};
-
-struct DrawRoundedRect
-{
-    Rect2d rect;
-    i32 radius;
-    Color4 line_color;
-    Color4 fill_color;
-    i32 line_width;
-};
-
-enum DrawType
-{
-    Draw_Text,
-    Draw_Rect,
-    Draw_RoundedRect,
-    Draw_Lane
-};
-
-struct DrawEntry
-{
-    DrawType type; // Lane / RoundedRect / Rect
-    void * item_to_draw;
-    
-    DrawEntry * first_child;
-    DrawEntry * next_sibling;
-    DrawEntry * last_child;
-};
-
 void draw_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, FlowStyle style, b32 draw_rectangle, b32 draw_source_text)
 {
     
@@ -344,6 +274,12 @@ void draw_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, F
     }
     
     draw_interaction_rectangle(flowifier, flow_element);
+}
+
+
+void push_rounded_rectangle(Flowifier * flowifier, Rect2d rect, i32 r, Color4 line_color, Color4 fill_color, i32 line_width)
+{
+    // FIXME: implement this!
 }
 
 void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
@@ -787,8 +723,13 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     {
         if (flow_element->type == FlowElement_Root)
         {
-            draw_rounded_rectangle(flow_element->rect_abs, flowifier->bending_radius, 
+            
+            
+            push_rounded_rectangle(flowifier, flow_element->rect_abs, flowifier->bending_radius, 
                                    flowifier->function_line_color, flowifier->function_fill_color, flowifier->function_line_width);
+            
+            //draw_rounded_rectangle(flow_element->rect_abs, flowifier->bending_radius, 
+            //                       flowifier->function_line_color, flowifier->function_fill_color, flowifier->function_line_width);
         }
                                
         FlowElement * child_element = flow_element->first_child;
@@ -805,5 +746,14 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     
     // TODO: this will double-draw in case of primitive elements
     draw_interaction_rectangle(flowifier, flow_element);
+
+
+    // FIXME: we should probably do this outside this function!
+    
+    if (flow_element->type == FlowElement_Root)
+    {
+        // FIXME: draw all that is pushed 
+    }
+    
     
 }

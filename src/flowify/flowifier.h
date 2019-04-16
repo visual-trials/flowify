@@ -226,9 +226,84 @@ struct FlowStyleEvenOdd
     i32 line_width;
 };
 
+// TODO: we might want to put the Draw-structs in a separate file
+
+struct DrawLanePart
+{
+    Rect2d rect;
+    
+    DrawLanePart * next_part;
+};
+
+struct DrawLane
+{
+    DrawLanePart * first_part;
+    DrawLanePart * last_part;
+    
+    // TODO: how to signify that the first/last part should not have a line on either the left or right side?
+    
+    DrawLane * joins_to_lane;
+    Pos2d joining_point;
+    
+    DrawLane * splits_to_left_lane;
+    DrawLane * splits_to_right_lane;
+    Pos2d splitting_point;
+    
+    i32 bending_radius;
+    Color4 line_color;
+    Color4 fill_color;
+    i32 line_width;
+};
+
+struct DrawText
+{
+    Pos2d position;
+    String text;
+    Font font;
+    Color4 color;
+};
+
+struct DrawRect
+{
+    Rect2d rect;
+    Color4 line_color;
+    Color4 fill_color;
+    i32 line_width;
+};
+
+struct DrawRoundedRect
+{
+    Rect2d rect;
+    i32 radius;
+    Color4 line_color;
+    Color4 fill_color;
+    i32 line_width;
+};
+
+enum DrawType
+{
+    Draw_Text,
+    Draw_Rect,
+    Draw_RoundedRect,
+    Draw_Lane
+};
+
+struct DrawEntry
+{
+    DrawType type; // Lane / RoundedRect / Rect
+    void * item_to_draw;
+    
+    DrawEntry * first_child;
+    DrawEntry * next_sibling;
+    DrawEntry * last_child;
+};
+
 struct Flowifier
 {
     DynamicArray flow_elements;
+    
+    FragmentedMemoryArena * draw_arena;
+    DrawEntry * draw_entries;
     
     FlowElement * first_function;
     FlowElement * latest_function;
