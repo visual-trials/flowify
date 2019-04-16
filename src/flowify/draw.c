@@ -324,11 +324,12 @@ DrawLane * push_lane(Flowifier * flowifier, i32 bending_radius, Color4 line_colo
     draw_lane->first_part = 0;
     draw_lane->last_part = 0;
     
-    draw_lane->joins_to_lane = 0;
+    draw_lane->joining_left_lane = 0;
+    draw_lane->joining_right_lane = 0;
     draw_lane->joining_point = (Pos2d){};
     
-    draw_lane->splits_to_left_lane = 0;
-    draw_lane->splits_to_right_lane = 0;
+    draw_lane->splitting_from_lane = 0;
+    b32 is_right_side = false;
     draw_lane->splitting_point = (Pos2d){};
     
     draw_lane->bending_radius = bending_radius;
