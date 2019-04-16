@@ -260,7 +260,7 @@ struct DrawLane
 struct DrawText
 {
     Pos2d position;
-    String text;
+    String * text; // FIXME: there is no need to use a pointer here!
     Font font;
     Color4 color;
 };

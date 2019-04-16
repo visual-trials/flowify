@@ -260,6 +260,23 @@ void add_draw_entry(Flowifier * flowifier, DrawEntry * draw_entry)
     flowifier->last_draw_entry = draw_entry;
 }
 
+void push_text(Flowifier * flowifier, Pos2d position, String * text, Font font, Color4 color)
+{
+    DrawEntry * draw_entry = (DrawEntry *)push_struct(&flowifier->draw_arena, sizeof(DrawEntry));
+    draw_entry->type = Draw_Text;
+    draw_entry->next_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
+    
+    DrawText * draw_text = (DrawText *)push_struct(&flowifier->draw_arena, sizeof(DrawText));
+    draw_entry->item_to_draw = draw_text;
+    
+    draw_text->position = position;
+    draw_text->text = text;
+    draw_text->font = font;
+    draw_text->color = color;
+    
+    add_draw_entry(flowifier, draw_entry);
+}
+
 void push_rounded_rectangle(Flowifier * flowifier, Rect2d rect, i32 radius, Color4 line_color, Color4 fill_color, i32 line_width)
 {
     DrawEntry * draw_entry = (DrawEntry *)push_struct(&flowifier->draw_arena, sizeof(DrawEntry));
@@ -282,14 +299,19 @@ void draw_an_entry(DrawEntry * draw_entry)
 {
     if (draw_entry->type == Draw_RoundedRect)
     {
-        DrawRoundedRect * rounded_rectangle = (DrawRoundedRect *)draw_entry->item_to_draw;
-        draw_rounded_rectangle(rounded_rectangle->rect, 
-                               rounded_rectangle->radius, 
-                               rounded_rectangle->line_color, 
-                               rounded_rectangle->fill_color, 
-                               rounded_rectangle->line_width);
+        DrawRoundedRect * rounded_rect = (DrawRoundedRect *)draw_entry->item_to_draw;
+        draw_rounded_rectangle(rounded_rect->rect, 
+                               rounded_rect->radius, 
+                               rounded_rect->line_color, 
+                               rounded_rect->fill_color, 
+                               rounded_rect->line_width);
     }
-    // FIXME: implement the others! else if ();
+    else if (draw_entry->type == Draw_Text)
+    {
+        DrawText * text = (DrawText *)draw_entry->item_to_draw;
+        draw_text(text->position, text->text, text->font, text->color);
+    }
+    // FIXME: implement the others! 
 }
 
 // FIXME: rename this to push_...
@@ -317,7 +339,7 @@ void draw_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, F
         text_position.x += (flow_element->rect_abs.size.width - source_text_size.width) / 2;
         text_position.y += (flow_element->rect_abs.size.height - source_text_size.height) / 2;
         
-        draw_text(text_position, &flow_element->source_text, flowifier->font, flowifier->text_color);
+        push_text(flowifier, text_position, &flow_element->source_text, flowifier->font, flowifier->text_color);
     }
     
     draw_interaction_rectangle(flowifier, flow_element);
