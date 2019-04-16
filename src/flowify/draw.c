@@ -364,6 +364,18 @@ void push_lane_part_to_current_lane(Flowifier * flowifier, Rect2d rect)
     current_lane->last_part = draw_lane_part;
 }
 
+void draw_lines_between_top_to_bottom_rects(Rect2d top_rect, Rect2d bottom_rect, Color4 line_color, i32 line_width)
+{
+    Pos2d left_start_pos = { top_rect.position.x, top_rect.position.y + top_rect.size.height};
+    Pos2d left_end_pos = { bottom_rect.position.x, bottom_rect.position.y };
+    
+    Pos2d right_start_pos = { top_rect.position.x + top_rect.size.width, top_rect.position.y + top_rect.size.height};
+    Pos2d right_end_pos = { bottom_rect.position.x + bottom_rect.size.width, bottom_rect.position.y };
+    
+    draw_line(left_start_pos, left_end_pos, line_color, line_width);
+    draw_line(right_start_pos, right_end_pos, line_color, line_width);
+}
+
 void draw_an_entry(DrawEntry * draw_entry)
 {
     if (draw_entry->type == Draw_RoundedRect)
@@ -409,21 +421,34 @@ void draw_an_entry(DrawEntry * draw_entry)
                                                 line_color, fill_color, fill_color);
 
             // FIXME: now drawing straight lines between lane-parts
+            // FIXME: this also assumes all rects are in order of top-to-bottom (which is not always true!)
             if (previous_part)
             {
-                // FIXME: this assumes all rects are in order of top-to-bottom (which is not always true!)
-                Rect2d top_rect = previous_part->rect;
-                Rect2d bottom_rect = lane_part->rect;
-                
-                Pos2d left_start_pos = { top_rect.position.x, top_rect.position.y + top_rect.size.height};
-                Pos2d left_end_pos = { bottom_rect.position.x, bottom_rect.position.y };
-                
-                Pos2d right_start_pos = { top_rect.position.x + top_rect.size.width, top_rect.position.y + top_rect.size.height};
-                Pos2d right_end_pos = { bottom_rect.position.x + bottom_rect.size.width, bottom_rect.position.y };
-                
-                draw_line(left_start_pos, left_end_pos, line_color, line_width);
-                draw_line(right_start_pos, right_end_pos, line_color, line_width);
+                draw_lines_between_top_to_bottom_rects(previous_part->rect, lane_part->rect, line_color, line_width);
             }
+            else
+            {
+                // This assumes that if previous_part is 0, we are at the beginning of the lane-parts for this lane
+                if (lane->splitting_from_lane && lane->splitting_from_lane->last_part)
+                {
+                    // FIXME: for now we ignore the splitting-point!
+                    // FIXME: for now we also ignore is_right_side
+                    draw_lines_between_top_to_bottom_rects(lane->splitting_from_lane->last_part->rect, lane_part->rect, line_color, line_width);
+                }
+                
+                if (lane->joining_left_lane && lane->joining_left_lane->last_part)
+                {
+                    // FIXME: for now we ignore the joining-point!
+                    draw_lines_between_top_to_bottom_rects(lane->joining_left_lane->last_part->rect, lane_part->rect, line_color, line_width);
+                }
+                
+                if (lane->joining_right_lane && lane->joining_right_lane->last_part)
+                {
+                    // FIXME: for now we ignore the joining-point!
+                    draw_lines_between_top_to_bottom_rects(lane->joining_right_lane->last_part->rect, lane_part->rect, line_color, line_width);
+                }
+            }
+
             previous_part = lane_part;
             
             lane_part = lane_part->next_part;
@@ -691,11 +716,30 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         // FIXME: what should we put here as next element? Maybe a rect from the left-top of the 'else' to the right-top of the 'then'?
         draw_straight_element(flowifier, if_cond_element, if_cond_element->previous_in_flow, 0, false);
         draw_elements(flowifier, if_cond_element);
+
+        DrawLane * if_lane = flowifier->current_lane;
+        DrawLane * then_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
+        DrawLane * else_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
+        DrawLane * end_if_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
         
-        draw_splitting_element(flowifier, if_else_element->first_in_flow, if_then_element->first_in_flow, if_cond_element, if_cond_element);
+        then_lane->splitting_from_lane = if_lane;
+        then_lane->is_right_side = true;
+        else_lane->splitting_from_lane = if_lane;
+        then_lane->is_right_side = false;
+        // TODO: Pos2d splitting_point;
+        
+        end_if_lane->joining_left_lane = else_lane;
+        end_if_lane->joining_right_lane = then_lane;
+        // TODO: Pos2d joining_point;
+        
+        flowifier->current_lane = then_lane;
+        // draw_splitting_element(flowifier, if_else_element->first_in_flow, if_then_element->first_in_flow, if_cond_element, if_cond_element);
         draw_elements(flowifier, if_then_element);
+        
+        flowifier->current_lane = else_lane;
         draw_elements(flowifier, if_else_element);
-        draw_joining_element(flowifier, if_else_element->last_in_flow, if_then_element->last_in_flow, if_join_element, if_element->next_in_flow);
+        // draw_joining_element(flowifier, if_else_element->last_in_flow, if_then_element->last_in_flow, if_join_element, if_element->next_in_flow);
+        flowifier->current_lane = end_if_lane;
     }
     else if (flow_element->type == FlowElement_For)
     {
