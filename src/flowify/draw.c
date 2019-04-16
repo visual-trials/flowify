@@ -314,8 +314,7 @@ void draw_an_entry(DrawEntry * draw_entry)
     // FIXME: implement the others! 
 }
 
-// FIXME: rename this to push_...
-void draw_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, FlowStyle style, b32 draw_rectangle, b32 draw_source_text)
+void push_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, FlowStyle style, b32 draw_rectangle, b32 draw_source_text)
 {
     
     Color4 fill_color = style.fill_color;
@@ -392,18 +391,18 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         // FIXME: we should put bars on the sides of a UnaryExpression IF its a statement!!
         // FIXME: we should put bars on the sides of a UnaryExpression IF its a statement!!
         
-        draw_rectangle_element(flowifier, flow_element, flowifier->variable_style, true, true);
+        push_rectangle_element(flowifier, flow_element, flowifier->variable_style, true, true);
     }
     else if (flow_element->type == FlowElement_Scalar)
     {
-        draw_rectangle_element(flowifier, flow_element, flowifier->scalar_style, true, true);
+        push_rectangle_element(flowifier, flow_element, flowifier->scalar_style, true, true);
     }
     else if (flow_element->type == FlowElement_ForeachKeyword ||
              flow_element->type == FlowElement_ForeachAsKeyword ||
              flow_element->type == FlowElement_ForeachArrowKeyword)
     {
         // TODO: what kind of style do we need to pass here? (for now using scalar_style)
-        draw_rectangle_element(flowifier, flow_element, flowifier->scalar_style, false, true);
+        push_rectangle_element(flowifier, flow_element, flowifier->scalar_style, false, true);
     }
     else if (flow_element->type == FlowElement_ArrayAccess)
     {
@@ -413,7 +412,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * array_identifier_element = flow_element->first_child;
         FlowElement * array_key_expression_element = array_identifier_element->next_sibling;
         
-        draw_rectangle_element(flowifier, array_identifier_element, flowifier->variable_style, true, true);
+        push_rectangle_element(flowifier, array_identifier_element, flowifier->variable_style, true, true);
         
         draw_elements(flowifier, array_key_expression_element);
     }
@@ -428,7 +427,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         // FIXME: this is already draw in the if-element: draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, false);
         
-        draw_rectangle_element(flowifier, keyword_element, expression_style, false, true);
+        push_rectangle_element(flowifier, keyword_element, expression_style, false, true);
         // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
         draw_elements(flowifier, cond_expression_element);
     }
@@ -451,7 +450,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
             foreach_value_var_element = arrow_keyword_element->next_sibling;
         }
         
-        draw_rectangle_element(flowifier, foreach_keyword_element, expression_style, false, true);
+        push_rectangle_element(flowifier, foreach_keyword_element, expression_style, false, true);
         // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
         draw_elements(flowifier, foreach_array_expression_element);
         
@@ -467,7 +466,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, false);
         
-        draw_rectangle_element(flowifier, return_keyword_element, expression_style, false, true);
+        push_rectangle_element(flowifier, return_keyword_element, expression_style, false, true);
         if (return_expression_element)
         {
             // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
@@ -490,7 +489,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
         draw_elements(flowifier, assignee_element);
-        draw_rectangle_element(flowifier, unary_operator_element, expression_style, false, true);
+        push_rectangle_element(flowifier, unary_operator_element, expression_style, false, true);
     }
     else if (flow_element->type == FlowElement_UnaryPreOperation)
     {
@@ -507,7 +506,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         }
         
         // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
-        draw_rectangle_element(flowifier, unary_operator_element, expression_style, false, true);
+        push_rectangle_element(flowifier, unary_operator_element, expression_style, false, true);
         draw_elements(flowifier, assignee_element);
     }
     else if (flow_element->type == FlowElement_BinaryOperation)
@@ -519,11 +518,11 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * binary_operator_element = left_side_expression_element->next_sibling;
         FlowElement * right_side_expression_element = binary_operator_element->next_sibling;
         
-        draw_rectangle_element(flowifier, flow_element, expression_style, true, false);
+        push_rectangle_element(flowifier, flow_element, expression_style, true, false);
         
         // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
         draw_elements(flowifier, left_side_expression_element);
-        draw_rectangle_element(flowifier, binary_operator_element, expression_style, false, true);
+        push_rectangle_element(flowifier, binary_operator_element, expression_style, false, true);
         // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
         draw_elements(flowifier, right_side_expression_element);
     }
@@ -541,7 +540,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
         draw_elements(flowifier, assignee_element);
-        draw_rectangle_element(flowifier, assignment_operator_element, expression_style, false, true);
+        push_rectangle_element(flowifier, assignment_operator_element, expression_style, false, true);
         // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
         draw_elements(flowifier, right_side_expression_element);
     }
@@ -732,7 +731,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         // Drawing the Function call
         
-        draw_rectangle_element(flowifier, function_call_identifier, expression_style, false, true);
+        push_rectangle_element(flowifier, function_call_identifier, expression_style, false, true);
         draw_elements(flowifier, function_call_arguments);
         
         // Drawing the Function itself (if not collapsed and if not hidden)
