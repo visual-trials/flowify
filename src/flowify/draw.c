@@ -393,6 +393,7 @@ void draw_an_entry(DrawEntry * draw_entry)
         Color4 fill_color = lane->fill_color;
         i32 line_width = lane->line_width;
     
+        DrawLanePart * previous_part = 0;
         DrawLanePart * lane_part = lane->first_part;
         while(lane_part)
         {
@@ -404,6 +405,24 @@ void draw_an_entry(DrawEntry * draw_entry)
                                                 bending_radius, line_width, 
                                                 line_color, fill_color, fill_color);
 
+            // FIXME: now drawing straight lines between lane-parts
+            if (previous_part)
+            {
+                // FIXME: this assumes all rects are in order of top-to-bottom (which is not always true!)
+                Rect2d top_rect = previous_part->rect;
+                Rect2d bottom_rect = lane_part->rect;
+                
+                Pos2d left_start_pos = { top_rect.position.x, top_rect.position.y + top_rect.size.height};
+                Pos2d left_end_pos = { bottom_rect.position.x, bottom_rect.position.y };
+                
+                Pos2d right_start_pos = { top_rect.position.x + top_rect.size.width, top_rect.position.y + top_rect.size.height};
+                Pos2d right_end_pos = { bottom_rect.position.x + bottom_rect.size.width, bottom_rect.position.y };
+                
+                draw_line(left_start_pos, left_end_pos, line_color, line_width);
+                draw_line(right_start_pos, right_end_pos, line_color, line_width);
+            }
+            previous_part = lane_part;
+            
             lane_part = lane_part->next_part;
         }
         
