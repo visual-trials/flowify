@@ -555,6 +555,8 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
 {
     assert(flow_element);
     
+    // FIXME: this doesn't work well for lanes: connections between them are not drawn if the next-lane is outside the screen
+    //        we need a bounding box (which includes these connections between lanes) to make sure we can still do this check
     if (flow_element->type == FlowElement_Root)
     {
         assert(flowifier->draw_arena.memory);
