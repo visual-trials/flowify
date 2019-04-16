@@ -408,8 +408,38 @@ void draw_an_entry(DrawEntry * draw_entry)
         Color4 fill_color = lane->fill_color;
         i32 line_width = lane->line_width;
     
+        // FIXME: now drawing straight lines between lane-parts
+        // FIXME: this assumes all rects are in order of top-to-bottom (which is not always true!)
+            
+        // First we draw connections between lanes
+        
+        DrawLanePart * first_lane_part = lane->first_part;
+        if (first_lane_part)
+        {
+            if (lane->splitting_from_lane && lane->splitting_from_lane->last_part)
+            {
+                // FIXME: for now we ignore the splitting-point!
+                // FIXME: for now we also ignore is_right_side
+                draw_lines_between_top_to_bottom_rects(lane->splitting_from_lane->last_part->rect, first_lane_part->rect, line_color, line_width);
+            }
+            
+            if (lane->joining_left_lane && lane->joining_left_lane->last_part)
+            {
+                // FIXME: for now we ignore the joining-point!
+                draw_lines_between_top_to_bottom_rects(lane->joining_left_lane->last_part->rect, first_lane_part->rect, line_color, line_width);
+            }
+            
+            if (lane->joining_right_lane && lane->joining_right_lane->last_part)
+            {
+                // FIXME: for now we ignore the joining-point!
+                draw_lines_between_top_to_bottom_rects(lane->joining_right_lane->last_part->rect, first_lane_part->rect, line_color, line_width);
+            }
+        }
+        
+        // Then we draw the lanes themselves (by connecting all parts of each  lane) 
+        
         DrawLanePart * previous_part = 0;
-        DrawLanePart * lane_part = lane->first_part;
+        DrawLanePart * lane_part = first_lane_part;
         while(lane_part)
         {
             Rect2d rect = lane_part->rect;
@@ -420,35 +450,10 @@ void draw_an_entry(DrawEntry * draw_entry)
                                                 bending_radius, line_width, 
                                                 line_color, fill_color, fill_color);
 
-            // FIXME: now drawing straight lines between lane-parts
-            // FIXME: this also assumes all rects are in order of top-to-bottom (which is not always true!)
             if (previous_part)
             {
                 draw_lines_between_top_to_bottom_rects(previous_part->rect, lane_part->rect, line_color, line_width);
             }
-            else
-            {
-                // This assumes that if previous_part is 0, we are at the beginning of the lane-parts for this lane
-                if (lane->splitting_from_lane && lane->splitting_from_lane->last_part)
-                {
-                    // FIXME: for now we ignore the splitting-point!
-                    // FIXME: for now we also ignore is_right_side
-                    draw_lines_between_top_to_bottom_rects(lane->splitting_from_lane->last_part->rect, lane_part->rect, line_color, line_width);
-                }
-                
-                if (lane->joining_left_lane && lane->joining_left_lane->last_part)
-                {
-                    // FIXME: for now we ignore the joining-point!
-                    draw_lines_between_top_to_bottom_rects(lane->joining_left_lane->last_part->rect, lane_part->rect, line_color, line_width);
-                }
-                
-                if (lane->joining_right_lane && lane->joining_right_lane->last_part)
-                {
-                    // FIXME: for now we ignore the joining-point!
-                    draw_lines_between_top_to_bottom_rects(lane->joining_right_lane->last_part->rect, lane_part->rect, line_color, line_width);
-                }
-            }
-
             previous_part = lane_part;
             
             lane_part = lane_part->next_part;
