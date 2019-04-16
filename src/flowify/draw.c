@@ -246,6 +246,57 @@ FlowStyle get_style_by_oddness(FlowStyleEvenOdd style_even_odd, b32 is_odd)
     return style;
 }
 
+struct DrawLanePart
+{
+    Rect2d rect;
+    
+    DrawLanePart * next_part;
+};
+
+struct DrawLane
+{
+    DrawLanePart * first_part;
+    DrawLanePart * last_part;
+    
+    // TODO: how to signify that the first/last part should not have a line on either the left or right side?
+    
+    i32 bending_radius;
+    Color4 line_color;
+    Color4 fill_color;
+};
+
+struct DrawRect
+{
+    Rect2d rect;
+    Color4 line_color;
+    Color4 fill_color;
+};
+
+struct DrawRoundedRect
+{
+    Rect2d rect;
+    i32 radius;
+    Color4 line_color;
+    Color4 fill_color;
+};
+
+enum DrawType
+{
+    Draw_Rect,
+    Draw_RoundedRect,
+    Draw_Lane
+};
+
+struct DrawEntry
+{
+    DrawType type; // Lane / RoundedRect / Rect
+    void * item_to_draw;
+    
+    DrawEntry * first_child;
+    DrawEntry * next_sibling;
+    DrawEntry * last_child;
+};
+
 void draw_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, FlowStyle style, b32 draw_rectangle, b32 draw_source_text)
 {
     
