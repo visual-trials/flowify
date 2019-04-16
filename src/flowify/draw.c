@@ -285,6 +285,10 @@ void push_rounded_rectangle(Flowifier * flowifier, Rect2d rect, i32 r, Color4 li
 void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
 {
     assert(flow_element);
+    assert(flowifier->draw_arena.memory);
+    
+    reset_fragmented_memory_arena(&flowifier->draw_arena, true);
+    flowifier->draw_entries = 0;
     
     // TODO: add is_position_of and position_originates_from
 

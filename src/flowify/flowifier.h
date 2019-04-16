@@ -302,7 +302,7 @@ struct Flowifier
 {
     DynamicArray flow_elements;
     
-    FragmentedMemoryArena * draw_arena;
+    FragmentedMemoryArena draw_arena;
     DrawEntry * draw_entries;
     
     FlowElement * first_function;
@@ -390,6 +390,17 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
 {
     flowifier->first_function = 0;
     flowifier->latest_function = 0;
+    
+    if (!flowifier->draw_arena.memory)
+    {
+        flowifier->draw_arena = new_fragmented_memory_arena(&global_memory, (Color4){50,100,50,255}, cstring_to_string("Draw arena"), true);
+    }
+    else
+    {
+        reset_fragmented_memory_arena(&flowifier->draw_arena, true);
+    }
+    flowifier->draw_entries = 0;
+    
     
     flowifier->parser = parser;
     
