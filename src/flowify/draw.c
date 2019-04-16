@@ -300,6 +300,7 @@ struct DrawRoundedRect
 
 enum DrawType
 {
+    Draw_Text,
     Draw_Rect,
     Draw_RoundedRect,
     Draw_Lane
