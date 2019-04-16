@@ -233,6 +233,7 @@ struct DrawLanePart
     Rect2d rect;
     
     DrawLanePart * next_part;
+    // TODO: maybe add fill_color (when a part is selected for example)
 };
 
 struct DrawLane

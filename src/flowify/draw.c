@@ -239,6 +239,8 @@ FlowStyle get_style_by_oddness(FlowStyleEvenOdd style_even_odd, b32 is_odd)
     return style;
 }
 
+// Draw entries
+
 void add_draw_entry(Flowifier * flowifier, DrawEntry * draw_entry)
 {
     if (!flowifier->first_draw_entry)
@@ -339,7 +341,7 @@ DrawLane * push_lane(Flowifier * flowifier, i32 bending_radius, Color4 line_colo
     return draw_lane;
 }
 
-// FIXME: extend this!
+// TODO: we might want to add fill_color as an argument here
 void push_lane_part_to_current_lane(Flowifier * flowifier, Rect2d rect)
 {
     assert(flowifier->current_lane);
