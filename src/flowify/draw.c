@@ -16,21 +16,7 @@
 
  */
 
-void draw_interaction_rectangle(Flowifier * flowifier, FlowElement * flow_element)
-{
-    if (flowifier->interaction.hovered_element_index == flow_element->index)
-    {
-        draw_rectangle(flow_element->rect_abs, flowifier->hovered_color, flowifier->hovered_fill, flowifier->hovered_line_width);
-    }
-    if (flowifier->interaction.selected_element_index == flow_element->index)
-    {
-        draw_rectangle(flow_element->rect_abs, flowifier->selected_color, flowifier->selected_fill, flowifier->selected_line_width);
-    }
-    if (flowifier->show_help_rectangles)
-    {
-        draw_rectangle(flow_element->rect_abs, flowifier->help_rectangle_color, flowifier->help_rectangle_fill, flowifier->help_rectangle_line_width);
-    }
-}
+void push_interaction_rectangle(Flowifier * flowifier, FlowElement * flow_element);
 
 void draw_lane_segments_for_3_rectangles(Rect2d top_rect, Rect2d middle_rect, Rect2d bottom_rect, i32 bending_radius, i32 line_width, Color4 line_color, Color4 rect_color, Color4 bend_color)
 {
@@ -135,7 +121,7 @@ FIXME:
                                         flowifier->line_color, fill_color, fill_color);
 */
                                        
-    draw_interaction_rectangle(flowifier, joining_element);
+    push_interaction_rectangle(flowifier, joining_element);
     
 }
 
@@ -176,7 +162,7 @@ FIXME:
                                         flowifier->bending_radius, flowifier->line_width, 
                                         flowifier->line_color, fill_color, fill_color);
 */ 
-    draw_interaction_rectangle(flowifier, splitting_element);
+    push_interaction_rectangle(flowifier, splitting_element);
 }
 
 void draw_straight_element(Flowifier * flowifier, FlowElement * flow_element, FlowElement * element_previous_in_flow, 
@@ -224,7 +210,7 @@ void draw_straight_element(Flowifier * flowifier, FlowElement * flow_element, Fl
         draw_text(text_position, &flow_element->source_text, flowifier->font, flowifier->text_color);
     }
     
-    draw_interaction_rectangle(flowifier, flow_element);
+    push_interaction_rectangle(flowifier, flow_element);
 }
 
 FlowStyle get_style_by_oddness(FlowStyleEvenOdd style_even_odd, b32 is_odd)
@@ -277,6 +263,23 @@ void push_text(Flowifier * flowifier, Pos2d position, String * text, Font font, 
     add_draw_entry(flowifier, draw_entry);
 }
 
+void push_rectangle(Flowifier * flowifier, Rect2d rect, Color4 line_color, Color4 fill_color, i32 line_width)
+{
+    DrawEntry * draw_entry = (DrawEntry *)push_struct(&flowifier->draw_arena, sizeof(DrawEntry));
+    draw_entry->type = Draw_Rect;
+    draw_entry->next_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
+    
+    DrawRect * draw_rect = (DrawRect *)push_struct(&flowifier->draw_arena, sizeof(DrawRect));
+    draw_entry->item_to_draw = draw_rect;
+    
+    draw_rect->rect = rect;
+    draw_rect->line_color = line_color;
+    draw_rect->fill_color = fill_color;
+    draw_rect->line_width = line_width;
+    
+    add_draw_entry(flowifier, draw_entry);
+}
+
 void push_rounded_rectangle(Flowifier * flowifier, Rect2d rect, i32 radius, Color4 line_color, Color4 fill_color, i32 line_width)
 {
     DrawEntry * draw_entry = (DrawEntry *)push_struct(&flowifier->draw_arena, sizeof(DrawEntry));
@@ -306,12 +309,36 @@ void draw_an_entry(DrawEntry * draw_entry)
                                rounded_rect->fill_color, 
                                rounded_rect->line_width);
     }
+    else if (draw_entry->type == Draw_Rect)
+    {
+        DrawRect * rect = (DrawRect *)draw_entry->item_to_draw;
+        draw_rectangle(rect->rect, 
+                       rect->line_color, 
+                       rect->fill_color, 
+                       rect->line_width);
+    }
     else if (draw_entry->type == Draw_Text)
     {
         DrawText * text = (DrawText *)draw_entry->item_to_draw;
         draw_text(text->position, text->text, text->font, text->color);
     }
     // FIXME: implement the others! 
+}
+
+void push_interaction_rectangle(Flowifier * flowifier, FlowElement * flow_element)
+{
+    if (flowifier->interaction.hovered_element_index == flow_element->index)
+    {
+        push_rectangle(flowifier, flow_element->rect_abs, flowifier->hovered_color, flowifier->hovered_fill, flowifier->hovered_line_width);
+    }
+    if (flowifier->interaction.selected_element_index == flow_element->index)
+    {
+        push_rectangle(flowifier, flow_element->rect_abs, flowifier->selected_color, flowifier->selected_fill, flowifier->selected_line_width);
+    }
+    if (flowifier->show_help_rectangles)
+    {
+        push_rectangle(flowifier, flow_element->rect_abs, flowifier->help_rectangle_color, flowifier->help_rectangle_fill, flowifier->help_rectangle_line_width);
+    }
 }
 
 void push_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, FlowStyle style, b32 draw_rectangle, b32 draw_source_text)
@@ -341,7 +368,7 @@ void push_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, F
         push_text(flowifier, text_position, &flow_element->source_text, flowifier->font, flowifier->text_color);
     }
     
-    draw_interaction_rectangle(flowifier, flow_element);
+    push_interaction_rectangle(flowifier, flow_element);
 }
 
 void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
@@ -625,10 +652,10 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_cornered_lane_segment(hor_line, vert_line, flowifier->bending_radius, 
                                    flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
 
-        draw_interaction_rectangle(flowifier, for_passright_element);
-        draw_interaction_rectangle(flowifier, for_passup_element);
-        draw_interaction_rectangle(flowifier, for_passleft_element);
-        draw_interaction_rectangle(flowifier, for_passdown_element);
+        push_interaction_rectangle(flowifier, for_passright_element);
+        push_interaction_rectangle(flowifier, for_passup_element);
+        push_interaction_rectangle(flowifier, for_passleft_element);
+        push_interaction_rectangle(flowifier, for_passdown_element);
         
         draw_straight_element(flowifier, for_done_element, 0, for_done_element->next_in_flow, false);
     }
@@ -692,10 +719,10 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_cornered_lane_segment(hor_line, vert_line, flowifier->bending_radius, 
                                    flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
 
-        draw_interaction_rectangle(flowifier, foreach_passright_element);
-        draw_interaction_rectangle(flowifier, foreach_passup_element);
-        draw_interaction_rectangle(flowifier, foreach_passleft_element);
-        draw_interaction_rectangle(flowifier, foreach_passdown_element);
+        push_interaction_rectangle(flowifier, foreach_passright_element);
+        push_interaction_rectangle(flowifier, foreach_passup_element);
+        push_interaction_rectangle(flowifier, foreach_passleft_element);
+        push_interaction_rectangle(flowifier, foreach_passdown_element);
         
         draw_straight_element(flowifier, foreach_done_element, 0, foreach_done_element->next_in_flow, false);
     }
@@ -727,7 +754,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         push_rounded_rectangle(flowifier, rect, flowifier->bending_radius, 
                                flowifier->function_line_color, flowifier->function_fill_color, flowifier->function_line_width);
 
-        draw_interaction_rectangle(flowifier, function_call_element);
+        push_interaction_rectangle(flowifier, function_call_element);
         
         // Drawing the Function call
         
@@ -812,7 +839,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     }
     
     // TODO: this will double-draw in case of primitive elements
-    draw_interaction_rectangle(flowifier, flow_element);
+    push_interaction_rectangle(flowifier, flow_element);
 
 
     // FIXME: we should probably do this outside this function!
