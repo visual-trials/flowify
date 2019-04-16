@@ -436,7 +436,7 @@ void draw_an_entry(DrawEntry * draw_entry)
             }
         }
         
-        // Then we draw the lanes themselves (by connecting all parts of each  lane) 
+        // Then we draw the lanes themselves (by connecting all parts of each lane) 
         
         DrawLanePart * previous_part = 0;
         DrawLanePart * lane_part = first_lane_part;
@@ -731,11 +731,18 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         then_lane->is_right_side = true;
         else_lane->splitting_from_lane = if_lane;
         then_lane->is_right_side = false;
-        // TODO: Pos2d splitting_point;
+        
+        i32 horizontal_distance = if_then_element->rect_abs.position.x - (if_else_element->rect_abs.position.x + if_else_element->rect_abs.size.width);
+        // TODO: maybe calculate y using vertical distance i32 vertical_distance
+        then_lane->splitting_point.x = if_then_element->rect_abs.position.x - horizontal_distance / 2;
+        // TODO: we should check if the else-statement is higher/lower aswell (not just the then-statement) using a min()-function
+        then_lane->splitting_point.y = if_then_element->rect_abs.position.y;
         
         end_if_lane->joining_left_lane = else_lane;
         end_if_lane->joining_right_lane = then_lane;
-        // TODO: Pos2d joining_point;
+        end_if_lane->joining_point.x = then_lane->splitting_point.x; // TODO: is it always correct that the splitting and joining points have the same x (for an if-statement)?
+        // TODO: we should check if the else-statement ends higher/lower aswell (not just the then-statement) using a max()-function
+        end_if_lane->joining_point.y = if_then_element->rect_abs.position.y + if_then_element->rect_abs.size.height;
         
         flowifier->current_lane = then_lane;
         // draw_splitting_element(flowifier, if_else_element->first_in_flow, if_then_element->first_in_flow, if_cond_element, if_cond_element);
