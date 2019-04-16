@@ -416,14 +416,10 @@ void draw_an_entry(DrawEntry * draw_entry)
         DrawLanePart * first_lane_part = lane->first_part;
         if (first_lane_part)
         {
+            // TODO: we can probably make this nicer: less boilerplate
+            
             if (lane->splitting_from_lane && lane->splitting_from_lane->last_part)
             {
-                // TODO: maybe use HorizontalLine here?
-                
-                // FIXME: for now we ignore the splitting-point!
-                // FIXME: for now we also ignore is_right_side
-                // draw_lines_between_top_to_bottom_rects(lane->splitting_from_lane->last_part->rect, first_lane_part->rect, line_color, line_width);
-                
                 Rect2d bottom_rect = first_lane_part->rect;
                 
                 Rect2d top_rect = lane->splitting_from_lane->last_part->rect;
@@ -450,14 +446,36 @@ void draw_an_entry(DrawEntry * draw_entry)
             
             if (lane->joining_left_lane && lane->joining_left_lane->last_part)
             {
-                // FIXME: for now we ignore the joining-point!
-                draw_lines_between_top_to_bottom_rects(lane->joining_left_lane->last_part->rect, first_lane_part->rect, line_color, line_width);
+                Rect2d top_rect = lane->joining_left_lane->last_part->rect;
+                
+                Pos2d joining_point = lane->joining_point;
+                Rect2d bottom_rect = first_lane_part->rect;
+                
+                Pos2d left_start_pos = { top_rect.position.x, top_rect.position.y + top_rect.size.height};
+                Pos2d right_start_pos = { top_rect.position.x + top_rect.size.width, top_rect.position.y + top_rect.size.height};
+                
+                Pos2d left_end_pos = { bottom_rect.position.x, bottom_rect.position.y };
+                Pos2d right_end_pos = joining_point;
+                
+                draw_line(left_start_pos, left_end_pos, line_color, line_width);
+                draw_line(right_start_pos, right_end_pos, line_color, line_width);
             }
             
             if (lane->joining_right_lane && lane->joining_right_lane->last_part)
             {
-                // FIXME: for now we ignore the joining-point!
-                draw_lines_between_top_to_bottom_rects(lane->joining_right_lane->last_part->rect, first_lane_part->rect, line_color, line_width);
+                Rect2d top_rect = lane->joining_right_lane->last_part->rect;
+                
+                Pos2d joining_point = lane->joining_point;
+                Rect2d bottom_rect = first_lane_part->rect;
+                
+                Pos2d left_start_pos = { top_rect.position.x, top_rect.position.y + top_rect.size.height};
+                Pos2d right_start_pos = { top_rect.position.x + top_rect.size.width, top_rect.position.y + top_rect.size.height};
+                
+                Pos2d left_end_pos = joining_point;
+                Pos2d right_end_pos = { bottom_rect.position.x + bottom_rect.size.width, bottom_rect.position.y };
+                
+                draw_line(left_start_pos, left_end_pos, line_color, line_width);
+                draw_line(right_start_pos, right_end_pos, line_color, line_width);
             }
         }
         
