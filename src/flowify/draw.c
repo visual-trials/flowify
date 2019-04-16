@@ -276,19 +276,64 @@ void draw_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, F
     draw_interaction_rectangle(flowifier, flow_element);
 }
 
-
-void push_rounded_rectangle(Flowifier * flowifier, Rect2d rect, i32 r, Color4 line_color, Color4 fill_color, i32 line_width)
+void add_draw_entry(Flowifier * flowifier, DrawEntry * draw_entry)
 {
-    // FIXME: implement this!
+    if (!flowifier->first_draw_entry)
+    {
+        flowifier->first_draw_entry = draw_entry;
+    }
+    else
+    {
+        flowifier->last_draw_entry->next_entry = draw_entry;
+    }
+    
+    flowifier->last_draw_entry = draw_entry;
+}
+
+void push_rounded_rectangle(Flowifier * flowifier, Rect2d rect, i32 radius, Color4 line_color, Color4 fill_color, i32 line_width)
+{
+    DrawEntry * draw_entry = (DrawEntry *)push_struct(&flowifier->draw_arena, sizeof(DrawEntry));
+    draw_entry->type = Draw_RoundedRect;
+    
+    DrawRoundedRect * draw_rounded_rect = (DrawRoundedRect *)push_struct(&flowifier->draw_arena, sizeof(DrawRoundedRect));
+    draw_entry->item_to_draw = draw_rounded_rect;
+    
+    draw_rounded_rect->rect = rect;
+    draw_rounded_rect->radius = radius;
+    draw_rounded_rect->line_color = line_color;
+    draw_rounded_rect->fill_color = fill_color;
+    draw_rounded_rect->line_width = line_width;
+    
+    add_draw_entry(flowifier, draw_entry);
+}
+
+void draw_an_entry(DrawEntry * draw_entry)
+{
+    if (draw_entry->type == Draw_RoundedRect)
+    {
+        DrawRoundedRect * rounded_rectangle = (DrawRoundedRect *)draw_entry->item_to_draw;
+        draw_rounded_rectangle(rounded_rectangle->rect, 
+                               rounded_rectangle->radius, 
+                               rounded_rectangle->line_color, 
+                               rounded_rectangle->fill_color, 
+                               rounded_rectangle->line_width);
+    }
+    // FIXME: implement the others! else if ();
 }
 
 void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
 {
     assert(flow_element);
-    assert(flowifier->draw_arena.memory);
     
-    reset_fragmented_memory_arena(&flowifier->draw_arena, true);
-    flowifier->draw_entries = 0;
+    if (flow_element->type == FlowElement_Root)
+    {
+        assert(flowifier->draw_arena.memory);
+        
+        reset_fragmented_memory_arena(&flowifier->draw_arena, true);
+        flowifier->first_draw_entry = 0;
+        flowifier->last_draw_entry = 0;
+        flowifier->current_lane_entry = 0;
+    }
     
     // TODO: add is_position_of and position_originates_from
 
@@ -756,7 +801,14 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     
     if (flow_element->type == FlowElement_Root)
     {
-        // FIXME: draw all that is pushed 
+        DrawEntry * draw_entry = flowifier->first_draw_entry;
+        
+        while (draw_entry)
+        {
+            draw_an_entry(draw_entry);
+            
+            draw_entry = draw_entry->next_entry;
+        }
     }
     
     

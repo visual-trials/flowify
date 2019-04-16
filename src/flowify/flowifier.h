@@ -290,12 +290,10 @@ enum DrawType
 
 struct DrawEntry
 {
-    DrawType type; // Lane / RoundedRect / Rect
+    DrawType type; // Lane / RoundedRect / Rect / Text
     void * item_to_draw;
     
-    DrawEntry * first_child;
-    DrawEntry * next_sibling;
-    DrawEntry * last_child;
+    DrawEntry * next_entry;
 };
 
 struct Flowifier
@@ -303,7 +301,9 @@ struct Flowifier
     DynamicArray flow_elements;
     
     FragmentedMemoryArena draw_arena;
-    DrawEntry * draw_entries;
+    DrawEntry * first_draw_entry;
+    DrawEntry * last_draw_entry;
+    DrawEntry * current_lane_entry;
     
     FlowElement * first_function;
     FlowElement * latest_function;
@@ -399,8 +399,9 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     {
         reset_fragmented_memory_arena(&flowifier->draw_arena, true);
     }
-    flowifier->draw_entries = 0;
-    
+    flowifier->first_draw_entry = 0;
+    flowifier->last_draw_entry = 0;
+    flowifier->current_lane_entry = 0;
     
     flowifier->parser = parser;
     
