@@ -305,7 +305,8 @@ struct Flowifier
     FragmentedMemoryArena draw_arena;
     DrawEntry * first_draw_entry;
     DrawEntry * last_draw_entry;
-    DrawEntry * current_lane_entry;
+    
+    DrawLane * current_lane;
     
     FlowElement * first_function;
     FlowElement * latest_function;
@@ -403,7 +404,7 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     }
     flowifier->first_draw_entry = 0;
     flowifier->last_draw_entry = 0;
-    flowifier->current_lane_entry = 0;
+    flowifier->current_lane = 0;
     
     flowifier->parser = parser;
     

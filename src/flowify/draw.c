@@ -18,6 +18,8 @@
 
 void push_text(Flowifier * flowifier, Pos2d position, String * text, Font font, Color4 color);
 void push_interaction_rectangle(Flowifier * flowifier, FlowElement * flow_element);
+void push_lane_part_to_current_lane(Flowifier * flowifier, Rect2d rect);
+
 
 void draw_lane_segments_for_3_rectangles(Rect2d top_rect, Rect2d middle_rect, Rect2d bottom_rect, i32 bending_radius, i32 line_width, Color4 line_color, Color4 rect_color, Color4 bend_color)
 {
@@ -194,6 +196,10 @@ void draw_straight_element(Flowifier * flowifier, FlowElement * flow_element, Fl
         bottom_rect = element_next_in_flow->rect_abs;
     }
     
+    // FIXME: placeholder: we now only add the rect itself
+    push_lane_part_to_current_lane(flowifier, middle_rect);
+
+    // FIXME: this should be removed
     draw_lane_segments_for_3_rectangles(top_rect, middle_rect, bottom_rect, 
                                         flowifier->bending_radius, flowifier->line_width, 
                                         flowifier->line_color, fill_color, fill_color);
@@ -299,6 +305,61 @@ void push_rounded_rectangle(Flowifier * flowifier, Rect2d rect, i32 radius, Colo
     add_draw_entry(flowifier, draw_entry);
 }
 
+// FIXME: extend this!
+// TODO: maybe don't return the DrawLane but set flowifier->current_lane to this lane?
+DrawLane * push_lane(Flowifier * flowifier, i32 bending_radius, Color4 line_color, Color4 fill_color, i32 line_width)
+{
+    DrawEntry * draw_entry = (DrawEntry *)push_struct(&flowifier->draw_arena, sizeof(DrawEntry));
+    draw_entry->type = Draw_Lane;
+    draw_entry->next_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
+    
+    DrawLane * draw_lane = (DrawLane *)push_struct(&flowifier->draw_arena, sizeof(DrawLane));
+    draw_entry->item_to_draw = draw_lane;
+    
+    // TODO: we should let push_struct reset the memory of the struct!
+    draw_lane->bounding_rect = (Rect2d){};
+    
+    draw_lane->first_part = 0;
+    draw_lane->last_part = 0;
+    
+    draw_lane->joins_to_lane = 0;
+    draw_lane->joining_point = (Pos2d){};
+    
+    draw_lane->splits_to_left_lane = 0;
+    draw_lane->splits_to_right_lane = 0;
+    draw_lane->splitting_point = (Pos2d){};
+    
+    draw_lane->bending_radius = bending_radius;
+    draw_lane->line_color = line_color;
+    draw_lane->fill_color = fill_color;
+    draw_lane->line_width = line_width;
+        
+    add_draw_entry(flowifier, draw_entry);
+    
+    return draw_lane;
+}
+
+// FIXME: extend this!
+void push_lane_part_to_current_lane(Flowifier * flowifier, Rect2d rect)
+{
+    assert(flowifier->current_lane);
+    
+    DrawLane * current_lane = flowifier->current_lane;
+    
+    DrawLanePart * draw_lane_part = (DrawLanePart *)push_struct(&flowifier->draw_arena, sizeof(DrawLanePart));
+    draw_lane_part->rect = rect;
+    
+    if (!current_lane->first_part)
+    {
+        current_lane->first_part = draw_lane_part;
+    }
+    else
+    {
+        current_lane->last_part->next_part = draw_lane_part;
+    }
+    current_lane->last_part = draw_lane_part;
+}
+
 void draw_an_entry(DrawEntry * draw_entry)
 {
     if (draw_entry->type == Draw_RoundedRect)
@@ -323,7 +384,30 @@ void draw_an_entry(DrawEntry * draw_entry)
         DrawText * text = (DrawText *)draw_entry->item_to_draw;
         draw_text(text->position, text->text, text->font, text->color);
     }
-    // FIXME: implement the others! 
+    else if (draw_entry->type == Draw_Lane)
+    {
+        DrawLane * lane = (DrawLane *)draw_entry->item_to_draw;
+        
+        i32 bending_radius = lane->bending_radius;
+        Color4 line_color = lane->line_color;
+        Color4 fill_color = lane->fill_color;
+        i32 line_width = lane->line_width;
+    
+        DrawLanePart * lane_part = lane->first_part;
+        while(lane_part)
+        {
+            Rect2d rect = lane_part->rect;
+            
+            // FIXME: dont use draw_lane_segments_for_3_rectangles here!
+            Rect2d no_rect = {-1,-1,-1,-1};
+            draw_lane_segments_for_3_rectangles(no_rect, rect, no_rect, 
+                                                bending_radius, line_width, 
+                                                line_color, fill_color, fill_color);
+            
+            lane_part = lane_part->next_part;
+        }
+        
+    }
 }
 
 void push_interaction_rectangle(Flowifier * flowifier, FlowElement * flow_element)
@@ -383,7 +467,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         reset_fragmented_memory_arena(&flowifier->draw_arena, true);
         flowifier->first_draw_entry = 0;
         flowifier->last_draw_entry = 0;
-        flowifier->current_lane_entry = 0;
+        flowifier->current_lane = 0;
     }
     
     // TODO: add is_position_of and position_originates_from
@@ -772,6 +856,9 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         }
         else
         {
+            DrawLane * parent_lane = flowifier->current_lane;
+            flowifier->current_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
+
             FlowElement * parameters_element = function_call_arguments->next_sibling;
             FlowElement * function_element = parameters_element->next_sibling;
 
@@ -789,6 +876,8 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
             {
                 // TODO: what to draw if the function is collapsed?
             }
+            
+            flowifier->current_lane = parent_lane;
         }
     }
     else if (flow_element->type == FlowElement_Function)
@@ -825,6 +914,8 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         {
             push_rounded_rectangle(flowifier, flow_element->rect_abs, flowifier->bending_radius, 
                                    flowifier->function_line_color, flowifier->function_fill_color, flowifier->function_line_width);
+                                   
+            flowifier->current_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
         }
                                
         FlowElement * child_element = flow_element->first_child;
