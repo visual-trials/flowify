@@ -237,6 +237,8 @@ struct DrawLanePart
 
 struct DrawLane
 {
+    Rect2d bounding_rect; // We can use this to check whether any of the lane-parts is inside the screen (so we know we should draw the lane)
+    
     DrawLanePart * first_part;
     DrawLanePart * last_part;
     
