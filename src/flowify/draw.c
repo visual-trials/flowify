@@ -16,6 +16,7 @@
 
  */
 
+void push_text(Flowifier * flowifier, Pos2d position, String * text, Font font, Color4 color);
 void push_interaction_rectangle(Flowifier * flowifier, FlowElement * flow_element);
 
 void draw_lane_segments_for_3_rectangles(Rect2d top_rect, Rect2d middle_rect, Rect2d bottom_rect, i32 bending_radius, i32 line_width, Color4 line_color, Color4 rect_color, Color4 bend_color)
@@ -207,7 +208,7 @@ void draw_straight_element(Flowifier * flowifier, FlowElement * flow_element, Fl
         text_position.x += (middle_rect.size.width - source_text_size.width) / 2;
         text_position.y += (middle_rect.size.height - source_text_size.height) / 2;
         
-        draw_text(text_position, &flow_element->source_text, flowifier->font, flowifier->text_color);
+        push_text(flowifier, text_position, &flow_element->source_text, flowifier->font, flowifier->text_color);
     }
     
     push_interaction_rectangle(flowifier, flow_element);
