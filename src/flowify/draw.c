@@ -348,6 +348,7 @@ void push_lane_part_to_current_lane(Flowifier * flowifier, Rect2d rect)
     
     DrawLanePart * draw_lane_part = (DrawLanePart *)push_struct(&flowifier->draw_arena, sizeof(DrawLanePart));
     draw_lane_part->rect = rect;
+    draw_lane_part->next_part = 0; // TODO: we should let push_struct reset the memory of the struct!
     
     if (!current_lane->first_part)
     {
@@ -387,7 +388,6 @@ void draw_an_entry(DrawEntry * draw_entry)
     else if (draw_entry->type == Draw_Lane)
     {
         DrawLane * lane = (DrawLane *)draw_entry->item_to_draw;
-        
         i32 bending_radius = lane->bending_radius;
         Color4 line_color = lane->line_color;
         Color4 fill_color = lane->fill_color;
@@ -403,7 +403,7 @@ void draw_an_entry(DrawEntry * draw_entry)
             draw_lane_segments_for_3_rectangles(no_rect, rect, no_rect, 
                                                 bending_radius, line_width, 
                                                 line_color, fill_color, fill_color);
-            
+
             lane_part = lane_part->next_part;
         }
         
