@@ -418,9 +418,34 @@ void draw_an_entry(DrawEntry * draw_entry)
         {
             if (lane->splitting_from_lane && lane->splitting_from_lane->last_part)
             {
+                // TODO: maybe use HorizontalLine here?
+                
                 // FIXME: for now we ignore the splitting-point!
                 // FIXME: for now we also ignore is_right_side
-                draw_lines_between_top_to_bottom_rects(lane->splitting_from_lane->last_part->rect, first_lane_part->rect, line_color, line_width);
+                // draw_lines_between_top_to_bottom_rects(lane->splitting_from_lane->last_part->rect, first_lane_part->rect, line_color, line_width);
+                
+                Rect2d bottom_rect = first_lane_part->rect;
+                
+                Rect2d top_rect = lane->splitting_from_lane->last_part->rect;
+                Pos2d splitting_point = lane->splitting_point;
+                
+                Pos2d left_end_pos = { bottom_rect.position.x, bottom_rect.position.y };
+                Pos2d right_end_pos = { bottom_rect.position.x + bottom_rect.size.width, bottom_rect.position.y };
+                
+                Pos2d left_start_pos = { top_rect.position.x, top_rect.position.y + top_rect.size.height};
+                Pos2d right_start_pos = { top_rect.position.x + top_rect.size.width, top_rect.position.y + top_rect.size.height};
+                
+                if (lane->is_right_side)
+                {
+                    left_start_pos = splitting_point;
+                }
+                else
+                {
+                    right_start_pos = splitting_point;
+                }
+                
+                draw_line(left_start_pos, left_end_pos, line_color, line_width);
+                draw_line(right_start_pos, right_end_pos, line_color, line_width);
             }
             
             if (lane->joining_left_lane && lane->joining_left_lane->last_part)
@@ -730,13 +755,15 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         then_lane->splitting_from_lane = if_lane;
         then_lane->is_right_side = true;
         else_lane->splitting_from_lane = if_lane;
-        then_lane->is_right_side = false;
+        else_lane->is_right_side = false;
         
         i32 horizontal_distance = if_then_element->rect_abs.position.x - (if_else_element->rect_abs.position.x + if_else_element->rect_abs.size.width);
         // TODO: maybe calculate y using vertical distance i32 vertical_distance
         then_lane->splitting_point.x = if_then_element->rect_abs.position.x - horizontal_distance / 2;
         // TODO: we should check if the else-statement is higher/lower aswell (not just the then-statement) using a min()-function
         then_lane->splitting_point.y = if_then_element->rect_abs.position.y;
+        
+        else_lane->splitting_point = then_lane->splitting_point;
         
         end_if_lane->joining_left_lane = else_lane;
         end_if_lane->joining_right_lane = then_lane;
