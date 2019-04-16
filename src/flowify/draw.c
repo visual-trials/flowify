@@ -246,36 +246,6 @@ FlowStyle get_style_by_oddness(FlowStyleEvenOdd style_even_odd, b32 is_odd)
     return style;
 }
 
-void draw_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, FlowStyle style, b32 draw_rectangle, b32 draw_source_text)
-{
-    
-    Color4 fill_color = style.fill_color;
-    if (flowifier->interaction.highlighted_element_index == flow_element->index)
-    {
-        fill_color = flowifier->highlighted_color;
-    }
-    
-    if (draw_rectangle)
-    {
-        draw_rounded_rectangle(flow_element->rect_abs, style.corner_radius, style.line_color, fill_color, style.line_width);
-    }
-    
-    if (draw_source_text && flow_element->source_text.length)
-    {
-        Size2d source_text_size = get_text_size(&flow_element->source_text, flowifier->font);
-        
-        // TODO: create a function: draw_text_in_rect()
-        Pos2d text_position = {};
-        text_position = flow_element->rect_abs.position;
-        text_position.x += (flow_element->rect_abs.size.width - source_text_size.width) / 2;
-        text_position.y += (flow_element->rect_abs.size.height - source_text_size.height) / 2;
-        
-        draw_text(text_position, &flow_element->source_text, flowifier->font, flowifier->text_color);
-    }
-    
-    draw_interaction_rectangle(flowifier, flow_element);
-}
-
 void add_draw_entry(Flowifier * flowifier, DrawEntry * draw_entry)
 {
     if (!flowifier->first_draw_entry)
@@ -294,6 +264,7 @@ void push_rounded_rectangle(Flowifier * flowifier, Rect2d rect, i32 radius, Colo
 {
     DrawEntry * draw_entry = (DrawEntry *)push_struct(&flowifier->draw_arena, sizeof(DrawEntry));
     draw_entry->type = Draw_RoundedRect;
+    draw_entry->next_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
     
     DrawRoundedRect * draw_rounded_rect = (DrawRoundedRect *)push_struct(&flowifier->draw_arena, sizeof(DrawRoundedRect));
     draw_entry->item_to_draw = draw_rounded_rect;
@@ -319,6 +290,37 @@ void draw_an_entry(DrawEntry * draw_entry)
                                rounded_rectangle->line_width);
     }
     // FIXME: implement the others! else if ();
+}
+
+// FIXME: rename this to push_...
+void draw_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, FlowStyle style, b32 draw_rectangle, b32 draw_source_text)
+{
+    
+    Color4 fill_color = style.fill_color;
+    if (flowifier->interaction.highlighted_element_index == flow_element->index)
+    {
+        fill_color = flowifier->highlighted_color;
+    }
+    
+    if (draw_rectangle)
+    {
+        push_rounded_rectangle(flowifier, flow_element->rect_abs, style.corner_radius, style.line_color, fill_color, style.line_width);
+    }
+    
+    if (draw_source_text && flow_element->source_text.length)
+    {
+        Size2d source_text_size = get_text_size(&flow_element->source_text, flowifier->font);
+        
+        // TODO: create a function: draw_text_in_rect()
+        Pos2d text_position = {};
+        text_position = flow_element->rect_abs.position;
+        text_position.x += (flow_element->rect_abs.size.width - source_text_size.width) / 2;
+        text_position.y += (flow_element->rect_abs.size.height - source_text_size.height) / 2;
+        
+        draw_text(text_position, &flow_element->source_text, flowifier->font, flowifier->text_color);
+    }
+    
+    draw_interaction_rectangle(flowifier, flow_element);
 }
 
 void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
@@ -701,7 +703,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
             rect.size.height -= bending_radius + bending_radius;
         }
         
-        draw_rounded_rectangle(rect, flowifier->bending_radius, 
+        push_rounded_rectangle(flowifier, rect, flowifier->bending_radius, 
                                flowifier->function_line_color, flowifier->function_fill_color, flowifier->function_line_width);
 
         draw_interaction_rectangle(flowifier, function_call_element);
@@ -772,13 +774,8 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     {
         if (flow_element->type == FlowElement_Root)
         {
-            
-            
             push_rounded_rectangle(flowifier, flow_element->rect_abs, flowifier->bending_radius, 
                                    flowifier->function_line_color, flowifier->function_fill_color, flowifier->function_line_width);
-            
-            //draw_rounded_rectangle(flow_element->rect_abs, flowifier->bending_radius, 
-            //                       flowifier->function_line_color, flowifier->function_fill_color, flowifier->function_line_width);
         }
                                
         FlowElement * child_element = flow_element->first_child;
