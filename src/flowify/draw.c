@@ -304,8 +304,6 @@ void push_rounded_rectangle(Flowifier * flowifier, Rect2d rect, i32 radius, Colo
     add_draw_entry(flowifier, draw_entry);
 }
 
-// FIXME: extend this!
-// TODO: maybe don't return the DrawLane but set flowifier->current_lane to this lane?
 DrawLane * push_lane(Flowifier * flowifier, i32 bending_radius, Color4 line_color, Color4 fill_color, i32 line_width)
 {
     DrawEntry * draw_entry = (DrawEntry *)push_struct(&flowifier->draw_arena, sizeof(DrawEntry));
@@ -659,17 +657,35 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
 
         draw_elements(flowifier, for_init_element);
         
-        // FIXME: what should be the last element?
-        draw_joining_element(flowifier, for_init_element, for_passdown_element, for_cond_element, 0);
+        DrawLane * for_lane = flowifier->current_lane;
+        DrawLane * cond_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
+        DrawLane * cond_lane_end = 0;
+        DrawLane * body_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
+        DrawLane * body_lane_end = 0;
+        DrawLane * end_for_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
         
         // TODO: we  draw the if-cond in a way so that the side-lines are drawn AND the if-cond-expression is drawn
         // FIXME: this element is in between a join and split, so what to do with the previous_in_flow and next_in_flow?
+        flowifier->current_lane = cond_lane;
         draw_straight_element(flowifier, for_cond_element, 0, 0, false);
         draw_elements(flowifier, for_cond_element);
+        cond_lane_end = flowifier->current_lane;
         
-        // FIXME: what should be the last element?
-        draw_splitting_element(flowifier, for_done_element, for_body_element->first_in_flow, for_cond_element, 0);
+        body_lane->splitting_from_lane = cond_lane_end;
+        body_lane->is_right_side = true;
+        end_for_lane->splitting_from_lane = cond_lane_end;
+        end_for_lane->is_right_side = false;
         
+        i32 horizontal_distance = for_body_element->rect_abs.position.x - (for_done_element->rect_abs.position.x + for_done_element->rect_abs.size.width);
+
+        // TODO: maybe calculate y using vertical distance i32 vertical_distance
+        body_lane->splitting_point.x = for_body_element->rect_abs.position.x - horizontal_distance / 2;
+        // TODO: we should check if the done-statement is higher/lower aswell (not just the body-statement) using a min()-function
+        body_lane->splitting_point.y = for_body_element->rect_abs.position.y;
+        
+        end_for_lane->splitting_point = body_lane->splitting_point;
+        
+        flowifier->current_lane = body_lane;
         draw_elements(flowifier, for_body_element);
         
         draw_elements(flowifier, for_update_element);
@@ -709,6 +725,15 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         push_interaction_rectangle(flowifier, for_passleft_element);
         push_interaction_rectangle(flowifier, for_passdown_element);
         
+        body_lane_end = flowifier->current_lane;
+        
+        cond_lane->joining_left_lane = for_lane; 
+        cond_lane->joining_right_lane = body_lane_end;
+        cond_lane->joining_point.x = body_lane->splitting_point.x; // TODO: is it always correct that the splitting and joining points have the same x (for an for-statement)?
+        // TODO: we should check if the body-statement ends higher/lower aswell (not just the for_init-statement) using a max()-function
+        cond_lane->joining_point.y = for_init_element->rect_abs.position.y + for_init_element->rect_abs.size.height;
+        
+        flowifier->current_lane = end_for_lane;
         draw_straight_element(flowifier, for_done_element, 0, for_done_element->next_in_flow, false);
     }
     else if (flow_element->type == FlowElement_Foreach)
