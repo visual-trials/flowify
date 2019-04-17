@@ -751,17 +751,35 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         // FIXME: what should be the last element?
         draw_straight_element(flowifier, foreach_init_element, foreach_init_element->previous_in_flow, 0, false);
         
-        // FIXME: what should be the last element?
-        draw_joining_element(flowifier, foreach_init_element, foreach_passdown_element, foreach_cond_element, 0);
+        DrawLane * foreach_lane = flowifier->current_lane;
+        DrawLane * cond_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
+        DrawLane * cond_lane_end = 0;
+        DrawLane * body_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
+        DrawLane * body_lane_end = 0;
+        DrawLane * end_foreach_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
         
         // TODO: we  draw the if-cond in a way so that the side-lines are drawn AND the if-cond-expression is drawn
         // FIXME: this element is in between a join and split, so what to do with the previous_in_flow and next_in_flow?
+        flowifier->current_lane = cond_lane;
         draw_straight_element(flowifier, foreach_cond_element, 0, 0, false);
         draw_elements(flowifier, foreach_cond_element);
+        cond_lane_end = flowifier->current_lane;
         
-        // FIXME: what should be the last element?
-        draw_splitting_element(flowifier, foreach_done_element, foreach_body_element->first_in_flow, foreach_cond_element, 0);
+        body_lane->splitting_from_lane = cond_lane_end;
+        body_lane->is_right_side = true;
+        end_foreach_lane->splitting_from_lane = cond_lane_end;
+        end_foreach_lane->is_right_side = false;
         
+        i32 horizontal_distance = foreach_body_element->rect_abs.position.x - (foreach_done_element->rect_abs.position.x + foreach_done_element->rect_abs.size.width);
+
+        // TODO: maybe calculate y using vertical distance i32 vertical_distance
+        body_lane->splitting_point.x = foreach_body_element->rect_abs.position.x - horizontal_distance / 2;
+        // TODO: we should check if the done-statement is higher/lower aswell (not just the body-statement) using a min()-function
+        body_lane->splitting_point.y = foreach_body_element->rect_abs.position.y;
+        
+        end_foreach_lane->splitting_point = body_lane->splitting_point;
+        
+        flowifier->current_lane = body_lane;
         draw_elements(flowifier, foreach_body_element);
         
         Rect2d last_body_element_rect = foreach_body_element->last_in_flow->rect_abs;
@@ -799,6 +817,15 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         push_interaction_rectangle(flowifier, foreach_passleft_element);
         push_interaction_rectangle(flowifier, foreach_passdown_element);
         
+        body_lane_end = flowifier->current_lane;
+        
+        cond_lane->joining_left_lane = foreach_lane; 
+        cond_lane->joining_right_lane = body_lane_end;
+        cond_lane->joining_point.x = body_lane->splitting_point.x; // TODO: is it always correct that the splitting and joining points have the same x (for an for-statement)?
+        // TODO: we should check if the body-statement ends higher/lower aswell (not just the for_init-statement) using a max()-function
+        cond_lane->joining_point.y = foreach_init_element->rect_abs.position.y + foreach_init_element->rect_abs.size.height;
+        
+        flowifier->current_lane = end_foreach_lane;
         draw_straight_element(flowifier, foreach_done_element, 0, foreach_done_element->next_in_flow, false);
     }
     else if (flow_element->type == FlowElement_FunctionCall)
