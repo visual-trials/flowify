@@ -991,8 +991,11 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
 
 // Actual drawing
 
-void draw_lines_between_top_to_bottom_rects(Rect2d top_rect, Rect2d bottom_rect, Color4 line_color, i32 line_width)
+void draw_lines_between_lane_parts(DrawLanePart * from_lane_part, DrawLanePart * to_lane_part, Color4 line_color, i32 line_width)
 {
+    Rect2d top_rect = from_lane_part->rect;
+    Rect2d bottom_rect = to_lane_part->rect;
+    
     Pos2d left_start_pos = { top_rect.position.x, top_rect.position.y + top_rect.size.height};
     Pos2d left_end_pos = { bottom_rect.position.x, bottom_rect.position.y };
     
@@ -1173,7 +1176,7 @@ void draw_an_entry(DrawEntry * draw_entry)
                 
                 if (previous_part)
                 {
-                    draw_lines_between_top_to_bottom_rects(previous_part->rect, lane_part->rect, line_color, line_width);
+                    draw_lines_between_lane_parts(previous_part, lane_part, line_color, line_width);
                 }
                 previous_part = lane_part;
                 
