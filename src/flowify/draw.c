@@ -697,7 +697,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         draw_elements(flowifier, for_update_element);
         
-        Rect2d update_rect = for_update_element->rect_abs;
+        // Rect2d update_rect = for_update_element->rect_abs;
         
         Rect2d passright_rect = for_passright_element->rect_abs;
         
@@ -707,6 +707,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         Rect2d passdown_rect = for_passdown_element->rect_abs;
         
+        /*
         HorLine hor_line = get_bottom_line_from_rect(update_rect);
         VertLine vert_line = get_left_line_from_rect(passright_rect);
         draw_cornered_lane_segment(hor_line, vert_line, flowifier->bending_radius, 
@@ -726,7 +727,13 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         hor_line = get_bottom_line_from_rect(passdown_rect);
         draw_cornered_lane_segment(hor_line, vert_line, flowifier->bending_radius, 
                                    flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
+                                   */
 
+        push_lane_part_to_current_lane(flowifier, passright_rect, Direction_LeftToRight);
+        push_lane_part_to_current_lane(flowifier, passup_rect, Direction_BottomToTop);
+        push_lane_part_to_current_lane(flowifier, passleft_rect, Direction_RightToLeft);
+        push_lane_part_to_current_lane(flowifier, passdown_rect, Direction_TopToBottom);
+        
         push_interaction_rectangle(flowifier, for_passright_element);
         push_interaction_rectangle(flowifier, for_passup_element);
         push_interaction_rectangle(flowifier, for_passleft_element);
@@ -789,7 +796,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         flowifier->current_lane = body_lane;
         draw_elements(flowifier, foreach_body_element);
         
-        Rect2d last_body_element_rect = foreach_body_element->last_in_flow->rect_abs;
+        // Rect2d last_body_element_rect = foreach_body_element->last_in_flow->rect_abs;
         
         Rect2d passright_rect = foreach_passright_element->rect_abs;
         
@@ -799,6 +806,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         Rect2d passdown_rect = foreach_passdown_element->rect_abs;
         
+        /*
         HorLine hor_line = get_bottom_line_from_rect(last_body_element_rect);
         VertLine vert_line = get_left_line_from_rect(passright_rect);
         draw_cornered_lane_segment(hor_line, vert_line, flowifier->bending_radius, 
@@ -818,7 +826,13 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         hor_line = get_bottom_line_from_rect(passdown_rect);
         draw_cornered_lane_segment(hor_line, vert_line, flowifier->bending_radius, 
                                    flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
+                                   */
 
+        push_lane_part_to_current_lane(flowifier, passright_rect, Direction_LeftToRight);
+        push_lane_part_to_current_lane(flowifier, passup_rect, Direction_BottomToTop);
+        push_lane_part_to_current_lane(flowifier, passleft_rect, Direction_RightToLeft);
+        push_lane_part_to_current_lane(flowifier, passdown_rect, Direction_TopToBottom);
+        
         push_interaction_rectangle(flowifier, foreach_passright_element);
         push_interaction_rectangle(flowifier, foreach_passup_element);
         push_interaction_rectangle(flowifier, foreach_passleft_element);
