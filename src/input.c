@@ -230,6 +230,25 @@ extern "C" {
         global_input.screen.device_pixel_ratio = device_pixel_ratio;
         global_input.screen.using_physical_pixels = using_physical_pixels;
     }
+    
+    b32 rect_is_inside_screen(Rect2d rect)
+    {
+        i32 screen_width = global_input.screen.width;
+        i32 screen_height = global_input.screen.height;
+        Pos2d position = rect.position;
+        Size2d size = rect.size;
+        if (position.x + size.width < 0 ||
+            position.x > screen_width ||
+            position.y + size.height < 0 ||
+            position.y > screen_height)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
 
 }
 

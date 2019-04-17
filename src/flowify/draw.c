@@ -117,12 +117,10 @@ void draw_joining_element(Flowifier * flowifier, FlowElement * left_element, Flo
     draw_lane_segments_for_4_rectangles(bottom_rect, false, left_rect, right_rect, middle_rect, 
                                         flowifier->bending_radius, flowifier->line_width, 
                                         flowifier->line_color, fill_color, fill_color);
-/*           
-FIXME:                             
-    draw_lane_segments_for_3_rectangles(no_rect, middle_rect, bottom_rect, 
-                                        flowifier->bending_radius, flowifier->line_width, 
-                                        flowifier->line_color, fill_color, fill_color);
-*/
+                                        
+    // draw_lane_segments_for_3_rectangles(no_rect, middle_rect, bottom_rect, 
+    //                                     flowifier->bending_radius, flowifier->line_width, 
+    //                                     flowifier->line_color, fill_color, fill_color);
                                        
     push_interaction_rectangle(flowifier, joining_element);
     
@@ -159,12 +157,11 @@ void draw_splitting_element(Flowifier * flowifier, FlowElement * left_element, F
     draw_lane_segments_for_4_rectangles(top_rect, true, left_rect, right_rect, middle_rect, 
                                         flowifier->bending_radius, flowifier->line_width, 
                                         flowifier->line_color, fill_color, fill_color);
-/*                      
-FIXME:
-    draw_lane_segments_for_3_rectangles(top_rect, middle_rect, no_rect, 
-                                        flowifier->bending_radius, flowifier->line_width, 
-                                        flowifier->line_color, fill_color, fill_color);
-*/ 
+                                        
+    // draw_lane_segments_for_3_rectangles(top_rect, middle_rect, no_rect, 
+    //                                     flowifier->bending_radius, flowifier->line_width, 
+    //                                     flowifier->line_color, fill_color, fill_color);
+    
     push_interaction_rectangle(flowifier, splitting_element);
 }
 
@@ -364,211 +361,6 @@ void push_lane_part_to_current_lane(Flowifier * flowifier, Rect2d rect)
     current_lane->last_part = draw_lane_part;
 }
 
-void draw_lines_between_top_to_bottom_rects(Rect2d top_rect, Rect2d bottom_rect, Color4 line_color, i32 line_width)
-{
-    Pos2d left_start_pos = { top_rect.position.x, top_rect.position.y + top_rect.size.height};
-    Pos2d left_end_pos = { bottom_rect.position.x, bottom_rect.position.y };
-    
-    Pos2d right_start_pos = { top_rect.position.x + top_rect.size.width, top_rect.position.y + top_rect.size.height};
-    Pos2d right_end_pos = { bottom_rect.position.x + bottom_rect.size.width, bottom_rect.position.y };
-    
-    draw_line(left_start_pos, left_end_pos, line_color, line_width);
-    draw_line(right_start_pos, right_end_pos, line_color, line_width);
-}
-
-b32 rect_is_inside_screen(Rect2d rect)
-{
-    // TODO: add screen to flowifier (don't use global)
-    i32 screen_width = global_input.screen.width;
-    i32 screen_height = global_input.screen.height;
-    Pos2d position = rect.position;
-    Size2d size = rect.size;
-    if (position.x + size.width < 0 ||
-        position.x > screen_width ||
-        position.y + size.height < 0 ||
-        position.y > screen_height)
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
-}
-
-void draw_an_entry(DrawEntry * draw_entry)
-{
-    // FIXME: it's probably a better idea to check whether an entry is on the screen when trying to push it
-    
-    if (draw_entry->type == Draw_RoundedRect)
-    {
-        DrawRoundedRect * rounded_rect = (DrawRoundedRect *)draw_entry->item_to_draw;
-        if (rect_is_inside_screen(rounded_rect->rect))
-        {
-            draw_rounded_rectangle(rounded_rect->rect, 
-                                   rounded_rect->radius, 
-                                   rounded_rect->line_color, 
-                                   rounded_rect->fill_color, 
-                                   rounded_rect->line_width);
-        }
-    }
-    else if (draw_entry->type == Draw_Rect)
-    {
-        DrawRect * rect = (DrawRect *)draw_entry->item_to_draw;
-        if (rect_is_inside_screen(rect->rect))
-        {
-            draw_rectangle(rect->rect, 
-                           rect->line_color, 
-                           rect->fill_color, 
-                           rect->line_width);
-        }
-    }
-    else if (draw_entry->type == Draw_Text)
-    {
-        DrawText * text = (DrawText *)draw_entry->item_to_draw;
-        // FIXME: we need the size of the text to draw to determine whether the text is on the screen
-        Rect2d text_rect = {};
-        text_rect.position = text->position;
-        text_rect.size.height = 50; // FIXME: hack!
-        text_rect.size.width = text->text->length * 10; // FIXME: hack!
-        if (rect_is_inside_screen(text_rect))
-        {
-            draw_text(text->position, text->text, text->font, text->color);
-        }
-    }
-    else if (draw_entry->type == Draw_Lane)
-    {
-        DrawLane * lane = (DrawLane *)draw_entry->item_to_draw;
-        i32 bending_radius = lane->bending_radius;
-        Color4 line_color = lane->line_color;
-        Color4 fill_color = lane->fill_color;
-        i32 line_width = lane->line_width;
-    
-        // FIXME: now drawing straight lines between lane-parts
-        // FIXME: this assumes all rects are in order of top-to-bottom (which is not always true!)
-            
-        // First we draw connections between lanes
-        
-        DrawLanePart * first_lane_part = lane->first_part;
-        if (first_lane_part)
-        {
-            // TODO: we can probably make this nicer: less boilerplate
-            
-            if (lane->splitting_from_lane && lane->splitting_from_lane->last_part)
-            {
-                Rect2d bottom_rect = first_lane_part->rect;
-                
-                Rect2d top_rect = lane->splitting_from_lane->last_part->rect;
-                Pos2d splitting_point = lane->splitting_point;
-                
-                // TODO: this can be done more precisely
-                if (rect_is_inside_screen(top_rect) || rect_is_inside_screen(bottom_rect))
-                {
-                    Pos2d left_end_pos = { bottom_rect.position.x, bottom_rect.position.y };
-                    Pos2d right_end_pos = { bottom_rect.position.x + bottom_rect.size.width, bottom_rect.position.y };
-                    
-                    Pos2d left_start_pos = { top_rect.position.x, top_rect.position.y + top_rect.size.height};
-                    Pos2d right_start_pos = { top_rect.position.x + top_rect.size.width, top_rect.position.y + top_rect.size.height};
-                    
-                    if (lane->is_right_side)
-                    {
-                        left_start_pos = splitting_point;
-                    }
-                    else
-                    {
-                        right_start_pos = splitting_point;
-                    }
-                    
-                    draw_line(left_start_pos, left_end_pos, line_color, line_width);
-                    draw_line(right_start_pos, right_end_pos, line_color, line_width);
-                }
-            }
-            
-            if (lane->joining_left_lane && lane->joining_left_lane->last_part)
-            {
-                Rect2d top_rect = lane->joining_left_lane->last_part->rect;
-                
-                Pos2d joining_point = lane->joining_point;
-                Rect2d bottom_rect = first_lane_part->rect;
-                
-                // TODO: this can be done more precisely
-                if (rect_is_inside_screen(top_rect) || rect_is_inside_screen(bottom_rect))
-                {
-                    Pos2d left_start_pos = { top_rect.position.x, top_rect.position.y + top_rect.size.height};
-                    Pos2d right_start_pos = { top_rect.position.x + top_rect.size.width, top_rect.position.y + top_rect.size.height};
-                    
-                    Pos2d left_end_pos = { bottom_rect.position.x, bottom_rect.position.y };
-                    Pos2d right_end_pos = joining_point;
-                    
-                    draw_line(left_start_pos, left_end_pos, line_color, line_width);
-                    draw_line(right_start_pos, right_end_pos, line_color, line_width);
-                }
-            }
-            
-            if (lane->joining_right_lane && lane->joining_right_lane->last_part)
-            {
-                Rect2d top_rect = lane->joining_right_lane->last_part->rect;
-                
-                Pos2d joining_point = lane->joining_point;
-                Rect2d bottom_rect = first_lane_part->rect;
-                
-                // TODO: this can be done more precisely
-                if (rect_is_inside_screen(top_rect) || rect_is_inside_screen(bottom_rect))
-                {
-                    Pos2d left_start_pos = { top_rect.position.x, top_rect.position.y + top_rect.size.height};
-                    Pos2d right_start_pos = { top_rect.position.x + top_rect.size.width, top_rect.position.y + top_rect.size.height};
-                    
-                    Pos2d left_end_pos = joining_point;
-                    Pos2d right_end_pos = { bottom_rect.position.x + bottom_rect.size.width, bottom_rect.position.y };
-                    
-                    draw_line(left_start_pos, left_end_pos, line_color, line_width);
-                    draw_line(right_start_pos, right_end_pos, line_color, line_width);
-                }
-            }
-        }
-        
-        // Then we draw the lanes themselves (by connecting all parts of each lane) 
-        
-        // TODO: it's probably more efficient to calculate this "inside screen" when adding parts to the lane_parts
-        b32 some_lane_parts_are_on_screen = false;
-        DrawLanePart * lane_part = first_lane_part;
-        while(lane_part)
-        {
-            if (rect_is_inside_screen(lane_part->rect)) {
-                some_lane_parts_are_on_screen = true;
-                break;
-            }
-            
-            lane_part = lane_part->next_part;
-        }
-        
-        if (some_lane_parts_are_on_screen)
-        {
-            DrawLanePart * previous_part = 0;
-            lane_part = first_lane_part;
-            while(lane_part)
-            {
-                Rect2d rect = lane_part->rect;
-                
-                // FIXME: dont use draw_lane_segments_for_3_rectangles here!
-                Rect2d no_rect = {-1,-1,-1,-1};
-                draw_lane_segments_for_3_rectangles(no_rect, rect, no_rect, 
-                                                    bending_radius, line_width, 
-                                                    line_color, fill_color, fill_color);
-
-                if (previous_part)
-                {
-                    draw_lines_between_top_to_bottom_rects(previous_part->rect, lane_part->rect, line_color, line_width);
-                }
-                previous_part = lane_part;
-                
-                lane_part = lane_part->next_part;
-            }
-        }
-        
-    }
-}
-
 void push_interaction_rectangle(Flowifier * flowifier, FlowElement * flow_element)
 {
     if (flowifier->interaction.hovered_element_index == flow_element->index)
@@ -615,12 +407,12 @@ void push_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, F
     push_interaction_rectangle(flowifier, flow_element);
 }
 
+void draw_an_entry(DrawEntry * draw_entry);
+
 void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
 {
     assert(flow_element);
     
-    // FIXME: this doesn't work well for lanes: connections between them are not drawn if the next-lane is outside the screen
-    //        we need a bounding box (which includes these connections between lanes) to make sure we can still do this check
     if (flow_element->type == FlowElement_Root)
     {
         assert(flowifier->draw_arena.memory);
@@ -807,7 +599,6 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     {
         FlowElement * if_element = flow_element;
         FlowElement * if_cond_element = flow_element->first_child;
-//        FlowElement * if_split_element = if_cond_element->next_sibling;
         FlowElement * if_then_element = if_cond_element->next_sibling;
         FlowElement * if_else_element = if_then_element->next_sibling;
         FlowElement * if_join_element = if_else_element->next_sibling;
@@ -838,14 +629,12 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         else_lane->splitting_point = then_lane->splitting_point;
         
         flowifier->current_lane = then_lane;
-        // draw_splitting_element(flowifier, if_else_element->first_in_flow, if_then_element->first_in_flow, if_cond_element, if_cond_element);
         draw_elements(flowifier, if_then_element);
         then_lane_end = flowifier->current_lane; 
         
         flowifier->current_lane = else_lane;
         draw_elements(flowifier, if_else_element);
         else_lane_end = flowifier->current_lane; 
-        // draw_joining_element(flowifier, if_else_element->last_in_flow, if_then_element->last_in_flow, if_join_element, if_element->next_in_flow);
         
         end_if_lane->joining_right_lane = then_lane_end; // the right lane (coming *from* the then-statement) is joined to the endif-lane
         end_if_lane->joining_left_lane = else_lane_end; // the left lane (coming *from* the else-statement) is joined to the endif-lane
@@ -859,9 +648,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     {
         FlowElement * for_element = flow_element;
         FlowElement * for_init_element = flow_element->first_child;
-//        FlowElement * for_join_element = for_init_element->next_sibling;
         FlowElement * for_cond_element = for_init_element->next_sibling;
-//        FlowElement * for_split_element = for_cond_element->next_sibling;
         FlowElement * for_body_element = for_cond_element->next_sibling;
         FlowElement * for_update_element = for_body_element->next_sibling;
         FlowElement * for_passright_element = for_update_element->next_sibling;
@@ -928,9 +715,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     {
         FlowElement * foreach_element = flow_element;
         FlowElement * foreach_init_element = flow_element->first_child;
-//        FlowElement * foreach_join_element = foreach_init_element->next_sibling;
         FlowElement * foreach_cond_element = foreach_init_element->next_sibling;
-//        FlowElement * foreach_split_element = foreach_cond_element->next_sibling;
         FlowElement * foreach_body_element = foreach_cond_element->next_sibling;
         FlowElement * foreach_passright_element = foreach_body_element->next_sibling;
         FlowElement * foreach_passup_element = foreach_passright_element->next_sibling;
@@ -1130,3 +915,191 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     
     
 }
+
+// Actual drawing
+
+void draw_lines_between_top_to_bottom_rects(Rect2d top_rect, Rect2d bottom_rect, Color4 line_color, i32 line_width)
+{
+    Pos2d left_start_pos = { top_rect.position.x, top_rect.position.y + top_rect.size.height};
+    Pos2d left_end_pos = { bottom_rect.position.x, bottom_rect.position.y };
+    
+    Pos2d right_start_pos = { top_rect.position.x + top_rect.size.width, top_rect.position.y + top_rect.size.height};
+    Pos2d right_end_pos = { bottom_rect.position.x + bottom_rect.size.width, bottom_rect.position.y };
+    
+    draw_line(left_start_pos, left_end_pos, line_color, line_width);
+    draw_line(right_start_pos, right_end_pos, line_color, line_width);
+}
+
+void draw_an_entry(DrawEntry * draw_entry)
+{
+    // FIXME: it's probably a better idea to check whether an entry is on the screen when trying to push it
+    
+    if (draw_entry->type == Draw_RoundedRect)
+    {
+        DrawRoundedRect * rounded_rect = (DrawRoundedRect *)draw_entry->item_to_draw;
+        if (rect_is_inside_screen(rounded_rect->rect))
+        {
+            draw_rounded_rectangle(rounded_rect->rect, 
+                                   rounded_rect->radius, 
+                                   rounded_rect->line_color, 
+                                   rounded_rect->fill_color, 
+                                   rounded_rect->line_width);
+        }
+    }
+    else if (draw_entry->type == Draw_Rect)
+    {
+        DrawRect * rect = (DrawRect *)draw_entry->item_to_draw;
+        if (rect_is_inside_screen(rect->rect))
+        {
+            draw_rectangle(rect->rect, 
+                           rect->line_color, 
+                           rect->fill_color, 
+                           rect->line_width);
+        }
+    }
+    else if (draw_entry->type == Draw_Text)
+    {
+        DrawText * text = (DrawText *)draw_entry->item_to_draw;
+        // FIXME: we need the size of the text to draw to determine whether the text is on the screen
+        Rect2d text_rect = {};
+        text_rect.position = text->position;
+        text_rect.size.height = 50; // FIXME: hack!
+        text_rect.size.width = text->text->length * 10; // FIXME: hack!
+        if (rect_is_inside_screen(text_rect))
+        {
+            draw_text(text->position, text->text, text->font, text->color);
+        }
+    }
+    else if (draw_entry->type == Draw_Lane)
+    {
+        DrawLane * lane = (DrawLane *)draw_entry->item_to_draw;
+        i32 bending_radius = lane->bending_radius;
+        Color4 line_color = lane->line_color;
+        Color4 fill_color = lane->fill_color;
+        i32 line_width = lane->line_width;
+    
+        // FIXME: now drawing straight lines between lane-parts
+        // FIXME: this assumes all rects are in order of top-to-bottom (which is not always true!)
+            
+        // First we draw connections between lanes
+        
+        DrawLanePart * first_lane_part = lane->first_part;
+        if (first_lane_part)
+        {
+            // TODO: we can probably make this nicer: less boilerplate
+            
+            if (lane->splitting_from_lane && lane->splitting_from_lane->last_part)
+            {
+                Rect2d bottom_rect = first_lane_part->rect;
+                
+                Rect2d top_rect = lane->splitting_from_lane->last_part->rect;
+                Pos2d splitting_point = lane->splitting_point;
+                
+                // TODO: this can be done more precisely
+                if (rect_is_inside_screen(top_rect) || rect_is_inside_screen(bottom_rect))
+                {
+                    Pos2d left_end_pos = { bottom_rect.position.x, bottom_rect.position.y };
+                    Pos2d right_end_pos = { bottom_rect.position.x + bottom_rect.size.width, bottom_rect.position.y };
+                    
+                    Pos2d left_start_pos = { top_rect.position.x, top_rect.position.y + top_rect.size.height};
+                    Pos2d right_start_pos = { top_rect.position.x + top_rect.size.width, top_rect.position.y + top_rect.size.height};
+                    
+                    if (lane->is_right_side)
+                    {
+                        left_start_pos = splitting_point;
+                    }
+                    else
+                    {
+                        right_start_pos = splitting_point;
+                    }
+                    
+                    draw_line(left_start_pos, left_end_pos, line_color, line_width);
+                    draw_line(right_start_pos, right_end_pos, line_color, line_width);
+                }
+            }
+            
+            if (lane->joining_left_lane && lane->joining_left_lane->last_part)
+            {
+                Rect2d top_rect = lane->joining_left_lane->last_part->rect;
+                
+                Pos2d joining_point = lane->joining_point;
+                Rect2d bottom_rect = first_lane_part->rect;
+                
+                // TODO: this can be done more precisely
+                if (rect_is_inside_screen(top_rect) || rect_is_inside_screen(bottom_rect))
+                {
+                    Pos2d left_start_pos = { top_rect.position.x, top_rect.position.y + top_rect.size.height};
+                    Pos2d right_start_pos = { top_rect.position.x + top_rect.size.width, top_rect.position.y + top_rect.size.height};
+                    
+                    Pos2d left_end_pos = { bottom_rect.position.x, bottom_rect.position.y };
+                    Pos2d right_end_pos = joining_point;
+                    
+                    draw_line(left_start_pos, left_end_pos, line_color, line_width);
+                    draw_line(right_start_pos, right_end_pos, line_color, line_width);
+                }
+            }
+            
+            if (lane->joining_right_lane && lane->joining_right_lane->last_part)
+            {
+                Rect2d top_rect = lane->joining_right_lane->last_part->rect;
+                
+                Pos2d joining_point = lane->joining_point;
+                Rect2d bottom_rect = first_lane_part->rect;
+                
+                // TODO: this can be done more precisely
+                if (rect_is_inside_screen(top_rect) || rect_is_inside_screen(bottom_rect))
+                {
+                    Pos2d left_start_pos = { top_rect.position.x, top_rect.position.y + top_rect.size.height};
+                    Pos2d right_start_pos = { top_rect.position.x + top_rect.size.width, top_rect.position.y + top_rect.size.height};
+                    
+                    Pos2d left_end_pos = joining_point;
+                    Pos2d right_end_pos = { bottom_rect.position.x + bottom_rect.size.width, bottom_rect.position.y };
+                    
+                    draw_line(left_start_pos, left_end_pos, line_color, line_width);
+                    draw_line(right_start_pos, right_end_pos, line_color, line_width);
+                }
+            }
+        }
+        
+        // Then we draw the lanes themselves (by connecting all parts of each lane) 
+        
+        // TODO: it's probably more efficient to calculate this "inside screen" when adding parts to the lane_parts
+        b32 some_lane_parts_are_on_screen = false;
+        DrawLanePart * lane_part = first_lane_part;
+        while(lane_part)
+        {
+            if (rect_is_inside_screen(lane_part->rect)) {
+                some_lane_parts_are_on_screen = true;
+                break;
+            }
+            
+            lane_part = lane_part->next_part;
+        }
+        
+        if (some_lane_parts_are_on_screen)
+        {
+            DrawLanePart * previous_part = 0;
+            lane_part = first_lane_part;
+            while(lane_part)
+            {
+                Rect2d rect = lane_part->rect;
+                
+                // FIXME: dont use draw_lane_segments_for_3_rectangles here!
+                Rect2d no_rect = {-1,-1,-1,-1};
+                draw_lane_segments_for_3_rectangles(no_rect, rect, no_rect, 
+                                                    bending_radius, line_width, 
+                                                    line_color, fill_color, fill_color);
+
+                if (previous_part)
+                {
+                    draw_lines_between_top_to_bottom_rects(previous_part->rect, lane_part->rect, line_color, line_width);
+                }
+                previous_part = lane_part;
+                
+                lane_part = lane_part->next_part;
+            }
+        }
+        
+    }
+}
+
