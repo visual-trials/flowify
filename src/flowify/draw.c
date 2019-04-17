@@ -993,17 +993,70 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
 
 void draw_lines_between_lane_parts(DrawLanePart * from_lane_part, DrawLanePart * to_lane_part, Color4 line_color, i32 line_width)
 {
-    Rect2d top_rect = from_lane_part->rect;
-    Rect2d bottom_rect = to_lane_part->rect;
+    Rect2d from_rect = from_lane_part->rect;
+    Rect2d to_rect = to_lane_part->rect;
     
-    Pos2d left_start_pos = { top_rect.position.x, top_rect.position.y + top_rect.size.height};
-    Pos2d left_end_pos = { bottom_rect.position.x, bottom_rect.position.y };
+    Pos2d from_left_bottom = { from_rect.position.x, from_rect.position.y + from_rect.size.height};
+    Pos2d from_right_bottom = { from_rect.position.x + from_rect.size.width, from_rect.position.y + from_rect.size.height};
+    Pos2d from_right_top = { from_rect.position.x + from_rect.size.width, from_rect.position.y};
+    Pos2d from_left_top = { from_rect.position.x, from_rect.position.y};
     
-    Pos2d right_start_pos = { top_rect.position.x + top_rect.size.width, top_rect.position.y + top_rect.size.height};
-    Pos2d right_end_pos = { bottom_rect.position.x + bottom_rect.size.width, bottom_rect.position.y };
+    Pos2d to_left_bottom = { to_rect.position.x, to_rect.position.y + to_rect.size.height};
+    Pos2d to_right_bottom = { to_rect.position.x + to_rect.size.width, to_rect.position.y + to_rect.size.height};
+    Pos2d to_right_top = { to_rect.position.x + to_rect.size.width, to_rect.position.y};
+    Pos2d to_left_top = { to_rect.position.x, to_rect.position.y};
     
-    draw_line(left_start_pos, left_end_pos, line_color, line_width);
-    draw_line(right_start_pos, right_end_pos, line_color, line_width);
+
+    Pos2d first_from_pos = {};
+    Pos2d second_from_pos = {};
+    
+    Pos2d first_to_pos = {};
+    Pos2d second_to_pos = {};
+    
+    if (from_lane_part->direction == Direction_TopToBottom)
+    {
+        first_from_pos = from_left_bottom;
+        second_from_pos = from_right_bottom;
+    }
+    else if (from_lane_part->direction == Direction_LeftToRight)
+    {
+        first_from_pos = from_right_bottom;
+        second_from_pos = from_right_top;
+    }
+    else if (from_lane_part->direction == Direction_BottomToTop)
+    {
+        first_from_pos = from_right_top;
+        second_from_pos = from_left_top;
+    }
+    else if (from_lane_part->direction == Direction_RightToLeft)
+    {
+        first_from_pos = from_left_top;
+        second_from_pos = from_left_bottom;
+    }
+    
+    if (to_lane_part->direction == Direction_TopToBottom)
+    {
+        first_to_pos = to_left_top;
+        second_to_pos = to_right_top;
+    }
+    else if (to_lane_part->direction == Direction_LeftToRight)
+    {
+        first_to_pos = to_left_bottom;
+        second_to_pos = to_left_top;
+    }
+    else if (to_lane_part->direction == Direction_BottomToTop)
+    {
+        first_to_pos = to_right_bottom;
+        second_to_pos = to_left_bottom;
+    }
+    else if (to_lane_part->direction == Direction_RightToLeft)
+    {
+        first_to_pos = to_right_top;
+        second_to_pos = to_right_bottom;
+    }
+    
+    draw_line(first_from_pos, first_to_pos, line_color, line_width);
+    draw_line(second_from_pos, second_to_pos, line_color, line_width);
 }
 
 void draw_an_entry(DrawEntry * draw_entry)
