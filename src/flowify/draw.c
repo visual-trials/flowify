@@ -56,6 +56,7 @@ void draw_lane_segments_for_3_rectangles(Rect2d top_rect, Rect2d middle_rect, Re
     
 }
 
+/*
 // FIXME: is this deprecated?
 void draw_lane_segments_for_4_rectangles(Rect2d top_or_bottom_rect, b32 is_top_rect, Rect2d left_rect, Rect2d right_rect, Rect2d middle_rect, i32 bending_radius, i32 line_width, Color4 line_color, Color4 rect_color, Color4 bend_color)
 {
@@ -85,7 +86,9 @@ void draw_lane_segments_for_4_rectangles(Rect2d top_or_bottom_rect, b32 is_top_r
                       lane_segment.left_middle_y, lane_segment.right_middle_y, lane_segment.bending_radius, 
                       line_color, bend_color, line_width);
 }
+*/
 
+/*
 // FIXME: we only need the rects here right?
 void draw_joining_element(Flowifier * flowifier, FlowElement * left_element, FlowElement * right_element, 
                           FlowElement * joining_element, FlowElement * element_next_in_flow)
@@ -125,7 +128,9 @@ void draw_joining_element(Flowifier * flowifier, FlowElement * left_element, Flo
     push_interaction_rectangle(flowifier, joining_element);
     
 }
+*/
 
+/*
 // FIXME: we only need the rects here right?
 void draw_splitting_element(Flowifier * flowifier, FlowElement * left_element, FlowElement * right_element, 
                             FlowElement * splitting_element, FlowElement * element_previous_in_flow)
@@ -164,6 +169,7 @@ void draw_splitting_element(Flowifier * flowifier, FlowElement * left_element, F
     
     push_interaction_rectangle(flowifier, splitting_element);
 }
+*/
 
 void draw_straight_element(Flowifier * flowifier, FlowElement * flow_element, FlowElement * element_previous_in_flow, 
                            FlowElement * element_next_in_flow, b32 draw_source_text = true)
@@ -178,12 +184,13 @@ void draw_straight_element(Flowifier * flowifier, FlowElement * flow_element, Fl
     Rect2d no_rect = {-1,-1,-1,-1};
     
     // Positions and sizes
-    Rect2d top_rect = no_rect;
+    // Rect2d top_rect = no_rect;
     Rect2d middle_rect = no_rect;
-    Rect2d bottom_rect = no_rect;
+    // Rect2d bottom_rect = no_rect;
     
     middle_rect = flow_element->rect_abs;
     
+    /*
     if (element_previous_in_flow)
     {
         top_rect = element_previous_in_flow->rect_abs;
@@ -192,15 +199,18 @@ void draw_straight_element(Flowifier * flowifier, FlowElement * flow_element, Fl
     {
         bottom_rect = element_next_in_flow->rect_abs;
     }
+    */
     
     // FIXME: placeholder: we now only add the rect itself
     push_lane_part_to_current_lane(flowifier, middle_rect);
 
+    /*
     // FIXME: this should be removed
     draw_lane_segments_for_3_rectangles(top_rect, middle_rect, bottom_rect, 
                                         flowifier->bending_radius, flowifier->line_width, 
                                         flowifier->line_color, fill_color, fill_color);
-    
+                                        */
+    /*
     if (draw_source_text && flow_element->source_text.length)
     {
         Size2d source_text_size = get_text_size(&flow_element->source_text, flowifier->font);
@@ -213,6 +223,7 @@ void draw_straight_element(Flowifier * flowifier, FlowElement * flow_element, Fl
         
         push_text(flowifier, text_position, &flow_element->source_text, flowifier->font, flowifier->text_color);
     }
+    */
     
     push_interaction_rectangle(flowifier, flow_element);
 }
