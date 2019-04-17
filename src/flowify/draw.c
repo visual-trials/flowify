@@ -769,7 +769,9 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
 
         DrawLane * if_lane = flowifier->current_lane;
         DrawLane * then_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
+        DrawLane * then_lane_end = 0;
         DrawLane * else_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
+        DrawLane * else_lane_end = 0;
         DrawLane * end_if_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
         
         then_lane->splitting_from_lane = if_lane;
@@ -785,19 +787,22 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         else_lane->splitting_point = then_lane->splitting_point;
         
-        end_if_lane->joining_left_lane = else_lane;
-        end_if_lane->joining_right_lane = then_lane;
+        flowifier->current_lane = then_lane;
+        // draw_splitting_element(flowifier, if_else_element->first_in_flow, if_then_element->first_in_flow, if_cond_element, if_cond_element);
+        draw_elements(flowifier, if_then_element);
+        then_lane_end = flowifier->current_lane; 
+        
+        flowifier->current_lane = else_lane;
+        draw_elements(flowifier, if_else_element);
+        else_lane_end = flowifier->current_lane; 
+        // draw_joining_element(flowifier, if_else_element->last_in_flow, if_then_element->last_in_flow, if_join_element, if_element->next_in_flow);
+        
+        end_if_lane->joining_right_lane = then_lane_end; // the right lane (coming *from* the then-statement) is joined to the endif-lane
+        end_if_lane->joining_left_lane = else_lane_end; // the left lane (coming *from* the else-statement) is joined to the endif-lane
         end_if_lane->joining_point.x = then_lane->splitting_point.x; // TODO: is it always correct that the splitting and joining points have the same x (for an if-statement)?
         // TODO: we should check if the else-statement ends higher/lower aswell (not just the then-statement) using a max()-function
         end_if_lane->joining_point.y = if_then_element->rect_abs.position.y + if_then_element->rect_abs.size.height;
         
-        flowifier->current_lane = then_lane;
-        // draw_splitting_element(flowifier, if_else_element->first_in_flow, if_then_element->first_in_flow, if_cond_element, if_cond_element);
-        draw_elements(flowifier, if_then_element);
-        
-        flowifier->current_lane = else_lane;
-        draw_elements(flowifier, if_else_element);
-        // draw_joining_element(flowifier, if_else_element->last_in_flow, if_then_element->last_in_flow, if_join_element, if_element->next_in_flow);
         flowifier->current_lane = end_if_lane;
     }
     else if (flow_element->type == FlowElement_For)
