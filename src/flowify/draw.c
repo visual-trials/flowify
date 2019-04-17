@@ -1157,6 +1157,8 @@ void draw_an_entry(DrawEntry * draw_entry)
             {
                 Rect2d rect = lane_part->rect;
                 
+                // TODO: use equivalents of combinations of: draw_cornered_lane_segment and draw_lane_segment
+                
                 // FIXME: most of this is just a placeholder. We should do this differently
                 HorLine2 horizontal_lines = {};
                 horizontal_lines.top_line = get_top_line_from_rect(rect);
