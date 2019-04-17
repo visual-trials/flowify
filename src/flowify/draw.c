@@ -16,11 +16,7 @@
 
  */
 
-void push_text(Flowifier * flowifier, Pos2d position, String * text, Font font, Color4 color);
-void push_interaction_rectangle(Flowifier * flowifier, FlowElement * flow_element);
-void push_lane_part_to_current_lane(Flowifier * flowifier, Rect2d rect);
-
-
+/*
 void draw_lane_segments_for_3_rectangles(Rect2d top_rect, Rect2d middle_rect, Rect2d bottom_rect, i32 bending_radius, i32 line_width, Color4 line_color, Color4 rect_color, Color4 bend_color)
 {
     Color4 no_color = {};
@@ -55,9 +51,9 @@ void draw_lane_segments_for_3_rectangles(Rect2d top_rect, Rect2d middle_rect, Re
     }
     
 }
+*/
 
 /*
-// FIXME: is this deprecated?
 void draw_lane_segments_for_4_rectangles(Rect2d top_or_bottom_rect, b32 is_top_rect, Rect2d left_rect, Rect2d right_rect, Rect2d middle_rect, i32 bending_radius, i32 line_width, Color4 line_color, Color4 rect_color, Color4 bend_color)
 {
     Color4 no_color = {};
@@ -89,7 +85,6 @@ void draw_lane_segments_for_4_rectangles(Rect2d top_or_bottom_rect, b32 is_top_r
 */
 
 /*
-// FIXME: we only need the rects here right?
 void draw_joining_element(Flowifier * flowifier, FlowElement * left_element, FlowElement * right_element, 
                           FlowElement * joining_element, FlowElement * element_next_in_flow)
 {
@@ -131,7 +126,6 @@ void draw_joining_element(Flowifier * flowifier, FlowElement * left_element, Flo
 */
 
 /*
-// FIXME: we only need the rects here right?
 void draw_splitting_element(Flowifier * flowifier, FlowElement * left_element, FlowElement * right_element, 
                             FlowElement * splitting_element, FlowElement * element_previous_in_flow)
 {
@@ -171,6 +165,7 @@ void draw_splitting_element(Flowifier * flowifier, FlowElement * left_element, F
 }
 */
 
+/*
 void draw_straight_element(Flowifier * flowifier, FlowElement * flow_element, FlowElement * element_previous_in_flow, 
                            FlowElement * element_next_in_flow, b32 draw_source_text = true)
 {
@@ -184,13 +179,12 @@ void draw_straight_element(Flowifier * flowifier, FlowElement * flow_element, Fl
     Rect2d no_rect = {-1,-1,-1,-1};
     
     // Positions and sizes
-    // Rect2d top_rect = no_rect;
+    Rect2d top_rect = no_rect;
     Rect2d middle_rect = no_rect;
-    // Rect2d bottom_rect = no_rect;
+    Rect2d bottom_rect = no_rect;
     
     middle_rect = flow_element->rect_abs;
     
-    /*
     if (element_previous_in_flow)
     {
         top_rect = element_previous_in_flow->rect_abs;
@@ -199,18 +193,11 @@ void draw_straight_element(Flowifier * flowifier, FlowElement * flow_element, Fl
     {
         bottom_rect = element_next_in_flow->rect_abs;
     }
-    */
     
-    // FIXME: placeholder: we now only add the rect itself
-    push_lane_part_to_current_lane(flowifier, middle_rect);
-
-    /*
-    // FIXME: this should be removed
     draw_lane_segments_for_3_rectangles(top_rect, middle_rect, bottom_rect, 
                                         flowifier->bending_radius, flowifier->line_width, 
                                         flowifier->line_color, fill_color, fill_color);
-                                        */
-    /*
+
     if (draw_source_text && flow_element->source_text.length)
     {
         Size2d source_text_size = get_text_size(&flow_element->source_text, flowifier->font);
@@ -223,10 +210,10 @@ void draw_straight_element(Flowifier * flowifier, FlowElement * flow_element, Fl
         
         push_text(flowifier, text_position, &flow_element->source_text, flowifier->font, flowifier->text_color);
     }
-    */
     
     push_interaction_rectangle(flowifier, flow_element);
 }
+*/
 
 FlowStyle get_style_by_oddness(FlowStyleEvenOdd style_even_odd, b32 is_odd)
 {
@@ -349,7 +336,7 @@ DrawLane * push_lane(Flowifier * flowifier, i32 bending_radius, Color4 line_colo
 }
 
 // TODO: we might want to add fill_color as an argument here
-void push_lane_part_to_current_lane(Flowifier * flowifier, Rect2d rect)
+void push_lane_part_to_current_lane(Flowifier * flowifier, Rect2d rect, LanePartDirection direction)
 {
     assert(flowifier->current_lane);
     
@@ -358,6 +345,7 @@ void push_lane_part_to_current_lane(Flowifier * flowifier, Rect2d rect)
     DrawLanePart * draw_lane_part = (DrawLanePart *)push_struct(&flowifier->draw_arena, sizeof(DrawLanePart));
     draw_lane_part->rect = rect;
     draw_lane_part->next_part = 0; // TODO: we should let push_struct reset the memory of the struct!
+    draw_lane_part->direction = direction;
     
     if (!current_lane->first_part)
     {
@@ -416,8 +404,16 @@ void push_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, F
     push_interaction_rectangle(flowifier, flow_element);
 }
 
+// TODO: maybe use a different name for this function?
+void push_straight_element(Flowifier * flowifier, FlowElement * flow_element)
+{
+    push_lane_part_to_current_lane(flowifier, flow_element->rect_abs, Direction_TopToBottom);
+    push_interaction_rectangle(flowifier, flow_element);
+}
+
 void draw_an_entry(DrawEntry * draw_entry);
 
+// TODO: rename this to push_elements_to_be_draw (or something) and add root-funtion: draw_elements
 void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
 {
     assert(flow_element);
@@ -440,7 +436,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     if (flow_element->type == FlowElement_PassThrough || 
         flow_element->type == FlowElement_Hidden)
     {
-        draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, false);
+        push_straight_element(flowifier, flow_element);
     }
     else if (flow_element->type == FlowElement_Variable ||
              flow_element->type == FlowElement_ForeachKeyVar ||
@@ -524,7 +520,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * return_keyword_element = flow_element->first_child;
         FlowElement * return_expression_element = return_keyword_element->next_sibling;
         
-        draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, false);
+        push_straight_element(flowifier, flow_element);
         
         push_rectangle_element(flowifier, return_keyword_element, expression_style, false, true);
         if (return_expression_element)
@@ -544,7 +540,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         if (flow_element->is_statement)
         {
             // TODO: use expression_style here too
-            draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, false);
+            push_straight_element(flowifier, flow_element);
         }
         
         // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
@@ -562,7 +558,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         if (flow_element->is_statement)
         {
             // TODO: use expression_style here too
-            draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, false);
+            push_straight_element(flowifier, flow_element);
         }
         
         // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
@@ -596,7 +592,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * right_side_expression_element = assignment_operator_element->next_sibling;
         
         // TODO: use expression_style here too
-        draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, false);
+        push_straight_element(flowifier, flow_element);
         
         // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
         draw_elements(flowifier, assignee_element);
@@ -614,7 +610,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
 
         // TODO: we  draw the if-cond in a way so that the side-lines are drawn AND the if-cond-expression is drawn
         // FIXME: what should we put here as next element? Maybe a rect from the left-top of the 'else' to the right-top of the 'then'?
-        draw_straight_element(flowifier, if_cond_element, if_cond_element->previous_in_flow, 0, false);
+        push_straight_element(flowifier, if_cond_element);
         draw_elements(flowifier, if_cond_element);
 
         DrawLane * if_lane = flowifier->current_lane;
@@ -678,7 +674,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         // TODO: we  draw the if-cond in a way so that the side-lines are drawn AND the if-cond-expression is drawn
         // FIXME: this element is in between a join and split, so what to do with the previous_in_flow and next_in_flow?
         flowifier->current_lane = cond_lane;
-        draw_straight_element(flowifier, for_cond_element, 0, 0, false);
+        push_straight_element(flowifier, for_cond_element);
         draw_elements(flowifier, for_cond_element);
         cond_lane_end = flowifier->current_lane;
         
@@ -745,7 +741,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         cond_lane->joining_point.y = for_init_element->rect_abs.position.y + for_init_element->rect_abs.size.height;
         
         flowifier->current_lane = end_for_lane;
-        draw_straight_element(flowifier, for_done_element, 0, for_done_element->next_in_flow, false);
+        push_straight_element(flowifier, for_done_element);
     }
     else if (flow_element->type == FlowElement_Foreach)
     {
@@ -760,7 +756,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * foreach_done_element = foreach_passdown_element->next_sibling;
 
         // FIXME: what should be the last element?
-        draw_straight_element(flowifier, foreach_init_element, foreach_init_element->previous_in_flow, 0, false);
+        push_straight_element(flowifier, foreach_init_element);
         
         DrawLane * foreach_lane = flowifier->current_lane;
         DrawLane * cond_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
@@ -772,7 +768,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         // TODO: we  draw the if-cond in a way so that the side-lines are drawn AND the if-cond-expression is drawn
         // FIXME: this element is in between a join and split, so what to do with the previous_in_flow and next_in_flow?
         flowifier->current_lane = cond_lane;
-        draw_straight_element(flowifier, foreach_cond_element, 0, 0, false);
+        push_straight_element(flowifier, foreach_cond_element);
         draw_elements(flowifier, foreach_cond_element);
         cond_lane_end = flowifier->current_lane;
         
@@ -837,7 +833,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         cond_lane->joining_point.y = foreach_init_element->rect_abs.position.y + foreach_init_element->rect_abs.size.height;
         
         flowifier->current_lane = end_foreach_lane;
-        draw_straight_element(flowifier, foreach_done_element, 0, foreach_done_element->next_in_flow, false);
+        push_straight_element(flowifier, foreach_done_element);
     }
     else if (flow_element->type == FlowElement_FunctionCall)
     {
@@ -853,7 +849,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         if (function_call_element->is_statement)
         {
-            draw_straight_element(flowifier, function_call_element, function_call_element->previous_in_flow, function_call_element->next_in_flow, false);
+            push_straight_element(flowifier, function_call_element);
             
             // FIXME: We should add a Stmt_Expr element to all statements instead (and give it margins only for function-calls!)
             //        Other statements (previous_in_flow and next_in_flow) can then also correctly connect with that element!
@@ -1147,12 +1143,18 @@ void draw_an_entry(DrawEntry * draw_entry)
             {
                 Rect2d rect = lane_part->rect;
                 
-                // FIXME: dont use draw_lane_segments_for_3_rectangles here!
-                Rect2d no_rect = {-1,-1,-1,-1};
-                draw_lane_segments_for_3_rectangles(no_rect, rect, no_rect, 
-                                                    bending_radius, line_width, 
-                                                    line_color, fill_color, fill_color);
-
+                // FIXME: most of this is just a placeholder. We should do this differently
+                HorLine2 horizontal_lines = {};
+                horizontal_lines.top_line = get_top_line_from_rect(rect);
+                horizontal_lines.bottom_line = get_bottom_line_from_rect(rect);
+                
+                LaneSegment lane_segment = lane_segment_from_horizontal_lines(horizontal_lines, true, true, bending_radius);
+                
+                draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
+                                  lane_segment.left_bottom, lane_segment.right_bottom, 
+                                  lane_segment.left_middle_y, lane_segment.right_middle_y, lane_segment.bending_radius, 
+                                  line_color, fill_color, line_width);
+                
                 if (previous_part)
                 {
                     draw_lines_between_top_to_bottom_rects(previous_part->rect, lane_part->rect, line_color, line_width);

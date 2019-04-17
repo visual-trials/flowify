@@ -29,7 +29,6 @@ enum FlowElementType
     FlowElement_If,
     FlowElement_IfKeyword,
     FlowElement_IfCond,
-//    FlowElement_IfSplit,
     FlowElement_IfThen,
     FlowElement_IfElse,
     FlowElement_IfJoin,
@@ -37,9 +36,7 @@ enum FlowElementType
     FlowElement_For,
     FlowElement_ForKeyword,
     FlowElement_ForInit,
-//    FlowElement_ForJoin,
     FlowElement_ForCond,
-//    FlowElement_ForSplit,
     FlowElement_ForBody,
     FlowElement_ForUpdate,
     FlowElement_ForDone,
@@ -47,13 +44,11 @@ enum FlowElementType
     FlowElement_Foreach,
     FlowElement_ForeachKeyword,
     FlowElement_ForeachInit,
-//    FlowElement_ForeachJoin,
     FlowElement_ForeachCond,
     FlowElement_ForeachAsKeyword,
     FlowElement_ForeachKeyVar,
     FlowElement_ForeachArrowKeyword,
     FlowElement_ForeachValueVar,
-//    FlowElement_ForeachSplit,
     FlowElement_ForeachBody,
     FlowElement_ForeachDone,
     
@@ -95,7 +90,6 @@ const char * flow_element_type_names[] = {
     "If",
     "IfKeyword",
     "IfCond",
-//    "IfSplit",
     "IfThen",
     "IfElse",
     "IfJoin",
@@ -103,9 +97,7 @@ const char * flow_element_type_names[] = {
     "For",
     "ForKeyword",
     "ForInit",
-//    "ForJoin",
     "ForCond",
-//    "ForSplit",
     "ForBody",
     "ForUpdate",
     "ForDone",
@@ -113,13 +105,11 @@ const char * flow_element_type_names[] = {
     "Foreach",
     "ForeachKeyword",
     "ForeachInit",
-//    "ForeachJoin",
     "ForeachCond",
     "ForeachAsKeyword",
     "ForeachKeyVar",
     "ForeachArrowKeyword",
     "ForeachValueVar",
-//    "ForeachSplit",
     "ForeachBody",
     "ForeachDone",
     
@@ -228,9 +218,18 @@ struct FlowStyleEvenOdd
 
 // TODO: we might want to put the Draw-structs in a separate file
 
+enum LanePartDirection
+{
+    Direction_TopToBottom,
+    Direction_LeftToRight,
+    Direction_BottomToTop,
+    Direction_RightToLeft
+};
+
 struct DrawLanePart
 {
     Rect2d rect;
+    LanePartDirection direction;
     
     DrawLanePart * next_part;
     // TODO: maybe add fill_color (when a part is selected for example)
