@@ -644,7 +644,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_elements(flowifier, if_then_element);
         then_lane_end = flowifier->current_lane; 
 
-// FIXME: it seems that if an else has no (real) body, else_lane_end might be invalid?)
+// FIXME: it seems that if an else has no (real) body, else_lane_end might be invalid??
         flowifier->current_lane = else_lane;
         draw_elements(flowifier, if_else_element);
         else_lane_end = flowifier->current_lane; 
