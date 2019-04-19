@@ -1267,7 +1267,7 @@ void draw_an_entry(DrawEntry * draw_entry)
                 directional_rect.direction = lane_part->direction;
                 
                 assert(directional_rects_index < 100);
-                directional_rects[directional_rects_index++] = directional_rect;
+//                directional_rects[directional_rects_index++] = directional_rect;
             }
             
             lane_part = first_lane_part;
@@ -1296,7 +1296,7 @@ void draw_an_entry(DrawEntry * draw_entry)
                 directional_rect.direction = lane_part->direction;
                 
                 assert(directional_rects_index < 100);
-                directional_rects[directional_rects_index++] = directional_rect;
+//                directional_rects[directional_rects_index++] = directional_rect;
             }
             
             if (lane->is_joiner_at_beginning)
@@ -1306,6 +1306,7 @@ void draw_an_entry(DrawEntry * draw_entry)
                 
                 // We remove the top half of the first lane-part
                 directional_rects[0].position.y += directional_rects[0].size.height / 2;
+                directional_rects[0].size.height = directional_rects[0].size.height / 2;
             }
             
             if (lane->is_splitter_at_end)
