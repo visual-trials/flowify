@@ -644,7 +644,6 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_elements(flowifier, if_then_element);
         then_lane_end = flowifier->current_lane; 
 
-// FIXME: it seems that if an else has no (real) body, else_lane_end might be invalid??
         flowifier->current_lane = else_lane;
         draw_elements(flowifier, if_else_element);
         else_lane_end = flowifier->current_lane; 
@@ -656,7 +655,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         then_lane_end->is_right_side_at_join = true;
         
         else_lane_end->joining_towards_lane = end_if_lane;
-        else_lane_end->joining_point = then_lane->joining_point;
+        else_lane_end->joining_point = then_lane_end->joining_point;
         else_lane_end->is_right_side_at_join = false;
         
         end_if_lane->is_joiner_at_beginning = true;
@@ -1220,7 +1219,7 @@ void draw_an_entry(DrawEntry * draw_entry)
                 else
                 {
                     // We take the lower-left part.
-                    
+
                     // The left side of the (rect that is split off) starts (horizontally) at the start of the joining rect
                     rect_to_add_at_end.position.x = joining_rect.position.x;
                     // The width is the distance between the joining point and the left side of the joining rect
@@ -1267,7 +1266,7 @@ void draw_an_entry(DrawEntry * draw_entry)
                 directional_rect.direction = lane_part->direction;
                 
                 assert(directional_rects_index < 100);
-//                directional_rects[directional_rects_index++] = directional_rect;
+                directional_rects[directional_rects_index++] = directional_rect;
             }
             
             lane_part = first_lane_part;
@@ -1296,7 +1295,7 @@ void draw_an_entry(DrawEntry * draw_entry)
                 directional_rect.direction = lane_part->direction;
                 
                 assert(directional_rects_index < 100);
-//                directional_rects[directional_rects_index++] = directional_rect;
+                directional_rects[directional_rects_index++] = directional_rect;
             }
             
             if (lane->is_joiner_at_beginning)
