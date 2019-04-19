@@ -654,71 +654,84 @@ Flowify.canvas = function () {
                         "height": height,
                         "direction": direction,
                     })
-                    /*
-                    console.log({
-                        "x": x,
-                        "y": y,
-                        "width": width,
-                        "height": height,
-                        "direction": direction,
-                    });
-                    */
+                }
+                
+                if (laneParts.length <= 0) {
+                    return
                 }
                 
                 // FIXME: placeholder drawings for now!
                 
                 if (fillColorAlpha) {
+                    
+                    // Draw background
+                    
+                    ctx.beginPath()
+                    
+                    // Left side (top to bottom)
                     for (let lanePartIndex = 0; lanePartIndex < laneParts.length; lanePartIndex++) {
                         let lanePart = laneParts[lanePartIndex]
                         
-                        // Draw background
-                        ctx.beginPath()
-                        
-                        // Left side (top to bottom)
-                        ctx.moveTo(lanePart.x, lanePart.y)
+                        if (lanePartIndex > 0) {
+                            ctx.lineTo(lanePart.x, lanePart.y)
+                        }
+                        else {
+                            ctx.moveTo(lanePart.x, lanePart.y)
+                        }
                         ctx.lineTo(lanePart.x, lanePart.y + lanePart.height)
-                        
-                        // Right side (bottom to top)
+                    }
+                    
+                    // Right side (bottom to top)
+                    for (let lanePartIndex = laneParts.length - 1; lanePartIndex >= 0; lanePartIndex--) {
+                        let lanePart = laneParts[lanePartIndex]
                         ctx.lineTo(lanePart.x + lanePart.width, lanePart.y + lanePart.height)
                         ctx.lineTo(lanePart.x + lanePart.width, lanePart.y)
-                        
-                        ctx.closePath()
-                        
-                        ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
-                        ctx.fill()
-                        
-                        my.nrOfDrawCalls++
                     }
+                    ctx.closePath()
+                    ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
+                    ctx.fill()
+                    
+                    my.nrOfDrawCalls++
                 }
                 
                 if (lineColorAlpha) {
+                    
+                    // Draw borders
+                    
+                    ctx.beginPath()
+                    
+                    // Left side (top to bottom)
                     for (let lanePartIndex = 0; lanePartIndex < laneParts.length; lanePartIndex++) {
                         let lanePart = laneParts[lanePartIndex]
                         
-                        ctx.beginPath()
-                        
-                        // Left side (top to bottom)
-                        ctx.moveTo(lanePart.x, lanePart.y)
+                        if (lanePartIndex > 0) {
+                            ctx.lineTo(lanePart.x, lanePart.y)
+                        }
+                        else {
+                            ctx.moveTo(lanePart.x, lanePart.y)
+                        }
                         ctx.lineTo(lanePart.x, lanePart.y + lanePart.height)
-                        
-                        // Right side (bottom to top)
-                        ctx.moveTo(lanePart.x + lanePart.width, lanePart.y + lanePart.height)
-                        ctx.lineTo(lanePart.x + lanePart.width, lanePart.y)
-                        
-                        ctx.closePath()
-                        
-                        ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
-                        ctx.lineWidth = lineWidth
-                        ctx.stroke()
-                    
-                        my.nrOfDrawCalls++
                     }
+                        
+                    // Right side (bottom to top)
+                    for (let lanePartIndex = laneParts.length - 1; lanePartIndex >= 0; lanePartIndex--) {
+                        let lanePart = laneParts[lanePartIndex]
+                        
+                        if (lanePartIndex < laneParts.length - 1) {
+                            ctx.lineTo(lanePart.x + lanePart.width, lanePart.y + lanePart.height)
+                        }
+                        else {
+                            ctx.moveTo(lanePart.x + lanePart.width, lanePart.y + lanePart.height)
+                        }
+                        ctx.lineTo(lanePart.x + lanePart.width, lanePart.y)
+                    }
+                    ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
+                    ctx.lineWidth = lineWidth
+                    ctx.stroke()
+                
+                    my.nrOfDrawCalls++
                 }
                 
-                if (!my.alreadyLogged) {
-                    console.log(laneParts)
-                    my.alreadyLogged = true
-                }
             },
             
             _jsDrawRect: function (x, y, width, height, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
