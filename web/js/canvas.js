@@ -640,10 +640,6 @@ Flowify.canvas = function () {
                                    partialRectAtEnd, isRightSideAtEnd,
                                    lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
                 
-                // FIXME: do something with:                
-                //      partialRectAtStart, isRightSideAtStart,
-                //      partialRectAtEnd, isRightSideAtEnd,
-                
                 let laneParts = []
                 let nrOfIntegersPerLanePart = 5 // FIXME: somehow sync this with the size of DirectionalRect2d?
                 for (let i = lanePartsIndex / 4; i < lanePartsIndex / 4 + lanePartsCount * nrOfIntegersPerLanePart; i = i + nrOfIntegersPerLanePart) {
@@ -716,7 +712,17 @@ Flowify.canvas = function () {
                         else {
                             ctx.moveTo(lanePart.x, lanePart.y)
                         }
-                        ctx.lineTo(lanePart.x, lanePart.y + lanePart.height)
+
+                        if (lanePartIndex == 0 && partialRectAtStart && isRightSideAtStart) {
+                            ctx.moveTo(lanePart.x, lanePart.y + lanePart.height)
+                        }
+                        else if (lanePartIndex == laneParts.length - 1 && partialRectAtEnd && isRightSideAtEnd) {
+                            ctx.moveTo(lanePart.x, lanePart.y + lanePart.height)
+                        }
+                        else {
+                            ctx.lineTo(lanePart.x, lanePart.y + lanePart.height)
+                        }
+                        
                     }
                         
                     // Right side (bottom to top)
@@ -729,7 +735,16 @@ Flowify.canvas = function () {
                         else {
                             ctx.moveTo(lanePart.x + lanePart.width, lanePart.y + lanePart.height)
                         }
-                        ctx.lineTo(lanePart.x + lanePart.width, lanePart.y)
+                        
+                        if (lanePartIndex == 0 && partialRectAtStart && !isRightSideAtStart) {
+                            ctx.moveTo(lanePart.x + lanePart.width, lanePart.y)
+                        }
+                        else if (lanePartIndex == laneParts.length - 1 && partialRectAtEnd && !isRightSideAtEnd) {
+                            ctx.moveTo(lanePart.x + lanePart.width, lanePart.y)
+                        }
+                        else {
+                            ctx.lineTo(lanePart.x + lanePart.width, lanePart.y)
+                        }
                     }
                     ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
                     ctx.lineWidth = lineWidth
