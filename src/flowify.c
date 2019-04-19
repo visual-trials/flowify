@@ -142,6 +142,23 @@ extern "C" {
     {
         WorldData * world = &global_world;
         Input * input = &global_input;
+
+        // FIXME: testing draw_lane!
+        
+        DirectionalRect2d dummy_lane_parts[10];
+        
+        dummy_lane_parts[0].position.x = 123;
+        dummy_lane_parts[0].position.y = 321;
+        dummy_lane_parts[0].size.width = 789;
+        dummy_lane_parts[0].size.height = 987;
+        dummy_lane_parts[0].direction = Direction_BottomToTop;
+        i32 dummy_lane_parts_count = 1;
+        Color4 line_color = {};
+        Color4 fill_color = {};
+        i32 line_width = 1;
+        draw_lane(dummy_lane_parts, dummy_lane_parts_count, line_color, fill_color, line_width);
+
+        
         
         world->iteration = 0;
         
