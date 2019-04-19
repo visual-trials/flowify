@@ -643,20 +643,21 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         flowifier->current_lane = then_lane;
         draw_elements(flowifier, if_then_element);
         then_lane_end = flowifier->current_lane; 
-        
+
+// FIXME: it seems that if an else has no (real) body, else_lane_end might be invalid?)
         flowifier->current_lane = else_lane;
         draw_elements(flowifier, if_else_element);
         else_lane_end = flowifier->current_lane; 
         
-        then_lane->joining_towards_lane = end_if_lane;
-        then_lane->joining_point.x = then_lane->splitting_point.x; // TODO: is it always correct that the splitting and joining points have the same x (for an if-statement)?
+        then_lane_end->joining_towards_lane = end_if_lane;
+        then_lane_end->joining_point.x = then_lane->splitting_point.x; // TODO: is it always correct that the splitting and joining points have the same x (for an if-statement)?
         // TODO: we should check if the else-statement ends higher/lower aswell (not just the then-statement) using a max()-function
-        then_lane->joining_point.y = if_then_element->rect_abs.position.y + if_then_element->rect_abs.size.height;
-        then_lane->is_right_side_at_join = true;
+        then_lane_end->joining_point.y = if_then_element->rect_abs.position.y + if_then_element->rect_abs.size.height;
+        then_lane_end->is_right_side_at_join = true;
         
-        else_lane->joining_towards_lane = end_if_lane;
-        else_lane->joining_point = then_lane->joining_point;
-        else_lane->is_right_side_at_join = false;
+        else_lane_end->joining_towards_lane = end_if_lane;
+        else_lane_end->joining_point = then_lane->joining_point;
+        else_lane_end->is_right_side_at_join = false;
         
         end_if_lane->is_joiner_at_beginning = true;
         
