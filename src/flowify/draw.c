@@ -415,7 +415,7 @@ void push_straight_element(Flowifier * flowifier, FlowElement * flow_element)
     push_interaction_rectangle(flowifier, flow_element);
 }
 
-void draw_an_entry(DrawEntry * draw_entry);
+void draw_entries(DrawEntry * draw_entry);
 
 // TODO: rename this to push_elements_to_be_draw (or something) and add root-funtion: draw_elements
 void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
@@ -1009,15 +1009,8 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     {
         DrawEntry * draw_entry = flowifier->first_draw_entry;
         
-        while (draw_entry)
-        {
-            draw_an_entry(draw_entry);
-            
-            draw_entry = draw_entry->next_entry;
-        }
+        draw_entries(draw_entry);
     }
-    
-    
 }
 
 // Actual drawing
@@ -1330,3 +1323,12 @@ void draw_an_entry(DrawEntry * draw_entry)
     }
 }
 
+void draw_entries(DrawEntry * draw_entry)
+{
+    while (draw_entry)
+    {
+        draw_an_entry(draw_entry);
+        
+        draw_entry = draw_entry->next_entry;
+    }
+}
