@@ -667,30 +667,6 @@ Flowify.canvas = function () {
                 
                 // FIXME: placeholder drawings for now!
                 
-                if (lineColorAlpha) {
-                    for (let lanePartIndex = 0; lanePartIndex < laneParts.length; lanePartIndex++) {
-                        let lanePart = laneParts[lanePartIndex]
-                        
-                        ctx.beginPath()
-                        
-                        // Left side (top to bottom)
-                        ctx.moveTo(lanePart.x, lanePart.y)
-                        ctx.lineTo(lanePart.x, lanePart.y + lanePart.height)
-                        
-                        // Right side (bottom to top)
-                        ctx.moveTo(lanePart.x + lanePart.width, lanePart.y + lanePart.height)
-                        ctx.lineTo(lanePart.x + lanePart.width, lanePart.y)
-                        
-                        ctx.closePath()
-                        
-                        ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
-                        ctx.lineWidth = lineWidth
-                        ctx.stroke()
-                    
-                        my.nrOfDrawCalls++
-                    }
-                }
-                
                 if (fillColorAlpha) {
                     for (let lanePartIndex = 0; lanePartIndex < laneParts.length; lanePartIndex++) {
                         let lanePart = laneParts[lanePartIndex]
@@ -711,6 +687,30 @@ Flowify.canvas = function () {
                         ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
                         ctx.fill()
                         
+                        my.nrOfDrawCalls++
+                    }
+                }
+                
+                if (lineColorAlpha) {
+                    for (let lanePartIndex = 0; lanePartIndex < laneParts.length; lanePartIndex++) {
+                        let lanePart = laneParts[lanePartIndex]
+                        
+                        ctx.beginPath()
+                        
+                        // Left side (top to bottom)
+                        ctx.moveTo(lanePart.x, lanePart.y)
+                        ctx.lineTo(lanePart.x, lanePart.y + lanePart.height)
+                        
+                        // Right side (bottom to top)
+                        ctx.moveTo(lanePart.x + lanePart.width, lanePart.y + lanePart.height)
+                        ctx.lineTo(lanePart.x + lanePart.width, lanePart.y)
+                        
+                        ctx.closePath()
+                        
+                        ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
+                        ctx.lineWidth = lineWidth
+                        ctx.stroke()
+                    
                         my.nrOfDrawCalls++
                     }
                 }
