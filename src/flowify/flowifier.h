@@ -236,13 +236,17 @@ struct DrawLane
     
     // TODO: how to signify that the first/last part should not have a line on either the left or right side?
     
-    DrawLane * joining_left_lane;
-    DrawLane * joining_right_lane;
+    DrawLane * splitting_from_lane;
+    b32 is_right_side_at_split;
+    Pos2d splitting_point;
+    
+    b32 is_splitter_at_end;
+    
+    DrawLane * joining_towards_lane;
+    b32 is_right_side_at_join;
     Pos2d joining_point;
     
-    DrawLane * splitting_from_lane;
-    b32 is_right_side;
-    Pos2d splitting_point;
+    b32 is_joiner_at_beginning;
     
     i32 bending_radius;
     Color4 line_color;

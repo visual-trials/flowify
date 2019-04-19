@@ -317,13 +317,17 @@ DrawLane * push_lane(Flowifier * flowifier, i32 bending_radius, Color4 line_colo
     draw_lane->first_part = 0;
     draw_lane->last_part = 0;
     
-    draw_lane->joining_left_lane = 0;
-    draw_lane->joining_right_lane = 0;
+    draw_lane->splitting_from_lane = 0;
+    draw_lane->is_right_side_at_split = false;
+    draw_lane->splitting_point = (Pos2d){};
+    
+    draw_lane->is_splitter_at_end = false;
+    
+    draw_lane->joining_towards_lane = 0;
+    draw_lane->is_right_side_at_join = false;
     draw_lane->joining_point = (Pos2d){};
     
-    draw_lane->splitting_from_lane = 0;
-    b32 is_right_side = false;
-    draw_lane->splitting_point = (Pos2d){};
+    draw_lane->is_joiner_at_beginning = false;
     
     draw_lane->bending_radius = bending_radius;
     draw_lane->line_color = line_color;
@@ -620,10 +624,13 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         DrawLane * else_lane_end = 0;
         DrawLane * end_if_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
         
+        if_lane->is_splitter_at_end = true;
+        
         then_lane->splitting_from_lane = if_lane;
-        then_lane->is_right_side = true;
+        then_lane->is_right_side_at_split = true;
+        
         else_lane->splitting_from_lane = if_lane;
-        else_lane->is_right_side = false;
+        else_lane->is_right_side_at_split = false;
         
         i32 horizontal_distance = if_then_element->rect_abs.position.x - (if_else_element->rect_abs.position.x + if_else_element->rect_abs.size.width);
         // TODO: maybe calculate y using vertical distance i32 vertical_distance
@@ -641,11 +648,17 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_elements(flowifier, if_else_element);
         else_lane_end = flowifier->current_lane; 
         
-        end_if_lane->joining_right_lane = then_lane_end; // the right lane (coming *from* the then-statement) is joined to the endif-lane
-        end_if_lane->joining_left_lane = else_lane_end; // the left lane (coming *from* the else-statement) is joined to the endif-lane
-        end_if_lane->joining_point.x = then_lane->splitting_point.x; // TODO: is it always correct that the splitting and joining points have the same x (for an if-statement)?
+        then_lane->joining_towards_lane = end_if_lane;
+        then_lane->joining_point.x = then_lane->splitting_point.x; // TODO: is it always correct that the splitting and joining points have the same x (for an if-statement)?
         // TODO: we should check if the else-statement ends higher/lower aswell (not just the then-statement) using a max()-function
-        end_if_lane->joining_point.y = if_then_element->rect_abs.position.y + if_then_element->rect_abs.size.height;
+        then_lane->joining_point.y = if_then_element->rect_abs.position.y + if_then_element->rect_abs.size.height;
+        then_lane->is_right_side_at_join = true;
+        
+        else_lane->joining_towards_lane = end_if_lane;
+        else_lane->joining_point = then_lane->joining_point;
+        else_lane->is_right_side_at_join = false;
+        
+        end_if_lane->is_joiner_at_beginning = true;
         
         flowifier->current_lane = end_if_lane;
     }
@@ -678,10 +691,12 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_elements(flowifier, for_cond_element);
         cond_lane_end = flowifier->current_lane;
         
+        cond_lane_end->is_splitter_at_end = true;
+        
         body_lane->splitting_from_lane = cond_lane_end;
-        body_lane->is_right_side = true;
+        body_lane->is_right_side_at_split = true;
         end_for_lane->splitting_from_lane = cond_lane_end;
-        end_for_lane->is_right_side = false;
+        end_for_lane->is_right_side_at_split = false;
         
         i32 horizontal_distance = for_body_element->rect_abs.position.x - (for_done_element->rect_abs.position.x + for_done_element->rect_abs.size.width);
 
@@ -741,13 +756,20 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         body_lane_end = flowifier->current_lane;
         
-        cond_lane->joining_left_lane = for_lane; 
-        cond_lane->joining_right_lane = body_lane_end;
-        cond_lane->joining_point.x = body_lane->splitting_point.x; // TODO: is it always correct that the splitting and joining points have the same x (for an for-statement)?
+        body_lane_end->joining_towards_lane = cond_lane;
+        body_lane_end->joining_point.x = body_lane->splitting_point.x; // TODO: is it always correct that the splitting and joining points have the same x (for an for-statement)?
         // TODO: we should check if the body-statement ends higher/lower aswell (not just the for_init-statement) using a max()-function
-        cond_lane->joining_point.y = for_init_element->rect_abs.position.y + for_init_element->rect_abs.size.height;
+        body_lane_end->joining_point.y = for_init_element->rect_abs.position.y + for_init_element->rect_abs.size.height;
+        body_lane_end->is_right_side_at_join = true;
+        
+        for_lane->joining_towards_lane = cond_lane;
+        for_lane->joining_point = body_lane->joining_point;
+        for_lane->is_right_side_at_join = false;
+        
+        end_for_lane->is_joiner_at_beginning = true;
         
         flowifier->current_lane = end_for_lane;
+        
         push_straight_element(flowifier, for_done_element);
     }
     else if (flow_element->type == FlowElement_Foreach)
@@ -779,10 +801,12 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_elements(flowifier, foreach_cond_element);
         cond_lane_end = flowifier->current_lane;
         
+        cond_lane_end->is_splitter_at_end = true;
+        
         body_lane->splitting_from_lane = cond_lane_end;
-        body_lane->is_right_side = true;
+        body_lane->is_right_side_at_split = true;
         end_foreach_lane->splitting_from_lane = cond_lane_end;
-        end_foreach_lane->is_right_side = false;
+        end_foreach_lane->is_right_side_at_split = false;
         
         i32 horizontal_distance = foreach_body_element->rect_abs.position.x - (foreach_done_element->rect_abs.position.x + foreach_done_element->rect_abs.size.width);
 
@@ -840,13 +864,20 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         body_lane_end = flowifier->current_lane;
         
-        cond_lane->joining_left_lane = foreach_lane; 
-        cond_lane->joining_right_lane = body_lane_end;
-        cond_lane->joining_point.x = body_lane->splitting_point.x; // TODO: is it always correct that the splitting and joining points have the same x (for an for-statement)?
+        body_lane_end->joining_towards_lane = cond_lane;
+        body_lane_end->joining_point.x = body_lane->splitting_point.x; // TODO: is it always correct that the splitting and joining points have the same x (for an for-statement)?
         // TODO: we should check if the body-statement ends higher/lower aswell (not just the for_init-statement) using a max()-function
-        cond_lane->joining_point.y = foreach_init_element->rect_abs.position.y + foreach_init_element->rect_abs.size.height;
+        body_lane_end->joining_point.y = foreach_init_element->rect_abs.position.y + foreach_init_element->rect_abs.size.height;
+        body_lane_end->is_right_side_at_join = true;
+        
+        foreach_lane->joining_towards_lane = cond_lane;
+        foreach_lane->joining_point = body_lane->joining_point;
+        foreach_lane->is_right_side_at_join = false;
+
+        end_foreach_lane->is_joiner_at_beginning = true;
         
         flowifier->current_lane = end_foreach_lane;
+        
         push_straight_element(flowifier, foreach_done_element);
     }
     else if (flow_element->type == FlowElement_FunctionCall)
@@ -1107,93 +1138,108 @@ void draw_an_entry(DrawEntry * draw_entry)
         Color4 fill_color = lane->fill_color;
         i32 line_width = lane->line_width;
     
-        // FIXME: now drawing straight lines between lane-parts
-        // FIXME: this assumes all rects are in order of top-to-bottom (which is not always true!)
-            
-        // First we draw connections between lanes
+        b32 some_lane_parts_are_on_screen = false;
+        
+        Rect2d rect_to_add_at_start = {};
+        b32 add_rect_at_start = false;
+        
+        Rect2d rect_to_add_at_end = {};
+        b32 add_rect_at_end = false;
         
         DrawLanePart * first_lane_part = lane->first_part;
         if (first_lane_part)
         {
-            // TODO: we can probably make this nicer: less boilerplate
             
             if (lane->splitting_from_lane && lane->splitting_from_lane->last_part)
             {
-                Rect2d bottom_rect = first_lane_part->rect;
+                // We are a lane splitting from another, so we get a "piece" of its rectangle as starting-rect
                 
-                Rect2d top_rect = lane->splitting_from_lane->last_part->rect;
+                add_rect_at_start = true;
+                
+                Rect2d splitting_rect = lane->splitting_from_lane->last_part->rect; // This is the rect that is to be split (in 3 pieces actually)
                 Pos2d splitting_point = lane->splitting_point;
                 
-                // TODO: this can be done more precisely
-                if (rect_is_inside_screen(top_rect) || rect_is_inside_screen(bottom_rect))
+                if (lane->is_right_side_at_split)
                 {
-                    Pos2d left_end_pos = { bottom_rect.position.x, bottom_rect.position.y };
-                    Pos2d right_end_pos = { bottom_rect.position.x + bottom_rect.size.width, bottom_rect.position.y };
+                    // We take the lower-right part.
                     
-                    Pos2d left_start_pos = { top_rect.position.x, top_rect.position.y + top_rect.size.height};
-                    Pos2d right_start_pos = { top_rect.position.x + top_rect.size.width, top_rect.position.y + top_rect.size.height};
+                    // The left side of the (rect that is split off) starts (horizontally) at the splitting_point
+                    rect_to_add_at_start.position.x = splitting_point.x;
+                    // The width is the distance between the right side of the splitting rect and the splitting point
+                    rect_to_add_at_start.size.width = splitting_rect.position.x + splitting_rect.size.width - splitting_point.x; 
                     
-                    if (lane->is_right_side)
-                    {
-                        left_start_pos = splitting_point;
-                    }
-                    else
-                    {
-                        right_start_pos = splitting_point;
-                    }
-                    
-                    // FIXME: draw_line(left_start_pos, left_end_pos, line_color, line_width);
-                    // FIXME: draw_line(right_start_pos, right_end_pos, line_color, line_width);
+                    // We split the rect in half vertically and take the lower half.
+                    rect_to_add_at_start.position.y = splitting_rect.position.y + splitting_rect.size.height / 2; 
+                    rect_to_add_at_start.size.height = splitting_rect.size.height / 2;
                 }
+                else
+                {
+                    // We take the lower-left part.
+                    
+                    // The left side of the (rect that is split off) starts (horizontally) at the start of the splitting rect
+                    rect_to_add_at_start.position.x = splitting_rect.position.x;
+                    // The width is the distance between the splitting point and the left side of the splitting rect
+                    rect_to_add_at_start.size.width = splitting_point.x - splitting_rect.position.x; 
+                    
+                    // We split the rect in half vertically and take the lower half.
+                    rect_to_add_at_start.position.y = splitting_rect.position.y + splitting_rect.size.height / 2; 
+                    rect_to_add_at_start.size.height = splitting_rect.size.height / 2;
+                    
+                }
+                
+                if (rect_is_inside_screen(rect_to_add_at_start))
+                {
+                    some_lane_parts_are_on_screen = true;
+                }
+                
             }
             
-            if (lane->joining_left_lane && lane->joining_left_lane->last_part)
+            if (lane->joining_towards_lane && lane->joining_towards_lane->first_part)
             {
-                Rect2d top_rect = lane->joining_left_lane->last_part->rect;
+                // We are a lane joning towards another, so we get a "piece" of its rectangle as ending-rect
                 
+                add_rect_at_end = true;
+                
+                Rect2d joining_rect = lane->joining_towards_lane->first_part->rect; // This is the rect that is to be split (in 3 pieces actually)
                 Pos2d joining_point = lane->joining_point;
-                Rect2d bottom_rect = first_lane_part->rect;
                 
-                // TODO: this can be done more precisely
-                if (rect_is_inside_screen(top_rect) || rect_is_inside_screen(bottom_rect))
+                if (lane->is_right_side_at_join)
                 {
-                    Pos2d left_start_pos = { top_rect.position.x, top_rect.position.y + top_rect.size.height};
-                    Pos2d right_start_pos = { top_rect.position.x + top_rect.size.width, top_rect.position.y + top_rect.size.height};
+                    // We take the lower-right part.
                     
-                    Pos2d left_end_pos = { bottom_rect.position.x, bottom_rect.position.y };
-                    Pos2d right_end_pos = joining_point;
+                    // The left side of the (rect that is split off) starts (horizontally) at the joining_point
+                    rect_to_add_at_end.position.x = joining_point.x;
+                    // The width is the distance between the right side of the joining rect and the joining point
+                    rect_to_add_at_end.size.width = joining_rect.position.x + joining_rect.size.width - joining_point.x; 
                     
-                    // FIXME: draw_line(left_start_pos, left_end_pos, line_color, line_width);
-                    // FIXME: draw_line(right_start_pos, right_end_pos, line_color, line_width);
+                    // We split the rect in half vertically and take the upper half.
+                    rect_to_add_at_end.position.y = joining_rect.position.y; 
+                    rect_to_add_at_end.size.height = joining_rect.size.height / 2;
                 }
-            }
-            
-            if (lane->joining_right_lane && lane->joining_right_lane->last_part)
-            {
-                Rect2d top_rect = lane->joining_right_lane->last_part->rect;
-                
-                Pos2d joining_point = lane->joining_point;
-                Rect2d bottom_rect = first_lane_part->rect;
-                
-                // TODO: this can be done more precisely
-                if (rect_is_inside_screen(top_rect) || rect_is_inside_screen(bottom_rect))
+                else
                 {
-                    Pos2d left_start_pos = { top_rect.position.x, top_rect.position.y + top_rect.size.height};
-                    Pos2d right_start_pos = { top_rect.position.x + top_rect.size.width, top_rect.position.y + top_rect.size.height};
+                    // We take the lower-left part.
                     
-                    Pos2d left_end_pos = joining_point;
-                    Pos2d right_end_pos = { bottom_rect.position.x + bottom_rect.size.width, bottom_rect.position.y };
+                    // The left side of the (rect that is split off) starts (horizontally) at the start of the joining rect
+                    rect_to_add_at_end.position.x = joining_rect.position.x;
+                    // The width is the distance between the joining point and the left side of the joining rect
+                    rect_to_add_at_end.size.width = joining_point.x - joining_rect.position.x; 
                     
-                    // FIXME: draw_line(left_start_pos, left_end_pos, line_color, line_width);
-                    // FIXME: draw_line(right_start_pos, right_end_pos, line_color, line_width);
+                    // We split the rect in half vertically and take the upper half.
+                    rect_to_add_at_end.position.y = joining_rect.position.y; 
+                    rect_to_add_at_end.size.height = joining_rect.size.height / 2;
                 }
+
+                if (rect_is_inside_screen(rect_to_add_at_end))
+                {
+                    some_lane_parts_are_on_screen = true;
+                }
+                
             }
+                
         }
         
-        // Then we draw the lanes themselves (by connecting all parts of each lane) 
-        
         // TODO: it's probably more efficient to calculate this "inside screen" when adding parts to the lane_parts
-        b32 some_lane_parts_are_on_screen = false;
         DrawLanePart * lane_part = first_lane_part;
         while(lane_part)
         {
@@ -1208,9 +1254,21 @@ void draw_an_entry(DrawEntry * draw_entry)
         if (some_lane_parts_are_on_screen)
         {
             // FIXME: allocate this properly!
+            i32 directional_rects_index = 0;
             DirectionalRect2d directional_rects[100];
             
-            i32 directional_rects_index = 0;
+            if (add_rect_at_start)
+            {
+                DirectionalRect2d directional_rect = {};
+                
+                directional_rect.position = rect_to_add_at_start.position;
+                directional_rect.size = rect_to_add_at_start.size;
+                directional_rect.direction = lane_part->direction;
+                
+                assert(directional_rects_index < 100);
+                directional_rects[directional_rects_index++] = directional_rect;
+            }
+            
             lane_part = first_lane_part;
             while(lane_part)
             {
@@ -1223,16 +1281,32 @@ void draw_an_entry(DrawEntry * draw_entry)
                 directional_rect.direction = lane_part->direction;
                 
                 assert(directional_rects_index < 100);
-                directional_rects[directional_rects_index] = directional_rect;
-                directional_rects_index++;
+                directional_rects[directional_rects_index++] = directional_rect;
                 
                 lane_part = lane_part->next_part;
             }
             
-            draw_lane(directional_rects, directional_rects_index, line_color, fill_color, line_width);
+            if (add_rect_at_end)
+            {
+                DirectionalRect2d directional_rect = {};
+                
+                directional_rect.position = rect_to_add_at_end.position;
+                directional_rect.size = rect_to_add_at_end.size;
+                directional_rect.direction = lane_part->direction;
+                
+                assert(directional_rects_index < 100);
+                directional_rects[directional_rects_index++] = directional_rect;
+            }
             
+            // FIXME: add:
+            
+            // b32 is_right_at_bottom
+            // b32 is_right_at_top
+            // b32 is_split_at_end
+            // b32 is_split_at_beginning
+            
+            draw_lane(directional_rects, directional_rects_index, line_color, fill_color, line_width);
         }
-        
     }
 }
 
