@@ -1298,12 +1298,31 @@ void draw_an_entry(DrawEntry * draw_entry)
                 directional_rects[directional_rects_index++] = directional_rect;
             }
             
+            if (lane->is_joiner_at_beginning)
+            {
+                // We assume a lane cannot be both a joiner at the beginning AND have a rect added at its top
+                assert(!add_rect_at_start);
+                
+                // We remove the top half of the first lane-part
+                directional_rects[0].position.y += directional_rects[0].size.height / 2;
+            }
+            
+            if (lane->is_splitter_at_end)
+            {
+                // We assume a lane cannot be both a splitter at the end AND have a rect added at its end
+                assert(!add_rect_at_end);
+                
+                // We remove the bottom half of the last lane-part
+                directional_rects[directional_rects_index - 1].size = directional_rects[directional_rects_index - 1].size / 2;
+            }
+            
             // FIXME: add:
             
             // b32 is_right_at_bottom
             // b32 is_right_at_top
-            // b32 is_split_at_end
-            // b32 is_split_at_beginning
+            
+            // FIXME: draw all lanes on the same level at the same time!
+            //        you can do this, by adding a lane to another lane to draw (not to the entries directly)
             
             draw_lane(directional_rects, directional_rects_index, line_color, fill_color, line_width);
         }
