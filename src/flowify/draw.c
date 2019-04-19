@@ -1211,7 +1211,6 @@ void draw_an_entry(DrawEntry * draw_entry)
             DirectionalRect2d directional_rects[100];
             
             i32 directional_rects_index = 0;
-            // DrawLanePart * previous_part = 0;
             lane_part = first_lane_part;
             while(lane_part)
             {
@@ -1226,28 +1225,6 @@ void draw_an_entry(DrawEntry * draw_entry)
                 assert(directional_rects_index < 100);
                 directional_rects[directional_rects_index] = directional_rect;
                 directional_rects_index++;
-                
-                /*
-                // TODO: use equivalents of combinations of: draw_cornered_lane_segment and draw_lane_segment
-                
-                // FIXME: most of this is just a placeholder. We should do this differently
-                HorLine2 horizontal_lines = {};
-                horizontal_lines.top_line = get_top_line_from_rect(rect);
-                horizontal_lines.bottom_line = get_bottom_line_from_rect(rect);
-                
-                LaneSegment lane_segment = lane_segment_from_horizontal_lines(horizontal_lines, true, true, bending_radius);
-                
-                draw_lane_segment(lane_segment.left_top,  lane_segment.right_top, 
-                                  lane_segment.left_bottom, lane_segment.right_bottom, 
-                                  lane_segment.left_middle_y, lane_segment.right_middle_y, lane_segment.bending_radius, 
-                                  line_color, fill_color, line_width);
-                
-                if (previous_part)
-                {
-                    draw_lines_between_lane_parts(previous_part, lane_part, line_color, line_width);
-                }
-                previous_part = lane_part;
-                */
                 
                 lane_part = lane_part->next_part;
             }
