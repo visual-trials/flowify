@@ -1217,7 +1217,6 @@ void draw_an_entry(DrawEntry * draw_entry)
                     // We split the rect in half vertically and take the lower half.
                     rect_to_add_at_start.position.y = splitting_rect.position.y + splitting_rect.size.height / 2; 
                     rect_to_add_at_start.size.height = splitting_rect.size.height / 2;
-                    
                 }
                 
                 if (rect_is_inside_screen(rect_to_add_at_start))
@@ -1350,12 +1349,10 @@ void draw_an_entry(DrawEntry * draw_entry)
                 directional_rects[directional_rects_index - 1].size.height = directional_rects[directional_rects_index - 1].size.height / 2;
             }
             
-            // FIXME: add:
-            
-            // b32 is_right_at_bottom
-            // b32 is_right_at_top
-            
-            draw_lane(directional_rects, directional_rects_index, line_color, fill_color, line_width);
+            draw_lane(directional_rects, directional_rects_index, 
+                      add_rect_at_start, lane->is_right_side_at_split, 
+                      add_rect_at_end, lane->is_right_side_at_join, 
+                      line_color, fill_color, line_width);
         }
     }
 }

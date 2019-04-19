@@ -635,9 +635,15 @@ Flowify.canvas = function () {
                 }
             },
             
-            _jsDrawLane: function (lanePartsIndex, lanePartsCount, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
+            _jsDrawLane: function (lanePartsIndex, lanePartsCount,
+                                   partialRectAtStart, isRightSideAtStart,
+                                   partialRectAtEnd, isRightSideAtEnd,
+                                   lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
                 
-                // FIXME: do something with: , splittingPointX, splittingPointY, joiningPointX, joiningPointY, isRightSide
+                // FIXME: do something with:                
+                //      partialRectAtStart, isRightSideAtStart,
+                //      partialRectAtEnd, isRightSideAtEnd,
+                
                 let laneParts = []
                 let nrOfIntegersPerLanePart = 5 // FIXME: somehow sync this with the size of DirectionalRect2d?
                 for (let i = lanePartsIndex / 4; i < lanePartsIndex / 4 + lanePartsCount * nrOfIntegersPerLanePart; i = i + nrOfIntegersPerLanePart) {
