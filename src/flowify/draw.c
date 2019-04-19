@@ -617,19 +617,19 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         push_straight_element(flowifier, if_cond_element);
         draw_elements(flowifier, if_cond_element);
 
-        DrawLane * if_lane = flowifier->current_lane;
+        DrawLane * cond_lane_end = flowifier->current_lane;
         DrawLane * then_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
         DrawLane * then_lane_end = 0;
         DrawLane * else_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
         DrawLane * else_lane_end = 0;
         DrawLane * end_if_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
         
-        if_lane->is_splitter_at_end = true;
+        cond_lane_end->is_splitter_at_end = true;
         
-        then_lane->splitting_from_lane = if_lane;
+        then_lane->splitting_from_lane = cond_lane_end;
         then_lane->is_right_side_at_split = true;
         
-        else_lane->splitting_from_lane = if_lane;
+        else_lane->splitting_from_lane = cond_lane_end;
         else_lane->is_right_side_at_split = false;
         
         i32 horizontal_distance = if_then_element->rect_abs.position.x - (if_else_element->rect_abs.position.x + if_else_element->rect_abs.size.width);
@@ -766,7 +766,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         for_lane->joining_point = body_lane->joining_point;
         for_lane->is_right_side_at_join = false;
         
-        end_for_lane->is_joiner_at_beginning = true;
+        cond_lane->is_joiner_at_beginning = true;
         
         flowifier->current_lane = end_for_lane;
         
@@ -874,7 +874,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         foreach_lane->joining_point = body_lane->joining_point;
         foreach_lane->is_right_side_at_join = false;
 
-        end_foreach_lane->is_joiner_at_beginning = true;
+        cond_lane->is_joiner_at_beginning = true;
         
         flowifier->current_lane = end_foreach_lane;
         
