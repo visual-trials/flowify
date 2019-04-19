@@ -1142,8 +1142,8 @@ void draw_an_entry(DrawEntry * draw_entry)
                         right_start_pos = splitting_point;
                     }
                     
-                    draw_line(left_start_pos, left_end_pos, line_color, line_width);
-                    draw_line(right_start_pos, right_end_pos, line_color, line_width);
+                    // FIXME: draw_line(left_start_pos, left_end_pos, line_color, line_width);
+                    // FIXME: draw_line(right_start_pos, right_end_pos, line_color, line_width);
                 }
             }
             
@@ -1163,8 +1163,8 @@ void draw_an_entry(DrawEntry * draw_entry)
                     Pos2d left_end_pos = { bottom_rect.position.x, bottom_rect.position.y };
                     Pos2d right_end_pos = joining_point;
                     
-                    draw_line(left_start_pos, left_end_pos, line_color, line_width);
-                    draw_line(right_start_pos, right_end_pos, line_color, line_width);
+                    // FIXME: draw_line(left_start_pos, left_end_pos, line_color, line_width);
+                    // FIXME: draw_line(right_start_pos, right_end_pos, line_color, line_width);
                 }
             }
             
@@ -1184,8 +1184,8 @@ void draw_an_entry(DrawEntry * draw_entry)
                     Pos2d left_end_pos = joining_point;
                     Pos2d right_end_pos = { bottom_rect.position.x + bottom_rect.size.width, bottom_rect.position.y };
                     
-                    draw_line(left_start_pos, left_end_pos, line_color, line_width);
-                    draw_line(right_start_pos, right_end_pos, line_color, line_width);
+                    // FIXME: draw_line(left_start_pos, left_end_pos, line_color, line_width);
+                    // FIXME: draw_line(right_start_pos, right_end_pos, line_color, line_width);
                 }
             }
         }
