@@ -302,7 +302,7 @@ void push_rounded_rectangle(Flowifier * flowifier, Rect2d rect, i32 radius, Colo
     add_draw_entry(flowifier, draw_entry);
 }
 
-DrawLane * push_lane(Flowifier * flowifier, i32 bending_radius, Color4 line_color, Color4 fill_color, i32 line_width)
+DrawLane * push_lane(Flowifier * flowifier)
 {
     DrawEntry * draw_entry = (DrawEntry *)push_struct(&flowifier->draw_arena, sizeof(DrawEntry));
     draw_entry->type = Draw_Lane;
@@ -329,10 +329,10 @@ DrawLane * push_lane(Flowifier * flowifier, i32 bending_radius, Color4 line_colo
     
     draw_lane->is_joiner_at_beginning = false;
     
-    draw_lane->bending_radius = bending_radius;
-    draw_lane->line_color = line_color;
-    draw_lane->fill_color = fill_color;
-    draw_lane->line_width = line_width;
+    draw_lane->bending_radius = flowifier->bending_radius;
+    draw_lane->line_color = flowifier->line_color;
+    draw_lane->fill_color = flowifier->unhighlighted_color;
+    draw_lane->line_width = flowifier->line_width;
         
     add_draw_entry(flowifier, draw_entry);
     
@@ -618,11 +618,11 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_elements(flowifier, if_cond_element);
 
         DrawLane * cond_lane_end = flowifier->current_lane;
-        DrawLane * then_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
+        DrawLane * then_lane = push_lane(flowifier);
         DrawLane * then_lane_end = 0;
-        DrawLane * else_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
+        DrawLane * else_lane = push_lane(flowifier);
         DrawLane * else_lane_end = 0;
-        DrawLane * end_if_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
+        DrawLane * end_if_lane = push_lane(flowifier);
         
         cond_lane_end->is_splitter_at_end = true;
         
@@ -678,11 +678,11 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_elements(flowifier, for_init_element);
         
         DrawLane * for_lane = flowifier->current_lane;
-        DrawLane * cond_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
+        DrawLane * cond_lane = push_lane(flowifier);
         DrawLane * cond_lane_end = 0;
-        DrawLane * body_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
+        DrawLane * body_lane = push_lane(flowifier);
         DrawLane * body_lane_end = 0;
-        DrawLane * end_for_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
+        DrawLane * end_for_lane = push_lane(flowifier);
         
         // TODO: we  draw the if-cond in a way so that the side-lines are drawn AND the if-cond-expression is drawn
         // FIXME: this element is in between a join and split, so what to do with the previous_in_flow and next_in_flow?
@@ -788,11 +788,11 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         push_straight_element(flowifier, foreach_init_element);
         
         DrawLane * foreach_lane = flowifier->current_lane;
-        DrawLane * cond_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
+        DrawLane * cond_lane = push_lane(flowifier);
         DrawLane * cond_lane_end = 0;
-        DrawLane * body_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
+        DrawLane * body_lane = push_lane(flowifier);
         DrawLane * body_lane_end = 0;
-        DrawLane * end_foreach_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
+        DrawLane * end_foreach_lane = push_lane(flowifier);
         
         // TODO: we  draw the if-cond in a way so that the side-lines are drawn AND the if-cond-expression is drawn
         // FIXME: this element is in between a join and split, so what to do with the previous_in_flow and next_in_flow?
@@ -926,7 +926,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         else
         {
             DrawLane * parent_lane = flowifier->current_lane;
-            flowifier->current_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
+            flowifier->current_lane = push_lane(flowifier);
 
             FlowElement * parameters_element = function_call_arguments->next_sibling;
             FlowElement * function_element = parameters_element->next_sibling;
@@ -984,7 +984,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
             push_rounded_rectangle(flowifier, flow_element->rect_abs, flowifier->bending_radius, 
                                    flowifier->function_line_color, flowifier->function_fill_color, flowifier->function_line_width);
                                    
-            flowifier->current_lane = push_lane(flowifier, flowifier->bending_radius, flowifier->line_color, flowifier->unhighlighted_color, flowifier->line_width);
+            flowifier->current_lane = push_lane(flowifier);
         }
                                
         FlowElement * child_element = flow_element->first_child;
