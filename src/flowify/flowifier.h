@@ -292,6 +292,9 @@ struct DrawEntry
     DrawType type; // Lane / RoundedRect / Rect / Text
     void * item_to_draw;
     
+    DrawEntry * first_child_entry;
+    DrawEntry * last_child_entry;
+    
     DrawEntry * next_entry;
 };
 
@@ -302,6 +305,8 @@ struct Flowifier
     FragmentedMemoryArena draw_arena;
     DrawEntry * first_draw_entry;
     DrawEntry * last_draw_entry;
+    
+    DrawEntry * last_lane_entry;
     
     DrawLane * current_lane;
     
@@ -401,6 +406,7 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     }
     flowifier->first_draw_entry = 0;
     flowifier->last_draw_entry = 0;
+    flowifier->last_lane_entry = 0;
     flowifier->current_lane = 0;
     
     flowifier->parser = parser;

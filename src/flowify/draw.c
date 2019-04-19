@@ -236,8 +236,37 @@ FlowStyle get_style_by_oddness(FlowStyleEvenOdd style_even_odd, b32 is_odd)
 
 // Draw entries
 
+void add_child_draw_entry(DrawEntry * child_draw_entry, DrawEntry * parent_draw_entry)
+{
+    if (!parent_draw_entry->first_child_entry)
+    {
+        parent_draw_entry->first_child_entry = child_draw_entry;
+    }
+    else
+    {
+        parent_draw_entry->last_child_entry->next_entry = child_draw_entry;
+    }
+    parent_draw_entry->last_child_entry = child_draw_entry;
+}
+
 void add_draw_entry(Flowifier * flowifier, DrawEntry * draw_entry)
 {
+    // TODO: right now, if we want a lane entry to be added to the regular list of draw entries,
+    //       we have to set flowifier->last_lane_entry to 0 before calling this function
+    if (draw_entry->type == Draw_Lane)
+    {
+        if (flowifier->last_lane_entry)
+        {
+            // We just want to extend the last_lane_entry, we don't want to add an entry in the regular list of entries
+            add_child_draw_entry(draw_entry, flowifier->last_lane_entry);
+            return;
+        }
+        else
+        {
+            flowifier->last_lane_entry = draw_entry;
+        }
+    }
+    
     if (!flowifier->first_draw_entry)
     {
         flowifier->first_draw_entry = draw_entry;
@@ -255,6 +284,8 @@ void push_text(Flowifier * flowifier, Pos2d position, String * text, Font font, 
     DrawEntry * draw_entry = (DrawEntry *)push_struct(&flowifier->draw_arena, sizeof(DrawEntry));
     draw_entry->type = Draw_Text;
     draw_entry->next_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
+    draw_entry->first_child_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
+    draw_entry->last_child_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
     
     DrawText * draw_text = (DrawText *)push_struct(&flowifier->draw_arena, sizeof(DrawText));
     draw_entry->item_to_draw = draw_text;
@@ -272,6 +303,8 @@ void push_rectangle(Flowifier * flowifier, Rect2d rect, Color4 line_color, Color
     DrawEntry * draw_entry = (DrawEntry *)push_struct(&flowifier->draw_arena, sizeof(DrawEntry));
     draw_entry->type = Draw_Rect;
     draw_entry->next_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
+    draw_entry->first_child_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
+    draw_entry->last_child_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
     
     DrawRect * draw_rect = (DrawRect *)push_struct(&flowifier->draw_arena, sizeof(DrawRect));
     draw_entry->item_to_draw = draw_rect;
@@ -289,6 +322,8 @@ void push_rounded_rectangle(Flowifier * flowifier, Rect2d rect, i32 radius, Colo
     DrawEntry * draw_entry = (DrawEntry *)push_struct(&flowifier->draw_arena, sizeof(DrawEntry));
     draw_entry->type = Draw_RoundedRect;
     draw_entry->next_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
+    draw_entry->first_child_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
+    draw_entry->last_child_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
     
     DrawRoundedRect * draw_rounded_rect = (DrawRoundedRect *)push_struct(&flowifier->draw_arena, sizeof(DrawRoundedRect));
     draw_entry->item_to_draw = draw_rounded_rect;
@@ -307,6 +342,8 @@ DrawLane * push_lane(Flowifier * flowifier)
     DrawEntry * draw_entry = (DrawEntry *)push_struct(&flowifier->draw_arena, sizeof(DrawEntry));
     draw_entry->type = Draw_Lane;
     draw_entry->next_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
+    draw_entry->first_child_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
+    draw_entry->last_child_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
     
     DrawLane * draw_lane = (DrawLane *)push_struct(&flowifier->draw_arena, sizeof(DrawLane));
     draw_entry->item_to_draw = draw_lane;
@@ -429,6 +466,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         reset_fragmented_memory_arena(&flowifier->draw_arena, true);
         flowifier->first_draw_entry = 0;
         flowifier->last_draw_entry = 0;
+        flowifier->last_lane_entry = 0;
         flowifier->current_lane = 0;
     }
     
@@ -926,6 +964,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         else
         {
             DrawLane * parent_lane = flowifier->current_lane;
+            flowifier->last_lane_entry = 0; // TODO: this is a way to make sure we start with a new set of lane-entries in the draw-list
             flowifier->current_lane = push_lane(flowifier);
 
             FlowElement * parameters_element = function_call_arguments->next_sibling;
@@ -984,6 +1023,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
             push_rounded_rectangle(flowifier, flow_element->rect_abs, flowifier->bending_radius, 
                                    flowifier->function_line_color, flowifier->function_fill_color, flowifier->function_line_width);
                                    
+            flowifier->last_lane_entry = 0; // TODO: this is a way to make sure we start with a new set of lane-entries in the draw-list
             flowifier->current_lane = push_lane(flowifier);
         }
                                
@@ -1315,9 +1355,6 @@ void draw_an_entry(DrawEntry * draw_entry)
             // b32 is_right_at_bottom
             // b32 is_right_at_top
             
-            // FIXME: draw all lanes on the same level at the same time!
-            //        you can do this, by adding a lane to another lane to draw (not to the entries directly)
-            
             draw_lane(directional_rects, directional_rects_index, line_color, fill_color, line_width);
         }
     }
@@ -1328,6 +1365,12 @@ void draw_entries(DrawEntry * draw_entry)
     while (draw_entry)
     {
         draw_an_entry(draw_entry);
+        
+        // If there are childs, first draw them, only after that we draw next entries (siblings)
+        if (draw_entry->first_child_entry)
+        {
+            draw_entries(draw_entry->first_child_entry);
+        }
         
         draw_entry = draw_entry->next_entry;
     }
