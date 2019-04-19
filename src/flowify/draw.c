@@ -1313,7 +1313,7 @@ void draw_an_entry(DrawEntry * draw_entry)
                 assert(!add_rect_at_end);
                 
                 // We remove the bottom half of the last lane-part
-                directional_rects[directional_rects_index - 1].size = directional_rects[directional_rects_index - 1].size / 2;
+                directional_rects[directional_rects_index - 1].size.height = directional_rects[directional_rects_index - 1].size.height / 2;
             }
             
             // FIXME: add:
