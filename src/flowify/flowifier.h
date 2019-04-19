@@ -218,18 +218,10 @@ struct FlowStyleEvenOdd
 
 // TODO: we might want to put the Draw-structs in a separate file
 
-enum LanePartDirection
-{
-    Direction_TopToBottom,
-    Direction_LeftToRight,
-    Direction_BottomToTop,
-    Direction_RightToLeft
-};
-
 struct DrawLanePart
 {
     Rect2d rect;
-    LanePartDirection direction;
+    Direction direction;
     
     DrawLanePart * next_part;
     // TODO: maybe add fill_color (when a part is selected for example)

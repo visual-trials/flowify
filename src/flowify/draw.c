@@ -336,7 +336,7 @@ DrawLane * push_lane(Flowifier * flowifier, i32 bending_radius, Color4 line_colo
 }
 
 // TODO: we might want to add fill_color as an argument here
-void push_lane_part_to_current_lane(Flowifier * flowifier, Rect2d rect, LanePartDirection direction)
+void push_lane_part_to_current_lane(Flowifier * flowifier, Rect2d rect, Direction direction)
 {
     assert(flowifier->current_lane);
     

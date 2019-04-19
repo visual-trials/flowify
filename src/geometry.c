@@ -52,6 +52,21 @@ struct Rect2d
     Size2d size;
 };
 
+enum Direction
+{
+    Direction_TopToBottom,
+    Direction_LeftToRight,
+    Direction_BottomToTop,
+    Direction_RightToLeft
+};
+
+struct DirectionalRect2d
+{
+    Pos2d position;
+    Size2d size;
+    Direction direction;
+};
+
 struct Margins
 {
     i32 left;

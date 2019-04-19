@@ -45,6 +45,11 @@ extern "C" {
                                   i32 fill_color_rgb, i32 fill_color_alpha, 
                                   i32 line_width);
                                   
+    extern void jsDrawLane(i32 lane_parts_index, i32 lane_parts_count, 
+                           i32 line_color_rgb, i32 line_color_alpha, 
+                           i32 fill_color_rgb, i32 fill_color_alpha, 
+                           i32 line_width);
+                                  
     extern void jsDrawRect(i32 x, i32 y, i32 width, i32 height, 
                            i32 line_color_rgb, i32 line_color_alpha, 
                            i32 fill_color_rgb, i32 fill_color_alpha, 
@@ -131,6 +136,20 @@ void draw_lane_segment(Pos2d left_top_position, Pos2d right_top_position,
                       left_bottom_position.x, right_bottom_position.x, left_bottom_position.y, 
                       left_middle_y, right_middle_y, radius,
                       line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
+}
+
+void draw_lane(DirectionalRect2d * lane_parts, i32 lane_parts_count,
+               Color4 line_color, Color4 fill_color, i32 line_width)
+{
+    i32 line_color_rgb = line_color.r + line_color.g * 256 + line_color.b * 256 * 256; 
+    i32 line_color_alpha = (i32)line_color.a;
+    
+    i32 fill_color_rgb = fill_color.r + fill_color.g * 256 + fill_color.b * 256 * 256;
+    i32 fill_color_alpha = (i32)fill_color.a;
+    
+    i32 lane_parts_index = 0;
+    
+    jsDrawLane(lane_parts_index, lane_parts_count, line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
 }
 
 void draw_rectangle(Pos2d position, Size2d size, 

@@ -635,6 +635,15 @@ Flowify.canvas = function () {
                 }
             },
             
+            // FIXME: do something with: , splittingPointX, splittingPointY, joiningPointX, joiningPointY, isRightSide
+            _jsDrawLane: function (lanePartsIndex, lanePartsCount, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
+                let laneparts = []
+                for (let i = lanePartsIndex / 4; i < lanePartsIndex / 4 + lanePartCount; i++) {
+                    let integer = Flowify.main.bufferU32[i]
+                    console.log(integer);
+                }
+            },
+            
             _jsDrawRect: function (x, y, width, height, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
 
                 ctx.beginPath()
