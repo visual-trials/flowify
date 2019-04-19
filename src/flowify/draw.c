@@ -1207,12 +1207,27 @@ void draw_an_entry(DrawEntry * draw_entry)
         
         if (some_lane_parts_are_on_screen)
         {
-            DrawLanePart * previous_part = 0;
+            // FIXME: allocate this properly!
+            DirectionalRect2d directional_rects[100];
+            
+            i32 directional_rects_index = 0;
+            // DrawLanePart * previous_part = 0;
             lane_part = first_lane_part;
             while(lane_part)
             {
                 Rect2d rect = lane_part->rect;
+
+                DirectionalRect2d directional_rect = {};
                 
+                directional_rect.position = rect.position;
+                directional_rect.size = rect.size;
+                directional_rect.direction = lane_part->direction;
+                
+                assert(directional_rects_index < 100);
+                directional_rects[directional_rects_index] = directional_rect;
+                directional_rects_index++;
+                
+                /*
                 // TODO: use equivalents of combinations of: draw_cornered_lane_segment and draw_lane_segment
                 
                 // FIXME: most of this is just a placeholder. We should do this differently
@@ -1232,9 +1247,13 @@ void draw_an_entry(DrawEntry * draw_entry)
                     draw_lines_between_lane_parts(previous_part, lane_part, line_color, line_width);
                 }
                 previous_part = lane_part;
+                */
                 
                 lane_part = lane_part->next_part;
             }
+            
+            draw_lane(directional_rects, directional_rects_index, line_color, fill_color, line_width);
+            
         }
         
     }

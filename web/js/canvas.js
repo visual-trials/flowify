@@ -638,15 +638,23 @@ Flowify.canvas = function () {
             _jsDrawLane: function (lanePartsIndex, lanePartsCount, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
                 
                 // FIXME: do something with: , splittingPointX, splittingPointY, joiningPointX, joiningPointY, isRightSide
-console.log(lanePartsIndex)
                 let laneparts = []
                 let nrOfIntegersPerLanePart = 5 // FIXME: somehow sync this with the size of DirectionalRect2d?
-                for (let i = lanePartsIndex / 4; i < lanePartsIndex / 4 + lanePartsCount; i = i + nrOfIntegersPerLanePart) {
+                for (let i = lanePartsIndex / 4; i < lanePartsIndex / 4 + lanePartsCount * nrOfIntegersPerLanePart; i = i + nrOfIntegersPerLanePart) {
                     let x = Flowify.main.bufferI32[i]
                     let y = Flowify.main.bufferI32[i+1]
                     let width = Flowify.main.bufferI32[i+2]
                     let height = Flowify.main.bufferI32[i+3]
                     let direction = Flowify.main.bufferI32[i+4]
+                    
+                    laneparts.push({
+                        "x": x,
+                        "y": y,
+                        "width": width,
+                        "height": height,
+                        "direction": direction,
+                    })
+                    /*
                     console.log({
                         "x": x,
                         "y": y,
@@ -654,6 +662,12 @@ console.log(lanePartsIndex)
                         "height": height,
                         "direction": direction,
                     });
+                    */
+                }
+                
+                if (!my.alreadyLogged) {
+                    console.log(laneparts)
+                    my.alreadyLogged = true
                 }
             },
             
