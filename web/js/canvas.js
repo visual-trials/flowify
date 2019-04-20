@@ -723,7 +723,17 @@ Flowify.canvas = function () {
                     
                     ctx.beginPath()
                     
+                    if (!partialRectAtStart) {
+                        let lanePart = laneParts[0]
+                        
+                        // args: leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius
+                        drawLeft(lanePart.x, lanePart.y, 
+                                lanePart.y + lanePart.height / 4, // TODO: 1 / 4 as middleY (we shouldnt use drawLeft, we only draw a straight (half) lanePart)
+                                lanePart.x, lanePart.y + lanePart.height / 2, radius, isBackground = true)
+                    }
+                    
                     // Left side (top to bottom)
+                    
                     let previousLanePart = null
                     for (let lanePartIndex = 0; lanePartIndex < laneParts.length; lanePartIndex++) {
                         let lanePart = laneParts[lanePartIndex]
@@ -754,7 +764,24 @@ Flowify.canvas = function () {
                         previousLanePart = lanePart
                     }
                     
+                    if (!partialRectAtEnd) {
+                        let lanePart = laneParts[laneParts.length - 1]
+                        
+                        // args: leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius
+                        drawLeft(lanePart.x, lanePart.y + lanePart.height / 2, 
+                                lanePart.y + lanePart.height * 3 / 4, // TODO: 3 / 4 as middleY (we shouldnt use drawLeft, we only draw a straight (half) lanePart)
+                                lanePart.x, lanePart.y + lanePart.height, radius, isBackground = true)
+                    }
+                    
                     // Right side (bottom to top)
+                    if (!partialRectAtEnd) {
+                        let lanePart = laneParts[laneParts.length - 1]
+                        
+                        // args: rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius
+                        drawRight(lanePart.x + lanePart.width, lanePart.y + lanePart.height / 2, 
+                                  lanePart.y + lanePart.height * 3 / 4, // TODO: 3 / 4 as middleY (we shouldnt use drawLeft, we only draw a straight (half) lanePart)
+                                  lanePart.x + lanePart.width, lanePart.y + lanePart.height, radius, isBackground = true)
+                    }
                     previousLanePart = null
                     for (let lanePartIndex = laneParts.length - 1; lanePartIndex >= 0; lanePartIndex--) {
                         let lanePart = laneParts[lanePartIndex]
@@ -777,6 +804,15 @@ Flowify.canvas = function () {
                         */
                         previousLanePart = lanePart
                     }
+                    if (!partialRectAtStart) {
+                        let lanePart = laneParts[0]
+                        
+                        // args: rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius
+                        drawRight(lanePart.x + lanePart.width, lanePart.y, 
+                                  lanePart.y + lanePart.height / 4, // TODO: 1 / 4 as middleY (we shouldnt use drawLeft, we only draw a straight (half) lanePart)
+                                  lanePart.x + previousLanePart.width, lanePart.y + lanePart.height / 2, radius, isBackground = true)
+                    }
+                    
                     ctx.closePath()
                     ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
                     ctx.fill()
@@ -789,6 +825,15 @@ Flowify.canvas = function () {
                     // Draw borders
                     
                     ctx.beginPath()
+
+                    if (!partialRectAtStart) {
+                        let lanePart = laneParts[0]
+                        
+                        // args: leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius
+                        drawLeft(lanePart.x, lanePart.y, 
+                                lanePart.y + lanePart.height / 4, // TODO: 1 / 4 as middleY (we shouldnt use drawLeft, we only draw a straight (half) lanePart)
+                                lanePart.x, lanePart.y + lanePart.height / 2, radius)
+                    }
                     
                     // Left side (top to bottom)
                     let previousLanePart = null
@@ -831,7 +876,25 @@ Flowify.canvas = function () {
                         previousLanePart = lanePart
                     }
                         
+                    if (!partialRectAtEnd) {
+                        let lanePart = laneParts[laneParts.length - 1]
+                        
+                        // args: leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius
+                        drawLeft(lanePart.x, lanePart.y + lanePart.height / 2, 
+                                lanePart.y + lanePart.height * 3 / 4, // TODO: 3 / 4 as middleY (we shouldnt use drawLeft, we only draw a straight (half) lanePart)
+                                lanePart.x, lanePart.y + lanePart.height, radius)
+                    }
+                    
                     // Right side (bottom to top)
+                    if (!partialRectAtEnd) {
+                        let lanePart = laneParts[laneParts.length - 1]
+                        
+                        // args: rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius
+                        drawRight(lanePart.x + lanePart.width, lanePart.y + lanePart.height / 2, 
+                                  lanePart.y + lanePart.height * 3 / 4, // TODO: 3 / 4 as middleY (we shouldnt use drawLeft, we only draw a straight (half) lanePart)
+                                  lanePart.x + lanePart.width, lanePart.y + lanePart.height, radius)
+                    }
+                    
                     previousLanePart = null
                     for (let lanePartIndex = laneParts.length - 1; lanePartIndex >= 0; lanePartIndex--) {
                         let lanePart = laneParts[lanePartIndex]
@@ -868,6 +931,16 @@ Flowify.canvas = function () {
                         */
                         previousLanePart = lanePart
                     }
+                    
+                    if (!partialRectAtStart) {
+                        let lanePart = laneParts[0]
+                        
+                        // args: rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius
+                        drawRight(lanePart.x + lanePart.width, lanePart.y, 
+                                  lanePart.y + lanePart.height / 4, // TODO: 1 / 4 as middleY (we shouldnt use drawLeft, we only draw a straight (half) lanePart)
+                                  lanePart.x + previousLanePart.width, lanePart.y + lanePart.height / 2, radius)
+                    }
+                    
                     ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
                     ctx.lineWidth = lineWidth
                     ctx.stroke()
