@@ -664,6 +664,7 @@ Flowify.canvas = function () {
                 
                 function drawLeft(leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius) {
                     // Draw left side
+                    // FIXME: do we need this moveTo? Should it be done by the caller?
                     ctx.moveTo(leftTopX, topY)
                     if (leftBottomX < leftTopX) {
                         // bottom is to the left of the top
@@ -685,6 +686,7 @@ Flowify.canvas = function () {
                 
                 function drawRight(rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius) {
                     // Right side (bottom to top)
+                    // FIXME: do we need this moveTo? Should it be done by the caller?
                     ctx.moveTo(rightBottomX, bottomY)
                     if (rightBottomX < rightTopX) {
                         // bottom is to the left of the top
@@ -716,12 +718,28 @@ Flowify.canvas = function () {
                         let lanePart = laneParts[lanePartIndex]
                         
                         if (lanePartIndex > 0) {
+                        
+                            // TODO: where do we want the middleY to be?
+                            let distanceBetweenRects = lanePart.y - (previousLanePart.y + previousLanePart.height)
+                            // args: leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius
+                            drawLeft(previousLanePart.x, previousLanePart.y + previousLanePart.height /  2, 
+                                    lanePart.y - distanceBetweenRects / 2,
+                                    lanePart.x, lanePart.y + lanePart.height / 2, radius)
+                            
+                        }
+                        else {
+                            // TODO: lanePartIndex == 0
+                        }
+                        
+                        /*
+                        if (lanePartIndex > 0) {
                             ctx.lineTo(lanePart.x, lanePart.y)
                         }
                         else {
                             ctx.moveTo(lanePart.x, lanePart.y)
                         }
                         ctx.lineTo(lanePart.x, lanePart.y + lanePart.height)
+                        */
                         previousLanePart = lanePart
                     }
                     
@@ -729,8 +747,23 @@ Flowify.canvas = function () {
                     previousLanePart = null
                     for (let lanePartIndex = laneParts.length - 1; lanePartIndex >= 0; lanePartIndex--) {
                         let lanePart = laneParts[lanePartIndex]
+                        
+                        if (lanePartIndex < laneParts.length - 1) {
+                            // TODO: where do we want the middleY to be?
+                            let distanceBetweenRects = previousLanePart.y - (lanePart.y + lanePart.height)
+                            // args: rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius
+                            drawRight(lanePart.x + lanePart.width, lanePart.y + lanePart.height /  2, 
+                                      previousLanePart.y - distanceBetweenRects / 2,
+                                      previousLanePart.x + previousLanePart.width, previousLanePart.y + previousLanePart.height / 2, radius)
+                        }
+                        else {
+                            // TODO: lanePartIndex == laneParts.length - 1
+                        }
+                        
+                        /*
                         ctx.lineTo(lanePart.x + lanePart.width, lanePart.y + lanePart.height)
                         ctx.lineTo(lanePart.x + lanePart.width, lanePart.y)
+                        */
                         previousLanePart = lanePart
                     }
                     ctx.closePath()
