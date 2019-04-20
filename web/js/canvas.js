@@ -664,7 +664,6 @@ Flowify.canvas = function () {
                 
                 function drawLeft(leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius, isBackground = false) {
                     // Draw left side
-                    // FIXME: do we need this moveTo? Should it be done by the caller?
                     if (isBackground) {
                         ctx.lineTo(leftTopX, topY)
                     }
@@ -692,7 +691,6 @@ Flowify.canvas = function () {
                 
                 function drawRight(rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius, isBackground = false) {
                     // Right side (bottom to top)
-                    // FIXME: do we need this moveTo? Should it be done by the caller?
                     if (isBackground) {
                         ctx.lineTo(rightBottomX, bottomY)
                     }
@@ -749,18 +747,9 @@ Flowify.canvas = function () {
                             
                         }
                         else {
-                            // TODO: lanePartIndex == 0
+                            // the case lanePartIndex == 0 is handled above
                         }
                         
-                        /*
-                        if (lanePartIndex > 0) {
-                            ctx.lineTo(lanePart.x, lanePart.y)
-                        }
-                        else {
-                            ctx.moveTo(lanePart.x, lanePart.y)
-                        }
-                        ctx.lineTo(lanePart.x, lanePart.y + lanePart.height)
-                        */
                         previousLanePart = lanePart
                     }
                     
@@ -795,13 +784,9 @@ Flowify.canvas = function () {
                                       previousLanePart.x + previousLanePart.width, previousLanePart.y + previousLanePart.height / 2, radius, isBackground = true)
                         }
                         else {
-                            // TODO: lanePartIndex == laneParts.length - 1
+                            // the case laneParts.length - 1 is handled above
                         }
                         
-                        /*
-                        ctx.lineTo(lanePart.x + lanePart.width, lanePart.y + lanePart.height)
-                        ctx.lineTo(lanePart.x + lanePart.width, lanePart.y)
-                        */
                         previousLanePart = lanePart
                     }
                     if (!partialRectAtStart) {
@@ -826,6 +811,8 @@ Flowify.canvas = function () {
                     
                     ctx.beginPath()
 
+                    // Left side (top to bottom)
+                    
                     if (!partialRectAtStart) {
                         let lanePart = laneParts[0]
                         
@@ -835,44 +822,37 @@ Flowify.canvas = function () {
                                 lanePart.x, lanePart.y + lanePart.height / 2, radius)
                     }
                     
-                    // Left side (top to bottom)
                     let previousLanePart = null
                     for (let lanePartIndex = 0; lanePartIndex < laneParts.length; lanePartIndex++) {
                         let lanePart = laneParts[lanePartIndex]
                         
                         if (lanePartIndex > 0) {
+                            
+                            let heightToDrawOfPreviousLane = previousLanePart.height / 2
+                            let heightToDrawOfCurrentLane = lanePart.height / 2
                         
+                            if (lanePartIndex == 1 && partialRectAtStart && isRightSideAtStart) {
+                                // TODO: we should also change leftMiddleY
+                                heightToDrawOfPreviousLane = 0
+                            }
+                            
+                            if (lanePartIndex == laneParts.length - 1 && partialRectAtEnd && isRightSideAtEnd) {
+                                // TODO: we should also change leftMiddleY
+                                heightToDrawOfCurrentLane = 0
+                            }
+                            
                             // TODO: where do we want the middleY to be?
                             let distanceBetweenRects = lanePart.y - (previousLanePart.y + previousLanePart.height)
                             // args: leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius
-                            drawLeft(previousLanePart.x, previousLanePart.y + previousLanePart.height / 2, 
+                            drawLeft(previousLanePart.x, previousLanePart.y + previousLanePart.height - heightToDrawOfPreviousLane, 
                                     lanePart.y - distanceBetweenRects / 2,
-                                    lanePart.x, lanePart.y + lanePart.height / 2, radius)
+                                    lanePart.x, lanePart.y + heightToDrawOfCurrentLane, radius)
                             
                         }
                         else {
-                            // TODO: lanePartIndex == 0
+                            // the case lanePartIndex == 0 is handled above
                         }
                         
-                        
-                        /*
-                        if (lanePartIndex > 0) {
-                            ctx.lineTo(lanePart.x, lanePart.y)
-                        }
-                        else {
-                            ctx.moveTo(lanePart.x, lanePart.y)
-                        }
-
-                        if (lanePartIndex == 0 && partialRectAtStart && isRightSideAtStart) {
-                            ctx.moveTo(lanePart.x, lanePart.y + lanePart.height)
-                        }
-                        else if (lanePartIndex == laneParts.length - 1 && partialRectAtEnd && isRightSideAtEnd) {
-                            ctx.moveTo(lanePart.x, lanePart.y + lanePart.height)
-                        }
-                        else {
-                            ctx.lineTo(lanePart.x, lanePart.y + lanePart.height)
-                        }
-                        */
                         previousLanePart = lanePart
                     }
                         
@@ -900,35 +880,30 @@ Flowify.canvas = function () {
                         let lanePart = laneParts[lanePartIndex]
                         
                         if (lanePartIndex < laneParts.length - 1) {
+                            let heightToDrawOfPreviousLane = previousLanePart.height / 2
+                            let heightToDrawOfCurrentLane = lanePart.height / 2
+                            
+                            if (lanePartIndex == 0 && partialRectAtStart && !isRightSideAtStart) {
+                                // TODO: we should also change rightMiddleY
+                                heightToDrawOfCurrentLane = 0
+                            }
+                            
+                            if (lanePartIndex == laneParts.length - 2 && partialRectAtEnd && !isRightSideAtEnd) {
+                                // TODO: we should also change rightMiddleY
+                                heightToDrawOfPreviousLane = 0
+                            }
+                            
                             // TODO: where do we want the middleY to be?
                             let distanceBetweenRects = previousLanePart.y - (lanePart.y + lanePart.height)
                             // args: rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius
-                            drawRight(lanePart.x + lanePart.width, lanePart.y + lanePart.height / 2, 
+                            drawRight(lanePart.x + lanePart.width, lanePart.y + lanePart.height - heightToDrawOfCurrentLane, 
                                       previousLanePart.y - distanceBetweenRects / 2,
-                                      previousLanePart.x + previousLanePart.width, previousLanePart.y + previousLanePart.height / 2, radius)
+                                      previousLanePart.x + previousLanePart.width, previousLanePart.y + heightToDrawOfPreviousLane, radius)
                         }
                         else {
-                            // TODO: lanePartIndex == laneParts.length - 1
+                            // the case laneParts.length - 1 is handled above
                         }
                                     
-                        /*
-                        if (lanePartIndex < laneParts.length - 1) {
-                            ctx.lineTo(lanePart.x + lanePart.width, lanePart.y + lanePart.height)
-                        }
-                        else {
-                            ctx.moveTo(lanePart.x + lanePart.width, lanePart.y + lanePart.height)
-                        }
-                        
-                        if (lanePartIndex == 0 && partialRectAtStart && !isRightSideAtStart) {
-                            ctx.moveTo(lanePart.x + lanePart.width, lanePart.y)
-                        }
-                        else if (lanePartIndex == laneParts.length - 1 && partialRectAtEnd && !isRightSideAtEnd) {
-                            ctx.moveTo(lanePart.x + lanePart.width, lanePart.y)
-                        }
-                        else {
-                            ctx.lineTo(lanePart.x + lanePart.width, lanePart.y)
-                        }
-                        */
                         previousLanePart = lanePart
                     }
                     
