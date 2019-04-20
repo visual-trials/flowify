@@ -638,7 +638,7 @@ Flowify.canvas = function () {
             _jsDrawLane: function (lanePartsIndex, lanePartsCount,
                                    partialRectAtStart, isRightSideAtStart,
                                    partialRectAtEnd, isRightSideAtEnd,
-                                   lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
+                                   radius, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
                 
                 let laneParts = []
                 let nrOfIntegersPerLanePart = 5 // FIXME: somehow sync this with the size of DirectionalRect2d?
@@ -662,7 +662,47 @@ Flowify.canvas = function () {
                     return
                 }
                 
-                // FIXME: placeholder drawings for now!
+                function drawLeft(leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius) {
+                    // Draw left side
+                    ctx.moveTo(leftTopX, topY)
+                    if (leftBottomX < leftTopX) {
+                        // bottom is to the left of the top
+                        ctx.arcTo(leftTopX, leftMiddleY, leftTopX - radius, leftMiddleY, radius)
+                        ctx.arcTo(leftBottomX, leftMiddleY, leftBottomX, leftMiddleY + radius, radius)
+                        ctx.lineTo(leftBottomX, bottomY)
+                    }
+                    else if (leftBottomX > leftTopX) {
+                        // bottom is to the right of the top
+                        ctx.arcTo(leftTopX, leftMiddleY, leftTopX + radius, leftMiddleY, radius)
+                        ctx.arcTo(leftBottomX, leftMiddleY, leftBottomX, leftMiddleY + radius, radius)
+                        ctx.lineTo(leftBottomX, bottomY)
+                    }
+                    else {
+                        // straight vertical line
+                        ctx.lineTo(leftBottomX, bottomY)
+                    }
+                }
+                
+                function drawRight(rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius) {
+                    // Right side (bottom to top)
+                    ctx.moveTo(rightBottomX, bottomY)
+                    if (rightBottomX < rightTopX) {
+                        // bottom is to the left of the top
+                        ctx.arcTo(rightBottomX, rightMiddleY, rightBottomX + radius, rightMiddleY, radius)
+                        ctx.arcTo(rightTopX, rightMiddleY, rightTopX, rightMiddleY - radius, radius)
+                        ctx.lineTo(rightTopX, topY)
+                    }
+                    else if (rightBottomX > rightTopX) {
+                        // bottom is to the right of the top
+                        ctx.arcTo(rightBottomX, rightMiddleY, rightBottomX - radius, rightMiddleY, radius)
+                        ctx.arcTo(rightTopX, rightMiddleY, rightTopX, rightMiddleY - radius, radius)
+                        ctx.lineTo(rightTopX, topY)
+                    }
+                    else {
+                        // straight vertical line
+                        ctx.lineTo(rightTopX, topY)
+                    }
+                }
                 
                 if (fillColorAlpha) {
                     
@@ -671,6 +711,7 @@ Flowify.canvas = function () {
                     ctx.beginPath()
                     
                     // Left side (top to bottom)
+                    let previousLanePart = null
                     for (let lanePartIndex = 0; lanePartIndex < laneParts.length; lanePartIndex++) {
                         let lanePart = laneParts[lanePartIndex]
                         
@@ -681,13 +722,16 @@ Flowify.canvas = function () {
                             ctx.moveTo(lanePart.x, lanePart.y)
                         }
                         ctx.lineTo(lanePart.x, lanePart.y + lanePart.height)
+                        previousLanePart = lanePart
                     }
                     
                     // Right side (bottom to top)
+                    previousLanePart = null
                     for (let lanePartIndex = laneParts.length - 1; lanePartIndex >= 0; lanePartIndex--) {
                         let lanePart = laneParts[lanePartIndex]
                         ctx.lineTo(lanePart.x + lanePart.width, lanePart.y + lanePart.height)
                         ctx.lineTo(lanePart.x + lanePart.width, lanePart.y)
+                        previousLanePart = lanePart
                     }
                     ctx.closePath()
                     ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
@@ -703,9 +747,26 @@ Flowify.canvas = function () {
                     ctx.beginPath()
                     
                     // Left side (top to bottom)
+                    let previousLanePart = null
                     for (let lanePartIndex = 0; lanePartIndex < laneParts.length; lanePartIndex++) {
                         let lanePart = laneParts[lanePartIndex]
                         
+                        if (lanePartIndex > 0) {
+                        
+                            // TODO: where do we want the middleY to be?
+                            let distanceBetweenRects = lanePart.y - (previousLanePart.y + previousLanePart.height)
+                            // args: leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius
+                            drawLeft(previousLanePart.x, previousLanePart.y + previousLanePart.height /  2, 
+                                    lanePart.y - distanceBetweenRects / 2,
+                                    lanePart.x, lanePart.y + lanePart.height / 2, radius)
+                            
+                        }
+                        else {
+                            // TODO: lanePartIndex == 0
+                        }
+                        
+                        
+                        /*
                         if (lanePartIndex > 0) {
                             ctx.lineTo(lanePart.x, lanePart.y)
                         }
@@ -722,13 +783,28 @@ Flowify.canvas = function () {
                         else {
                             ctx.lineTo(lanePart.x, lanePart.y + lanePart.height)
                         }
-                        
+                        */
+                        previousLanePart = lanePart
                     }
                         
                     // Right side (bottom to top)
+                    previousLanePart = null
                     for (let lanePartIndex = laneParts.length - 1; lanePartIndex >= 0; lanePartIndex--) {
                         let lanePart = laneParts[lanePartIndex]
                         
+                        if (lanePartIndex < laneParts.length - 1) {
+                            // TODO: where do we want the middleY to be?
+                            let distanceBetweenRects = previousLanePart.y - (lanePart.y + lanePart.height)
+                            // args: rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius
+                            drawRight(lanePart.x + lanePart.width, lanePart.y + lanePart.height /  2, 
+                                      previousLanePart.y - distanceBetweenRects / 2,
+                                      previousLanePart.x + previousLanePart.width, previousLanePart.y + previousLanePart.height / 2, radius)
+                        }
+                        else {
+                            // TODO: lanePartIndex == laneParts.length - 1
+                        }
+                                    
+                        /*
                         if (lanePartIndex < laneParts.length - 1) {
                             ctx.lineTo(lanePart.x + lanePart.width, lanePart.y + lanePart.height)
                         }
@@ -745,6 +821,8 @@ Flowify.canvas = function () {
                         else {
                             ctx.lineTo(lanePart.x + lanePart.width, lanePart.y)
                         }
+                        */
+                        previousLanePart = lanePart
                     }
                     ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
                     ctx.lineWidth = lineWidth
