@@ -1202,8 +1202,8 @@ void draw_an_entry(DrawEntry * draw_entry)
                     rect_to_add_at_start.size.width = splitting_rect.position.x + splitting_rect.size.width - splitting_point.x; 
                     
                     // We split the rect in half vertically and take the lower half.
-                    rect_to_add_at_start.position.y = splitting_rect.position.y + splitting_rect.size.height / 2; 
-                    rect_to_add_at_start.size.height = splitting_rect.size.height / 2;
+                    rect_to_add_at_start.position.y = splitting_rect.position.y; // TODO not needed anymore: + splitting_rect.size.height / 2; 
+                    rect_to_add_at_start.size.height = splitting_rect.size.height; // TODO not needed anymore:  / 2;
                 }
                 else
                 {
@@ -1215,8 +1215,8 @@ void draw_an_entry(DrawEntry * draw_entry)
                     rect_to_add_at_start.size.width = splitting_point.x - splitting_rect.position.x; 
                     
                     // We split the rect in half vertically and take the lower half.
-                    rect_to_add_at_start.position.y = splitting_rect.position.y + splitting_rect.size.height / 2; 
-                    rect_to_add_at_start.size.height = splitting_rect.size.height / 2;
+                    rect_to_add_at_start.position.y = splitting_rect.position.y; // TODO not needed anymore:  + splitting_rect.size.height / 2; 
+                    rect_to_add_at_start.size.height = splitting_rect.size.height; // TODO not needed anymore:  / 2;
                 }
                 
                 if (rect_is_inside_screen(rect_to_add_at_start))
@@ -1246,7 +1246,7 @@ void draw_an_entry(DrawEntry * draw_entry)
                     
                     // We split the rect in half vertically and take the upper half.
                     rect_to_add_at_end.position.y = joining_rect.position.y; 
-                    rect_to_add_at_end.size.height = joining_rect.size.height / 2;
+                    rect_to_add_at_end.size.height = joining_rect.size.height; // TODO not needed anymore:  / 2;
                 }
                 else
                 {
@@ -1259,7 +1259,7 @@ void draw_an_entry(DrawEntry * draw_entry)
                     
                     // We split the rect in half vertically and take the upper half.
                     rect_to_add_at_end.position.y = joining_rect.position.y; 
-                    rect_to_add_at_end.size.height = joining_rect.size.height / 2;
+                    rect_to_add_at_end.size.height = joining_rect.size.height; // TODO not needed anymore:  / 2;
                 }
 
                 if (rect_is_inside_screen(rect_to_add_at_end))
@@ -1336,8 +1336,8 @@ void draw_an_entry(DrawEntry * draw_entry)
                 assert(!add_rect_at_start);
                 
                 // We remove the top half of the first lane-part
-                directional_rects[0].position.y += directional_rects[0].size.height / 2;
-                directional_rects[0].size.height = directional_rects[0].size.height / 2;
+                // TODO: not needed anymore: directional_rects[0].position.y += directional_rects[0].size.height / 2;
+                // TODO: not needed anymore: directional_rects[0].size.height = directional_rects[0].size.height / 2;
             }
             
             if (lane->is_splitter_at_end)
@@ -1346,7 +1346,7 @@ void draw_an_entry(DrawEntry * draw_entry)
                 assert(!add_rect_at_end);
                 
                 // We remove the bottom half of the last lane-part
-                directional_rects[directional_rects_index - 1].size.height = directional_rects[directional_rects_index - 1].size.height / 2;
+                // TODO: not needed anymore: directional_rects[directional_rects_index - 1].size.height = directional_rects[directional_rects_index - 1].size.height / 2;
             }
             
             draw_lane(directional_rects, directional_rects_index, 
