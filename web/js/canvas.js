@@ -792,12 +792,39 @@ Flowify.canvas = function () {
                         
                         if (lanePartIndex > 0) {
                         
-                            // TODO: where do we want the middleY to be?
-                            let distanceBetweenRects = lanePart.y - (previousLanePart.y + previousLanePart.height)
-                            // args: leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius
-                            drawLeft(previousLanePart.x, previousLanePart.y + previousLanePart.height / 2, 
-                                    lanePart.y - distanceBetweenRects / 2,
-                                    lanePart.x, lanePart.y + lanePart.height / 2, radius, isBackground = true)
+                            if (lanePart.direction != Direction_TopToBottom || previousLanePart.direction != Direction_TopToBottom) {
+                                let firstX = previousLanePart.x
+                                let firstY = previousLanePart.y
+                                let firstDirection = previousLanePart.direction
+                                
+                                if (firstDirection == Direction_LeftToRight) {
+                                    firstY = previousLanePart.y + previousLanePart.height
+                                }
+                                else if (firstDirection == Direction_BottomToTop) {
+                                    firstX = previousLanePart.x + previousLanePart.width
+                                }
+                                
+                                let secondX = lanePart.x
+                                let secondY = lanePart.y
+                                let secondDirection = lanePart.direction
+                                
+                                if (secondDirection == Direction_BottomToTop) {
+                                    secondX = lanePart.x + lanePart.width
+                                }
+                                else if (secondDirection == Direction_LeftToRight) {
+                                    secondY = lanePart.y + lanePart.height
+                                }
+                            
+                                drawOneSideOfCorner(firstX, firstY, firstDirection, secondX, secondY, secondDirection, radius, isBackground = true)
+                            }
+                            else {
+                                // TODO: where do we want the middleY to be?
+                                let distanceBetweenRects = lanePart.y - (previousLanePart.y + previousLanePart.height)
+                                // args: leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius
+                                drawLeft(previousLanePart.x, previousLanePart.y + previousLanePart.height / 2, 
+                                        lanePart.y - distanceBetweenRects / 2,
+                                        lanePart.x, lanePart.y + lanePart.height / 2, radius, isBackground = true)
+                            }
                             
                         }
                         else {
@@ -830,12 +857,39 @@ Flowify.canvas = function () {
                         let lanePart = laneParts[lanePartIndex]
                         
                         if (lanePartIndex < laneParts.length - 1) {
-                            // TODO: where do we want the middleY to be?
-                            let distanceBetweenRects = previousLanePart.y - (lanePart.y + lanePart.height)
-                            // args: rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius
-                            drawRight(lanePart.x + lanePart.width, lanePart.y + lanePart.height / 2,
-                                      previousLanePart.y - distanceBetweenRects / 2,
-                                      previousLanePart.x + previousLanePart.width, previousLanePart.y + previousLanePart.height / 2, radius, isBackground = true)
+                            if (lanePart.direction != Direction_TopToBottom || previousLanePart.direction != Direction_TopToBottom) {
+                                let firstX = previousLanePart.x
+                                let firstY = previousLanePart.y
+                                let firstDirection = previousLanePart.direction
+                                
+                                if (firstDirection == Direction_RightToLeft) {
+                                    firstY = previousLanePart.y + previousLanePart.height
+                                }
+                                else if (firstDirection == Direction_TopToBottom) {
+                                    firstX = previousLanePart.x + previousLanePart.width
+                                }
+                                
+                                let secondX = lanePart.x
+                                let secondY = lanePart.y
+                                let secondDirection = lanePart.direction
+                                
+                                if (secondDirection == Direction_TopToBottom) {
+                                    secondX = lanePart.x + lanePart.width
+                                }
+                                else if (secondDirection == Direction_RightToLeft) {
+                                    secondY = lanePart.y + lanePart.height
+                                }
+                            
+                                drawOneSideOfCorner(firstX, firstY, firstDirection, secondX, secondY, secondDirection, radius, isBackground = true)
+                            }
+                            else {
+                                // TODO: where do we want the middleY to be?
+                                let distanceBetweenRects = previousLanePart.y - (lanePart.y + lanePart.height)
+                                // args: rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius
+                                drawRight(lanePart.x + lanePart.width, lanePart.y + lanePart.height / 2,
+                                          previousLanePart.y - distanceBetweenRects / 2,
+                                          previousLanePart.x + previousLanePart.width, previousLanePart.y + previousLanePart.height / 2, radius, isBackground = true)
+                            }
                         }
                         else {
                             // the case laneParts.length - 1 is handled above
@@ -962,6 +1016,7 @@ Flowify.canvas = function () {
                         let lanePart = laneParts[lanePartIndex]
                         
                         if (lanePartIndex < laneParts.length - 1) {
+                            
                             if (lanePart.direction != Direction_TopToBottom || previousLanePart.direction != Direction_TopToBottom) {
                                 let firstX = previousLanePart.x
                                 let firstY = previousLanePart.y
