@@ -640,6 +640,11 @@ Flowify.canvas = function () {
                                    partialRectAtEnd, isRightSideAtEnd,
                                    radius, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
                 
+                let Direction_TopToBottom = 0
+                let Direction_LeftToRight = 1
+                let Direction_BottomToTop = 2
+                let Direction_RightToLeft = 3
+
                 let laneParts = []
                 let nrOfIntegersPerLanePart = 5 // FIXME: somehow sync this with the size of DirectionalRect2d?
                 for (let i = lanePartsIndex / 4; i < lanePartsIndex / 4 + lanePartsCount * nrOfIntegersPerLanePart; i = i + nrOfIntegersPerLanePart) {
@@ -714,6 +719,37 @@ Flowify.canvas = function () {
                         ctx.lineTo(rightTopX, topY)
                     }
                 }
+                
+                function drawOneSideOfCorner(firstX, firstY, firstDirection, secondX, secondY, secondDirection, radius, isBackground = false) {
+                    
+                    if (isBackground) {
+                        ctx.lineTo(firstX, firstY)
+                    }
+                    else {
+                        ctx.moveTo(firstX, firstY)
+                    }
+                    if (firstDirection == Direction_TopToBottom && secondDirection == Direction_LeftToRight) {
+                        ctx.arcTo(firstX, secondY, firstX + radius, secondY, radius)
+                        ctx.lineTo(secondX, secondY)
+                    }
+                    else if (firstDirection == Direction_LeftToRight && secondDirection == Direction_BottomToTop) {
+                        ctx.arcTo(secondX, firstY, secondX, firstY - radius, radius)
+                        ctx.lineTo(secondX, secondY)
+                    }
+                    else if (firstDirection == Direction_BottomToTop && secondDirection == Direction_RightToLeft) {
+                        ctx.arcTo(firstX, secondY, firstX - radius, secondY, radius)
+                        ctx.lineTo(secondX, secondY)
+                    }
+                    else if (firstDirection == Direction_RightToLeft && secondDirection == Direction_TopToBottom) {
+                        ctx.arcTo(secondX, firstY, secondX, firstY + radius, radius)
+                        ctx.lineTo(secondX, secondY)
+                    }
+                    else {
+                        console.log("ERROR: unsupported combination of directions!")
+                    }
+                }
+                
+                
                 
                 if (fillColorAlpha) {
                     
@@ -828,25 +864,53 @@ Flowify.canvas = function () {
                         
                         if (lanePartIndex > 0) {
                             
-                            let heightToDrawOfPreviousLane = previousLanePart.height / 2
-                            let heightToDrawOfCurrentLane = lanePart.height / 2
-                        
-                            if (lanePartIndex == 1 && partialRectAtStart && isRightSideAtStart) {
-                                // TODO: we should also change leftMiddleY
-                                heightToDrawOfPreviousLane = 0
-                            }
+                            if (lanePart.direction != Direction_TopToBottom || previousLanePart.direction != Direction_TopToBottom) {
+                                let firstX = previousLanePart.x
+                                let firstY = previousLanePart.y
+                                let firstDirection = previousLanePart.direction
+                                
+                                if (firstDirection == Direction_LeftToRight) {
+                                    firstY = previousLanePart.y + previousLanePart.height
+                                }
+                                else if (firstDirection == Direction_BottomToTop) {
+                                    firstX = previousLanePart.x + previousLanePart.width
+                                }
+                                
+                                let secondX = lanePart.x
+                                let secondY = lanePart.y
+                                let secondDirection = lanePart.direction
+                                
+                                if (secondDirection == Direction_TopToBottom) {
+                                    secondX = lanePart.x + lanePart.width
+                                }
+                                else if (secondDirection == Direction_RightToLeft) {
+                                    secondY = lanePart.y + lanePart.height
+                                }
                             
-                            if (lanePartIndex == laneParts.length - 1 && partialRectAtEnd && isRightSideAtEnd) {
-                                // TODO: we should also change leftMiddleY
-                                heightToDrawOfCurrentLane = 0
+                                drawOneSideOfCorner(firstX, firstY, firstDirection, secondX, secondY, secondDirection, radius)
                             }
+                            else {
                             
-                            // TODO: where do we want the middleY to be?
-                            let distanceBetweenRects = lanePart.y - (previousLanePart.y + previousLanePart.height)
-                            // args: leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius
-                            drawLeft(previousLanePart.x, previousLanePart.y + previousLanePart.height - heightToDrawOfPreviousLane, 
-                                    lanePart.y - distanceBetweenRects / 2,
-                                    lanePart.x, lanePart.y + heightToDrawOfCurrentLane, radius)
+                                let heightToDrawOfPreviousLane = previousLanePart.height / 2
+                                let heightToDrawOfCurrentLane = lanePart.height / 2
+                            
+                                if (lanePartIndex == 1 && partialRectAtStart && isRightSideAtStart) {
+                                    // TODO: we should also change leftMiddleY
+                                    heightToDrawOfPreviousLane = 0
+                                }
+                                
+                                if (lanePartIndex == laneParts.length - 1 && partialRectAtEnd && isRightSideAtEnd) {
+                                    // TODO: we should also change leftMiddleY
+                                    heightToDrawOfCurrentLane = 0
+                                }
+                                
+                                // TODO: where do we want the middleY to be?
+                                let distanceBetweenRects = lanePart.y - (previousLanePart.y + previousLanePart.height)
+                                // args: leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius
+                                drawLeft(previousLanePart.x, previousLanePart.y + previousLanePart.height - heightToDrawOfPreviousLane, 
+                                        lanePart.y - distanceBetweenRects / 2,
+                                        lanePart.x, lanePart.y + heightToDrawOfCurrentLane, radius)
+                            }
                             
                         }
                         else {
@@ -880,25 +944,31 @@ Flowify.canvas = function () {
                         let lanePart = laneParts[lanePartIndex]
                         
                         if (lanePartIndex < laneParts.length - 1) {
-                            let heightToDrawOfPreviousLane = previousLanePart.height / 2
-                            let heightToDrawOfCurrentLane = lanePart.height / 2
-                            
-                            if (lanePartIndex == 0 && partialRectAtStart && !isRightSideAtStart) {
-                                // TODO: we should also change rightMiddleY
-                                heightToDrawOfCurrentLane = 0
+                            if (lanePart.direction != 0 || previousLanePart.direction !=  0) {
+                                // drawCornerRightSide(horLeftX, horRightX, horY, vertX, vertTopY, vertBottomY, radius)                            
                             }
+                            else {
                             
-                            if (lanePartIndex == laneParts.length - 2 && partialRectAtEnd && !isRightSideAtEnd) {
-                                // TODO: we should also change rightMiddleY
-                                heightToDrawOfPreviousLane = 0
+                                let heightToDrawOfPreviousLane = previousLanePart.height / 2
+                                let heightToDrawOfCurrentLane = lanePart.height / 2
+                                
+                                if (lanePartIndex == 0 && partialRectAtStart && !isRightSideAtStart) {
+                                    // TODO: we should also change rightMiddleY
+                                    heightToDrawOfCurrentLane = 0
+                                }
+                                
+                                if (lanePartIndex == laneParts.length - 2 && partialRectAtEnd && !isRightSideAtEnd) {
+                                    // TODO: we should also change rightMiddleY
+                                    heightToDrawOfPreviousLane = 0
+                                }
+                                
+                                // TODO: where do we want the middleY to be?
+                                let distanceBetweenRects = previousLanePart.y - (lanePart.y + lanePart.height)
+                                // args: rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius
+                                drawRight(lanePart.x + lanePart.width, lanePart.y + lanePart.height - heightToDrawOfCurrentLane, 
+                                          previousLanePart.y - distanceBetweenRects / 2,
+                                          previousLanePart.x + previousLanePart.width, previousLanePart.y + heightToDrawOfPreviousLane, radius)
                             }
-                            
-                            // TODO: where do we want the middleY to be?
-                            let distanceBetweenRects = previousLanePart.y - (lanePart.y + lanePart.height)
-                            // args: rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius
-                            drawRight(lanePart.x + lanePart.width, lanePart.y + lanePart.height - heightToDrawOfCurrentLane, 
-                                      previousLanePart.y - distanceBetweenRects / 2,
-                                      previousLanePart.x + previousLanePart.width, previousLanePart.y + heightToDrawOfPreviousLane, radius)
                         }
                         else {
                             // the case laneParts.length - 1 is handled above
