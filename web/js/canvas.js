@@ -728,6 +728,7 @@ Flowify.canvas = function () {
                     else {
                         ctx.moveTo(firstX, firstY)
                     }
+                    // Forwards
                     if (firstDirection == Direction_TopToBottom && secondDirection == Direction_LeftToRight) {
                         ctx.arcTo(firstX, secondY, firstX + radius, secondY, radius)
                         ctx.lineTo(secondX, secondY)
@@ -742,6 +743,23 @@ Flowify.canvas = function () {
                     }
                     else if (firstDirection == Direction_RightToLeft && secondDirection == Direction_TopToBottom) {
                         ctx.arcTo(secondX, firstY, secondX, firstY + radius, radius)
+                        ctx.lineTo(secondX, secondY)
+                    }
+                    // Backwards
+                    else if (firstDirection == Direction_LeftToRight && secondDirection == Direction_TopToBottom) {
+                        ctx.arcTo(secondX, firstY, secondX, firstY - radius, radius)
+                        ctx.lineTo(secondX, secondY)
+                    }
+                    else if (firstDirection == Direction_BottomToTop && secondDirection == Direction_LeftToRight) {
+                        ctx.arcTo(firstX, secondY, firstX - radius, secondY, radius)
+                        ctx.lineTo(secondX, secondY)
+                    }
+                    else if (firstDirection == Direction_RightToLeft && secondDirection == Direction_BottomToTop) {
+                        ctx.arcTo(secondX, firstY, secondX, firstY + radius, radius)
+                        ctx.lineTo(secondX, secondY)
+                    }
+                    else if (firstDirection == Direction_TopToBottom && secondDirection == Direction_RightToLeft) {
+                        ctx.arcTo(firstX, secondY, firstX + radius, secondY, radius)
                         ctx.lineTo(secondX, secondY)
                     }
                     else {
@@ -880,10 +898,10 @@ Flowify.canvas = function () {
                                 let secondY = lanePart.y
                                 let secondDirection = lanePart.direction
                                 
-                                if (secondDirection == Direction_TopToBottom) {
+                                if (secondDirection == Direction_BottomToTop) {
                                     secondX = lanePart.x + lanePart.width
                                 }
-                                else if (secondDirection == Direction_RightToLeft) {
+                                else if (secondDirection == Direction_LeftToRight) {
                                     secondY = lanePart.y + lanePart.height
                                 }
                             
@@ -944,8 +962,30 @@ Flowify.canvas = function () {
                         let lanePart = laneParts[lanePartIndex]
                         
                         if (lanePartIndex < laneParts.length - 1) {
-                            if (lanePart.direction != 0 || previousLanePart.direction !=  0) {
-                                // drawCornerRightSide(horLeftX, horRightX, horY, vertX, vertTopY, vertBottomY, radius)                            
+                            if (lanePart.direction != Direction_TopToBottom || previousLanePart.direction != Direction_TopToBottom) {
+                                let firstX = previousLanePart.x
+                                let firstY = previousLanePart.y
+                                let firstDirection = previousLanePart.direction
+                                
+                                if (firstDirection == Direction_RightToLeft) {
+                                    firstY = previousLanePart.y + previousLanePart.height
+                                }
+                                else if (firstDirection == Direction_TopToBottom) {
+                                    firstX = previousLanePart.x + previousLanePart.width
+                                }
+                                
+                                let secondX = lanePart.x
+                                let secondY = lanePart.y
+                                let secondDirection = lanePart.direction
+                                
+                                if (secondDirection == Direction_TopToBottom) {
+                                    secondX = lanePart.x + lanePart.width
+                                }
+                                else if (secondDirection == Direction_RightToLeft) {
+                                    secondY = lanePart.y + lanePart.height
+                                }
+                            
+                                drawOneSideOfCorner(firstX, firstY, firstDirection, secondX, secondY, secondDirection, radius)
                             }
                             else {
                             
