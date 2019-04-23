@@ -129,7 +129,7 @@ Flowify.canvas = function () {
         }
         my.nrOfDrawCalls = 0
         
-        
+        /*
         // FIXME: put this inside a nice function
         
         let ctx = my.context2d
@@ -194,7 +194,7 @@ Flowify.canvas = function () {
             my.nrOfDrawCalls++
         }
         
-        
+        */
     }
     
     my.getCanvasRGBAColor = function (colorRGB, colorAlpha) {
