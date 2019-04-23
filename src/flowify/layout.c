@@ -23,7 +23,8 @@ Size2d get_size_based_on_source_text(Flowifier * flowifier, FlowElement * flow_e
     
     if (flow_element->source_text.length)
     {
-        size.width = flow_element->source_text.length * flowifier->character_width + margin.horizontal * 2;
+        // FIXME: hack: eulating 'kerning' here: space between characters
+        size.width = flow_element->source_text.length * (flowifier->character_width + 1) - 1 + margin.horizontal * 2;
     }
     else
     {
