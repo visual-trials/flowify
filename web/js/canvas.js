@@ -129,74 +129,8 @@ Flowify.canvas = function () {
         }
         my.nrOfDrawCalls = 0
         
-        /*
-        // FIXME: put this inside a nice function
-        
-        let ctx = my.context2d
-        
-        let lineColorAlpha = 255
-        let lineColorRGB = 0
-        
-        let r = 16 * 4
-        let lineWidth = 2
-        
-        let leftTopX = 400
-        //let rightTopX
-        let topY = 400
-        
-        let leftBottomX = 500
-        //let rightBottomX
-        let bottomY = 500
-        
-        let leftMiddleY = 450
-        // let rightMiddleY
-        
-        // FIXME: this assumes bottom to the right of the top!
-        let halfHorizontalDistanceTopBottom = (leftBottomX - leftTopX) / 2
-        // FIXME: this only works if halfHorizontalDistanceTopBottom < r !!
-        let angle = Math.acos((r - halfHorizontalDistanceTopBottom) / r)
-        let distanceFromTopToEndOfArc = Math.sin(angle) * r
-
-        ctx.strokeStyle = "#0000DD"
-        ctx.beginPath()
-        ctx.moveTo(leftTopX, topY)
-        ctx.lineTo(leftTopX, bottomY)
-        ctx.stroke()
-        
-        ctx.beginPath()
-        ctx.moveTo(leftTopX + halfHorizontalDistanceTopBottom, topY)
-        ctx.lineTo(leftTopX + halfHorizontalDistanceTopBottom, bottomY)
-        ctx.stroke()
-        
-        ctx.beginPath()
-        ctx.moveTo(leftBottomX, topY)
-        ctx.lineTo(leftBottomX, bottomY)
-        ctx.stroke()
-        
-        ctx.beginPath()
-        ctx.moveTo(leftTopX, topY + distanceFromTopToEndOfArc)
-        ctx.lineTo(leftBottomX, topY + distanceFromTopToEndOfArc)
-        ctx.stroke()
-        
-        
-        let startAngle = Math.PI
-        let endAngle = Math.PI - angle
-        let antiClockwise = true
-        ctx.beginPath()     
-        ctx.moveTo(leftTopX, topY)
-        ctx.arc(leftTopX + r, topY, r, startAngle, endAngle, antiClockwise)
-        ctx.arc(leftBottomX - r, topY + distanceFromTopToEndOfArc * 2, r, 2*Math.PI - angle, 0, false)
-
-        if (lineColorAlpha) {
-            ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
-            ctx.lineWidth = lineWidth
-            ctx.stroke()
-            my.nrOfDrawCalls++
-        }
-        
-        */
     }
-    
+        
     my.getCanvasRGBAColor = function (colorRGB, colorAlpha) {
         
         let red = colorRGB % 256
@@ -271,373 +205,6 @@ Flowify.canvas = function () {
                     my.nrOfDrawCalls++
                 }
             },
-            
-            /*
-            _jsDrawCorneredLaneSegment: function (horLeftX, horRightX, horY, vertX, vertTopY, vertBottomY, radius, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
-                
-                if (my.drawShadows) {
-                    ctx.shadowOffsetX = 3
-                    ctx.shadowOffsetY = 3
-                    ctx.shadowBlur    = 7
-                    
-                    if (lineColorAlpha) {
-                        // Draw borders
-                        
-                        ctx.beginPath()     
-                        
-                        ctx.moveTo(horLeftX, horY)
-                        if (vertX < horLeftX) {
-                            // The lane ends to the left of the beginning (we are drawing West)
-                            if (vertBottomY < horY) {
-                                // The lane ends to the top of the beginning (we are drawing West -> North)
-                                
-                                ctx.arcTo(horLeftX, vertBottomY, horLeftX - radius, vertBottomY, radius)
-                                ctx.lineTo(vertX, vertBottomY)
-                                
-                                ctx.moveTo(vertX, vertTopY)
-                                
-                                ctx.arcTo(horRightX, vertTopY, horRightX, vertTopY + radius, radius)
-                            }
-                            else {
-                                // The lane ends to the bottom of the beginning (we are drawing West -> South)
-                                
-                                ctx.arcTo(horLeftX, vertTopY, horLeftX - radius, vertTopY, radius)
-                                ctx.lineTo(vertX, vertTopY)
-                                
-                                ctx.moveTo(vertX, vertBottomY)
-                                
-                                ctx.arcTo(horRightX, vertBottomY, horRightX, vertBottomY - radius, radius)
-                            }
-                        }
-                        else {
-                            // The lane ends to the right of the beginning (we are drawing East)
-                            if (vertBottomY < horY) {
-                                // The lane ends to the top of the beginning (we are drawing East -> North)
-                                
-                                ctx.arcTo(horLeftX, vertTopY, horLeftX + radius, vertTopY, radius)
-                                ctx.lineTo(vertX, vertTopY)
-                                
-                                ctx.moveTo(vertX, vertBottomY)
-                                
-                                ctx.arcTo(horRightX, vertBottomY, horRightX, vertBottomY + radius, radius)
-                            }
-                            else {
-                                // The lane ends to the bottom of the beginning (we are drawing East -> South)
-                                
-                                ctx.arcTo(horLeftX, vertBottomY, horLeftX + radius, vertBottomY, radius)
-                                ctx.lineTo(vertX, vertBottomY)
-                                
-                                ctx.moveTo(vertX, vertTopY)
-                                
-                                ctx.arcTo(horRightX, vertTopY, horRightX, vertTopY - radius, radius)
-                            }
-                        }
-                        ctx.lineTo(horRightX, horY)
-                        if (my.drawShadows) {
-                            ctx.shadowColor   = "#222222"
-                        }
-                        ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
-                        ctx.lineWidth = lineWidth
-                        ctx.stroke()
-                        my.nrOfDrawCalls++
-                    }
-                }
-                
-                if (fillColorAlpha) {
-                    // Draw background
-                    
-                    ctx.beginPath()
-                    
-                    ctx.moveTo(horLeftX, horY)
-                    if (vertX < horLeftX) {
-                        // The lane ends to the left of the beginning (we are drawing West)
-                        if (vertBottomY < horY) {
-                            // The lane ends to the top of the beginning (we are drawing West -> North)
-                            
-                            ctx.arcTo(horLeftX, vertBottomY, horLeftX - radius, vertBottomY, radius)
-                            ctx.lineTo(vertX, vertBottomY)
-                            
-                            ctx.lineTo(vertX, vertTopY)
-                            
-                            ctx.arcTo(horRightX, vertTopY, horRightX, vertTopY + radius, radius)
-                        }
-                        else {
-                            // The lane ends to the bottom of the beginning (we are drawing West -> South)
-                            
-                            ctx.arcTo(horLeftX, vertTopY, horLeftX - radius, vertTopY, radius)
-                            ctx.lineTo(vertX, vertTopY)
-                            
-                            ctx.lineTo(vertX, vertBottomY)
-                            
-                            ctx.arcTo(horRightX, vertBottomY, horRightX, vertBottomY - radius, radius)
-                        }
-                    }
-                    else {
-                        // The lane ends to the right of the beginning (we are drawing East)
-                        if (vertBottomY < horY) {
-                            // The lane ends to the top of the beginning (we are drawing East -> North)
-                            
-                            ctx.arcTo(horLeftX, vertTopY, horLeftX + radius, vertTopY, radius)
-                            ctx.lineTo(vertX, vertTopY)
-                            
-                            ctx.lineTo(vertX, vertBottomY)
-                            
-                            ctx.arcTo(horRightX, vertBottomY, horRightX, vertBottomY + radius, radius)
-                        }
-                        else {
-                            // The lane ends to the bottom of the beginning (we are drawing East -> South)
-                            
-                            ctx.arcTo(horLeftX, vertBottomY, horLeftX + radius, vertBottomY, radius)
-                            ctx.lineTo(vertX, vertBottomY)
-                            
-                            ctx.lineTo(vertX, vertTopY)
-                            
-                            ctx.arcTo(horRightX, vertTopY, horRightX, vertTopY - radius, radius)
-                        }
-                    }
-                    ctx.lineTo(horRightX, horY)
-                    ctx.closePath()
-                
-                    if (my.drawShadows) {
-                        ctx.shadowColor = "transparent";
-                    }
-                    ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
-                    ctx.fill()
-                    my.nrOfDrawCalls++
-                }
-                
-                if (lineColorAlpha) {
-                    // Draw borders
-                    
-                    ctx.beginPath()     
-                    
-                    ctx.moveTo(horLeftX, horY)
-                    if (vertX < horLeftX) {
-                        // The lane ends to the left of the beginning (we are drawing West)
-                        if (vertBottomY < horY) {
-                            // The lane ends to the top of the beginning (we are drawing West -> North)
-                            
-                            ctx.arcTo(horLeftX, vertBottomY, horLeftX - radius, vertBottomY, radius)
-                            ctx.lineTo(vertX, vertBottomY)
-                            
-                            ctx.moveTo(vertX, vertTopY)
-                            
-                            ctx.arcTo(horRightX, vertTopY, horRightX, vertTopY + radius, radius)
-                        }
-                        else {
-                            // The lane ends to the bottom of the beginning (we are drawing West -> South)
-                            
-                            ctx.arcTo(horLeftX, vertTopY, horLeftX - radius, vertTopY, radius)
-                            ctx.lineTo(vertX, vertTopY)
-                            
-                            ctx.moveTo(vertX, vertBottomY)
-                            
-                            ctx.arcTo(horRightX, vertBottomY, horRightX, vertBottomY - radius, radius)
-                        }
-                    }
-                    else {
-                        // The lane ends to the right of the beginning (we are drawing East)
-                        if (vertBottomY < horY) {
-                            // The lane ends to the top of the beginning (we are drawing East -> North)
-                            
-                            ctx.arcTo(horLeftX, vertTopY, horLeftX + radius, vertTopY, radius)
-                            ctx.lineTo(vertX, vertTopY)
-                            
-                            ctx.moveTo(vertX, vertBottomY)
-                            
-                            ctx.arcTo(horRightX, vertBottomY, horRightX, vertBottomY + radius, radius)
-                        }
-                        else {
-                            // The lane ends to the bottom of the beginning (we are drawing East -> South)
-                            
-                            ctx.arcTo(horLeftX, vertBottomY, horLeftX + radius, vertBottomY, radius)
-                            ctx.lineTo(vertX, vertBottomY)
-                            
-                            ctx.moveTo(vertX, vertTopY)
-                            
-                            ctx.arcTo(horRightX, vertTopY, horRightX, vertTopY - radius, radius)
-                        }
-                    }
-                    ctx.lineTo(horRightX, horY)
-                    if (my.drawShadows) {
-                        ctx.shadowColor = "transparent";
-                    }
-                    ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
-                    ctx.lineWidth = lineWidth
-                    ctx.stroke()
-                    my.nrOfDrawCalls++
-                }
-            },
-            */
-            
-            /*
-            _jsDrawLaneSegment: function (leftTopX, rightTopX, topY, leftBottomX, rightBottomX, bottomY, leftMiddleY, rightMiddleY, radius, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
-                
-                if (my.drawShadows) {
-                    ctx.shadowOffsetX = 3
-                    ctx.shadowOffsetY = 3
-                    ctx.shadowBlur    = 7
-                    if (lineColorAlpha) {
-                        // Draw left side
-                        ctx.beginPath()     
-                        ctx.moveTo(leftTopX, topY)
-                        if (leftBottomX < leftTopX) {
-                            // bottom is to the left of the top
-                            ctx.arcTo(leftTopX, leftMiddleY, leftTopX - radius, leftMiddleY, radius)
-                            ctx.arcTo(leftBottomX, leftMiddleY, leftBottomX, leftMiddleY + radius, radius)
-                            ctx.lineTo(leftBottomX, bottomY)
-                        }
-                        else if (leftBottomX > leftTopX) {
-                            // bottom is to the right of the top
-                            ctx.arcTo(leftTopX, leftMiddleY, leftTopX + radius, leftMiddleY, radius)
-                            ctx.arcTo(leftBottomX, leftMiddleY, leftBottomX, leftMiddleY + radius, radius)
-                            ctx.lineTo(leftBottomX, bottomY)
-                        }
-                        else {
-                            // straight vertical line
-                            ctx.lineTo(leftBottomX, bottomY)
-                        }
-                        ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
-                        ctx.lineWidth = lineWidth
-                        ctx.stroke()
-                        
-                        // Draw right side
-                        
-                        ctx.beginPath()     
-                        ctx.moveTo(rightTopX, topY)
-                        if (rightBottomX < rightTopX) {
-                            // bottom is to the left of the top
-                            ctx.arcTo(rightTopX, rightMiddleY, rightTopX - radius, rightMiddleY, radius)
-                            ctx.arcTo(rightBottomX, rightMiddleY, rightBottomX, rightMiddleY + radius, radius)
-                            ctx.lineTo(rightBottomX, bottomY)
-                        }
-                        else if (rightBottomX > rightTopX) {
-                            // bottom is to the right of the top
-                            ctx.arcTo(rightTopX, rightMiddleY, rightTopX + radius, rightMiddleY, radius)
-                            ctx.arcTo(rightBottomX, rightMiddleY, rightBottomX, rightMiddleY + radius, radius)
-                            ctx.lineTo(rightBottomX, bottomY)
-                        }
-                        else {
-                            // straight vertical line
-                            ctx.lineTo(rightBottomX, bottomY)
-                        }
-                        if (my.drawShadows) {
-                            ctx.shadowColor   = "#222222"
-                        }
-                        ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
-                        ctx.lineWidth = lineWidth
-                        ctx.stroke()
-                        my.nrOfDrawCalls++
-                    }
-                }
-                
-                if (fillColorAlpha) {
-                    // Draw background
-                    
-                    ctx.beginPath()
-                    
-                    // Left side (top to bottom)
-                    ctx.moveTo(leftTopX, topY)
-                    if (leftBottomX < leftTopX) {
-                        // bottom is to the left of the top
-                        ctx.arcTo(leftTopX, leftMiddleY, leftTopX - radius, leftMiddleY, radius)
-                        ctx.arcTo(leftBottomX, leftMiddleY, leftBottomX, leftMiddleY + radius, radius)
-                        ctx.lineTo(leftBottomX, bottomY)
-                    }
-                    else if (leftBottomX > leftTopX) {
-                        // bottom is to the right of the top
-                        ctx.arcTo(leftTopX, leftMiddleY, leftTopX + radius, leftMiddleY, radius)
-                        ctx.arcTo(leftBottomX, leftMiddleY, leftBottomX, leftMiddleY + radius, radius)
-                        ctx.lineTo(leftBottomX, bottomY)
-                    }
-                    else {
-                        // straight vertical line
-                        ctx.lineTo(leftBottomX, bottomY)
-                    }
-                    
-                    // Right side (bottom to top)
-                    ctx.lineTo(rightBottomX, bottomY)
-                    if (rightBottomX < rightTopX) {
-                        // bottom is to the left of the top
-                        ctx.arcTo(rightBottomX, rightMiddleY, rightBottomX + radius, rightMiddleY, radius)
-                        ctx.arcTo(rightTopX, rightMiddleY, rightTopX, rightMiddleY - radius, radius)
-                        ctx.lineTo(rightTopX, topY)
-                    }
-                    else if (rightBottomX > rightTopX) {
-                        // bottom is to the right of the top
-                        ctx.arcTo(rightBottomX, rightMiddleY, rightBottomX - radius, rightMiddleY, radius)
-                        ctx.arcTo(rightTopX, rightMiddleY, rightTopX, rightMiddleY - radius, radius)
-                        ctx.lineTo(rightTopX, topY)
-                    }
-                    else {
-                        // straight vertical line
-                        ctx.lineTo(rightTopX, topY)
-                    }
-                    
-                    ctx.closePath()
-                
-                    if (my.drawShadows) {
-                        ctx.shadowColor = "transparent";
-                    }
-                    ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
-                    ctx.fill()
-                    my.nrOfDrawCalls++
-                }
-                
-                if (lineColorAlpha) {
-                    // Draw left side
-                    ctx.beginPath()     
-                    ctx.moveTo(leftTopX, topY)
-                    if (leftBottomX < leftTopX) {
-                        // bottom is to the left of the top
-                        ctx.arcTo(leftTopX, leftMiddleY, leftTopX - radius, leftMiddleY, radius)
-                        ctx.arcTo(leftBottomX, leftMiddleY, leftBottomX, leftMiddleY + radius, radius)
-                        ctx.lineTo(leftBottomX, bottomY)
-                    }
-                    else if (leftBottomX > leftTopX) {
-                        // bottom is to the right of the top
-                        ctx.arcTo(leftTopX, leftMiddleY, leftTopX + radius, leftMiddleY, radius)
-                        ctx.arcTo(leftBottomX, leftMiddleY, leftBottomX, leftMiddleY + radius, radius)
-                        ctx.lineTo(leftBottomX, bottomY)
-                    }
-                    else {
-                        // straight vertical line
-                        ctx.lineTo(leftBottomX, bottomY)
-                    }
-                    ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
-                    ctx.lineWidth = lineWidth
-                    ctx.stroke()
-                    
-                    // Draw right side
-                    
-                    ctx.beginPath()     
-                    ctx.moveTo(rightTopX, topY)
-                    if (rightBottomX < rightTopX) {
-                        // bottom is to the left of the top
-                        ctx.arcTo(rightTopX, rightMiddleY, rightTopX - radius, rightMiddleY, radius)
-                        ctx.arcTo(rightBottomX, rightMiddleY, rightBottomX, rightMiddleY + radius, radius)
-                        ctx.lineTo(rightBottomX, bottomY)
-                    }
-                    else if (rightBottomX > rightTopX) {
-                        // bottom is to the right of the top
-                        ctx.arcTo(rightTopX, rightMiddleY, rightTopX + radius, rightMiddleY, radius)
-                        ctx.arcTo(rightBottomX, rightMiddleY, rightBottomX, rightMiddleY + radius, radius)
-                        ctx.lineTo(rightBottomX, bottomY)
-                    }
-                    else {
-                        // straight vertical line
-                        ctx.lineTo(rightBottomX, bottomY)
-                    }
-                    if (my.drawShadows) {
-                        ctx.shadowColor = "transparent";
-                    }
-                    ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
-                    ctx.lineWidth = lineWidth
-                    ctx.stroke()
-                    my.nrOfDrawCalls++
-                }
-            },
-            */
             
             _jsDrawLane: function (lanePartsIndex, lanePartsCount,
                                    partialRectAtStart, isRightSideAtStart,
@@ -783,7 +350,6 @@ Flowify.canvas = function () {
                         console.log("ERROR: unsupported combination of directions!")
                     }
                 }
-                
                 
                 
                 if (fillColorAlpha) {
@@ -1128,12 +694,6 @@ Flowify.canvas = function () {
             
             _jsDrawLine: function (xStart, yStart, xEnd, yEnd, lineColorRGB, lineColorAlpha, lineWidth) {
 
-                // TODO: figure out when exactly to add 0.5!
-                //xStart += 0.5
-                //yStart += 0.5
-                //xEnd += 0.5
-                //yEnd += 0.5
-                
                 ctx.beginPath()
                 ctx.moveTo(xStart, yStart)
                 ctx.lineTo(xEnd, yEnd)
@@ -1253,6 +813,73 @@ Flowify.canvas = function () {
                 // TODO: should we really do this here? We might still be in de middle of rendering. Better to do this after the render, right?
                 my.resizeCanvasToWindowSize()
             }
+            
+            /*
+            // TODO: do we want to use this method? (keeping the same bending radius, but not drawing up-to 90 degrees)
+            
+            let ctx = my.context2d
+            
+            let lineColorAlpha = 255
+            let lineColorRGB = 0
+            
+            let r = 16 * 4
+            let lineWidth = 2
+            
+            let leftTopX = 400
+            //let rightTopX
+            let topY = 400
+            
+            let leftBottomX = 500
+            //let rightBottomX
+            let bottomY = 500
+            
+            let leftMiddleY = 450
+            // let rightMiddleY
+            
+            // FIXME: this assumes bottom to the right of the top!
+            let halfHorizontalDistanceTopBottom = (leftBottomX - leftTopX) / 2
+            // FIXME: this only works if halfHorizontalDistanceTopBottom < r !!
+            let angle = Math.acos((r - halfHorizontalDistanceTopBottom) / r)
+            let distanceFromTopToEndOfArc = Math.sin(angle) * r
+
+            ctx.strokeStyle = "#0000DD"
+            ctx.beginPath()
+            ctx.moveTo(leftTopX, topY)
+            ctx.lineTo(leftTopX, bottomY)
+            ctx.stroke()
+            
+            ctx.beginPath()
+            ctx.moveTo(leftTopX + halfHorizontalDistanceTopBottom, topY)
+            ctx.lineTo(leftTopX + halfHorizontalDistanceTopBottom, bottomY)
+            ctx.stroke()
+            
+            ctx.beginPath()
+            ctx.moveTo(leftBottomX, topY)
+            ctx.lineTo(leftBottomX, bottomY)
+            ctx.stroke()
+            
+            ctx.beginPath()
+            ctx.moveTo(leftTopX, topY + distanceFromTopToEndOfArc)
+            ctx.lineTo(leftBottomX, topY + distanceFromTopToEndOfArc)
+            ctx.stroke()
+            
+            
+            let startAngle = Math.PI
+            let endAngle = Math.PI - angle
+            let antiClockwise = true
+            ctx.beginPath()     
+            ctx.moveTo(leftTopX, topY)
+            ctx.arc(leftTopX + r, topY, r, startAngle, endAngle, antiClockwise)
+            ctx.arc(leftBottomX - r, topY + distanceFromTopToEndOfArc * 2, r, 2*Math.PI - angle, 0, false)
+
+            if (lineColorAlpha) {
+                ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
+                ctx.lineWidth = lineWidth
+                ctx.stroke()
+                my.nrOfDrawCalls++
+            }
+            
+            */
         }
         
         return exportedFunctions
