@@ -145,7 +145,7 @@ void do_frame_timing(Input * input, b32 * is_verbose)
     Color4 updating_color =  {150,   0,   0, 255};
     Color4 rendering_color = {  0,   0, 150, 255};
     Color4 waiting_color =   {220, 220, 220, 255};
-    Color4 light_color =     {150, 255, 150, 150};
+    Color4 light_color =     {0, 255, 0, 200};
     Color4 no_color = {};
     
     i32 line_width = 1;
