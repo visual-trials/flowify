@@ -431,9 +431,14 @@ void push_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, F
     
     if (draw_source_text && flow_element->source_text.length)
     {
+        // FIXME: combine this with get_size_based_on_source_text() in layout.c!
+        Size2d source_text_size = {};
+        source_text_size.height = flowifier->character_height;
+        source_text_size.width = flow_element->source_text.length * flowifier->character_width;
         /*
         // FIXME: this is slow!!
         Size2d source_text_size = get_text_size(&flow_element->source_text, flowifier->font);
+        */
         
         // TODO: create a function: draw_text_in_rect()
         Pos2d text_position = {};
@@ -442,7 +447,6 @@ void push_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, F
         text_position.y += (flow_element->rect_abs.size.height - source_text_size.height) / 2;
         
         push_text(flowifier, text_position, &flow_element->source_text, flowifier->font, flowifier->text_color);
-        */
     }
     
     push_interaction_rectangle(flowifier, flow_element);
