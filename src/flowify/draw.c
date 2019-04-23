@@ -431,6 +431,8 @@ void push_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, F
     
     if (draw_source_text && flow_element->source_text.length)
     {
+        /*
+        // FIXME: this is slow!!
         Size2d source_text_size = get_text_size(&flow_element->source_text, flowifier->font);
         
         // TODO: create a function: draw_text_in_rect()
@@ -440,6 +442,7 @@ void push_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, F
         text_position.y += (flow_element->rect_abs.size.height - source_text_size.height) / 2;
         
         push_text(flowifier, text_position, &flow_element->source_text, flowifier->font, flowifier->text_color);
+        */
     }
     
     push_interaction_rectangle(flowifier, flow_element);
@@ -1054,7 +1057,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
 }
 
 // Actual drawing
-
+/*
 void draw_lines_between_lane_parts(DrawLanePart * from_lane_part, DrawLanePart * to_lane_part, Color4 line_color, i32 line_width)
 {
     Rect2d from_rect = from_lane_part->rect;
@@ -1122,6 +1125,7 @@ void draw_lines_between_lane_parts(DrawLanePart * from_lane_part, DrawLanePart *
     draw_line(first_from_pos, first_to_pos, line_color, line_width);
     draw_line(second_from_pos, second_to_pos, line_color, line_width);
 }
+*/
 
 void draw_an_entry(DrawEntry * draw_entry)
 {

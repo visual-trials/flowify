@@ -81,6 +81,8 @@ extern "C" {
     extern void jsSetUsingPhysicalPixels(b32 using_physical_pixels);
 }
 
+void log(const char * text);
+
 void clip_rectangle(Pos2d position, Size2d size)
 {
     jsClipRect(position.x, position.y, size.width, size.height);
@@ -211,7 +213,6 @@ Size2d get_text_size(ShortString * text, Font font)
     String text_string = {};
     text_string.data = text->data;
     text_string.length = text->length;
-    
     return get_text_size(&text_string, font);
 }
 
@@ -238,7 +239,7 @@ void draw_text(Pos2d position, String * text, Font font, Color4 font_color)
 {
     i32 font_color_rgb = font_color.r + font_color.g * 256 + font_color.b * 256 * 256; 
     i32 font_color_alpha = (i32)font_color.a;
-    
+
     jsDrawText(position.x, position.y, text->data, text->length, font.height, font.family, font_color_rgb, font_color_alpha);
 }
 

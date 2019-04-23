@@ -272,6 +272,7 @@ Flowify.canvas = function () {
                 }
             },
             
+            /*
             _jsDrawCorneredLaneSegment: function (horLeftX, horRightX, horY, vertX, vertTopY, vertBottomY, radius, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
                 
                 if (my.drawShadows) {
@@ -467,7 +468,9 @@ Flowify.canvas = function () {
                     my.nrOfDrawCalls++
                 }
             },
+            */
             
+            /*
             _jsDrawLaneSegment: function (leftTopX, rightTopX, topY, leftBottomX, rightBottomX, bottomY, leftMiddleY, rightMiddleY, radius, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
                 
                 if (my.drawShadows) {
@@ -634,6 +637,7 @@ Flowify.canvas = function () {
                     my.nrOfDrawCalls++
                 }
             },
+            */
             
             _jsDrawLane: function (lanePartsIndex, lanePartsCount,
                                    partialRectAtStart, isRightSideAtStart,
@@ -1186,7 +1190,6 @@ Flowify.canvas = function () {
             },
             
             _jsDrawText: function (x, y, stringIndex, stringLength, fontHeight, fontFamilyIndex, fontColorRGB, fontColorAlpha) { // , baseFontIndex, baseFontLength) {
-
                 let string = ""
                 for (let i = stringIndex; i < stringIndex + stringLength; i++) {
                     string += String.fromCharCode(Flowify.main.bufferU8[i])
