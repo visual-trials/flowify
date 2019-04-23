@@ -434,7 +434,8 @@ void push_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, F
         // FIXME: combine this with get_size_based_on_source_text() in layout.c!
         Size2d source_text_size = {};
         source_text_size.height = flowifier->character_height;
-        source_text_size.width = flow_element->source_text.length * flowifier->character_width;
+        // FIXME: hack: eulating 'kerning' here: space between characters
+        source_text_size.width = flow_element->source_text.length * (flowifier->character_width + 1) - 1;
         /*
         // FIXME: this is slow!!
         Size2d source_text_size = get_text_size(&flow_element->source_text, flowifier->font);
