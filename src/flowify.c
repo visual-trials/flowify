@@ -29,6 +29,7 @@
 struct WorldData
 {
     Rect2d title_rect;
+    Rect2d code_rect;
     
     b32 show_code;
     String program_text;
@@ -131,12 +132,13 @@ extern "C" {
         
         Rect2d available_screen_rect = shrink_rect_by_margins(full_screen_rect, world->screen_margins);
         Rectangle2 left_and_right_screen_rects = split_rect_horizontally_fraction(available_screen_rect, 0.6, world->middle_margin);
-        // Rectangle2 horizontal_rects = split_rect_horizontally_fraction(title_and_text_rects.second, world->flowify_dump_fraction_of_screen, world->middle_margin);
+        world->code_rect = left_and_right_screen_rects.second;
+        Rectangle2 title_and_code_rects = split_rect_vertically(world->code_rect, 100);
         //Rectangle2 dump_and_flowify_rects = split_rect_horizontally_fraction(horizontal_rects.second, world->program_text_fraction_of_screen / (1 - world->flowify_dump_fraction_of_screen), world->middle_margin);
         
-        // world->title_rect = title_and_text_rects.first;
+        world->title_rect = title_and_code_rects.first;
         // world->flowify_dump_window.screen_rect = horizontal_rects.first;
-        world->program_text_window.screen_rect = left_and_right_screen_rects.second;
+        world->program_text_window.screen_rect = title_and_code_rects.second;
         // TODO: store rect in flowify-window!
     }
         
@@ -548,7 +550,7 @@ extern "C" {
 
         if (world->show_code)
         {
-            draw_rounded_rectangle(world->program_text_window.screen_rect.position, world->program_text_window.screen_rect.size, flowifier->bending_radius, 
+            draw_rounded_rectangle(world->code_rect.position, world->code_rect.size, flowifier->bending_radius, 
                                    flowifier->detail_line_color, flowifier->detail_fill_color, flowifier->detail_line_width);
             draw_scrollable_text(scrollable_program_text);
         }
