@@ -120,6 +120,8 @@ extern "C" {
         
         init_scrollable_text(scrollable_program_text, &world->program_text_window);
         world->program_text_window.has_vertical_scrollbar = false;
+        scrollable_program_text->position_based_on_highlighted_line_parts = true;
+        
         init_tokenizer(tokenizer);
         init_parser(parser, tokenizer);
         init_flowifier(flowifier, parser);
@@ -575,8 +577,9 @@ extern "C" {
             
             remove_highlighted_line_parts(scrollable_program_text);
             
-            if (highlighted_flow_element->type != FlowElement_Root) {
-                // Not highlighting Root
+            if (highlighted_flow_element->type != FlowElement_Root &&
+                highlighted_flow_element->type != FlowElement_FunctionBody) {
+                // Not highlighting Root or FunctionBody
                 
                 for (i32 token_index = node->first_token_index; token_index <= node->last_token_index; token_index++)
                 {

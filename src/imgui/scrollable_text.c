@@ -36,6 +36,7 @@ struct ScrollableText
     // TODO: we probably want to use a DynamicArray here too!
     FragmentedMemoryArena highlighted_line_parts_memory_arena;
     HighlightedLinePart * first_highlighted_line_part;
+    b32 position_based_on_highlighted_line_parts;
     
     Font font;
     i32 line_margin;
@@ -98,6 +99,7 @@ void init_scrollable_text(ScrollableText * scrollable_text, Window * window, b32
     {
         remove_highlighted_line_parts(scrollable_text);
     }
+    scrollable_text->position_based_on_highlighted_line_parts = false;
     
     Font font = {};
     font.height = 20;
@@ -261,6 +263,7 @@ void update_scrollable_text(ScrollableText * scrollable_text, Input * input)
     Size2d white_space_size = get_text_size(&white_space, scrollable_text->font);
     scrollable_text->max_line_width_in_characters = (i32)((f32)(window->screen_rect.size.width - scrollable_text->left_margin - scrollable_text->line_numbers_width - scrollable_text->right_margin) / (f32)white_space_size.width);
 
+    // Size of inside rect
     
     i32 nr_of_characters_in_widest_line = scrollable_text->widest_line;
     i32 inside_width = scrollable_text->left_margin + scrollable_text->line_numbers_width + nr_of_characters_in_widest_line * white_space_size.width + scrollable_text->right_margin;
@@ -268,41 +271,117 @@ void update_scrollable_text(ScrollableText * scrollable_text, Input * input)
     window->inside_rect.size.width = inside_width;
     window->inside_rect.size.height = inside_height;
 
-    // TODO: put this in update_window()
-    if (mouse->wheel_has_moved)
+    
+    // Positioning of inside rect inside screen_rect
+    
+    if (scrollable_text->position_based_on_highlighted_line_parts)
     {
-        // TODO: account for a "Mac" mouse! (which has a 'continous' wheel)
-        if (mouse->wheel_delta > 0)
+        // Position based on highlighted line parts
+        
+        Pos2d absolute_base_position = {};
+        absolute_base_position.x = window->screen_rect.position.x + window->inside_rect.position.x;
+        absolute_base_position.y = window->screen_rect.position.y + window->inside_rect.position.y;
+        
+        i32 min_part_position_y = 30000; // FIXME: we need a MAX number here!
+        i32 max_part_position_y = 0;
+        
+        Font font = scrollable_text->font;
+        i32 line_margin = scrollable_text->line_margin;
+        
+        HighlightedLinePart * line_part = scrollable_text->first_highlighted_line_part;
+        while(line_part) 
         {
-            window->inside_rect.position.y += 3 * line_height;
+            i32 x_position_part = (i32)line_part->start_character_index * white_space_size.width;
+            i32 x_width_part = (i32)line_part->length * white_space_size.width;
+            
+            // FIXME: check if line_part is on screen! (vertical AND horizontal!)
+            if (true)
+            {
+                Pos2d part_position_in_inside_rect = {};
+                // FIXME: x is not used atm
+                part_position_in_inside_rect.x = x_position_part + scrollable_text->left_margin + scrollable_text->line_numbers_width;
+                part_position_in_inside_rect.y = scrollable_text->top_margin + line_part->line_index * (font.height + line_margin);
+                
+                // FIXME: not used atm
+                Size2d part_size = {};
+                part_size.width = x_width_part;
+                part_size.height = font.height + line_margin;
+                
+                if (part_position_in_inside_rect.y < min_part_position_y)
+                {
+                    min_part_position_y = part_position_in_inside_rect.y;
+                }
+                if (part_position_in_inside_rect.y > max_part_position_y)
+                {
+                    max_part_position_y = part_position_in_inside_rect.y;
+                }
+                
+                // draw_rectangle(position, size, no_color, selected_color, 1);
+            }
+            
+            line_part = line_part->next_highlighted_line_part;
         }
         
-        if (mouse->wheel_delta < 0)
+        if (scrollable_text->first_highlighted_line_part)
         {
-            window->inside_rect.position.y -= 3 * line_height;
+            if (min_part_position_y < -window->inside_rect.position.y + line_height * 3)
+            {
+                // If the first part is above the inside rect we change the position of the top of the inside rect
+                window->inside_rect.position.y = - min_part_position_y + line_height * 3;
+            }
+            if (min_part_position_y > -window->inside_rect.position.y + scrollable_text->nr_of_lines_to_show * line_height - line_height * 3)
+            {
+                // If the first part is below the inside rect we change the position of the bottom of the inside rect
+                window->inside_rect.position.y = - min_part_position_y + scrollable_text->nr_of_lines_to_show * line_height - line_height * 3;
+            }
+            
+        }
+        
+    }
+    else
+    {
+        // Mouse
+        
+        // TODO: put this in update_window()
+        if (mouse->wheel_has_moved)
+        {
+            // TODO: account for a "Mac" mouse! (which has a 'continous' wheel)
+            if (mouse->wheel_delta > 0)
+            {
+                window->inside_rect.position.y += 3 * line_height;
+            }
+            
+            if (mouse->wheel_delta < 0)
+            {
+                window->inside_rect.position.y -= 3 * line_height;
+            }
+        }
+        
+        // Keyboard
+        
+        if (arrow_down_pressed)
+        {
+            window->inside_rect.position.y -= 1 * line_height;
+        }
+
+        if (arrow_up_pressed)
+        {
+            window->inside_rect.position.y += 1 * line_height;
+        }
+        
+        if (page_down_pressed)
+        {
+            window->inside_rect.position.y -= (scrollable_text->nr_of_lines_to_show - 2) * line_height;
+        }
+
+        if (page_up_pressed)
+        {
+            window->inside_rect.position.y += (scrollable_text->nr_of_lines_to_show - 2) * line_height;
         }
     }
+
+    // Check if outside screen_rect
     
-    if (arrow_down_pressed)
-    {
-        window->inside_rect.position.y -= 1 * line_height;
-    }
-
-    if (arrow_up_pressed)
-    {
-        window->inside_rect.position.y += 1 * line_height;
-    }
-    
-    if (page_down_pressed)
-    {
-        window->inside_rect.position.y -= (scrollable_text->nr_of_lines_to_show - 2) * line_height;
-    }
-
-    if (page_up_pressed)
-    {
-        window->inside_rect.position.y += (scrollable_text->nr_of_lines_to_show - 2) * line_height;
-    }
-
     if (window->inside_rect.position.y < window->screen_rect.size.height - window->inside_rect.size.height)
     {
         window->inside_rect.position.y = window->screen_rect.size.height - window->inside_rect.size.height;
