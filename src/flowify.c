@@ -544,8 +544,6 @@ extern "C" {
         // Turned off for the moment: 
         // draw_scrollable_text(scrollable_flowify_dump);
         
-        draw_and_update_button_menu(world);
-
         ShortString code_label;
         copy_cstring_to_short_string("code", &code_label);
         
@@ -553,9 +551,6 @@ extern "C" {
         Pos2d position_code_button = {};
         position_code_button.x = global_input.screen.width - size_code_button.width - 20;
         position_code_button.y = 20;
-        // ShortString label_active;
-        // copy_cstring_to_short_string("[   ]", &label_active);
-        // &label_active
 
         b32 code_button_is_pressed = do_button(position_code_button, size_code_button, &code_label, world->show_code, &global_input);
 
@@ -564,7 +559,12 @@ extern "C" {
             world->show_code = !world->show_code;
         }
             
-        draw_scrollable_text(scrollable_program_text);
+        draw_and_update_button_menu(world);
+
+        if (world->show_code)
+        {
+            draw_scrollable_text(scrollable_program_text);
+        }
         
         // Button for toggling showing help rectangles
         /*
