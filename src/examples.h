@@ -178,8 +178,6 @@ const char * large_example_program_text =
     "\n"
     "updateAndGetCodeAndVisualInfoForFile($fileToFlowifyWithoutExtention);\n"  // TODO: removed "list($code, $visualInfos) =" here
     "\n"
-    "extendFlowElementsWithVisualInfo();\n"
-    "\n"
     "function updateAndGetCodeAndVisualInfoForFile($fileToFlowifyWithoutExtention) {\n"
     "    \n"
     "    // TODO: the order of the coordinates is now by AST-order, not by horizontal position in the line\n"
@@ -247,6 +245,8 @@ const char * large_example_program_text =
     "\n"
     "    return $currentVisualInfo;\n"
     "}\n"
+    "\n"
+    "extendFlowElementsWithVisualInfo();\n"
     "\n"
     // TODO: I moved this functions upwards, because the parser needs functions to be defined before they are used atm!
     "function extendFlowElementWithVisualInfo (&$flowElementArray, $visualInfo) {\n"
