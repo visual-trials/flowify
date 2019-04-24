@@ -91,20 +91,20 @@ extern "C" {
         // Centering root element inside flow_rect (unless the root-element is too big)
         Size2d root_size = world->root_element->rect.size;
         
-        world->flowify_horizontal_offset = 120;
-        if (root_size.width < world->flow_rect.size.width)
+        // The root element fits horizontally side the flow_rect, so we center it
+        world->flowify_horizontal_offset = world->flow_rect.position.x + world->flow_rect.size.width / 2 - root_size.width / 2;
+        if  (world->flowify_horizontal_offset < 120)
         {
-            // The root element fits horizontally sid the flow_rect, so we center it
-            world->flowify_horizontal_offset = world->flow_rect.position.x + world->flow_rect.size.width / 2 - root_size.width / 2;
+            world->flowify_horizontal_offset = 120;
         }
         
         if (!center_only_horizontally)
         {
-            world->flowify_vertical_offset = 50;
-            if (root_size.height < world->flow_rect.size.height)
+            // The root element fits horizontally side the flow_rect, so we center it
+            world->flowify_vertical_offset = world->flow_rect.position.y + world->flow_rect.size.height / 2 - root_size.height / 2;
+            if (world->flowify_vertical_offset < 50)
             {
-                // The root element fits horizontally sid the flow_rect, so we center it
-                world->flowify_vertical_offset = world->flow_rect.position.y + world->flow_rect.size.height / 2 - root_size.height / 2;
+                world->flowify_vertical_offset = 50;
             }
         }
     }
