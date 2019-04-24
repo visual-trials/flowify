@@ -34,8 +34,8 @@ const char * i_plus_plus_program_text =
     "$c = ++$b;"
 ;
 
-const char * simple_functions_program_name = "simple_functions.php";
-const char * simple_functions_program_text = 
+const char * simple_math_program_name = "simple_math.php";
+const char * simple_math_program_text = 
     "<?php\n"
     "\n"
     "$myVar = 34;\n"

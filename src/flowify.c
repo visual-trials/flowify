@@ -201,8 +201,8 @@ extern "C" {
         world->program_texts[1] = i_plus_plus_program_text;
         world->program_names[1] = i_plus_plus_program_name;
         
-        world->program_texts[2] = simple_functions_program_text;
-        world->program_names[2] = simple_functions_program_name;
+        world->program_texts[2] = simple_math_program_text;
+        world->program_names[2] = simple_math_program_name;
         
         world->program_texts[3] = simple_if_program_text;
         world->program_names[3] = simple_if_program_name;
