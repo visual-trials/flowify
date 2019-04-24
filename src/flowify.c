@@ -245,7 +245,7 @@ extern "C" {
         world->last_touch_position.x = 0;
         world->last_touch_position.y = 0;
         
-        world->show_code = true;
+        world->show_code = false;
         
         update_window_dimensions(world, &input->screen);
         
