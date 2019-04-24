@@ -107,3 +107,44 @@ b32 do_integer_button(Pos2d position, Size2d size, i32 number, b32 is_active, In
         return do_button(position, size, 0, is_active, input);
     }
 }
+
+b32 do_menu_item(Pos2d position, Size2d size, ShortString * label, b32 is_active, Input * input)
+{
+    
+    HoveredOrPressed hovered_or_pressed = check_hovered_or_pressed(position, size, input);
+    
+    Color4 text_color = {  0,   0,   0, 255};
+    Color4 line_color = {  0,   0,   0,   0};
+    Color4 fill_color = {255, 255, 255, 255};
+    
+    if (is_active)
+    {
+        fill_color.r = 255;
+        fill_color.g = 255;
+        fill_color.b = 200;
+    }
+    else if (hovered_or_pressed.is_hovered)
+    {
+        fill_color.r = 220;
+        fill_color.g = 220;
+        fill_color.b = 220;
+    }
+    
+    i32 line_width = 1;
+    
+    draw_rectangle(position, size, line_color, fill_color, line_width);
+    
+    Font font = {};
+    font.height = 20;
+    font.family = Font_CourierNew;
+    
+    Size2d text_size = get_text_size(label, font);
+    
+    i32 left_margin = 20;
+    Pos2d text_position = {};
+    text_position.x = position.x + left_margin;
+    text_position.y = position.y + (size.height - text_size.height) / 2;
+    draw_text(text_position, label, font, text_color);
+    
+    return hovered_or_pressed.is_pressed;
+}

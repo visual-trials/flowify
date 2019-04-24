@@ -405,9 +405,11 @@ extern "C" {
     {
         // Draw (and update) button menu
         
-        Size2d size_button = {50, 50};
-        Pos2d position_button = {20, 20};
-        i32 margin_between_buttons = 20;
+        Size2d size_menu_button = {50, 50};
+        Pos2d position_menu_button = {20, 20};
+        Pos2d position_menu = {20, 71};
+        Size2d size_menu_item = {500, 50};
+        i32 margin_between_menu_items = 0;
         
         FlowElement * root_element = world->root_element;
         Input * input = &global_input;
@@ -510,9 +512,8 @@ extern "C" {
         
         
         // Menu button
-        position_button.y = 20;
         b32 button_is_active = false; // FIXME?
-        b32 button_is_pressed = do_integer_button(position_button, size_button, 0, button_is_active, &global_input);
+        b32 button_is_pressed = do_integer_button(position_menu_button, size_menu_button, 0, button_is_active, &global_input);
         
         if (button_is_pressed)
         {
@@ -521,8 +522,6 @@ extern "C" {
         
         if (world->menu_is_expanded)
         {
-            // FIXME: draw round_rectangle around buttons
-            
             for (i32 program_text_index = 0; program_text_index < world->nr_of_program_texts; program_text_index++)
             {
                 b32 button_is_active = false;
@@ -531,8 +530,13 @@ extern "C" {
                     button_is_active = true;
                 }
                 
-                position_button.y = 20 + (1 + program_text_index) * (margin_between_buttons + size_button.height);
-                b32 button_is_pressed = do_integer_button(position_button, size_button, program_text_index + 1, button_is_active, &global_input);
+                ShortString program_name = {};
+                copy_cstring_to_short_string(world->program_names[program_text_index], &program_name);
+
+                Pos2d position_menu_item = position_menu;
+                position_menu_item.y += program_text_index * size_menu_item.height;
+                b32 button_is_pressed = do_menu_item(position_menu_item, size_menu_item, &program_name, button_is_active, &global_input);
+                // b32 button_is_pressed = do_integer_button(position_button, size_button, program_text_index + 1, button_is_active, &global_input);
                 
                 if (button_is_pressed)
                 {
@@ -542,6 +546,16 @@ extern "C" {
                                       world);
                 }
             }
+            
+            Size2d size_menu = size_menu_item;
+            size_menu.height = size_menu_item.height * world->nr_of_program_texts;
+            Color4 line_color = { 100, 100, 100, 255};
+            Color4 fill_color = { 255, 255, 255,   0};
+            i32 line_width = 1;
+            i32 bending_radius = 5;
+            
+            draw_rounded_rectangle(position_menu, size_menu, bending_radius, line_color, fill_color, line_width);
+                
         }
         
     }
