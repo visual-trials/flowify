@@ -611,9 +611,11 @@ extern "C" {
 
         if (world->show_code)
         {
+            Color4 code_fill_color = { 255, 255, 255, 255 };
+            Color4 code_line_color = { 200, 200, 200, 255 };
+            i32 code_line_width = 2;
             draw_rounded_rectangle(world->code_rect.position, world->code_rect.size, flowifier->bending_radius, 
-                                   // FIXME: dont use detail_ here 
-                                   flowifier->detail_line_color, flowifier->detail_fill_color, flowifier->detail_line_width);
+                                   code_line_color, code_fill_color, code_line_width);
                                    
             Size2d program_name_size = get_text_size(&world->program_name, font);
             Pos2d program_name_position = {};
