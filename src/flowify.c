@@ -119,6 +119,7 @@ extern "C" {
         // DynamicString * flowify_dump_text = &world->flowify_dump_text;
         
         init_scrollable_text(scrollable_program_text, &world->program_text_window);
+        world->program_text_window.has_vertical_scrollbar = false;
         init_tokenizer(tokenizer);
         init_parser(parser, tokenizer);
         init_flowifier(flowifier, parser);
