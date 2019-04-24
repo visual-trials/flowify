@@ -349,39 +349,6 @@ extern "C" {
         TouchesInput * touch = &input->touch;
         Flowifier * flowifier = &world->flowifier;
 
-        // Menu button
-        position_button.y = 20;
-        b32 button_is_active = false; // FIXME?
-        b32 button_is_pressed = do_integer_button(position_button, size_button, 0, button_is_active, &global_input);
-        
-        if (button_is_pressed)
-        {
-            // FIXME
-        }
-        
-        /*
-        for (i32 program_text_index = 0; program_text_index < world->nr_of_program_texts; program_text_index++)
-        {
-            b32 button_is_active = false;
-            if (program_text_index == world->current_program_text_index)
-            {
-                button_is_active = true;
-            }
-            
-            position_button.y = 20 + program_text_index * (margin_between_buttons + size_button.height);
-            b32 button_is_pressed = do_integer_button(position_button, size_button, program_text_index + 1, button_is_active, &global_input);
-            
-            if (button_is_pressed)
-            {
-                world->current_program_text_index = program_text_index;
-                load_program_text(world->program_texts[world->current_program_text_index], world);
-        
-                // TODO: right now, we immediatly layout the elements, since we will absolute_layout_elements and then draw it below
-                layout_elements(flowifier, world->root_element);
-            }
-        }
-        */
-        
         if (mouse->wheel_has_moved)
         {
             // TODO: account for a "Mac" mouse! (which has a 'continous' wheel)
@@ -474,6 +441,40 @@ extern "C" {
             draw_scrollable_text(&world->scrollable_flowify_detail);
         }
         */
+        
+        // Menu button
+        position_button.y = 20;
+        b32 button_is_active = false; // FIXME?
+        b32 button_is_pressed = do_integer_button(position_button, size_button, 0, button_is_active, &global_input);
+        
+        if (button_is_pressed)
+        {
+            // FIXME
+        }
+        
+        /*
+        for (i32 program_text_index = 0; program_text_index < world->nr_of_program_texts; program_text_index++)
+        {
+            b32 button_is_active = false;
+            if (program_text_index == world->current_program_text_index)
+            {
+                button_is_active = true;
+            }
+            
+            position_button.y = 20 + program_text_index * (margin_between_buttons + size_button.height);
+            b32 button_is_pressed = do_integer_button(position_button, size_button, program_text_index + 1, button_is_active, &global_input);
+            
+            if (button_is_pressed)
+            {
+                world->current_program_text_index = program_text_index;
+                load_program_text(world->program_texts[world->current_program_text_index], world);
+        
+                // TODO: right now, we immediatly layout the elements, since we will absolute_layout_elements and then draw it below
+                layout_elements(flowifier, world->root_element);
+            }
+        }
+        */
+        
         
     }
     
