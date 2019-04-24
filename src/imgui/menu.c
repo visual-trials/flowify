@@ -38,9 +38,9 @@ b32 do_button(Pos2d position, Size2d size, ShortString * label, b32 is_active, I
         }
         else
         {
-            fill_color.r = 80;
-            fill_color.g = 80;
-            fill_color.b = 255;
+            fill_color.r = 255;
+            fill_color.g = 255;
+            fill_color.b = 200;
         }
     }
     else if (hovered_or_pressed.is_hovered)

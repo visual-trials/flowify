@@ -39,9 +39,9 @@ struct WorldData
     Parser parser;
     Flowifier flowifier;
     
-    DynamicString flowify_dump_text;
-    ScrollableText scrollable_flowify_dump;
-    Window flowify_dump_window;
+    // DynamicString flowify_dump_text;
+    // ScrollableText scrollable_flowify_dump;
+    // Window flowify_dump_window;
     
     DynamicString flowify_detail_text;
     ScrollableText scrollable_flowify_detail;
@@ -51,7 +51,7 @@ struct WorldData
     i32 middle_margin;
     i32 title_height;
     f32 program_text_fraction_of_screen;
-    f32 flowify_dump_fraction_of_screen;
+    // f32 flowify_dump_fraction_of_screen;
     
     FlowElement * root_element;
     
@@ -89,15 +89,15 @@ extern "C" {
         Parser * parser = &world->parser;
         Flowifier * flowifier = &world->flowifier;
         ScrollableText * scrollable_program_text = &world->scrollable_program_text;
-        ScrollableText * scrollable_flowify_dump = &world->scrollable_flowify_dump;
-        DynamicString * flowify_dump_text = &world->flowify_dump_text;
+        // ScrollableText * scrollable_flowify_dump = &world->scrollable_flowify_dump;
+        // DynamicString * flowify_dump_text = &world->flowify_dump_text;
         
         init_scrollable_text(scrollable_program_text, &world->program_text_window);
         init_tokenizer(tokenizer);
         init_parser(parser, tokenizer);
         init_flowifier(flowifier, parser);
-        init_dynamic_string(flowify_dump_text, (Color4){70,150,255,255}, cstring_to_string("Flowify dump text"));
-        init_scrollable_text(scrollable_flowify_dump, &world->flowify_dump_window, false);
+        // init_dynamic_string(flowify_dump_text, (Color4){70,150,255,255}, cstring_to_string("Flowify dump text"));
+        // init_scrollable_text(scrollable_flowify_dump, &world->flowify_dump_window, false);
         
         world->program_text.data = (u8 *)program_text;
         world->program_text.length = cstring_length(program_text);
@@ -118,9 +118,9 @@ extern "C" {
         // FIXME: put root_element inside the Flowifier-struct!
         world->root_element = root_element;
         
-        dump_element_tree(root_element, &world->flowify_dump_text);
+        // dump_element_tree(root_element, &world->flowify_dump_text);
         
-        split_string_into_scrollable_lines(world->flowify_dump_text.string, scrollable_flowify_dump);
+        // split_string_into_scrollable_lines(world->flowify_dump_text.string, scrollable_flowify_dump);
     }
     
     void update_window_dimensions(WorldData * world, Screen * screen)
@@ -130,13 +130,13 @@ extern "C" {
         full_screen_rect.size.height = screen->height;
         
         Rect2d available_screen_rect = shrink_rect_by_margins(full_screen_rect, world->screen_margins);
-        Rectangle2 title_and_text_rects = split_rect_vertically(available_screen_rect, world->title_height);
-        Rectangle2 horizontal_rects = split_rect_horizontally_fraction(title_and_text_rects.second, world->flowify_dump_fraction_of_screen, world->middle_margin);
-        Rectangle2 dump_and_flowify_rects = split_rect_horizontally_fraction(horizontal_rects.second, world->program_text_fraction_of_screen / (1 - world->flowify_dump_fraction_of_screen), world->middle_margin);
+        Rectangle2 left_and_right_screen_rects = split_rect_horizontally_fraction(available_screen_rect, 0.6, world->middle_margin);
+        // Rectangle2 horizontal_rects = split_rect_horizontally_fraction(title_and_text_rects.second, world->flowify_dump_fraction_of_screen, world->middle_margin);
+        //Rectangle2 dump_and_flowify_rects = split_rect_horizontally_fraction(horizontal_rects.second, world->program_text_fraction_of_screen / (1 - world->flowify_dump_fraction_of_screen), world->middle_margin);
         
-        world->title_rect = title_and_text_rects.first;
-        world->flowify_dump_window.screen_rect = horizontal_rects.first;
-        world->program_text_window.screen_rect = dump_and_flowify_rects.first;
+        // world->title_rect = title_and_text_rects.first;
+        // world->flowify_dump_window.screen_rect = horizontal_rects.first;
+        world->program_text_window.screen_rect = left_and_right_screen_rects.second;
         // TODO: store rect in flowify-window!
     }
         
@@ -167,13 +167,13 @@ extern "C" {
         world->verbose_memory_usage = true;
         world->verbose_frame_times = false;
 
-        world->screen_margins.left = 100;
+        world->screen_margins.left = 20;
         world->screen_margins.top = 20;
-        world->screen_margins.right = 100;
+        world->screen_margins.right = 20;
         world->screen_margins.bottom = 20;
         
         world->middle_margin = 20;
-        world->flowify_dump_fraction_of_screen = 0.5;
+        // world->flowify_dump_fraction_of_screen = 0.5;
         world->program_text_fraction_of_screen = 0.5;
         world->title_height = 30;
         
@@ -266,7 +266,7 @@ extern "C" {
         update_window_dimensions(world, &input->screen);
         
         update_scrollable_text(&world->scrollable_program_text, input);
-        update_scrollable_text(&world->scrollable_flowify_dump, input);
+        // update_scrollable_text(&world->scrollable_flowify_dump, input);
         
         layout_elements(flowifier, world->root_element);
 
@@ -493,7 +493,7 @@ extern "C" {
         Flowifier * flowifier = &world->flowifier;
         
         ScrollableText * scrollable_program_text = &world->scrollable_program_text;
-        ScrollableText * scrollable_flowify_dump = &world->scrollable_flowify_dump;
+        // ScrollableText * scrollable_flowify_dump = &world->scrollable_flowify_dump;
         
         Font font = {};
         font.height = 20;
@@ -533,16 +533,25 @@ extern "C" {
                 }
             }
 
-            remove_highlighted_line_parts(scrollable_flowify_dump); 
+            // remove_highlighted_line_parts(scrollable_flowify_dump); 
             
-            HighlightedLinePart * highlighted_line_part = add_new_highlighted_line_part(scrollable_flowify_dump);
-            highlighted_line_part->line_index = highlighted_flow_element->highlighted_line_part.line_index;
-            highlighted_line_part->start_character_index = highlighted_flow_element->highlighted_line_part.start_character_index;
-            highlighted_line_part->length = highlighted_flow_element->highlighted_line_part.length;
+            // HighlightedLinePart * highlighted_line_part = add_new_highlighted_line_part(scrollable_flowify_dump);
+            // highlighted_line_part->line_index = highlighted_flow_element->highlighted_line_part.line_index;
+            // highlighted_line_part->start_character_index = highlighted_flow_element->highlighted_line_part.start_character_index;
+            // highlighted_line_part->length = highlighted_flow_element->highlighted_line_part.length;
         }
         
         // Turned off for the moment: 
         // draw_scrollable_text(scrollable_flowify_dump);
+        
+        draw_and_update_button_menu(world);
+
+        if (world->show_code)
+        {
+            draw_rounded_rectangle(world->program_text_window.screen_rect.position, world->program_text_window.screen_rect.size, flowifier->bending_radius, 
+                                   flowifier->detail_line_color, flowifier->detail_fill_color, flowifier->detail_line_width);
+            draw_scrollable_text(scrollable_program_text);
+        }
         
         ShortString code_label;
         copy_cstring_to_short_string("code", &code_label);
@@ -559,13 +568,6 @@ extern "C" {
             world->show_code = !world->show_code;
         }
             
-        draw_and_update_button_menu(world);
-
-        if (world->show_code)
-        {
-            draw_scrollable_text(scrollable_program_text);
-        }
-        
         // Button for toggling showing help rectangles
         /*
         {
