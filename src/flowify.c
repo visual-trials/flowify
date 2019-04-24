@@ -544,6 +544,8 @@ extern "C" {
                     load_program_text(world->program_texts[world->current_program_text_index], 
                                       world->program_names[world->current_program_text_index],
                                       world);
+                                      
+                    world->menu_is_expanded = false;
                 }
             }
             
