@@ -124,6 +124,10 @@ extern "C" {
         // FIXME: put root_element inside the Flowifier-struct!
         world->root_element = root_element;
         
+        // Resetting position to 0,0 after load
+        world->flowify_vertical_offset = 0;
+        world->flowify_horizontal_offset = 0;
+        
         // dump_element_tree(root_element, &world->flowify_dump_text);
         
         // split_string_into_scrollable_lines(world->flowify_dump_text.string, scrollable_flowify_dump);
@@ -439,7 +443,7 @@ extern "C" {
         Pos2d absolute_position;
         // FIXME: hack!
         // Aligned right: absolute_position.x = input->screen.width - root_element->rect.size.width - 100 + world->flowify_horizontal_offset; 
-        absolute_position.x = 100 + world->flowify_horizontal_offset; 
+        absolute_position.x = 120 + world->flowify_horizontal_offset; 
         absolute_position.y = 50 + world->flowify_vertical_offset; 
         absolute_layout_elements(flowifier, root_element, absolute_position);
         
