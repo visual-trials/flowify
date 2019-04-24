@@ -357,6 +357,8 @@ struct Flowifier
     FlowStyleEvenOdd expression_style;
     
     FlowStyle variable_style;
+    FlowStyle variable_styles[6]; // FIXME: make sure nr_of_variable_colors is always smaller than (or equal to) the size of this array!
+    i32 nr_of_variable_colors;
     
     FlowStyle scalar_style;
     
@@ -456,6 +458,57 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     flowifier->variable_style.fill_color = (Color4){ 255, 235, 235, 255};
     flowifier->variable_style.corner_radius = 10;
     flowifier->variable_style.line_width = 2;
+    
+    i32 nr_of_colors = 6;
+    flowifier->nr_of_variable_colors = nr_of_colors;
+    // FIXME: make sure nr_of_colors is smaller than this array!
+    for (i32 variable_style_index = 0; variable_style_index < nr_of_colors; variable_style_index++)
+    {
+        Color4 light_color = { 255, 255, 255, 255 };
+        Color4 dark_color = { 200, 200, 200, 255 };
+        
+        flowifier->variable_styles[variable_style_index] = flowifier->variable_style;
+        
+        if (variable_style_index == 0)
+        {
+            light_color.r /= 4;
+            dark_color.r /= 4;
+        }
+        else if (variable_style_index == 1)
+        {
+            light_color.g /= 4;
+            dark_color.g /= 4;
+        }
+        else if (variable_style_index == 2)
+        {
+            light_color.b /= 4;
+            dark_color.b /= 4;
+        }
+        else if (variable_style_index == 3)
+        {
+            light_color.r /= 2;
+            light_color.g /= 2;
+            dark_color.r /= 2;
+            dark_color.g /= 2;
+        }
+        else if (variable_style_index == 4)
+        {
+            light_color.r /= 2;
+            light_color.b /= 2;
+            dark_color.r /= 2;
+            dark_color.b /= 2;
+        }
+        else if (variable_style_index == 5)
+        {
+            light_color.b /= 2;
+            light_color.g /= 2;
+            dark_color.b /= 2;
+            dark_color.g /= 2;
+        }
+        
+        flowifier->variable_styles[variable_style_index].fill_color = light_color;
+        flowifier->variable_styles[variable_style_index].line_color = dark_color;
+    }
     
     flowifier->scalar_style.line_color = (Color4){ 255, 150, 150, 255};
     flowifier->scalar_style.fill_color = (Color4){ 255, 200, 200, 255};

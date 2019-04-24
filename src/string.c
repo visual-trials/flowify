@@ -66,6 +66,16 @@ void append_string(ShortString * dest, ShortString * src)
     dest->length = dest->length + nr_of_characters_to_append;
 }
 
+i32 get_number_based_on_string(String string)
+{
+    i32 number = 0;
+    for (i32 i = 0; i < string.length; i++)
+    {
+         number += string.data[i];
+    }
+    return number;
+}
+
 // TODO: we don't need a pointer to the source here. Better not to take the pointer, we don't want to change the source anyway!
 void append_string(String * dest, String * src)
 {
