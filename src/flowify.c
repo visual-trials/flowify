@@ -215,7 +215,7 @@ extern "C" {
         
         update_window_dimensions(world, &input->screen);
         
-        world->show_code = false;
+        world->show_code = true;
         load_program_text(world->program_texts[world->current_program_text_index], 
                           world->program_names[world->current_program_text_index], 
                           world);
@@ -541,36 +541,41 @@ extern "C" {
         
         String * lines = (String *)scrollable_program_text->lines.items;
 
-        if (nr_of_flow_elements > 0 && flowifier->interaction.highlighted_element_index > 0)
+        if (nr_of_flow_elements > 0 && flowifier->interaction.hovered_element_index > 0)
         {
-            FlowElement * highlighted_flow_element = &flow_elements[flowifier->interaction.highlighted_element_index];
+            FlowElement * highlighted_flow_element = &flow_elements[flowifier->interaction.hovered_element_index];
             Node * node = highlighted_flow_element->ast_node;
             
             remove_highlighted_line_parts(scrollable_program_text);
-            for (i32 token_index = node->first_token_index; token_index <= node->last_token_index; token_index++)
-            {
-                Token token = tokens[token_index];
-                
-                if (token.type != Token_EndOfStream)
-                {
-                    String program_line_text = lines[token.line_index];
-                    
-                    i32 character_in_line_index = (i32)token.text.data - (i32)program_line_text.data;
-
-                    HighlightedLinePart * highlighted_line_part = add_new_highlighted_line_part(scrollable_program_text);
-
-                    highlighted_line_part->line_index = token.line_index;
-                    highlighted_line_part->start_character_index = (u16)character_in_line_index;
-                    highlighted_line_part->length = (u16)token.text.length;
-                }
-            }
-
-            // remove_highlighted_line_parts(scrollable_flowify_dump); 
             
-            // HighlightedLinePart * highlighted_line_part = add_new_highlighted_line_part(scrollable_flowify_dump);
-            // highlighted_line_part->line_index = highlighted_flow_element->highlighted_line_part.line_index;
-            // highlighted_line_part->start_character_index = highlighted_flow_element->highlighted_line_part.start_character_index;
-            // highlighted_line_part->length = highlighted_flow_element->highlighted_line_part.length;
+            if (highlighted_flow_element->type != FlowElement_Root) {
+                // Not highlighting Root
+                
+                for (i32 token_index = node->first_token_index; token_index <= node->last_token_index; token_index++)
+                {
+                    Token token = tokens[token_index];
+                    
+                    if (token.type != Token_EndOfStream)
+                    {
+                        String program_line_text = lines[token.line_index];
+                        
+                        i32 character_in_line_index = (i32)token.text.data - (i32)program_line_text.data;
+
+                        HighlightedLinePart * highlighted_line_part = add_new_highlighted_line_part(scrollable_program_text);
+
+                        highlighted_line_part->line_index = token.line_index;
+                        highlighted_line_part->start_character_index = (u16)character_in_line_index;
+                        highlighted_line_part->length = (u16)token.text.length;
+                    }
+                }
+
+                // remove_highlighted_line_parts(scrollable_flowify_dump); 
+                
+                // HighlightedLinePart * highlighted_line_part = add_new_highlighted_line_part(scrollable_flowify_dump);
+                // highlighted_line_part->line_index = highlighted_flow_element->highlighted_line_part.line_index;
+                // highlighted_line_part->start_character_index = highlighted_flow_element->highlighted_line_part.start_character_index;
+                // highlighted_line_part->length = highlighted_flow_element->highlighted_line_part.length;
+            }
         }
         
         // Turned off for the moment: 
@@ -589,9 +594,6 @@ extern "C" {
             program_name_position.x = world->title_rect.position.x + world->title_rect.size.width / 2 - program_name_size.width / 2;
             program_name_position.y = world->title_rect.position.y + world->title_rect.size.height / 2 - program_name_size.height / 2;
             draw_text(program_name_position, &world->program_name, font, black);
-            
-//            i32 program_name_x2 = world->title_rect.position.x + world->title_rect.size.width - program_name_size.width; // + world->title_rect.size.width / 2 - program_name_size.width / 2;
-//            draw_text((Pos2d){program_name_x2, 80}, &world->program_name, font, black);
             
             draw_scrollable_text(scrollable_program_text);
         }
