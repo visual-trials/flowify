@@ -165,7 +165,15 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node, 
             if (function_element)
             {
                 // Right now, a function_call is always be collapsed by default
-                function_call_element->is_collapsed = false;
+                // FIXME: right now we collapse large function, kind of arbritary
+                if (function_element->first_child && function_element->first_child->nr_of_children > 2)
+                {
+                    function_call_element->is_collapsed = true;
+                }
+                else
+                {
+                    function_call_element->is_collapsed = false;
+                }
 
                 // TODO: we do not connect first and last statements in a body, with statements in a next or previous body anymore. 
                 //       So first_in_flow and last_in_flow are probably deprecated!

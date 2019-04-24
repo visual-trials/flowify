@@ -151,6 +151,7 @@ struct FlowElement
     // These 5 FlowElements represent a parental and sibling "hierarchy" (mostly used for "looping" through all elements)
     FlowElement * first_child;
     FlowElement * last_child;
+    i32 nr_of_children;
     FlowElement * parent;
     
     FlowElement * next_sibling;
@@ -610,6 +611,7 @@ FlowElement * new_element(Flowifier * flowifier, Node * ast_node, FlowElementTyp
     
     new_flow_element->first_child = 0;
     new_flow_element->last_child = 0;
+    new_flow_element->nr_of_children = 0;
     new_flow_element->parent = 0;
     new_flow_element->next_sibling = 0;
     new_flow_element->previous_sibling = 0;
@@ -684,6 +686,7 @@ void add_child_element(FlowElement * child_element, FlowElement * parent_element
         child_element->parent = parent_element;
     }
     parent_element->last_child = child_element;
+    parent_element->nr_of_children++;
 }
 
 void append_cstring_detail(const char * title, const char * value, DynamicString * detail_text, b32 append_newline = true)
