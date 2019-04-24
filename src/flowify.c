@@ -161,7 +161,7 @@ extern "C" {
         world->program_texts[7] = fibonacci_recursive_early_return_program_text;
         world->nr_of_program_texts = 8;
         
-        world->current_program_text_index = 0;
+        world->current_program_text_index = 2;
         
         world->verbose_memory_usage = true;
         world->verbose_frame_times = false;
@@ -539,12 +539,13 @@ extern "C" {
             highlighted_line_part->length = highlighted_flow_element->highlighted_line_part.length;
         }
         
-        // FIXME: turned off for now draw_scrollable_text(scrollable_program_text);
         // Turned off for the moment: 
         // draw_scrollable_text(scrollable_flowify_dump);
         
         draw_and_update_button_menu(world);
 
+        draw_scrollable_text(scrollable_program_text);
+        
         // Button for toggling showing help rectangles
         /*
         {
