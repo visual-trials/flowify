@@ -28,6 +28,7 @@
 
 struct WorldData
 {
+    Rect2d flow_rect;
     Rect2d title_rect;
     Rect2d code_rect;
     
@@ -85,6 +86,28 @@ WorldData global_world = {};  // FIXME: allocate this properly!
 
 extern "C" {
     
+    void center_root_element(WorldData * world, b32 center_only_horizontally = false)
+    {
+        // Centering root element inside flow_rect (unless the root-element is too big)
+        Size2d root_size = world->root_element->rect.size;
+        
+        world->flowify_horizontal_offset = 120;
+        if (root_size.width < world->flow_rect.size.width)
+        {
+            // The root element fits horizontally sid the flow_rect, so we center it
+            world->flowify_horizontal_offset = world->flow_rect.position.x + world->flow_rect.size.width / 2 - root_size.width / 2;
+        }
+        
+        if (!center_only_horizontally)
+        {
+            world->flowify_vertical_offset = 50;
+            if (root_size.height < world->flow_rect.size.height)
+            {
+                // The root element fits horizontally sid the flow_rect, so we center it
+                world->flowify_vertical_offset = world->flow_rect.position.y + world->flow_rect.size.height / 2 - root_size.height / 2;
+            }
+        }
+    }
     
     void load_program_text(const char * program_text, const char * program_name, WorldData * world)
     {
@@ -124,13 +147,13 @@ extern "C" {
         // FIXME: put root_element inside the Flowifier-struct!
         world->root_element = root_element;
         
-        // Resetting position to 0,0 after load
-        world->flowify_vertical_offset = 0;
-        world->flowify_horizontal_offset = 0;
-        
         // dump_element_tree(root_element, &world->flowify_dump_text);
         
         // split_string_into_scrollable_lines(world->flowify_dump_text.string, scrollable_flowify_dump);
+        
+        layout_elements(&world->flowifier, world->root_element);
+        
+        center_root_element(world);
     }
     
     void update_window_dimensions(WorldData * world, Screen * screen)
@@ -140,7 +163,13 @@ extern "C" {
         full_screen_rect.size.height = screen->height;
         
         Rect2d available_screen_rect = shrink_rect_by_margins(full_screen_rect, world->screen_margins);
-        Rectangle2 left_and_right_screen_rects = split_rect_horizontally_fraction(available_screen_rect, 0.6, world->middle_margin);
+        f32 flow_code_fraction = 0.6;
+        if (!world->show_code)
+        {
+            flow_code_fraction = 1.0;
+        }
+        Rectangle2 left_and_right_screen_rects = split_rect_horizontally_fraction(available_screen_rect, flow_code_fraction, world->middle_margin);
+        world->flow_rect = left_and_right_screen_rects.first;
         world->code_rect = left_and_right_screen_rects.second;
         Rectangle2 title_and_code_rects = split_rect_vertically(world->code_rect, 100);
         //Rectangle2 dump_and_flowify_rects = split_rect_horizontally_fraction(horizontal_rects.second, world->program_text_fraction_of_screen / (1 - world->flowify_dump_fraction_of_screen), world->middle_margin);
@@ -213,13 +242,13 @@ extern "C" {
         world->last_touch_position.x = 0;
         world->last_touch_position.y = 0;
         
+        world->show_code = true;
+        
         update_window_dimensions(world, &input->screen);
         
-        world->show_code = true;
         load_program_text(world->program_texts[world->current_program_text_index], 
                           world->program_names[world->current_program_text_index], 
                           world);
-
     }
     
     void update_frame()
@@ -443,8 +472,8 @@ extern "C" {
         Pos2d absolute_position;
         // FIXME: hack!
         // Aligned right: absolute_position.x = input->screen.width - root_element->rect.size.width - 100 + world->flowify_horizontal_offset; 
-        absolute_position.x = 120 + world->flowify_horizontal_offset; 
-        absolute_position.y = 50 + world->flowify_vertical_offset; 
+        absolute_position.x = world->flowify_horizontal_offset; 
+        absolute_position.y = world->flowify_vertical_offset; 
         absolute_layout_elements(flowifier, root_element, absolute_position);
         
         draw_elements(flowifier, root_element);
@@ -508,9 +537,6 @@ extern "C" {
                     load_program_text(world->program_texts[world->current_program_text_index], 
                                       world->program_names[world->current_program_text_index],
                                       world);
-            
-                    // TODO: right now, we immediatly layout the elements, since we will absolute_layout_elements and then draw it below
-                    layout_elements(flowifier, world->root_element);
                 }
             }
         }
@@ -611,6 +637,9 @@ extern "C" {
         if (code_button_is_pressed)
         {
             world->show_code = !world->show_code;
+            update_window_dimensions(world, &input->screen);
+            b32 center_only_horizontally = true;
+            center_root_element(world, center_only_horizontally);
         }
             
         // Button for toggling showing help rectangles

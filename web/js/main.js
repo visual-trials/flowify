@@ -190,6 +190,14 @@ Flowify.main = function () {
             
             Flowify.canvas.loadUsingPhysicalPixelsFromCookie()
             
+            my.wasmInstance.exports._set_screen_size(
+                Flowify.canvas.canvasElement.width,
+                Flowify.canvas.canvasElement.height,
+                Flowify.canvas.scale,
+                window.devicePixelRatio ? window.devicePixelRatio : 1,
+                Flowify.canvas.usingPhysicalPixels,
+            )
+            
             my.wasmInstance.exports._init_world()
             
             Flowify.input.addressKeysThatAreDown = my.wasmInstance.exports._get_address_keys_that_are_down()
