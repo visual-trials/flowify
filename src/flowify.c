@@ -33,6 +33,7 @@ struct WorldData
     
     b32 show_code;
     String program_text;
+    String program_name;
     ScrollableText scrollable_program_text;
     Window program_text_window;
 
@@ -58,7 +59,7 @@ struct WorldData
     
     b32 menu_is_expanded;
     const char * program_texts[10];
-    const char * program_text_names[10];
+    const char * program_names[10];
     i32 nr_of_program_texts;
     i32 current_program_text_index;
     
@@ -85,7 +86,7 @@ WorldData global_world = {};  // FIXME: allocate this properly!
 extern "C" {
     
     
-    void load_program_text(const char * program_text, WorldData * world)
+    void load_program_text(const char * program_text, const char * program_name, WorldData * world)
     {
         Tokenizer * tokenizer = &world->tokenizer;
         Parser * parser = &world->parser;
@@ -103,6 +104,9 @@ extern "C" {
         
         world->program_text.data = (u8 *)program_text;
         world->program_text.length = cstring_length(program_text);
+        
+        world->program_name.data = (u8 *)program_name;
+        world->program_name.length = cstring_length(program_name);
         
         split_string_into_scrollable_lines(world->program_text, scrollable_program_text);
 
@@ -156,29 +160,29 @@ extern "C" {
         world->menu_is_expanded = false;
         
         world->program_texts[0] = large_example_program_text;
-        world->program_text_names[0] = large_example_program_name;
+        world->program_names[0] = large_example_program_name;
         
         world->program_texts[1] = i_plus_plus_program_text;
-        world->program_text_names[1] = i_plus_plus_program_name;
+        world->program_names[1] = i_plus_plus_program_name;
         
         world->program_texts[2] = simple_functions_program_text;
-        world->program_text_names[2] = simple_functions_program_name;
+        world->program_names[2] = simple_functions_program_name;
         
         world->program_texts[3] = simple_if_program_text;
-        world->program_text_names[3] = simple_if_program_name;
+        world->program_names[3] = simple_if_program_name;
         
         world->program_texts[4] = simple_if_else_program_text;
-        world->program_text_names[4] = simple_if_else_program_name;
+        world->program_names[4] = simple_if_else_program_name;
         
         world->program_texts[5] = simple_for_program_text;
-        world->program_text_names[5] = simple_for_program_name;
+        world->program_names[5] = simple_for_program_name;
         
         // TODO: in the end, we probably want this example instead: world->program_texts[5] = simple_for_continue_break_program_text;
         world->program_texts[6] = fibonacci_iterative_program_text;
-        world->program_text_names[6] = fibonacci_iterative_program_name;
+        world->program_names[6] = fibonacci_iterative_program_name;
         
         world->program_texts[7] = fibonacci_recursive_early_return_program_text;
-        world->program_text_names[7] = fibonacci_recursive_early_return_program_name;
+        world->program_names[7] = fibonacci_recursive_early_return_program_name;
         
         world->nr_of_program_texts = 8;
         
@@ -208,7 +212,9 @@ extern "C" {
         update_window_dimensions(world, &input->screen);
         
         world->show_code = false;
-        load_program_text(world->program_texts[world->current_program_text_index], world);
+        load_program_text(world->program_texts[world->current_program_text_index], 
+                          world->program_names[world->current_program_text_index], 
+                          world);
 
     }
     
@@ -495,7 +501,9 @@ extern "C" {
                 if (button_is_pressed)
                 {
                     world->current_program_text_index = program_text_index;
-                    load_program_text(world->program_texts[world->current_program_text_index], world);
+                    load_program_text(world->program_texts[world->current_program_text_index], 
+                                      world->program_names[world->current_program_text_index],
+                                      world);
             
                     // TODO: right now, we immediatly layout the elements, since we will absolute_layout_elements and then draw it below
                     layout_elements(flowifier, world->root_element);
@@ -569,7 +577,18 @@ extern "C" {
         if (world->show_code)
         {
             draw_rounded_rectangle(world->code_rect.position, world->code_rect.size, flowifier->bending_radius, 
+                                   // FIXME: dont use detail_ here 
                                    flowifier->detail_line_color, flowifier->detail_fill_color, flowifier->detail_line_width);
+                                   
+            Size2d program_name_size = get_text_size(&world->program_name, font);
+            Pos2d program_name_position = {};
+            program_name_position.x = world->title_rect.position.x + world->title_rect.size.width / 2 - program_name_size.width / 2;
+            program_name_position.y = world->title_rect.position.y + world->title_rect.size.height / 2 - program_name_size.height / 2;
+            draw_text(program_name_position, &world->program_name, font, black);
+            
+//            i32 program_name_x2 = world->title_rect.position.x + world->title_rect.size.width - program_name_size.width; // + world->title_rect.size.width / 2 - program_name_size.width / 2;
+//            draw_text((Pos2d){program_name_x2, 80}, &world->program_name, font, black);
+            
             draw_scrollable_text(scrollable_program_text);
         }
         

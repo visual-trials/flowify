@@ -579,7 +579,7 @@ Rectangle2 split_rect_vertically(Rect2d rectangle, i32 top_height, i32 middle_ma
     
     rectangles.first.position.x = rectangle.position.x;
     rectangles.first.position.y = rectangle.position.y;
-    rectangles.first.size.width = rectangle.size.height;
+    rectangles.first.size.width = rectangle.size.width;
     rectangles.first.size.height = top_height;
     
     rectangles.second.position.x = rectangle.position.x;
