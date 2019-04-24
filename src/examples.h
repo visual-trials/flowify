@@ -178,6 +178,8 @@ const char * large_example_program_text =
     "\n"
     "updateAndGetCodeAndVisualInfoForFile($fileToFlowifyWithoutExtention);\n"  // TODO: removed "list($code, $visualInfos) =" here
     "\n"
+    "extendFlowElementsWithVisualInfo();\n"
+    "\n"
     "function updateAndGetCodeAndVisualInfoForFile($fileToFlowifyWithoutExtention) {\n"
     "    \n"
     "    // TODO: the order of the coordinates is now by AST-order, not by horizontal position in the line\n"
@@ -231,8 +233,6 @@ const char * large_example_program_text =
     "    return array($code, $visualInfos);\n"
     "    \n"
     "}\n"
-    "\n"
-    "extendFlowElementsWithVisualInfo();\n"
     "// VisualInfo\n"
     "\n"
     "function getVisualInfo ($astNodeIdentifier, &$visualInfos, &$usedVisualInfos) {\n"
