@@ -54,6 +54,7 @@ struct WorldData
     
     FlowElement * root_element;
     
+    b32 menu_is_expanded;
     const char * program_texts[10];
     i32 nr_of_program_texts;
     i32 current_program_text_index;
@@ -148,6 +149,7 @@ extern "C" {
         world->flowify_vertical_offset = 0;
         world->flowify_horizontal_offset = 0;
         
+        world->menu_is_expanded = false;
         world->program_texts[0] = large_example; // simple_assign_program_text;
         world->program_texts[1] = i_plus_plus_program_text;
         world->program_texts[2] = simple_functions_program_text;
@@ -442,6 +444,7 @@ extern "C" {
         }
         */
         
+        
         // Menu button
         position_button.y = 20;
         b32 button_is_active = false; // FIXME?
@@ -449,32 +452,34 @@ extern "C" {
         
         if (button_is_pressed)
         {
-            // FIXME
+            world->menu_is_expanded = !world->menu_is_expanded;
         }
         
-        /*
-        for (i32 program_text_index = 0; program_text_index < world->nr_of_program_texts; program_text_index++)
+        if (world->menu_is_expanded)
         {
-            b32 button_is_active = false;
-            if (program_text_index == world->current_program_text_index)
-            {
-                button_is_active = true;
-            }
+            // FIXME: draw round_rectangle around buttons
             
-            position_button.y = 20 + program_text_index * (margin_between_buttons + size_button.height);
-            b32 button_is_pressed = do_integer_button(position_button, size_button, program_text_index + 1, button_is_active, &global_input);
-            
-            if (button_is_pressed)
+            for (i32 program_text_index = 0; program_text_index < world->nr_of_program_texts; program_text_index++)
             {
-                world->current_program_text_index = program_text_index;
-                load_program_text(world->program_texts[world->current_program_text_index], world);
-        
-                // TODO: right now, we immediatly layout the elements, since we will absolute_layout_elements and then draw it below
-                layout_elements(flowifier, world->root_element);
+                b32 button_is_active = false;
+                if (program_text_index == world->current_program_text_index)
+                {
+                    button_is_active = true;
+                }
+                
+                position_button.y = 20 + (1 + program_text_index) * (margin_between_buttons + size_button.height);
+                b32 button_is_pressed = do_integer_button(position_button, size_button, program_text_index + 1, button_is_active, &global_input);
+                
+                if (button_is_pressed)
+                {
+                    world->current_program_text_index = program_text_index;
+                    load_program_text(world->program_texts[world->current_program_text_index], world);
+            
+                    // TODO: right now, we immediatly layout the elements, since we will absolute_layout_elements and then draw it below
+                    layout_elements(flowifier, world->root_element);
+                }
             }
         }
-        */
-        
         
     }
     

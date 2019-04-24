@@ -21,7 +21,7 @@ b32 do_button(Pos2d position, Size2d size, ShortString * label, b32 is_active, I
     
     HoveredOrPressed hovered_or_pressed = check_hovered_or_pressed(position, size, input);
     
-    Color4 line_color = {70, 70, 70, 255};
+    Color4 line_color = {  0,   0,   0, 255};
     Color4 fill_color = {255, 255, 255, 255};
     
     if (is_active)
@@ -72,6 +72,7 @@ b32 do_button(Pos2d position, Size2d size, ShortString * label, b32 is_active, I
     else
     {
         // Drawing menu-icon (3 horizontal lines in button)
+        Color4 open_menu_line_color = {70, 70, 70, 255};
         line_width = 3;
         b32 round_cap = true;
         Pos2d start_position = {};
@@ -80,13 +81,13 @@ b32 do_button(Pos2d position, Size2d size, ShortString * label, b32 is_active, I
         start_position.y = position.y + size.height * 5 / 16;
         end_position.x = position.x + size.width * 13 / 16;
         end_position.y = start_position.y;
-        draw_line(start_position, end_position, line_color, line_width, round_cap);
+        draw_line(start_position, end_position, open_menu_line_color, line_width, round_cap);
         start_position.y = position.y + size.height * 8 / 16;
         end_position.y = start_position.y;
-        draw_line(start_position, end_position, line_color, line_width, round_cap);
+        draw_line(start_position, end_position, open_menu_line_color, line_width, round_cap);
         start_position.y = position.y + size.height * 11 / 16;
         end_position.y = start_position.y;
-        draw_line(start_position, end_position, line_color, line_width, round_cap);
+        draw_line(start_position, end_position, open_menu_line_color, line_width, round_cap);
     }
     
     return hovered_or_pressed.is_pressed;
