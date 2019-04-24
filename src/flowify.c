@@ -30,6 +30,7 @@ struct WorldData
 {
     Rect2d title_rect;
     
+    b32 show_code;
     String program_text;
     ScrollableText scrollable_program_text;
     Window program_text_window;
@@ -186,6 +187,7 @@ extern "C" {
         
         update_window_dimensions(world, &input->screen);
         
+        world->show_code = false;
         load_program_text(world->program_texts[world->current_program_text_index], world);
 
     }
@@ -544,6 +546,24 @@ extern "C" {
         
         draw_and_update_button_menu(world);
 
+        ShortString code_label;
+        copy_cstring_to_short_string("code", &code_label);
+        
+        Size2d size_code_button = {50, 50};
+        Pos2d position_code_button = {};
+        position_code_button.x = global_input.screen.width - size_code_button.width - 20;
+        position_code_button.y = 20;
+        // ShortString label_active;
+        // copy_cstring_to_short_string("[   ]", &label_active);
+        // &label_active
+
+        b32 code_button_is_pressed = do_button(position_code_button, size_code_button, &code_label, world->show_code, &global_input);
+
+        if (code_button_is_pressed)
+        {
+            world->show_code = !world->show_code;
+        }
+            
         draw_scrollable_text(scrollable_program_text);
         
         // Button for toggling showing help rectangles
