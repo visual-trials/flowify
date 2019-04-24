@@ -243,6 +243,7 @@ extern "C" {
 
             // TODO: we should also re-generate the detail-string when the absolute position changes of the element
             // FIXME: turned off for now: if (old_selected_element_index != flowifier->interaction.selected_element_index)
+            /*
             {
                 FlowElement * newly_selected_flow_element = &flow_elements[flowifier->interaction.selected_element_index];
                 
@@ -254,6 +255,7 @@ extern "C" {
 
                 split_string_into_scrollable_lines(world->flowify_detail_text.string, &world->scrollable_flowify_detail);
             }
+            */
         }
         
         // Update world
@@ -347,6 +349,7 @@ extern "C" {
         TouchesInput * touch = &input->touch;
         Flowifier * flowifier = &world->flowifier;
         
+        /*
         for (i32 program_text_index = 0; program_text_index < world->nr_of_program_texts; program_text_index++)
         {
             b32 button_is_active = false;
@@ -367,6 +370,7 @@ extern "C" {
                 layout_elements(flowifier, world->root_element);
             }
         }
+        */
         
         if (mouse->wheel_has_moved)
         {
@@ -435,6 +439,7 @@ extern "C" {
         draw_elements(flowifier, root_element);
         
         // FIXME: hack!
+        /*
         if (flowifier->interaction.selected_element_index)
         {
             FlowElement * flow_elements = (FlowElement *)flowifier->flow_elements.items;
@@ -454,10 +459,11 @@ extern "C" {
 
             // FIXME: update_scrollable_text should be called in update_frame!!
             world->flowify_detail_window.screen_rect = detail_rect;
-            update_scrollable_text(&world->scrollable_flowify_detail, input);
+            // update_scrollable_text(&world->scrollable_flowify_detail, input);
             
             draw_scrollable_text(&world->scrollable_flowify_detail);
         }
+        */
         
     }
     
@@ -524,6 +530,7 @@ extern "C" {
         draw_and_update_button_menu(world);
 
         // Button for toggling showing help rectangles
+        /*
         {
             Size2d size_button = {50, 50};
             Pos2d position_button = {};
@@ -542,9 +549,10 @@ extern "C" {
                 flowifier->show_help_rectangles = !flowifier->show_help_rectangles;
             }
         }
+        */
         
         // do_memory_usage(memory, input, &world->verbose_memory_usage);
-        do_frame_timing(&global_input, &world->verbose_frame_times);
-        do_physical_pixels_switch(&global_input);
+        // do_frame_timing(&global_input, &world->verbose_frame_times);
+        // do_physical_pixels_switch(&global_input);
     }
 }

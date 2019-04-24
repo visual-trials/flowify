@@ -28,9 +28,9 @@ Flowify.canvas = function () {
     // FIXME: we need a proper way of drawing shadows
     my.drawShadows = false
     my.nrOfDrawCalls = 0
-    my.showNrOfDrawCalls = true
+    my.showNrOfDrawCalls = false
     
-    my.usingPhysicalPixels = false
+    my.usingPhysicalPixels = true
     my.scale = 1
 
     my.fixedCanvasSize = null
@@ -69,7 +69,7 @@ Flowify.canvas = function () {
     // (Re)sizing Canvas
     
     my.loadUsingPhysicalPixelsFromCookie = function () {
-        my.usingPhysicalPixels = Flowify.input.getCookie('usingPhysicalPixels') === '1' ? true : false
+        // FIXME: turned off for now: my.usingPhysicalPixels = Flowify.input.getCookie('usingPhysicalPixels') === '1' ? true : false
         my.resizeCanvasToWindowSize()
     }
 
