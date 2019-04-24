@@ -305,11 +305,16 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         // FIXME: we should put bars on the sides of a UnaryExpression IF its a statement!!
         
         
-        i32 variable_index = get_number_based_on_string(flow_element->ast_node->identifier);
+        FlowStyle variable_style = flowifier->variable_style;
         
-        // FIXME: make this depend on its identifier!
-        i32 variable_style_index = variable_index % flowifier->nr_of_variable_colors;
-        FlowStyle variable_style = flowifier->variable_styles[variable_style_index];
+        if (flowifier->use_variable_color_variations)
+        {
+            i32 variable_index = get_number_based_on_string(flow_element->ast_node->identifier);
+            
+            // FIXME: make this depend on its identifier!
+            i32 variable_style_index = variable_index % flowifier->nr_of_variable_colors;
+            variable_style = flowifier->variable_styles[variable_style_index];
+        }
         
         push_rectangle_element(flowifier, flow_element, variable_style, true, true);
     }

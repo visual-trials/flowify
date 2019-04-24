@@ -315,6 +315,7 @@ struct Flowifier
     
     Parser * parser;
     
+    b32 use_variable_color_variations;
     b32 has_absolute_positions;
     FlowInteraction interaction;
     
@@ -357,7 +358,7 @@ struct Flowifier
     FlowStyleEvenOdd expression_style;
     
     FlowStyle variable_style;
-    FlowStyle variable_styles[6]; // FIXME: make sure nr_of_variable_colors is always smaller than (or equal to) the size of this array!
+    FlowStyle variable_styles[20]; // FIXME: make sure nr_of_variable_colors is always smaller than (or equal to) the size of this array!
     i32 nr_of_variable_colors;
     
     FlowStyle scalar_style;
@@ -393,6 +394,18 @@ struct Flowifier
 FlowElement * new_element(Flowifier * flowifier, Node * ast_node, FlowElementType flow_element_type);
 FlowElement * new_element(Flowifier * flowifier, Node * ast_node, FlowElementType flow_element_type, b32 is_statement);
 
+Color4 lighten_color(Color4 dark_color, i32 factor)
+{
+    Color4 light_color;
+    
+    light_color.r = 255 - (255 - dark_color.r) / factor;
+    light_color.g = 255 - (255 - dark_color.g) / factor;
+    light_color.b = 255 - (255 - dark_color.b) / factor;
+    light_color.a = dark_color.a;
+    
+    return light_color;
+}
+
 void init_flowifier(Flowifier * flowifier, Parser * parser)
 {
     flowifier->first_function = 0;
@@ -418,6 +431,7 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     flowifier->interaction.acted_upon_element_index = 0;
     flowifier->interaction.hovered_element_index = 0;
     
+    flowifier->use_variable_color_variations = true;
     flowifier->has_absolute_positions = false;
     
     flowifier->line_color          = (Color4){  0,   0,   0, 255};
@@ -459,7 +473,17 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     flowifier->variable_style.corner_radius = 10;
     flowifier->variable_style.line_width = 2;
     
-    i32 nr_of_colors = 6;
+    Color4 red = {230, 25, 75, 255};
+    Color4 orange = {245, 130, 48, 255};
+    Color4 yellow = {255, 225, 25, 255};
+    Color4 lime = {210, 245, 60, 255};
+    Color4 green = {60, 180, 75, 255};
+    Color4 cyan = {70, 240, 240, 255};
+    Color4 blue = {0, 130, 200, 255};
+    Color4 purple = {145, 30, 180, 255};
+    Color4 magenta = {240, 50, 230, 255};
+    
+    i32 nr_of_colors = 8;
     flowifier->nr_of_variable_colors = nr_of_colors;
     // FIXME: make sure nr_of_colors is smaller than this array!
     for (i32 variable_style_index = 0; variable_style_index < nr_of_colors; variable_style_index++)
@@ -471,47 +495,51 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
         
         if (variable_style_index == 0)
         {
-            light_color.r /= 4;
-            dark_color.r /= 4;
+            dark_color = lighten_color(orange, 2);
+            light_color = lighten_color(orange, 4);
         }
         else if (variable_style_index == 1)
         {
-            light_color.g /= 4;
-            dark_color.g /= 4;
+            dark_color = lighten_color(yellow, 2);
+            light_color = lighten_color(yellow, 4);
         }
         else if (variable_style_index == 2)
         {
-            light_color.b /= 4;
-            dark_color.b /= 4;
+            dark_color = lighten_color(lime, 2);
+            light_color = lighten_color(lime, 4);
         }
         else if (variable_style_index == 3)
         {
-            light_color.r /= 2;
-            light_color.g /= 2;
-            dark_color.r /= 2;
-            dark_color.g /= 2;
+            dark_color = lighten_color(green, 2);
+            light_color = lighten_color(green, 4);
         }
         else if (variable_style_index == 4)
         {
-            light_color.r /= 2;
-            light_color.b /= 2;
-            dark_color.r /= 2;
-            dark_color.b /= 2;
+            dark_color = lighten_color(cyan, 2);
+            light_color = lighten_color(cyan, 4);
         }
         else if (variable_style_index == 5)
         {
-            light_color.b /= 2;
-            light_color.g /= 2;
-            dark_color.b /= 2;
-            dark_color.g /= 2;
+            dark_color = lighten_color(blue, 2);
+            light_color = lighten_color(blue, 4);
+        }
+        else if (variable_style_index == 6)
+        {
+            dark_color = lighten_color(purple, 2);
+            light_color = lighten_color(purple, 4);
+        }
+        else if (variable_style_index == 7)
+        {
+            dark_color = lighten_color(magenta, 2);
+            light_color = lighten_color(magenta, 4);
         }
         
         flowifier->variable_styles[variable_style_index].fill_color = light_color;
         flowifier->variable_styles[variable_style_index].line_color = dark_color;
     }
     
-    flowifier->scalar_style.line_color = (Color4){ 255, 150, 150, 255};
-    flowifier->scalar_style.fill_color = (Color4){ 255, 200, 200, 255};
+    flowifier->scalar_style.line_color = lighten_color(red, 2); // (Color4){ 255, 150, 150, 255};
+    flowifier->scalar_style.fill_color = lighten_color(red, 4); //(Color4){ 255, 200, 200, 255};
     flowifier->scalar_style.corner_radius = 10;
     flowifier->scalar_style.line_width = 2;
     
