@@ -348,6 +348,16 @@ extern "C" {
         MouseInput * mouse = &input->mouse;
         TouchesInput * touch = &input->touch;
         Flowifier * flowifier = &world->flowifier;
+
+        // Menu button
+        position_button.y = 20;
+        b32 button_is_active = false; // FIXME?
+        b32 button_is_pressed = do_integer_button(position_button, size_button, 0, button_is_active, &global_input);
+        
+        if (button_is_pressed)
+        {
+            // FIXME
+        }
         
         /*
         for (i32 program_text_index = 0; program_text_index < world->nr_of_program_texts; program_text_index++)

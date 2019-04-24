@@ -692,11 +692,14 @@ Flowify.canvas = function () {
                 }
             },
             
-            _jsDrawLine: function (xStart, yStart, xEnd, yEnd, lineColorRGB, lineColorAlpha, lineWidth) {
+            _jsDrawLine: function (xStart, yStart, xEnd, yEnd, lineColorRGB, lineColorAlpha, lineWidth, roundCap) {
 
                 ctx.beginPath()
                 ctx.moveTo(xStart, yStart)
                 ctx.lineTo(xEnd, yEnd)
+                if (roundCap) {
+                    ctx.lineCap = "round"
+                }
 
                 if (lineColorAlpha) {
                     ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)

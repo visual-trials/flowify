@@ -64,7 +64,7 @@ extern "C" {
                            
     extern void jsDrawLine(i32 x_start, i32 y_start, i32 x_end, i32 y_end, 
                            i32 line_color_rgb, i32 line_color_alpha, 
-                           i32 line_width);
+                           i32 line_width, b32 round_cap);
                            
     extern void jsDrawText(i32 x, i32 y, 
                            u8 * string_data, i32 string_length,
@@ -177,12 +177,12 @@ void draw_rectangle(Rect2d rect, Color4 line_color, Color4 fill_color, i32 line_
 }
 
 void draw_line(Pos2d start_position, Pos2d end_position, 
-                    Color4 line_color, i32 line_width)
+                    Color4 line_color, i32 line_width, b32 round_cap = false)
 {
     i32 line_color_rgb = line_color.r + line_color.g * 256 + line_color.b * 256 * 256; 
     i32 line_color_alpha = (i32)line_color.a;
     
-    jsDrawLine(start_position.x, start_position.y, end_position.x, end_position.y, line_color_rgb, line_color_alpha, line_width);
+    jsDrawLine(start_position.x, start_position.y, end_position.x, end_position.y, line_color_rgb, line_color_alpha, line_width, round_cap);
 }
 
 void draw_ellipse(Pos2d position, Size2d size, 
