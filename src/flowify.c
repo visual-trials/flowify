@@ -58,6 +58,7 @@ struct WorldData
     
     b32 menu_is_expanded;
     const char * program_texts[10];
+    const char * program_text_names[10];
     i32 nr_of_program_texts;
     i32 current_program_text_index;
     
@@ -153,15 +154,32 @@ extern "C" {
         world->flowify_horizontal_offset = 0;
         
         world->menu_is_expanded = false;
-        world->program_texts[0] = large_example; // simple_assign_program_text;
+        
+        world->program_texts[0] = large_example_program_text;
+        world->program_text_names[0] = large_example_program_name;
+        
         world->program_texts[1] = i_plus_plus_program_text;
+        world->program_text_names[1] = i_plus_plus_program_name;
+        
         world->program_texts[2] = simple_functions_program_text;
+        world->program_text_names[2] = simple_functions_program_name;
+        
         world->program_texts[3] = simple_if_program_text;
+        world->program_text_names[3] = simple_if_program_name;
+        
         world->program_texts[4] = simple_if_else_program_text;
-        world->program_texts[5] = simple_for;
+        world->program_text_names[4] = simple_if_else_program_name;
+        
+        world->program_texts[5] = simple_for_program_text;
+        world->program_text_names[5] = simple_for_program_name;
+        
         // TODO: in the end, we probably want this example instead: world->program_texts[5] = simple_for_continue_break_program_text;
         world->program_texts[6] = fibonacci_iterative_program_text;
+        world->program_text_names[6] = fibonacci_iterative_program_name;
+        
         world->program_texts[7] = fibonacci_recursive_early_return_program_text;
+        world->program_text_names[7] = fibonacci_recursive_early_return_program_name;
+        
         world->nr_of_program_texts = 8;
         
         world->current_program_text_index = 2;

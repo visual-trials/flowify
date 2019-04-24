@@ -16,12 +16,14 @@
 
  */
  
+const char * simple_assign_program_name = "simple_assignment.php";
 const char * simple_assign_program_text = 
     "<?php\n"
     "\n"
     "$answer = 42;\n"
 ;
 
+const char * i_plus_plus_program_name = "i_plus_plus.php";
 const char * i_plus_plus_program_text = 
     "<?php\n"
     "\n"
@@ -32,6 +34,7 @@ const char * i_plus_plus_program_text =
     "$c = ++$b;"
 ;
 
+const char * simple_functions_program_name = "simple_functions.php";
 const char * simple_functions_program_text = 
     "<?php\n"
     "\n"
@@ -64,6 +67,7 @@ const char * simple_functions_program_text =
     "}"
 ;
 
+const char * simple_if_program_name = "simple_if_statement.php";
 const char * simple_if_program_text = 
     "<?php\n"
     "\n"
@@ -78,6 +82,7 @@ const char * simple_if_program_text =
     "$c = $myVar + $b;\n"
 ;
 
+const char * simple_if_else_program_name = "simple_if_else_statement.php";
 const char * simple_if_else_program_text = 
     "<?php\n"
     "\n"
@@ -98,7 +103,8 @@ const char * simple_if_else_program_text =
     "$common = $myVariable + $best;\n"
 ;
 
-const char * simple_for = 
+const char * simple_for_program_name = "simple_for_loop.php";
+const char * simple_for_program_text = 
     "<?php\n"
     "\n"
     "$b = 76;\n"
@@ -108,6 +114,7 @@ const char * simple_for =
     "}\n"
 ;
 
+const char * simple_for_continue_break_program_name = "simple_for_continue_break.php";
 const char * simple_for_continue_break_program_text = 
     "<?php\n"
     "\n"
@@ -128,6 +135,7 @@ const char * simple_for_continue_break_program_text =
     "$c = $myVar + $b;\n"
 ;
 
+const char * fibonacci_iterative_program_name = "fibonacci_iterative.php";
 const char * fibonacci_iterative_program_text = 
     "<?php\n"
     "\n"
@@ -146,6 +154,7 @@ const char * fibonacci_iterative_program_text =
     "}\n"
 ;
 
+const char * fibonacci_recursive_early_return_program_name = "fibonacci_recursive_early_return.php";
 const char * fibonacci_recursive_early_return_program_text = 
     "<?php\n"
     "\n"
@@ -163,7 +172,8 @@ const char * fibonacci_recursive_early_return_program_text =
     "}"
 ;
 
-const char * large_example = 
+const char * large_example_program_name = "larger_example.php";
+const char * large_example_program_text = 
     "<?php\n"
     "\n"
     "updateAndGetCodeAndVisualInfoForFile($fileToFlowifyWithoutExtention);\n"  // TODO: removed "list($code, $visualInfos) =" here
