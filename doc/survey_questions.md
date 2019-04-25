@@ -1,3 +1,0 @@
-
-## Flowify Demo - Survey Questions
-
