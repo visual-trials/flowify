@@ -58,6 +58,8 @@ struct WorldData
     
     FlowElement * root_element;
     
+    b32 help_is_expanded;
+    
     b32 menu_is_expanded;
     const char * program_texts[10];
     const char * program_names[10];
@@ -193,6 +195,7 @@ extern "C" {
         world->flowify_vertical_offset = 0;
         world->flowify_horizontal_offset = 0;
         
+        world->help_is_expanded = false;
         world->menu_is_expanded = false;
         
         world->program_texts[0] = large_example_program_text;
@@ -414,6 +417,14 @@ extern "C" {
         Size2d size_menu_item = {500, 50};
         i32 margin_between_menu_items = 0;
         
+        Size2d size_help_button = {50, 50};
+        Pos2d position_help_button = {}; 
+        position_help_button.x = global_input.screen.width - size_help_button.width - 20;
+        position_help_button.y = global_input.screen.height - size_help_button.height - 20;
+        
+        ShortString help_label;
+        copy_cstring_to_short_string("help", &help_label);
+        
         FlowElement * root_element = world->root_element;
         Input * input = &global_input;
         MouseInput * mouse = &input->mouse;
@@ -513,12 +524,21 @@ extern "C" {
         }
         */
         
+        // Help button
+        
+        b32 help_button_is_active = false; // FIXME?
+        b32 help_button_is_pressed = do_button(position_help_button, size_help_button, &help_label, help_button_is_active, &global_input);
+        
+        if (help_button_is_pressed)
+        {
+            world->help_is_expanded = !world->help_is_expanded;
+        }
         
         // Menu button
-        b32 button_is_active = false; // FIXME?
-        b32 button_is_pressed = do_integer_button(position_menu_button, size_menu_button, 0, button_is_active, &global_input);
+        b32 menu_button_is_active = false; // FIXME?
+        b32 menu_button_is_pressed = do_integer_button(position_menu_button, size_menu_button, 0, menu_button_is_active, &global_input);
         
-        if (button_is_pressed)
+        if (menu_button_is_pressed)
         {
             world->menu_is_expanded = !world->menu_is_expanded;
         }
@@ -527,10 +547,10 @@ extern "C" {
         {
             for (i32 program_text_index = 0; program_text_index < world->nr_of_program_texts; program_text_index++)
             {
-                b32 button_is_active = false;
+                b32 menu_item_button_is_active = false;
                 if (program_text_index == world->current_program_text_index)
                 {
-                    button_is_active = true;
+                    menu_item_button_is_active = true;
                 }
                 
                 ShortString program_name = {};
@@ -538,10 +558,9 @@ extern "C" {
 
                 Pos2d position_menu_item = position_menu;
                 position_menu_item.y += program_text_index * size_menu_item.height;
-                b32 button_is_pressed = do_menu_item(position_menu_item, size_menu_item, &program_name, button_is_active, &global_input);
-                // b32 button_is_pressed = do_integer_button(position_button, size_button, program_text_index + 1, button_is_active, &global_input);
+                b32 menu_item_button_is_pressed = do_menu_item(position_menu_item, size_menu_item, &program_name, menu_item_button_is_active, &global_input);
                 
-                if (button_is_pressed)
+                if (menu_item_button_is_pressed)
                 {
                     world->current_program_text_index = program_text_index;
                     load_program_text(world->program_texts[world->current_program_text_index], 
