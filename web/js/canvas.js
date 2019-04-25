@@ -30,7 +30,7 @@ Flowify.canvas = function () {
     my.nrOfDrawCalls = 0
     my.showNrOfDrawCalls = false
     
-    my.usingPhysicalPixels = true
+    my.usingPhysicalPixels = false
     my.scale = 1
 
     my.fixedCanvasSize = null
