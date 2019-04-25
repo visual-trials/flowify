@@ -417,11 +417,9 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         Pos2d current_position = start_position;
         
         // We want the for_init to start just before the highest point of the for-loop. Which is the top point of the pass-left element
-        if (current_position.y + for_init_element->rect.size.height < start_position.y + for_passback_width + for_passback_height + bending_radius + bending_radius * 2)
+        if (current_position.y + for_init_element->rect.size.height < start_position.y + for_passback_width + for_passback_height + bending_radius + bending_radius)
         {
-            current_position.y = -for_init_element->rect.size.height + start_position.y + for_passback_width + for_passback_height + bending_radius + bending_radius * 2;
-            // FIXME: this doesn't look nice with the current examples (try to find another solution). For now 'correcting' it a bit
-            current_position.y -= bending_radius;
+            current_position.y = -for_init_element->rect.size.height + start_position.y + for_passback_width + for_passback_height + bending_radius + bending_radius;
         }
         
         for_init_element->rect.position = current_position;
@@ -507,7 +505,8 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         foreach_cond_element->is_highlightable = true;
         
-        foreach_init_element->rect.size.height = foreach_passback_width + foreach_passback_height + bending_radius + bending_radius * 2;
+        // We want the foreach_init to start just before the highest point of the foreach-loop. Which is the top point of the pass-left element (see below)
+        foreach_init_element->rect.size.height = foreach_passback_width + foreach_passback_height + bending_radius + bending_radius;
         foreach_init_element->rect.size.width = default_element_width;
         
         foreach_passright_element->rect.size.height = foreach_passback_width;
@@ -535,10 +534,10 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         current_position.x += foreach_init_element->rect.size.width + 2 * bending_radius - width_center_elements / 2;
         
-        // We want the foreach_init to start just before the highest point of the foreach-loop. Which is the top point of the pass-left element
-        if (current_position.y + foreach_init_element->rect.size.height < start_position.y + foreach_passback_width + foreach_passback_height + bending_radius + bending_radius * 2)
+        // We want the foreach_init to start just before the highest point of the foreach-loop. Which is the top point of the pass-left element  (see above)
+        if (current_position.y + foreach_init_element->rect.size.height < start_position.y + foreach_passback_width + foreach_passback_height + bending_radius + bending_radius)
         {
-            current_position.y = -foreach_init_element->rect.size.height + start_position.y + foreach_passback_width + foreach_passback_height + bending_radius + bending_radius * 2;
+            current_position.y = -foreach_init_element->rect.size.height + start_position.y + foreach_passback_width + foreach_passback_height + bending_radius + bending_radius;
         }
         
         foreach_init_element->rect.position = current_position;
