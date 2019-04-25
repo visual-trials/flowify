@@ -285,11 +285,14 @@ extern "C" {
                     flowifier->interaction.acted_upon_element_index = acted_upon_element->index;
                 }
                 
+                /*
+                // FIXME: turned off for now
                 if (acted_upon_element->type == FlowElement_FunctionBody)
                 {
                     acted_upon_element = acted_upon_element->parent->parent;
                     flowifier->interaction.acted_upon_element_index = acted_upon_element->index;
                 }
+                */
                 
                 if (acted_upon_element->type == FlowElement_FunctionCall)
                 {
@@ -300,7 +303,7 @@ extern "C" {
                         //       we want to re-position all elements, so at least this element becomes in-view
                         //       this is a little dirty, but it kinda works for now
                         
-                        world->flowify_vertical_offset = -acted_upon_element->rect.position.y;
+                        // FIXME: turned off for now: world->flowify_vertical_offset = -acted_upon_element->rect.position.y;
                     }
                 }
                 
