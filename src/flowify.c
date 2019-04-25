@@ -534,6 +534,20 @@ extern "C" {
             world->help_is_expanded = !world->help_is_expanded;
         }
         
+        if (world->help_is_expanded)
+        {
+            Size2d size_help = {400, 300};
+            Pos2d position_help = {};
+            position_help.x = position_help_button.x - size_help.width + size_help_button.width;
+            position_help.y = position_help_button.y - size_help.height;
+            Color4 line_color = { 100, 100, 100, 255};
+            Color4 fill_color = { 255, 255, 255,   0};
+            i32 line_width = 1;
+            i32 bending_radius = 5;
+            
+            draw_rounded_rectangle(position_help, size_help, bending_radius, line_color, fill_color, line_width);
+        }
+        
         // Menu button
         b32 menu_button_is_active = false; // FIXME?
         b32 menu_button_is_pressed = do_integer_button(position_menu_button, size_menu_button, 0, menu_button_is_active, &global_input);
