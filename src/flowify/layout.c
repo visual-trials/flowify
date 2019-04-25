@@ -414,16 +414,15 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         Pos2d start_position = {0,0};
 
-        // TODO: we want for_init and for_passthough to be aligned at their right-side! (and be to the left of the center)
-        
         Pos2d current_position = start_position;
         
-        current_position.x += for_init_element->rect.size.width + 2 * bending_radius - width_center_elements / 2;
-        // TODO: we are creating some space at the top here. But we probably want the entire For-element to be move to the left, so we don't need this vertical space.
-        // current_position.y += 50;  // FIXME: need to calculate this properly!
-
-        // current_position.y += for_start_element->rect.size.height + vertical_margin + vertical_margin;
-        current_position.x -= for_init_element->rect.size.width + 2 * bending_radius - width_center_elements / 2;
+        // We want the for_init to start just before the highest point of the for-loop. Which is the top point of the pass-left element
+        if (current_position.y + for_init_element->rect.size.height < start_position.y + for_passback_width + for_passback_height + bending_radius + bending_radius * 2)
+        {
+            current_position.y = -for_init_element->rect.size.height + start_position.y + for_passback_width + for_passback_height + bending_radius + bending_radius * 2;
+            // FIXME: this doesn't look nice with the current examples (try to find another solution). For now 'correcting' it a bit
+            current_position.y -= bending_radius;
+        }
         
         for_init_element->rect.position = current_position;
         
@@ -508,7 +507,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         foreach_cond_element->is_highlightable = true;
         
-        foreach_init_element->rect.size.height = 2 * bending_radius;
+        foreach_init_element->rect.size.height = foreach_passback_width + foreach_passback_height + bending_radius + bending_radius * 2;
         foreach_init_element->rect.size.width = default_element_width;
         
         foreach_passright_element->rect.size.height = foreach_passback_width;
@@ -535,9 +534,13 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         Pos2d current_position = start_position;
         
         current_position.x += foreach_init_element->rect.size.width + 2 * bending_radius - width_center_elements / 2;
-        // TODO: we are creating some space at the top here. But we probably want the entire For-element to be move to the left, so we don't need this vertical space.
-        // current_position.y += 50;  // FIXME: need to calculate this properly!
-
+        
+        // We want the foreach_init to start just before the highest point of the foreach-loop. Which is the top point of the pass-left element
+        if (current_position.y + foreach_init_element->rect.size.height < start_position.y + foreach_passback_width + foreach_passback_height + bending_radius + bending_radius * 2)
+        {
+            current_position.y = -foreach_init_element->rect.size.height + start_position.y + foreach_passback_width + foreach_passback_height + bending_radius + bending_radius * 2;
+        }
+        
         foreach_init_element->rect.position = current_position;
         
         current_position.y += foreach_init_element->rect.size.height + vertical_margin; // + foreach_passback_width + bending_radius + bending_radius + bending_radius;
