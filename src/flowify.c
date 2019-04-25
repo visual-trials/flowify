@@ -536,16 +536,79 @@ extern "C" {
         
         if (world->help_is_expanded)
         {
-            Size2d size_help = {400, 300};
+            Font font = {};
+            font.height = 20;
+            font.family = Font_CourierNew;
+            i32 line_height = 30;
+
+            Size2d size_help = {700, 500};
             Pos2d position_help = {};
             position_help.x = position_help_button.x - size_help.width + size_help_button.width;
             position_help.y = position_help_button.y - size_help.height;
+            Color4 text_color = {   0,   0,   0, 255};
             Color4 line_color = { 100, 100, 100, 255};
-            Color4 fill_color = { 255, 255, 255,   0};
+            Color4 fill_color = { 255, 255, 255, 255};
             i32 line_width = 1;
             i32 bending_radius = 5;
             
             draw_rounded_rectangle(position_help, size_help, bending_radius, line_color, fill_color, line_width);
+            Pos2d current_position = position_help;
+            
+            current_position.x += 20;
+            current_position.y += 20;
+            
+            ShortString help_text_item = {};
+            
+            copy_cstring_to_short_string("Mouse scroll:", &help_text_item);
+            draw_text(current_position, &help_text_item, font, text_color);
+            current_position.y += line_height;
+            copy_cstring_to_short_string("    move visualization up/down.", &help_text_item);
+            draw_text(current_position, &help_text_item, font, text_color);
+            current_position.y += line_height;
+            current_position.y += line_height / 2;
+            
+            copy_cstring_to_short_string("Mouse hover:", &help_text_item);
+            draw_text(current_position, &help_text_item, font, text_color);
+            current_position.y += line_height;
+            copy_cstring_to_short_string("    highlight element and (if code is expanded) its", &help_text_item);
+            draw_text(current_position, &help_text_item, font, text_color);
+            current_position.y += line_height;
+            copy_cstring_to_short_string("    corresponding code.", &help_text_item);
+            draw_text(current_position, &help_text_item, font, text_color);
+            current_position.y += line_height;
+            current_position.y += line_height / 2;
+            
+            copy_cstring_to_short_string("Mouse (click and) drag: ", &help_text_item);
+            draw_text(current_position, &help_text_item, font, text_color);
+            current_position.y += line_height;
+            copy_cstring_to_short_string("   move visualization up/down/left/right.", &help_text_item);
+            draw_text(current_position, &help_text_item, font, text_color);
+            current_position.y += line_height;
+            current_position.y += line_height / 2;
+            
+            copy_cstring_to_short_string("Mouse double-click on function:", &help_text_item);
+            draw_text(current_position, &help_text_item, font, text_color);
+            current_position.y += line_height;
+            copy_cstring_to_short_string("    expand/collapse the function body.", &help_text_item);
+            draw_text(current_position, &help_text_item, font, text_color);
+            current_position.y += line_height;
+            current_position.y += line_height / 2;
+            
+            copy_cstring_to_short_string("Mouse click on 'code' button:", &help_text_item);
+            draw_text(current_position, &help_text_item, font, text_color);
+            current_position.y += line_height;
+            copy_cstring_to_short_string("    expand/collapse the source code.", &help_text_item);
+            draw_text(current_position, &help_text_item, font, text_color);
+            current_position.y += line_height;
+            current_position.y += line_height / 2;
+            
+            copy_cstring_to_short_string("Mouse click on 'menu' button:", &help_text_item);
+            draw_text(current_position, &help_text_item, font, text_color);
+            current_position.y += line_height;
+            copy_cstring_to_short_string("    choose an example program.", &help_text_item);
+            draw_text(current_position, &help_text_item, font, text_color);
+            current_position.y += line_height;
+            current_position.y += line_height / 2;
         }
         
         // Menu button
