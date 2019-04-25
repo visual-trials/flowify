@@ -335,6 +335,8 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         if_cond_element->rect.position = current_position;
         if_cond_element->is_highlightable = true;
+        // if_cond_element->rect.position.x += 100;
+        // if_cond_element->rect.size.width += 100;
         
         current_position.y += if_cond_element->rect.size.height;
         

@@ -394,6 +394,14 @@ Node * parse_expression(Parser * parser)
     {
         expression_node = parse_binary_op_expression(parser, Node_Expr_BinaryOp_Smaller, left_sub_expression);
     }
+    else if (accept_token(parser, Token_GreaterOrEqual))
+    {
+        expression_node = parse_binary_op_expression(parser, Node_Expr_BinaryOp_GreaterOrEqual, left_sub_expression);
+    }
+    else if (accept_token(parser, Token_SmallerOrEqual))
+    {
+        expression_node = parse_binary_op_expression(parser, Node_Expr_BinaryOp_SmallerOrEqual, left_sub_expression);
+    }
     else if (accept_token(parser, Token_Equal))
     {
         expression_node = parse_binary_op_expression(parser, Node_Expr_BinaryOp_Equal, left_sub_expression);
