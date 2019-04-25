@@ -198,8 +198,8 @@ extern "C" {
         world->help_is_expanded = false;
         world->menu_is_expanded = false;
         
-        world->program_texts[0] = large_example_program_text;
-        world->program_names[0] = large_example_program_name;
+        world->program_texts[0] = simple_assign_program_text;
+        world->program_names[0] = simple_assign_program_name;
         
         world->program_texts[1] = i_plus_plus_program_text;
         world->program_names[1] = i_plus_plus_program_name;
@@ -223,7 +223,10 @@ extern "C" {
         world->program_texts[7] = fibonacci_recursive_early_return_program_text;
         world->program_names[7] = fibonacci_recursive_early_return_program_name;
         
-        world->nr_of_program_texts = 8;
+        world->program_texts[8] = large_example_program_text;
+        world->program_names[8] = large_example_program_name;
+        
+        world->nr_of_program_texts = 9;
         
         world->current_program_text_index = 2;
         
