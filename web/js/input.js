@@ -338,6 +338,7 @@ Flowify.input = function () {
                 touch.hasMoved, 
                 touch.hasStarted, 
                 touch.hasEnded,
+                touch.hasEndedQuickly,
                 touch.wasCanceled, 
                 touch.positionLeft, 
                 touch.positionTop
@@ -363,6 +364,7 @@ Flowify.input = function () {
             touch.hasMoved = false
             touch.hasStarted = false
             // touch.hasEnded = false // this is irrelevant, since we are going to delete it anyway
+            // touch.hasEndedQuickly = false // this is irrelevant, since we are going to delete it anyway
             // touch.wasCanceled = false // this is irrelevant, since we are going to delete it anyway
         }
         
@@ -377,6 +379,8 @@ Flowify.input = function () {
         
         let changedTouches = e.changedTouches;
         
+        let now = Date.now()
+        
         for (let touchIndex = 0; touchIndex < changedTouches.length; touchIndex++) {
             let changedTouch = changedTouches[touchIndex]
             
@@ -385,7 +389,9 @@ Flowify.input = function () {
             newTouch.identifier = changedTouch.identifier
             newTouch.hasMoved = false
             newTouch.hasStarted = true
+            newTouch.startedAt = now
             newTouch.hasEnded = false
+            newTouch.hasEndedQuickly = false
             newTouch.wasCanceled = false
             newTouch.positionLeft = changedTouch.pageX * Flowify.canvas.scale
             newTouch.positionTop = changedTouch.pageY * Flowify.canvas.scale
@@ -399,6 +405,8 @@ Flowify.input = function () {
 
     my.touchEnded = function (e) {
         
+        let now = Date.now()
+        
         let changedTouches = e.changedTouches;
         
         for (let touchIndex = 0; touchIndex < changedTouches.length; touchIndex++) {
@@ -408,6 +416,9 @@ Flowify.input = function () {
                 let endedTouch = my.touches[changedTouch.identifier]
                 
                 endedTouch.hasEnded = true
+                if (endedTouch.startedAt != null && now - endedTouch.startedAt < 500) {
+                    endedTouch.hasEndedQuickly = true
+                }
                 // TODO: should we do this?: endedTouch.touchHasStarted = false
                 
                 if (endedTouch.positionLeft !== changedTouch.pageX * Flowify.canvas.scale || 

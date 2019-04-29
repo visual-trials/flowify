@@ -58,6 +58,7 @@ struct TouchInput
     b32 has_moved;
     b32 has_started;
     b32 has_ended;
+    b32 has_ended_quickly;
     b32 was_canceled;
     Pos2d position;
 };
@@ -174,7 +175,7 @@ extern "C" {
     
     void set_touch_data(i32 touch_index, i32 identifier,
                         b32 has_moved, b32 has_started, 
-                        b32 has_ended, b32 was_canceled, 
+                        b32 has_ended, b32 has_ended_quickly, b32 was_canceled, 
                         i32 x, i32 y)
     {
         // TODO: make sure touch_index < MAX_NR_OF_TOUCHES
@@ -185,6 +186,7 @@ extern "C" {
         global_input.touch.touches[touch_index].has_moved = has_moved;
         global_input.touch.touches[touch_index].has_started = has_started;
         global_input.touch.touches[touch_index].has_ended = has_ended;
+        global_input.touch.touches[touch_index].has_ended_quickly = has_ended_quickly;
         global_input.touch.touches[touch_index].was_canceled = was_canceled;
         global_input.touch.touches[touch_index].position.x = x;
         global_input.touch.touches[touch_index].position.y = y;

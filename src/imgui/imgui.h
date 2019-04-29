@@ -69,6 +69,16 @@ HoveredOrPressed check_hovered_or_pressed(Pos2d position, Size2d size, Input * i
                 result.is_pressed = true;
             }
         }
+        
+        if (touch_input->has_ended_quickly)
+        {
+            if (touch_input->position.x >= position.x && touch_input->position.x <= position.x + size.width &&
+                touch_input->position.y >= position.y && touch_input->position.y <= position.y + size.height)
+            {
+                // TODO: currently we interpret a quick-tap (with a touch) the same as a double-click (with the mouse). We might want something different here.
+                result.is_pressed_twice = true;
+            }
+        }
     }
     
     return result;
