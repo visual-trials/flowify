@@ -69,7 +69,7 @@ Flowify.canvas = function () {
     // (Re)sizing Canvas
     
     my.loadUsingPhysicalPixelsFromCookie = function () {
-        // FIXME: turned off for now: my.usingPhysicalPixels = Flowify.input.getCookie('usingPhysicalPixels') === '1' ? true : false
+        my.usingPhysicalPixels = Flowify.input.getCookie('usingPhysicalPixels') === '1' ? true : false
         my.resizeCanvasToWindowSize()
     }
 
