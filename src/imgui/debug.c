@@ -44,7 +44,7 @@ void do_physical_pixels_switch(Input * input)
         
         Pos2d position_button = {};
         position_button.x = screen->width - size_button.width - 20;
-        position_button.y = 20;
+        position_button.y = 20 + 50 + 20;
         
         ShortString label;
         copy_char_to_string('-', &label);
