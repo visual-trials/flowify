@@ -228,7 +228,7 @@ extern "C" {
         
         world->nr_of_program_texts = 9;
         
-        world->current_program_text_index = 2;
+        world->current_program_text_index = 1;
         
         world->verbose_memory_usage = true;
         world->verbose_frame_times = false;

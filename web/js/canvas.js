@@ -238,14 +238,65 @@ Flowify.canvas = function () {
                     return
                 }
                 
+                let DrawMove = 0
+                let DrawLine = 1
+                let DrawArc_DownToLeft = 2
+                let DrawArc_DownToRight = 3
+                let DrawArc_LeftToUp = 4
+                let DrawArc_LeftToDown = 5
+                let DrawArc_UpToLeft = 6
+                let DrawArc_UpToRight = 7
+                let DrawArc_RightToUp = 8
+                let DrawArc_RightToDown = 9
+                
+                let HACK_STOP_ADDING = true
+                let leftPath = []
+                let rightPath = []
+                
+                // FIXME: how to do radius? Determine based on abs(x_prev - x) ?
+                
+                function addMove(x, y, isRight) {
+                    if (HACK_STOP_ADDING) return
+                    if (isRight) {
+                        rightPath.push({"type": DrawMove, "x": x, "y": y})
+                    }
+                    else {
+                        leftPath.push({"type": DrawMove, "x": x, "y": y})
+                    }
+                }
+                
+                function addLine(x, y, isRight) {
+                    if (HACK_STOP_ADDING) return
+                    if (isRight) {
+                        rightPath.push({"type": DrawLine, "x": x, "y": y})
+                    }
+                    else {
+                        leftPath.push({"type": DrawLine, "x": x, "y": y})
+                    }
+                }
+                
+                function addArc(x, y, arc_direction, isRight) {
+                    if (HACK_STOP_ADDING) return
+                    if (isRight) {
+                        rightPath.push({"type": arc_direction, "x": x, "y": y})
+                    }
+                    else {
+                        leftPath.push({"type": arc_direction, "x": x, "y": y})
+                    }
+                }
+                
                 function drawLeft(leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius, isBackground = false) {
                     
                     // Draw left side
                     if (isBackground) {
+                        // TODO: we should not do this!?
                         ctx.lineTo(leftTopX, topY)
+                            if (!leftPath.length) addLine(leftTopX, topY, false)
                     }
                     else {
+                        // TODO: we should not do this!?
                         ctx.moveTo(leftTopX, topY)
+                            if (!leftPath.length) addMove(leftTopX, topY, false)
                     }
                     
                     if (leftBottomX < leftTopX) {
@@ -254,8 +305,13 @@ Flowify.canvas = function () {
                             radius = (leftTopX - leftBottomX) / 2
                         }
                         ctx.arcTo(leftTopX, leftMiddleY, leftTopX - radius, leftMiddleY, radius)
+                            addLine(leftTopX, leftMiddleY - radius, false)
+                            addArc(leftTopX - radius, leftMiddleY, DrawArc_DownToLeft, false)
                         ctx.arcTo(leftBottomX, leftMiddleY, leftBottomX, leftMiddleY + radius, radius)
+                            addLine(leftBottomX + radius, leftMiddleY, false)
+                            addArc(leftBottomX, leftMiddleY + radius, DrawArc_LeftToDown, false)
                         ctx.lineTo(leftBottomX, bottomY)
+                            addLine(leftBottomX, bottomY, false)
                     }
                     else if (leftBottomX > leftTopX) {
                         // bottom is to the right of the top
@@ -263,12 +319,18 @@ Flowify.canvas = function () {
                             radius = (leftBottomX - leftTopX) / 2
                         }
                         ctx.arcTo(leftTopX, leftMiddleY, leftTopX + radius, leftMiddleY, radius)
+                            addLine(leftTopX, leftMiddleY - radius, false)
+                            addArc(leftTopX + radius, leftMiddleY, DrawArc_DownToRight, false)
                         ctx.arcTo(leftBottomX, leftMiddleY, leftBottomX, leftMiddleY + radius, radius)
+                            addLine(leftBottomX - radius, leftMiddleY, false)
+                            addArc(leftBottomX, leftMiddleY + radius, DrawArc_RightToDown, false)
                         ctx.lineTo(leftBottomX, bottomY)
+                            addLine(leftBottomX, bottomY, false)
                     }
                     else {
                         // straight vertical line
                         ctx.lineTo(leftBottomX, bottomY)
+                            addLine(leftBottomX, bottomY, false)
                     }
                 }
                 
@@ -276,9 +338,11 @@ Flowify.canvas = function () {
                     // Right side (bottom to top)
                     if (isBackground) {
                         ctx.lineTo(rightBottomX, bottomY)
+                            if (!rightPath.length) addLine(rightBottomX, bottomY, true)
                     }
                     else {
                         ctx.moveTo(rightBottomX, bottomY)
+                            if (!rightPath.length) addMove(rightBottomX, bottomY, true)
                     }
                     if (rightBottomX < rightTopX) {
                         // bottom is to the left of the top
@@ -286,8 +350,13 @@ Flowify.canvas = function () {
                             radius = (rightTopX - rightBottomX) / 2
                         }
                         ctx.arcTo(rightBottomX, rightMiddleY, rightBottomX + radius, rightMiddleY, radius)
+                            addLine(rightBottomX, rightMiddleY + radius, true)
+                            addArc(rightBottomX + radius, rightMiddleY, DrawArc_UpToRight, true)
                         ctx.arcTo(rightTopX, rightMiddleY, rightTopX, rightMiddleY - radius, radius)
+                            addLine(rightTopX - radius, rightMiddleY, true)
+                            addArc(rightTopX, rightMiddleY - radius, DrawArc_RightToUp, true)
                         ctx.lineTo(rightTopX, topY)
+                            addLine(rightTopX, topY, true)
                     }
                     else if (rightBottomX > rightTopX) {
                         // bottom is to the right of the top
@@ -295,12 +364,18 @@ Flowify.canvas = function () {
                             radius = (rightBottomX - rightTopX) / 2
                         }
                         ctx.arcTo(rightBottomX, rightMiddleY, rightBottomX - radius, rightMiddleY, radius)
+                            addLine(rightBottomX, rightMiddleY + radius, true)
+                            addArc(rightBottomX - radius, rightMiddleY, DrawArc_UpToLeft, true)
                         ctx.arcTo(rightTopX, rightMiddleY, rightTopX, rightMiddleY - radius, radius)
+                            addLine(rightTopX + radius, rightMiddleY, true)
+                            addArc(rightTopX, rightMiddleY - radius, DrawArc_LeftToUp, true)
                         ctx.lineTo(rightTopX, topY)
+                            addLine(rightTopX, topY, true)
                     }
                     else {
                         // straight vertical line
                         ctx.lineTo(rightTopX, topY)
+                            addLine(rightTopX, topY, true)
                     }
                 }
                 
@@ -432,7 +507,7 @@ Flowify.canvas = function () {
                         
                         // args: rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius
                         drawRight(lanePart.x + lanePart.width, lanePart.y + lanePart.height / 2, 
-                                  lanePart.y + lanePart.height * 3 / 4, // TODO: 3 / 4 as middleY (we shouldnt use drawLeft, we only draw a straight (half) lanePart)
+                                  lanePart.y + lanePart.height * 3 / 4, // TODO: 3 / 4 as middleY (we shouldnt use drawRight, we only draw a straight (half) lanePart)
                                   lanePart.x + lanePart.width, lanePart.y + lanePart.height, radius, isBackground = true)
                     }
                     previousLanePart = null
@@ -485,7 +560,7 @@ Flowify.canvas = function () {
                         
                         // args: rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius
                         drawRight(lanePart.x + lanePart.width, lanePart.y, 
-                                  lanePart.y + lanePart.height / 4, // TODO: 1 / 4 as middleY (we shouldnt use drawLeft, we only draw a straight (half) lanePart)
+                                  lanePart.y + lanePart.height / 4, // TODO: 1 / 4 as middleY (we shouldnt use drawRight, we only draw a straight (half) lanePart)
                                   lanePart.x + previousLanePart.width, lanePart.y + lanePart.height / 2, radius, isBackground = true)
                     }
                     
@@ -494,7 +569,9 @@ Flowify.canvas = function () {
                     ctx.fill()
                     
                     my.nrOfDrawCalls++
+                    
                 }
+HACK_STOP_ADDING = false
                 
                 if (lineColorAlpha) {
                     
@@ -671,6 +748,60 @@ Flowify.canvas = function () {
                     my.nrOfDrawCalls++
                 }
                 
+                
+/*
+if (!my.alreadyLogged) { 
+    console.log(laneParts)                   
+    console.log(leftPath)
+    console.log(rightPath)
+    my.alreadyLogged = true
+}
+*/
+                
+drawPath = function (path) {
+    let previousX = null
+    let previousY = null
+    for (let partIndex = 0; partIndex < path.length; partIndex++) {
+        let part = path[partIndex]
+        let type = part.type
+        let x = part.x
+        let y = part.y
+        
+        let radius = previousX - x
+        if (radius < 0) {
+            radius = -radius
+        }
+            
+        if (type === DrawMove) {
+            ctx.moveTo(x, y);
+        }
+        else if (type === DrawLine) {
+            ctx.lineTo(x, y);
+        }
+        else if (type === DrawArc_DownToLeft || type === DrawArc_DownToRight || type === DrawArc_UpToLeft || type === DrawArc_UpToRight) {
+            ctx.arcTo(previousX, y, x, y, radius)
+        }
+        else if (type === DrawArc_LeftToUp || type === DrawArc_LeftToDown || type === DrawArc_RightToUp || type === DrawArc_RightToDown) {
+            ctx.arcTo(x, previousY, x, y, radius)
+        }
+                    
+        previousX = x
+        previousY = y
+    }
+}
+
+ctx.beginPath()
+drawPath(leftPath)
+ctx.strokeStyle = "#FF0000"
+ctx.lineWidth = 4
+ctx.stroke()
+                
+ctx.beginPath()
+drawPath(rightPath)
+ctx.strokeStyle = "#FF0000"
+ctx.lineWidth = 4
+ctx.stroke()
+
             },
             
             _jsDrawRect: function (x, y, width, height, lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
