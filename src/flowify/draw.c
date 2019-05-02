@@ -311,7 +311,6 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         {
             i32 variable_index = get_number_based_on_string(flow_element->ast_node->identifier);
             
-            // FIXME: make this depend on its identifier!
             i32 variable_style_index = variable_index % flowifier->nr_of_variable_colors;
             variable_style = flowifier->variable_styles[variable_style_index];
         }
