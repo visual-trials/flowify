@@ -206,6 +206,124 @@ Flowify.canvas = function () {
                 }
             },
             
+            _jsDrawLanePaths: function (leftPathPartsIndex, leftPathPartsCount, rightPathPartsIndex, rightPathPartsCount, 
+                                        lineColorRGB, lineColorAlpha, fillColorRGB, fillColorAlpha, lineWidth) {
+                                       
+                                       
+                let leftPathParts = []
+                let rightPathParts = []
+                
+                let PathPart_Move = 0
+                let PathPart_Line = 1
+                let PathPart_LineWhenBackground = 2
+                let PathPart_Arc_DownToLeft = 3
+                let PathPart_Arc_DownToRight = 4
+                let PathPart_Arc_LeftToUp = 5
+                let PathPart_Arc_LeftToDown = 6
+                let PathPart_Arc_UpToLeft = 7
+                let PathPart_Arc_UpToRight = 8
+                let PathPart_Arc_RightToUp = 9
+                let PathPart_Arc_RightToDown = 10
+                
+                let nrOfIntegersPerPathPart = 3 // FIXME: somehow sync this with the size of DrawablePathPart?
+                
+                for (let i = leftPathPartsIndex / 4; i < leftPathPartsIndex / 4 + leftPathPartsCount * nrOfIntegersPerPathPart; i = i + nrOfIntegersPerPathPart) {
+                    let x = Flowify.main.bufferI32[i]
+                    let y = Flowify.main.bufferI32[i+1]
+                    let type = Flowify.main.bufferI32[i+2]
+                    
+                    leftPathParts.push({
+                        "x": x,
+                        "y": y,
+                        "type": type,
+                    })
+                }
+                
+                for (let i = rightPathPartsIndex / 4; i < rightPathPartsIndex / 4 + rightPathPartsCount * nrOfIntegersPerPathPart; i = i + nrOfIntegersPerPathPart) {
+                    let x = Flowify.main.bufferI32[i]
+                    let y = Flowify.main.bufferI32[i+1]
+                    let type = Flowify.main.bufferI32[i+2]
+                    
+                    rightPathParts.push({
+                        "x": x,
+                        "y": y,
+                        "type": type,
+                    })
+                }
+
+                // Drawing the lane as left and right paths
+                
+                drawPath = function (path, isBackground) {
+                    let previousX = null
+                    let previousY = null
+                    for (let partIndex = 0; partIndex < path.length; partIndex++) {
+                        let part = path[partIndex]
+                        let type = part.type
+                        let x = part.x
+                        let y = part.y
+                        
+                        let radius = previousX - x
+                        if (radius < 0) {
+                            radius = -radius
+                        }
+                            
+                        if (type === PathPart_Move) {
+                            ctx.moveTo(x, y)
+                        }
+                        else if (type === PathPart_Line) {
+                            ctx.lineTo(x, y)
+                        }
+                        else if (type === PathPart_LineWhenBackground) {
+                            if (isBackground) {
+                                ctx.lineTo(x, y)
+                            }
+                            else {
+                                ctx.moveTo(x, y)
+                            }
+                        }
+                        else if (type === PathPart_Arc_DownToLeft || type === PathPart_Arc_DownToRight || type === PathPart_Arc_UpToLeft || type === PathPart_Arc_UpToRight) {
+                            ctx.arcTo(previousX, y, x, y, radius)
+                        }
+                        else if (type === PathPart_Arc_LeftToUp || type === PathPart_Arc_LeftToDown || type === PathPart_Arc_RightToUp || type === PathPart_Arc_RightToDown) {
+                            ctx.arcTo(x, previousY, x, y, radius)
+                        }
+                                    
+                        previousX = x
+                        previousY = y
+                    }
+                }
+
+
+                if (fillColorAlpha) {
+                    ctx.beginPath()
+                    drawPath(leftPathParts, isBackground = true)
+                    drawPath(rightPathParts, isBackground = true)
+                    ctx.closePath()
+                    ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
+                    ctx.fill()
+                    
+                    my.nrOfDrawCalls++
+                }
+
+                if (lineColorAlpha) {
+                    ctx.beginPath()
+                    drawPath(leftPathParts, isBackground = false)
+                    ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
+                    ctx.lineWidth = lineWidth
+                    ctx.stroke()
+                    
+                    my.nrOfDrawCalls++
+                                    
+                    ctx.beginPath()
+                    drawPath(rightPathParts, isBackground = false)
+                    ctx.strokeStyle =  my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
+                    ctx.lineWidth = lineWidth
+                    ctx.stroke()
+                    
+                    my.nrOfDrawCalls++
+                }
+            },
+            
             _jsDrawLane: function (lanePartsIndex, lanePartsCount,
                                    partialRectAtStart, isRightSideAtStart,
                                    partialRectAtEnd, isRightSideAtEnd,
