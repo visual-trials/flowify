@@ -49,7 +49,23 @@ void get_brush(Color4 color, ID2D1SolidColorBrush ** brush)
         (f32)color.a/(f32)255
     ), brush);
 };
- 
+
+void get_round_cap_stroke_style(ID2D1StrokeStyle ** stroke_style)
+{
+    D2D1_STROKE_STYLE_PROPERTIES strokeStyleProperties = ;
+
+    d2d_factory->CreateStrokeStyle(
+        D2D1::StrokeStyleProperties(
+        D2D1_CAP_STYLE_ROUND,  // The start cap.
+        D2D1_CAP_STYLE_ROUND,  // The end cap.
+        D2D1_CAP_STYLE_ROUND, // The dash cap.
+        D2D1_LINE_JOIN_ROUND, // The line join.
+        10.0f, // The miter limit.
+        D2D1_DASH_STYLE_SOLID, // The dash style.
+        0.0f // The dash offset.
+    ), NULL, 0, &stroke_style);
+}
+
 // TODO: don't we want to pass two positions to most of these functions? Instead of pos + size?
 // TODO: don't we want f32 for colors?
 
@@ -94,7 +110,7 @@ void draw_rectangle(Rect2d rect, Color4 line_color, Color4 fill_color, i32 line_
     draw_rectangle(rect.position, rect.size, line_color, fill_color, line_width);
 }
 
-void draw_line(Pos2d start_position, Pos2d end_position, Color4 line_color, i32 line_width)
+void draw_line(Pos2d start_position, Pos2d end_position, Color4 line_color, i32 line_width, b32 round_cap = false)
 {
     D2D1_POINT_2F start_pos, end_pos;
     ID2D1SolidColorBrush * line_brush = 0;
@@ -107,7 +123,16 @@ void draw_line(Pos2d start_position, Pos2d end_position, Color4 line_color, i32 
     
     get_brush(line_color, &line_brush);
     
-    render_target->DrawLine(start_pos, end_pos, line_brush, line_width);
+    if (round_cap)
+    {
+        ID2D1StrokeStyle * stroke_style;
+        get_round_cap_stroke_style(&stroke_style);
+        render_target->DrawLine(start_pos, end_pos, line_brush, line_width, stroke_style);
+    }
+    else
+    {
+        render_target->DrawLine(start_pos, end_pos, line_brush, line_width);
+    }
     
     release_brush(line_brush);
 }

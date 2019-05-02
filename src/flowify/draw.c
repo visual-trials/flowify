@@ -88,13 +88,13 @@ void push_text(Flowifier * flowifier, Pos2d position, String * text, Font font, 
     draw_entry->first_child_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
     draw_entry->last_child_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
     
-    DrawText * draw_text = (DrawText *)push_struct(&flowifier->draw_arena, sizeof(DrawText));
-    draw_entry->item_to_draw = draw_text;
+    DrawText * text_to_draw = (DrawText *)push_struct(&flowifier->draw_arena, sizeof(DrawText));
+    draw_entry->item_to_draw = text_to_draw;
     
-    draw_text->position = position;
-    draw_text->text = text;
-    draw_text->font = font;
-    draw_text->color = color;
+    text_to_draw->position = position;
+    text_to_draw->text = text;
+    text_to_draw->font = font;
+    text_to_draw->color = color;
     
     add_draw_entry(flowifier, draw_entry);
 }
