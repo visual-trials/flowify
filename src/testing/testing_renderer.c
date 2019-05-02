@@ -18,19 +18,19 @@
 
 // TODO: we need to let these file include each other! (we only need draw.c here)
 #include "../parser.c"
-#include "../flowify/flowifier.h"
-#include "../flowify/draw.c"
+// #include "../flowify/flowifier.h"
+// #include "../flowify/draw.c"
  
 struct WorldData
 {
-    i32 iteration;
-    i32 selected_lane_segment_index;
+    // i32 iteration;
+    // i32 selected_lane_segment_index;
     
     Rect2d movable_rect;
     
 
     i32 clip_rectangle;
-    i32 show_help_rectangles;
+    // i32 show_help_rectangles;
     
     i32 active_page_index;
     i32 nr_of_pages;
@@ -39,6 +39,7 @@ struct WorldData
 
 WorldData global_world = {};  // FIXME: allocate this properly!
 
+/*
 struct LaneSegmentExtended
 {
     i32 begin_text_character_index;
@@ -81,6 +82,7 @@ const LaneSegmentExtended lane_segments[9] = {
   {0,8,0,8, {150, 500}, {350, 500}, {150, 540}, {400, 540} }, // Left back to middle
   {0,9,23,9, {150, 540}, {600, 540}, {300, 650}, {500, 650} }  // Combining left and right
 };
+*/
 
 const char * program_lines[] = { 
     "number = arg[0]",
@@ -102,12 +104,12 @@ extern "C" {
     {
         WorldData * world = &global_world;
         
-        world->active_page_index = 1;
-        world->nr_of_pages = 2;
+        world->active_page_index = 0;
+        world->nr_of_pages = 1;
         
-        world->iteration = 0;
-        world->selected_lane_segment_index = 0;
-        world->show_help_rectangles = true;
+        // world->iteration = 0;
+        // world->selected_lane_segment_index = 0;
+        // world->show_help_rectangles = true;
         world->clip_rectangle = false;
     }
     
@@ -116,8 +118,9 @@ extern "C" {
         WorldData * world = &global_world;
         
         // FIXME: use array_length(lane_segments)
-        i32 lane_segments_count = sizeof(lane_segments)/sizeof(lane_segments[0]); 
+        // i32 lane_segments_count = sizeof(lane_segments)/sizeof(lane_segments[0]); 
         
+        /*
         world->iteration++;
         if (world->iteration > 60) // every second
         {
@@ -127,8 +130,9 @@ extern "C" {
             if (world->selected_lane_segment_index > lane_segments_count)
             {
                 world->selected_lane_segment_index = 0;
-            }        
+            } 
         }
+        */            
     }
     
     void draw_basic_figures(WorldData * world)
@@ -180,6 +184,7 @@ extern "C" {
         
     }
     
+    /*
     void draw_bend_line(WorldData * world)
     {
         Color4 dot_color = {0, 0, 0, 255};
@@ -192,6 +197,7 @@ extern "C" {
         position.y = 200;
         draw_ellipse(position, dot_size, dot_color, dot_color, line_width);
     }
+    */
     
     // TODO: make this a more general function (add arguments nr_of_buttons and current_button_index)
     //       then return button_pressed_index (so you can show the correct page for that index)
@@ -222,6 +228,7 @@ extern "C" {
         
     }
     
+    /*
     void draw_lanes(WorldData * world)
     {
         Color4 line_color       = {  0,   0,   0, 255};
@@ -314,6 +321,7 @@ extern "C" {
         }
         
     }
+    */
     
     void draw_pixel_borders()
     {
@@ -369,11 +377,11 @@ extern "C" {
         {
             draw_basic_figures(world);
         }
+        /*
         else if (world->active_page_index == 1)
         {
             draw_bend_line(world);
         }
-        /*
         else if (world->active_page_index == 2)
         {
             draw_example_lanes(world, -1);
@@ -407,6 +415,7 @@ extern "C" {
         do_physical_pixels_switch(&global_input);
     }
     
+/*
     void draw_example_lanes(WorldData * world, i32 lane_example_index)
     {
         Color4 line_color       = {  0,   0,   0, 255};
@@ -553,8 +562,15 @@ extern "C" {
             
             i32 nr_of_example_rectangles4 = 2;
             const Rectangles4 example_rectangles4[2] = {
-                { /* before-if: */ {250, 50, 250, 80}, true, /* if-split: */ {300, 200, 150, 50}, /* if-left: */ {100, 350, 250, 200}, /* if-right: */ {400, 400, 200, 100} }, 
-                { /* after-if: */ {250, 750, 250, 80}, false, /* if-join: */  {300, 650, 150, 50}, /* if-left: */ {100, 350, 250, 200}, /* if-right: */ {400, 400, 200, 100} },
+                {   {250, 50, 250, 80}, true,  // before-if
+                    {300, 200, 150, 50},  // if-split
+                    {100, 350, 250, 200},  // if-left
+                    {400, 400, 200, 100} }, // if-right
+                    
+                {   {250, 750, 250, 80}, false,  // after-if
+                    {300, 650, 150, 50},  // if-join
+                    {100, 350, 250, 200},  // if-left
+                    {400, 400, 200, 100} }, // if-right
             };
             
             Rect2d no_rect = {-1,-1,-1,-1};
@@ -645,5 +661,6 @@ extern "C" {
         
 
     }
+*/
     
 }
