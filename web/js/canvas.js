@@ -455,6 +455,10 @@ Flowify.canvas = function () {
                             let skipTopPartWhenBorder = false
                             let skipBottomPartWhenBorder = false
                             
+                            // TODO: where do we want the leftMiddleY to be?
+                            let distanceBetweenRects = lanePart.y - (previousLanePart.y + previousLanePart.height)
+                            let leftMiddleY = lanePart.y - distanceBetweenRects / 2
+                            
                             let heightToDrawOfPreviousLane = previousLanePart.height / 2
                             let heightToDrawOfCurrentLane = lanePart.height / 2
                         
@@ -462,8 +466,8 @@ Flowify.canvas = function () {
                             // We should not *stroke* the left side of the previous lanePart,
                             // which is the last part of the previous lane: a splitter.
                             if (lanePartIndex == 1 && partialRectAtStart && isRightSideAtStart) {
-                                // TODO: we should also change leftMiddleY
-                                // heightToDrawOfPreviousLane = 0
+                                // TODO: now forcing leftMiddleY to be right below the top lanePart. We might want to add an extra line/move instead (towards a real splitting point)
+                                leftMiddleY = previousLanePart.y + previousLanePart.height + radius
                                 skipTopPartWhenBorder = true
                             }
                             
@@ -471,16 +475,14 @@ Flowify.canvas = function () {
                             // We should not *stroke* the left side of the current lanePart,
                             // which is the first part of the next lane: a joiner.
                             if (lanePartIndex == laneParts.length - 1 && partialRectAtEnd && isRightSideAtEnd) {
-                                // TODO: we should also change leftMiddleY
-                                // heightToDrawOfCurrentLane = 0
+                                // TODO: now forcing leftMiddleY to be right above the bottom lanePart. We might want to add an extra line/move instead (towards a real joining point)
+                                leftMiddleY = lanePart.y - radius
                                 skipBottomPartWhenBorder = true
                             }
                             
-                            // TODO: where do we want the middleY to be?
-                            let distanceBetweenRects = lanePart.y - (previousLanePart.y + previousLanePart.height)
                             // args: leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius
                             drawLeft(previousLanePart.x, previousLanePart.y + previousLanePart.height - heightToDrawOfPreviousLane, 
-                                    lanePart.y - distanceBetweenRects / 2,
+                                    leftMiddleY,
                                     lanePart.x, lanePart.y + heightToDrawOfCurrentLane, radius, skipTopPartWhenBorder, skipBottomPartWhenBorder)
                         }
                         
@@ -547,6 +549,10 @@ Flowify.canvas = function () {
                             let skipTopPartWhenBorder = false
                             let skipBottomPartWhenBorder = false
                             
+                            // TODO: where do we want the rightMiddleY to be?
+                            let distanceBetweenRects = previousLanePart.y - (lanePart.y + lanePart.height)
+                            let rightMiddleY = previousLanePart.y - distanceBetweenRects / 2
+                            
                             let heightToDrawOfPreviousLane = previousLanePart.height / 2
                             let heightToDrawOfCurrentLane = lanePart.height / 2
                             
@@ -554,8 +560,8 @@ Flowify.canvas = function () {
                             // We should not *stroke* the right side of the previous lanePart,
                             // which is the last part of the previous lane: a splitter.
                             if (lanePartIndex == 0 && partialRectAtStart && !isRightSideAtStart) {
-                                // TODO: we should also change rightMiddleY
-                                // heightToDrawOfCurrentLane = 0
+                                // TODO: now forcing rightMiddleY to be right below the top lanePart. We might want to add an extra line/move instead (towards a real splitting point)
+                                rightMiddleY = lanePart.y + lanePart.height + radius
                                 skipTopPartWhenBorder = true
                             }
                             
@@ -563,16 +569,14 @@ Flowify.canvas = function () {
                             // We should not *stroke* the right side of the current lanePart,
                             // which is the first part of the next lane: a joiner.
                             if (lanePartIndex == laneParts.length - 2 && partialRectAtEnd && !isRightSideAtEnd) {
-                                // TODO: we should also change rightMiddleY
-                                // heightToDrawOfPreviousLane = 0
+                                // TODO: now forcing rightMiddleY to be right above the bottom lanePart. We might want to add an extra line/move instead (towards a real joining point)
+                                rightMiddleY = previousLanePart.y - radius
                                 skipBottomPartWhenBorder = true
                             }
                             
-                            // TODO: where do we want the middleY to be?
-                            let distanceBetweenRects = previousLanePart.y - (lanePart.y + lanePart.height)
                             // args: rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius
                             drawRight(lanePart.x + lanePart.width, lanePart.y + lanePart.height - heightToDrawOfCurrentLane, 
-                                      previousLanePart.y - distanceBetweenRects / 2,
+                                      rightMiddleY,
                                       previousLanePart.x + previousLanePart.width, previousLanePart.y + heightToDrawOfPreviousLane, radius, skipTopPartWhenBorder, skipBottomPartWhenBorder)
                         }
                     }
