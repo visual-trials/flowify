@@ -659,11 +659,17 @@ HACK_STOP_ADDING = false
                                 let heightToDrawOfPreviousLane = previousLanePart.height / 2
                                 let heightToDrawOfCurrentLane = lanePart.height / 2
                             
+                                // We are at the beginning of a lane that begins from a splitter (its right side)
+                                // We should not *stroke* the left side of the previous lanePart,
+                                // which is the last part of the previous lane: a splitter.
                                 if (lanePartIndex == 1 && partialRectAtStart && isRightSideAtStart) {
                                     // TODO: we should also change leftMiddleY
                                     heightToDrawOfPreviousLane = 0
                                 }
                                 
+                                // We are at the end of a lane that ends in a joiner (its right side)
+                                // We should not *stroke* the left side of the current lanePart,
+                                // which is the first part of the next lane: a joiner.
                                 if (lanePartIndex == laneParts.length - 1 && partialRectAtEnd && isRightSideAtEnd) {
                                     // TODO: we should also change leftMiddleY
                                     heightToDrawOfCurrentLane = 0
@@ -740,11 +746,17 @@ HACK_STOP_ADDING = false
                                 let heightToDrawOfPreviousLane = previousLanePart.height / 2
                                 let heightToDrawOfCurrentLane = lanePart.height / 2
                                 
+                                // We are at the beginning of a lane that begins from a splitter (its left side)
+                                // We should not *stroke* the right side of the previous lanePart,
+                                // which is the last part of the previous lane: a splitter.
                                 if (lanePartIndex == 0 && partialRectAtStart && !isRightSideAtStart) {
                                     // TODO: we should also change rightMiddleY
                                     heightToDrawOfCurrentLane = 0
                                 }
                                 
+                                // We are at the end of a lane that ends in a joiner (its left side)
+                                // We should not *stroke* the right side of the current lanePart,
+                                // which is the first part of the next lane: a joiner.
                                 if (lanePartIndex == laneParts.length - 2 && partialRectAtEnd && !isRightSideAtEnd) {
                                     // TODO: we should also change rightMiddleY
                                     heightToDrawOfPreviousLane = 0
