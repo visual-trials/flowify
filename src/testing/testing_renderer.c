@@ -39,7 +39,7 @@ extern "C" {
         WorldData * world = &global_world;
         
         world->active_page_index = 0;
-        world->nr_of_pages = 1;
+        world->nr_of_pages = 3;
         
         world->show_help_rectangles = true;
         
