@@ -240,14 +240,15 @@ Flowify.canvas = function () {
                 
                 let DrawMove = 0
                 let DrawLine = 1
-                let DrawArc_DownToLeft = 2
-                let DrawArc_DownToRight = 3
-                let DrawArc_LeftToUp = 4
-                let DrawArc_LeftToDown = 5
-                let DrawArc_UpToLeft = 6
-                let DrawArc_UpToRight = 7
-                let DrawArc_RightToUp = 8
-                let DrawArc_RightToDown = 9
+                let DrawLineWhenBackground = 2
+                let DrawArc_DownToLeft = 3
+                let DrawArc_DownToRight = 4
+                let DrawArc_LeftToUp = 5
+                let DrawArc_LeftToDown = 6
+                let DrawArc_UpToLeft = 7
+                let DrawArc_UpToRight = 8
+                let DrawArc_RightToUp = 9
+                let DrawArc_RightToDown = 10
                 
                 let HACK_STOP_ADDING = true
                 let leftPath = []
@@ -269,12 +270,12 @@ Flowify.canvas = function () {
                     if (isBackground) {
                         // TODO: we should not do this!?
                         ctx.lineTo(leftTopX, topY)
-                            if (!leftPath.length) addPart(leftTopX, topY, DrawLine, false)
+                            if (!leftPath.length) addPart(leftTopX, topY, DrawLineWhenBackground, false)
                     }
                     else {
                         // TODO: we should not do this!?
                         ctx.moveTo(leftTopX, topY)
-                            if (!leftPath.length) addPart(leftTopX, topY, DrawMove, false)
+                            if (!leftPath.length) addPart(leftTopX, topY, DrawLineWhenBackground, false)
                     }
                     
                     if (leftBottomX < leftTopX) {
@@ -317,12 +318,12 @@ Flowify.canvas = function () {
                     if (isBackground) {
                         // TODO: we should not do this!?
                         ctx.lineTo(rightBottomX, bottomY)
-                            if (!rightPath.length) addPart(rightBottomX, bottomY, DrawLine, true)
+                            if (!rightPath.length) addPart(rightBottomX, bottomY, DrawLineWhenBackground, true)
                     }
                     else {
                         // TODO: we should not do this!?
                         ctx.moveTo(rightBottomX, bottomY)
-                            if (!rightPath.length) addPart(rightBottomX, bottomY, DrawMove, true)
+                            if (!rightPath.length) addPart(rightBottomX, bottomY, DrawLineWhenBackground, true)
                     }
                     if (rightBottomX < rightTopX) {
                         // bottom is to the left of the top
@@ -364,14 +365,14 @@ Flowify.canvas = function () {
                     if (isBackground) {
                         // TODO: we should not do this!?
                         ctx.lineTo(firstX, firstY)
-                            if (!isRight && !leftPath.length) addPart(firstX, firstY, DrawLine, isRight)
-                            if (isRight && !rightPath.length) addPart(firstX, firstY, DrawLine, isRight)
+                            if (!isRight && !leftPath.length) addPart(firstX, firstY, DrawLineWhenBackground, isRight)
+                            if (isRight && !rightPath.length) addPart(firstX, firstY, DrawLineWhenBackground, isRight)
                     }
                     else {
                         // TODO: we should not do this!?
                         ctx.moveTo(firstX, firstY)
-                            if (!isRight && !leftPath.length) addPart(firstX, firstY, DrawMove, isRight)
-                            if (isRight && !rightPath.length) addPart(firstX, firstY, DrawMove, isRight)
+                            if (!isRight && !leftPath.length) addPart(firstX, firstY, DrawLineWhenBackground, isRight)
+                            if (isRight && !rightPath.length) addPart(firstX, firstY, DrawLineWhenBackground, isRight)
                     }
                 
                     // FIXME: adjust radius to make it fit!
@@ -783,7 +784,7 @@ if (!my.alreadyLogged) {
 }
 */
                 
-drawPath = function (path) {
+drawPath = function (path, isBackground) {
     let previousX = null
     let previousY = null
     for (let partIndex = 0; partIndex < path.length; partIndex++) {
@@ -798,10 +799,18 @@ drawPath = function (path) {
         }
             
         if (type === DrawMove) {
-            ctx.moveTo(x, y);
+            ctx.moveTo(x, y)
         }
         else if (type === DrawLine) {
-            ctx.lineTo(x, y);
+            ctx.lineTo(x, y)
+        }
+        else if (type === DrawLineWhenBackground) {
+            if (isBackground) {
+                ctx.lineTo(x, y)
+            }
+            else {
+                ctx.moveTo(x, y)
+            }
         }
         else if (type === DrawArc_DownToLeft || type === DrawArc_DownToRight || type === DrawArc_UpToLeft || type === DrawArc_UpToRight) {
             ctx.arcTo(previousX, y, x, y, radius)
@@ -816,13 +825,20 @@ drawPath = function (path) {
 }
 
 ctx.beginPath()
-drawPath(leftPath)
+drawPath(leftPath, isBackground = true)
+drawPath(rightPath, isBackground = true)
+ctx.closePath()
+ctx.fillStyle = "#FFCCCC"
+ctx.fill()
+
+ctx.beginPath()
+drawPath(leftPath, isBackground = false)
 ctx.strokeStyle = "#FF0000"
 ctx.lineWidth = 4
 ctx.stroke()
                 
 ctx.beginPath()
-drawPath(rightPath)
+drawPath(rightPath, isBackground = false)
 ctx.strokeStyle = "#FF0000"
 ctx.lineWidth = 4
 ctx.stroke()
