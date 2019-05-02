@@ -22,6 +22,8 @@ const f32 textHeightToFontSizeRatio[] = {
     1.1328125  // Courier New
 };
 
+struct DrawablePathPart;
+
 extern "C" { 
     extern void jsClipRect(i32 x, i32 y, i32 width, i32 height);
     
@@ -38,6 +40,12 @@ extern "C" {
                            i32 radius, i32 line_color_rgb, i32 line_color_alpha, 
                            i32 fill_color_rgb, i32 fill_color_alpha, 
                            i32 line_width);
+                                  
+    extern void jsDrawLanePaths(DrawablePathPart * left_path_parts_index, i32 left_path_parts_count, 
+                                DrawablePathPart * right_path_parts_index, i32 right_path_parts_count, 
+                                i32 line_color_rgb, i32 line_color_alpha, 
+                                i32 fill_color_rgb, i32 fill_color_alpha, 
+                                i32 line_width);
                                   
     extern void jsDrawRect(i32 x, i32 y, i32 width, i32 height, 
                            i32 line_color_rgb, i32 line_color_alpha, 

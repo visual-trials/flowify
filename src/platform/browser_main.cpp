@@ -31,6 +31,7 @@
 #include "../input.c"
 
 #include "browser_render.c"
+#include "../draw.c"
 
 #include "../imgui/imgui.h"
 #include "../imgui/menu.c"

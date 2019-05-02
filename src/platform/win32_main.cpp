@@ -43,6 +43,7 @@ LARGE_INTEGER clock_counter_after_wait;
 #include "../input.c"
 
 #include "win32_render.cpp"
+#include "../draw.c"
 
 #include "../imgui/imgui.h"
 #include "../imgui/menu.c"
