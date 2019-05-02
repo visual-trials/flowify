@@ -250,12 +250,10 @@ Flowify.canvas = function () {
                 let DrawArc_RightToUp = 9
                 let DrawArc_RightToDown = 10
                 
-                let HACK_STOP_ADDING = true
                 let leftPath = []
                 let rightPath = []
                 
                 function addPart(x, y, type, isRight) {
-                    if (HACK_STOP_ADDING) return
                     if (isRight) {
                         rightPath.push({"type": type, "x": x, "y": y})
                     }
@@ -408,333 +406,194 @@ Flowify.canvas = function () {
                 }
                 
                 
-                if (fillColorAlpha) {
-                    
-                    // Draw background
-                    
-                    if (!partialRectAtStart) {
-                        let lanePart = laneParts[0]
-                        
-                        // args: leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius
-                        drawLeft(lanePart.x, lanePart.y, 
-                                lanePart.y + lanePart.height / 4, // TODO: 1 / 4 as middleY (we shouldnt use drawLeft, we only draw a straight (half) lanePart)
-                                lanePart.x, lanePart.y + lanePart.height / 2, radius)
-                    }
-                    
-                    // Left side (top to bottom)
-                    
-                    let previousLanePart = null
-                    for (let lanePartIndex = 0; lanePartIndex < laneParts.length; lanePartIndex++) {
-                        let lanePart = laneParts[lanePartIndex]
-                        
-                        if (lanePartIndex > 0) {
-                        
-                            if (lanePart.direction != Direction_TopToBottom || previousLanePart.direction != Direction_TopToBottom) {
-                                let firstX = previousLanePart.x
-                                let firstY = previousLanePart.y
-                                let firstDirection = previousLanePart.direction
-                                
-                                if (firstDirection == Direction_LeftToRight) {
-                                    firstY = previousLanePart.y + previousLanePart.height
-                                }
-                                else if (firstDirection == Direction_BottomToTop) {
-                                    firstX = previousLanePart.x + previousLanePart.width
-                                }
-                                
-                                let secondX = lanePart.x
-                                let secondY = lanePart.y
-                                let secondDirection = lanePart.direction
-                                
-                                if (secondDirection == Direction_BottomToTop) {
-                                    secondX = lanePart.x + lanePart.width
-                                }
-                                else if (secondDirection == Direction_LeftToRight) {
-                                    secondY = lanePart.y + lanePart.height
-                                }
-                            
-                                drawOneSideOfCorner(firstX, firstY, firstDirection, secondX, secondY, secondDirection, radius, isRight = false)
-                            }
-                            else {
-                                // TODO: where do we want the middleY to be?
-                                let distanceBetweenRects = lanePart.y - (previousLanePart.y + previousLanePart.height)
-                                // args: leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius
-                                drawLeft(previousLanePart.x, previousLanePart.y + previousLanePart.height / 2, 
-                                        lanePart.y - distanceBetweenRects / 2,
-                                        lanePart.x, lanePart.y + lanePart.height / 2, radius)
-                            }
-                            
-                        }
-                        else {
-                            // the case lanePartIndex == 0 is handled above
-                        }
-                        
-                        previousLanePart = lanePart
-                    }
-                    
-                    if (!partialRectAtEnd) {
-                        let lanePart = laneParts[laneParts.length - 1]
-                        
-                        // args: leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius
-                        drawLeft(lanePart.x, lanePart.y + lanePart.height / 2, 
-                                lanePart.y + lanePart.height * 3 / 4, // TODO: 3 / 4 as middleY (we shouldnt use drawLeft, we only draw a straight (half) lanePart)
-                                lanePart.x, lanePart.y + lanePart.height, radius)
-                    }
-                    
-                    // Right side (bottom to top)
-                    if (!partialRectAtEnd) {
-                        let lanePart = laneParts[laneParts.length - 1]
-                        
-                        // args: rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius
-                        drawRight(lanePart.x + lanePart.width, lanePart.y + lanePart.height / 2, 
-                                  lanePart.y + lanePart.height * 3 / 4, // TODO: 3 / 4 as middleY (we shouldnt use drawRight, we only draw a straight (half) lanePart)
-                                  lanePart.x + lanePart.width, lanePart.y + lanePart.height, radius)
-                    }
-                    previousLanePart = null
-                    for (let lanePartIndex = laneParts.length - 1; lanePartIndex >= 0; lanePartIndex--) {
-                        let lanePart = laneParts[lanePartIndex]
-                        
-                        if (lanePartIndex < laneParts.length - 1) {
-                            if (lanePart.direction != Direction_TopToBottom || previousLanePart.direction != Direction_TopToBottom) {
-                                let firstX = previousLanePart.x
-                                let firstY = previousLanePart.y
-                                let firstDirection = previousLanePart.direction
-                                
-                                if (firstDirection == Direction_RightToLeft) {
-                                    firstY = previousLanePart.y + previousLanePart.height
-                                }
-                                else if (firstDirection == Direction_TopToBottom) {
-                                    firstX = previousLanePart.x + previousLanePart.width
-                                }
-                                
-                                let secondX = lanePart.x
-                                let secondY = lanePart.y
-                                let secondDirection = lanePart.direction
-                                
-                                if (secondDirection == Direction_TopToBottom) {
-                                    secondX = lanePart.x + lanePart.width
-                                }
-                                else if (secondDirection == Direction_RightToLeft) {
-                                    secondY = lanePart.y + lanePart.height
-                                }
-                            
-                                drawOneSideOfCorner(firstX, firstY, firstDirection, secondX, secondY, secondDirection, radius, isRight = true)
-                            }
-                            else {
-                                // TODO: where do we want the middleY to be?
-                                let distanceBetweenRects = previousLanePart.y - (lanePart.y + lanePart.height)
-                                // args: rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius
-                                drawRight(lanePart.x + lanePart.width, lanePart.y + lanePart.height / 2,
-                                          previousLanePart.y - distanceBetweenRects / 2,
-                                          previousLanePart.x + previousLanePart.width, previousLanePart.y + previousLanePart.height / 2, radius)
-                            }
-                        }
-                        else {
-                            // the case laneParts.length - 1 is handled above
-                        }
-                        
-                        previousLanePart = lanePart
-                    }
-                    if (!partialRectAtStart) {
-                        let lanePart = laneParts[0]
-                        
-                        // args: rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius
-                        drawRight(lanePart.x + lanePart.width, lanePart.y, 
-                                  lanePart.y + lanePart.height / 4, // TODO: 1 / 4 as middleY (we shouldnt use drawRight, we only draw a straight (half) lanePart)
-                                  lanePart.x + previousLanePart.width, lanePart.y + lanePart.height / 2, radius)
-                    }
-                    
-                }
-HACK_STOP_ADDING = false
+                // Create left and right paths
                 
-                if (lineColorAlpha) {
+                // Left side (top to bottom)
+                
+                if (!partialRectAtStart) {
+                    let lanePart = laneParts[0]
                     
-                    // Draw borders
-                    
-                    // Left side (top to bottom)
-                    
-                    if (!partialRectAtStart) {
-                        let lanePart = laneParts[0]
-                        
-                        // args: leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius
-                        drawLeft(lanePart.x, lanePart.y, 
-                                lanePart.y + lanePart.height / 4, // TODO: 1 / 4 as middleY (we shouldnt use drawLeft, we only draw a straight (half) lanePart)
-                                lanePart.x, lanePart.y + lanePart.height / 2, radius)
-                    }
-                    
-                    let previousLanePart = null
-                    for (let lanePartIndex = 0; lanePartIndex < laneParts.length; lanePartIndex++) {
-                        let lanePart = laneParts[lanePartIndex]
-                        
-                        if (lanePartIndex > 0) {
-                            
-                            if (lanePart.direction != Direction_TopToBottom || previousLanePart.direction != Direction_TopToBottom) {
-                                let firstX = previousLanePart.x
-                                let firstY = previousLanePart.y
-                                let firstDirection = previousLanePart.direction
-                                
-                                if (firstDirection == Direction_LeftToRight) {
-                                    firstY = previousLanePart.y + previousLanePart.height
-                                }
-                                else if (firstDirection == Direction_BottomToTop) {
-                                    firstX = previousLanePart.x + previousLanePart.width
-                                }
-                                
-                                let secondX = lanePart.x
-                                let secondY = lanePart.y
-                                let secondDirection = lanePart.direction
-                                
-                                if (secondDirection == Direction_BottomToTop) {
-                                    secondX = lanePart.x + lanePart.width
-                                }
-                                else if (secondDirection == Direction_LeftToRight) {
-                                    secondY = lanePart.y + lanePart.height
-                                }
-                            
-                                drawOneSideOfCorner(firstX, firstY, firstDirection, secondX, secondY, secondDirection, radius, isRight = false)
-                            }
-                            else {
-                            
-                                let skipTopPartWhenBorder = false
-                                let skipBottomPartWhenBorder = false
-                                
-                                let heightToDrawOfPreviousLane = previousLanePart.height / 2
-                                let heightToDrawOfCurrentLane = lanePart.height / 2
-                            
-                                // We are at the beginning of a lane that begins from a splitter (its right side)
-                                // We should not *stroke* the left side of the previous lanePart,
-                                // which is the last part of the previous lane: a splitter.
-                                if (lanePartIndex == 1 && partialRectAtStart && isRightSideAtStart) {
-                                    // TODO: we should also change leftMiddleY
-                                    // heightToDrawOfPreviousLane = 0
-                                    skipTopPartWhenBorder = true
-                                }
-                                
-                                // We are at the end of a lane that ends in a joiner (its right side)
-                                // We should not *stroke* the left side of the current lanePart,
-                                // which is the first part of the next lane: a joiner.
-                                if (lanePartIndex == laneParts.length - 1 && partialRectAtEnd && isRightSideAtEnd) {
-                                    // TODO: we should also change leftMiddleY
-                                    // heightToDrawOfCurrentLane = 0
-                                    skipBottomPartWhenBorder = true
-                                }
-                                
-                                // TODO: where do we want the middleY to be?
-                                let distanceBetweenRects = lanePart.y - (previousLanePart.y + previousLanePart.height)
-                                // args: leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius
-                                drawLeft(previousLanePart.x, previousLanePart.y + previousLanePart.height - heightToDrawOfPreviousLane, 
-                                        lanePart.y - distanceBetweenRects / 2,
-                                        lanePart.x, lanePart.y + heightToDrawOfCurrentLane, radius, skipTopPartWhenBorder, skipBottomPartWhenBorder)
-                            }
-                            
-                        }
-                        else {
-                            // the case lanePartIndex == 0 is handled above
-                        }
-                        
-                        previousLanePart = lanePart
-                    }
-                        
-                    if (!partialRectAtEnd) {
-                        let lanePart = laneParts[laneParts.length - 1]
-                        
-                        // args: leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius
-                        drawLeft(lanePart.x, lanePart.y + lanePart.height / 2, 
-                                lanePart.y + lanePart.height * 3 / 4, // TODO: 3 / 4 as middleY (we shouldnt use drawLeft, we only draw a straight (half) lanePart)
-                                lanePart.x, lanePart.y + lanePart.height, radius)
-                    }
-                    
-                    // Right side (bottom to top)
-                    if (!partialRectAtEnd) {
-                        let lanePart = laneParts[laneParts.length - 1]
-                        
-                        // args: rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius
-                        drawRight(lanePart.x + lanePart.width, lanePart.y + lanePart.height / 2, 
-                                  lanePart.y + lanePart.height * 3 / 4, // TODO: 3 / 4 as middleY (we shouldnt use drawLeft, we only draw a straight (half) lanePart)
-                                  lanePart.x + lanePart.width, lanePart.y + lanePart.height, radius)
-                    }
-                    
-                    previousLanePart = null
-                    for (let lanePartIndex = laneParts.length - 1; lanePartIndex >= 0; lanePartIndex--) {
-                        let lanePart = laneParts[lanePartIndex]
-                        
-                        if (lanePartIndex < laneParts.length - 1) {
-                            
-                            if (lanePart.direction != Direction_TopToBottom || previousLanePart.direction != Direction_TopToBottom) {
-                                let firstX = previousLanePart.x
-                                let firstY = previousLanePart.y
-                                let firstDirection = previousLanePart.direction
-                                
-                                if (firstDirection == Direction_RightToLeft) {
-                                    firstY = previousLanePart.y + previousLanePart.height
-                                }
-                                else if (firstDirection == Direction_TopToBottom) {
-                                    firstX = previousLanePart.x + previousLanePart.width
-                                }
-                                
-                                let secondX = lanePart.x
-                                let secondY = lanePart.y
-                                let secondDirection = lanePart.direction
-                                
-                                if (secondDirection == Direction_TopToBottom) {
-                                    secondX = lanePart.x + lanePart.width
-                                }
-                                else if (secondDirection == Direction_RightToLeft) {
-                                    secondY = lanePart.y + lanePart.height
-                                }
-                            
-                                drawOneSideOfCorner(firstX, firstY, firstDirection, secondX, secondY, secondDirection, radius, isRight = true)
-                            }
-                            else {
-                            
-                                let skipTopPartWhenBorder = false
-                                let skipBottomPartWhenBorder = false
-                                
-                                let heightToDrawOfPreviousLane = previousLanePart.height / 2
-                                let heightToDrawOfCurrentLane = lanePart.height / 2
-                                
-                                // We are at the beginning of a lane that begins from a splitter (its left side)
-                                // We should not *stroke* the right side of the previous lanePart,
-                                // which is the last part of the previous lane: a splitter.
-                                if (lanePartIndex == 0 && partialRectAtStart && !isRightSideAtStart) {
-                                    // TODO: we should also change rightMiddleY
-                                    // heightToDrawOfCurrentLane = 0
-                                    skipTopPartWhenBorder = true
-                                }
-                                
-                                // We are at the end of a lane that ends in a joiner (its left side)
-                                // We should not *stroke* the right side of the current lanePart,
-                                // which is the first part of the next lane: a joiner.
-                                if (lanePartIndex == laneParts.length - 2 && partialRectAtEnd && !isRightSideAtEnd) {
-                                    // TODO: we should also change rightMiddleY
-                                    // heightToDrawOfPreviousLane = 0
-                                    skipBottomPartWhenBorder = true
-                                }
-                                
-                                // TODO: where do we want the middleY to be?
-                                let distanceBetweenRects = previousLanePart.y - (lanePart.y + lanePart.height)
-                                // args: rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius
-                                drawRight(lanePart.x + lanePart.width, lanePart.y + lanePart.height - heightToDrawOfCurrentLane, 
-                                          previousLanePart.y - distanceBetweenRects / 2,
-                                          previousLanePart.x + previousLanePart.width, previousLanePart.y + heightToDrawOfPreviousLane, radius, skipTopPartWhenBorder, skipBottomPartWhenBorder)
-                            }
-                        }
-                        else {
-                            // the case laneParts.length - 1 is handled above
-                        }
-                                    
-                        previousLanePart = lanePart
-                    }
-                    
-                    if (!partialRectAtStart) {
-                        let lanePart = laneParts[0]
-                        
-                        // args: rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius
-                        drawRight(lanePart.x + lanePart.width, lanePart.y, 
-                                  lanePart.y + lanePart.height / 4, // TODO: 1 / 4 as middleY (we shouldnt use drawLeft, we only draw a straight (half) lanePart)
-                                  lanePart.x + previousLanePart.width, lanePart.y + lanePart.height / 2, radius)
-                    }
-                    
+                    // args: leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius
+                    drawLeft(lanePart.x, lanePart.y, 
+                            lanePart.y + lanePart.height / 4, // TODO: 1 / 4 as middleY (we shouldnt use drawLeft, we only draw a straight (half) lanePart)
+                            lanePart.x, lanePart.y + lanePart.height / 2, radius)
                 }
+                
+                let previousLanePart = null
+                for (let lanePartIndex = 0; lanePartIndex < laneParts.length; lanePartIndex++) {
+                    let lanePart = laneParts[lanePartIndex]
+                    
+                    if (lanePartIndex > 0) {
+                        
+                        if (lanePart.direction != Direction_TopToBottom || previousLanePart.direction != Direction_TopToBottom) {
+                            let firstX = previousLanePart.x
+                            let firstY = previousLanePart.y
+                            let firstDirection = previousLanePart.direction
+                            
+                            if (firstDirection == Direction_LeftToRight) {
+                                firstY = previousLanePart.y + previousLanePart.height
+                            }
+                            else if (firstDirection == Direction_BottomToTop) {
+                                firstX = previousLanePart.x + previousLanePart.width
+                            }
+                            
+                            let secondX = lanePart.x
+                            let secondY = lanePart.y
+                            let secondDirection = lanePart.direction
+                            
+                            if (secondDirection == Direction_BottomToTop) {
+                                secondX = lanePart.x + lanePart.width
+                            }
+                            else if (secondDirection == Direction_LeftToRight) {
+                                secondY = lanePart.y + lanePart.height
+                            }
+                        
+                            drawOneSideOfCorner(firstX, firstY, firstDirection, secondX, secondY, secondDirection, radius, isRight = false)
+                        }
+                        else {
+                        
+                            let skipTopPartWhenBorder = false
+                            let skipBottomPartWhenBorder = false
+                            
+                            let heightToDrawOfPreviousLane = previousLanePart.height / 2
+                            let heightToDrawOfCurrentLane = lanePart.height / 2
+                        
+                            // We are at the beginning of a lane that begins from a splitter (its right side)
+                            // We should not *stroke* the left side of the previous lanePart,
+                            // which is the last part of the previous lane: a splitter.
+                            if (lanePartIndex == 1 && partialRectAtStart && isRightSideAtStart) {
+                                // TODO: we should also change leftMiddleY
+                                // heightToDrawOfPreviousLane = 0
+                                skipTopPartWhenBorder = true
+                            }
+                            
+                            // We are at the end of a lane that ends in a joiner (its right side)
+                            // We should not *stroke* the left side of the current lanePart,
+                            // which is the first part of the next lane: a joiner.
+                            if (lanePartIndex == laneParts.length - 1 && partialRectAtEnd && isRightSideAtEnd) {
+                                // TODO: we should also change leftMiddleY
+                                // heightToDrawOfCurrentLane = 0
+                                skipBottomPartWhenBorder = true
+                            }
+                            
+                            // TODO: where do we want the middleY to be?
+                            let distanceBetweenRects = lanePart.y - (previousLanePart.y + previousLanePart.height)
+                            // args: leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius
+                            drawLeft(previousLanePart.x, previousLanePart.y + previousLanePart.height - heightToDrawOfPreviousLane, 
+                                    lanePart.y - distanceBetweenRects / 2,
+                                    lanePart.x, lanePart.y + heightToDrawOfCurrentLane, radius, skipTopPartWhenBorder, skipBottomPartWhenBorder)
+                        }
+                        
+                    }
+                    else {
+                        // the case lanePartIndex == 0 is handled above
+                    }
+                    
+                    previousLanePart = lanePart
+                }
+                    
+                if (!partialRectAtEnd) {
+                    let lanePart = laneParts[laneParts.length - 1]
+                    
+                    // args: leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius
+                    drawLeft(lanePart.x, lanePart.y + lanePart.height / 2, 
+                            lanePart.y + lanePart.height * 3 / 4, // TODO: 3 / 4 as middleY (we shouldnt use drawLeft, we only draw a straight (half) lanePart)
+                            lanePart.x, lanePart.y + lanePart.height, radius)
+                }
+                
+                // Right side (bottom to top)
+                if (!partialRectAtEnd) {
+                    let lanePart = laneParts[laneParts.length - 1]
+                    
+                    // args: rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius
+                    drawRight(lanePart.x + lanePart.width, lanePart.y + lanePart.height / 2, 
+                              lanePart.y + lanePart.height * 3 / 4, // TODO: 3 / 4 as middleY (we shouldnt use drawLeft, we only draw a straight (half) lanePart)
+                              lanePart.x + lanePart.width, lanePart.y + lanePart.height, radius)
+                }
+                
+                previousLanePart = null
+                for (let lanePartIndex = laneParts.length - 1; lanePartIndex >= 0; lanePartIndex--) {
+                    let lanePart = laneParts[lanePartIndex]
+                    
+                    if (lanePartIndex < laneParts.length - 1) {
+                        
+                        if (lanePart.direction != Direction_TopToBottom || previousLanePart.direction != Direction_TopToBottom) {
+                            let firstX = previousLanePart.x
+                            let firstY = previousLanePart.y
+                            let firstDirection = previousLanePart.direction
+                            
+                            if (firstDirection == Direction_RightToLeft) {
+                                firstY = previousLanePart.y + previousLanePart.height
+                            }
+                            else if (firstDirection == Direction_TopToBottom) {
+                                firstX = previousLanePart.x + previousLanePart.width
+                            }
+                            
+                            let secondX = lanePart.x
+                            let secondY = lanePart.y
+                            let secondDirection = lanePart.direction
+                            
+                            if (secondDirection == Direction_TopToBottom) {
+                                secondX = lanePart.x + lanePart.width
+                            }
+                            else if (secondDirection == Direction_RightToLeft) {
+                                secondY = lanePart.y + lanePart.height
+                            }
+                        
+                            drawOneSideOfCorner(firstX, firstY, firstDirection, secondX, secondY, secondDirection, radius, isRight = true)
+                        }
+                        else {
+                        
+                            let skipTopPartWhenBorder = false
+                            let skipBottomPartWhenBorder = false
+                            
+                            let heightToDrawOfPreviousLane = previousLanePart.height / 2
+                            let heightToDrawOfCurrentLane = lanePart.height / 2
+                            
+                            // We are at the beginning of a lane that begins from a splitter (its left side)
+                            // We should not *stroke* the right side of the previous lanePart,
+                            // which is the last part of the previous lane: a splitter.
+                            if (lanePartIndex == 0 && partialRectAtStart && !isRightSideAtStart) {
+                                // TODO: we should also change rightMiddleY
+                                // heightToDrawOfCurrentLane = 0
+                                skipTopPartWhenBorder = true
+                            }
+                            
+                            // We are at the end of a lane that ends in a joiner (its left side)
+                            // We should not *stroke* the right side of the current lanePart,
+                            // which is the first part of the next lane: a joiner.
+                            if (lanePartIndex == laneParts.length - 2 && partialRectAtEnd && !isRightSideAtEnd) {
+                                // TODO: we should also change rightMiddleY
+                                // heightToDrawOfPreviousLane = 0
+                                skipBottomPartWhenBorder = true
+                            }
+                            
+                            // TODO: where do we want the middleY to be?
+                            let distanceBetweenRects = previousLanePart.y - (lanePart.y + lanePart.height)
+                            // args: rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius
+                            drawRight(lanePart.x + lanePart.width, lanePart.y + lanePart.height - heightToDrawOfCurrentLane, 
+                                      previousLanePart.y - distanceBetweenRects / 2,
+                                      previousLanePart.x + previousLanePart.width, previousLanePart.y + heightToDrawOfPreviousLane, radius, skipTopPartWhenBorder, skipBottomPartWhenBorder)
+                        }
+                    }
+                    else {
+                        // the case laneParts.length - 1 is handled above
+                    }
+                                
+                    previousLanePart = lanePart
+                }
+                
+                if (!partialRectAtStart) {
+                    let lanePart = laneParts[0]
+                    
+                    // args: rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius
+                    drawRight(lanePart.x + lanePart.width, lanePart.y, 
+                              lanePart.y + lanePart.height / 4, // TODO: 1 / 4 as middleY (we shouldnt use drawLeft, we only draw a straight (half) lanePart)
+                              lanePart.x + previousLanePart.width, lanePart.y + lanePart.height / 2, radius)
+                }
+                
+                
+                
 
                 // Drawing the lane as left and right paths
                 
