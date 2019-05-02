@@ -264,94 +264,87 @@ Flowify.canvas = function () {
                     }
                 }
                 
-                function drawLeft(leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius, isBackground = false) {
+                function drawLeft(leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius, skipTopPartWhenBorder = false, skipBottomPartWhenBorder = false) {
+
+                    let topLineType = DrawLine
+                    if (skipTopPartWhenBorder) {
+                        topLineType = DrawLineWhenBackground
+                    }
+                    let bottomLineType = DrawLine
+                    if (skipBottomPartWhenBorder) {
+                        bottomLineType = DrawLineWhenBackground
+                    }
                     
                     // Draw left side
-                    if (isBackground) {
-                        // TODO: we should not do this!?
-                        ctx.lineTo(leftTopX, topY)
-                            if (!leftPath.length) addPart(leftTopX, topY, DrawLineWhenBackground, false)
-                    }
-                    else {
-                        // TODO: we should not do this!?
-                        ctx.moveTo(leftTopX, topY)
-                            if (!leftPath.length) addPart(leftTopX, topY, DrawLineWhenBackground, false)
-                    }
+                    // TODO: we should not do this!?
+                    ctx.lineTo(leftTopX, topY)
+                        if (!leftPath.length) addPart(leftTopX, topY, DrawLineWhenBackground, false)
                     
                     if (leftBottomX < leftTopX) {
                         // bottom is to the left of the top
                         if (leftTopX - leftBottomX < radius * 2) {
                             radius = (leftTopX - leftBottomX) / 2
                         }
-                        ctx.arcTo(leftTopX, leftMiddleY, leftTopX - radius, leftMiddleY, radius)
-                            addPart(leftTopX, leftMiddleY - radius, DrawLine, false)
-                            addPart(leftTopX - radius, leftMiddleY, DrawArc_DownToLeft, false)
-                        ctx.arcTo(leftBottomX, leftMiddleY, leftBottomX, leftMiddleY + radius, radius)
-                            addPart(leftBottomX + radius, leftMiddleY, DrawLine, false)
-                            addPart(leftBottomX, leftMiddleY + radius, DrawArc_LeftToDown, false)
-                        ctx.lineTo(leftBottomX, bottomY)
-                            addPart(leftBottomX, bottomY, DrawLine, false)
+                        addPart(leftTopX, leftMiddleY - radius, topLineType, false)
+                        addPart(leftTopX - radius, leftMiddleY, DrawArc_DownToLeft, false)
+                        addPart(leftBottomX + radius, leftMiddleY, DrawLine, false)
+                        addPart(leftBottomX, leftMiddleY + radius, DrawArc_LeftToDown, false)
+                        addPart(leftBottomX, bottomY, bottomLineType, false)
                     }
                     else if (leftBottomX > leftTopX) {
                         // bottom is to the right of the top
                         if (leftBottomX - leftTopX < radius * 2) {
                             radius = (leftBottomX - leftTopX) / 2
                         }
-                        ctx.arcTo(leftTopX, leftMiddleY, leftTopX + radius, leftMiddleY, radius)
-                            addPart(leftTopX, leftMiddleY - radius, DrawLine, false)
-                            addPart(leftTopX + radius, leftMiddleY, DrawArc_DownToRight, false)
-                        ctx.arcTo(leftBottomX, leftMiddleY, leftBottomX, leftMiddleY + radius, radius)
-                            addPart(leftBottomX - radius, leftMiddleY, DrawLine, false)
-                            addPart(leftBottomX, leftMiddleY + radius, DrawArc_RightToDown, false)
-                        ctx.lineTo(leftBottomX, bottomY)
-                            addPart(leftBottomX, bottomY, DrawLine, false)
+                        addPart(leftTopX, leftMiddleY - radius, topLineType, false)
+                        addPart(leftTopX + radius, leftMiddleY, DrawArc_DownToRight, false)
+                        addPart(leftBottomX - radius, leftMiddleY, DrawLine, false)
+                        addPart(leftBottomX, leftMiddleY + radius, DrawArc_RightToDown, false)
+                        addPart(leftBottomX, bottomY, bottomLineType, false)
                     }
                     else {
                         // straight vertical line
-                        ctx.lineTo(leftBottomX, bottomY)
-                            addPart(leftBottomX, bottomY, DrawLine, false)
+                        addPart(leftBottomX, bottomY, DrawLine, false)
                     }
                 }
                 
-                function drawRight(rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius, isBackground = false) {
+                function drawRight(rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius, skipTopPartWhenBorder = false, skipBottomPartWhenBorder = false) {
+                    
+                    let topLineType = DrawLine
+                    if (skipTopPartWhenBorder) {
+                        topLineType = DrawLineWhenBackground
+                    }
+                    let bottomLineType = DrawLine
+                    if (skipBottomPartWhenBorder) {
+                        bottomLineType = DrawLineWhenBackground
+                    }
+                    
                     // Right side (bottom to top)
-                    if (isBackground) {
-                        // TODO: we should not do this!?
-                        ctx.lineTo(rightBottomX, bottomY)
-                            if (!rightPath.length) addPart(rightBottomX, bottomY, DrawLineWhenBackground, true)
-                    }
-                    else {
-                        // TODO: we should not do this!?
-                        ctx.moveTo(rightBottomX, bottomY)
-                            if (!rightPath.length) addPart(rightBottomX, bottomY, DrawLineWhenBackground, true)
-                    }
+                    // TODO: we should not do this!?
+                    ctx.lineTo(rightBottomX, bottomY)
+                        if (!rightPath.length) addPart(rightBottomX, bottomY, DrawLineWhenBackground, true)
+                            
                     if (rightBottomX < rightTopX) {
                         // bottom is to the left of the top
                         if (rightTopX - rightBottomX < radius * 2) {
                             radius = (rightTopX - rightBottomX) / 2
                         }
-                        ctx.arcTo(rightBottomX, rightMiddleY, rightBottomX + radius, rightMiddleY, radius)
-                            addPart(rightBottomX, rightMiddleY + radius, DrawLine, true)
-                            addPart(rightBottomX + radius, rightMiddleY, DrawArc_UpToRight, true)
-                        ctx.arcTo(rightTopX, rightMiddleY, rightTopX, rightMiddleY - radius, radius)
-                            addPart(rightTopX - radius, rightMiddleY, DrawLine, true)
-                            addPart(rightTopX, rightMiddleY - radius, DrawArc_RightToUp, true)
-                        ctx.lineTo(rightTopX, topY)
-                            addPart(rightTopX, topY, DrawLine, true)
+                        addPart(rightBottomX, rightMiddleY + radius, bottomLineType, true)
+                        addPart(rightBottomX + radius, rightMiddleY, DrawArc_UpToRight, true)
+                        addPart(rightTopX - radius, rightMiddleY, DrawLine, true)
+                        addPart(rightTopX, rightMiddleY - radius, DrawArc_RightToUp, true)
+                        addPart(rightTopX, topY, topLineType, true)
                     }
                     else if (rightBottomX > rightTopX) {
                         // bottom is to the right of the top
                         if (rightBottomX - rightTopX < radius * 2) {
                             radius = (rightBottomX - rightTopX) / 2
                         }
-                        ctx.arcTo(rightBottomX, rightMiddleY, rightBottomX - radius, rightMiddleY, radius)
-                            addPart(rightBottomX, rightMiddleY + radius, DrawLine, true)
-                            addPart(rightBottomX - radius, rightMiddleY, DrawArc_UpToLeft, true)
-                        ctx.arcTo(rightTopX, rightMiddleY, rightTopX, rightMiddleY - radius, radius)
-                            addPart(rightTopX + radius, rightMiddleY, DrawLine, true)
-                            addPart(rightTopX, rightMiddleY - radius, DrawArc_LeftToUp, true)
-                        ctx.lineTo(rightTopX, topY)
-                            addPart(rightTopX, topY, DrawLine, true)
+                        addPart(rightBottomX, rightMiddleY + radius, bottomLineType, true)
+                        addPart(rightBottomX - radius, rightMiddleY, DrawArc_UpToLeft, true)
+                        addPart(rightTopX + radius, rightMiddleY, DrawLine, true)
+                        addPart(rightTopX, rightMiddleY - radius, DrawArc_LeftToUp, true)
+                        addPart(rightTopX, topY, topLineType, true)
                     }
                     else {
                         // straight vertical line
@@ -360,80 +353,54 @@ Flowify.canvas = function () {
                     }
                 }
                 
-                function drawOneSideOfCorner(firstX, firstY, firstDirection, secondX, secondY, secondDirection, radius, isRight, isBackground = false) {
+                function drawOneSideOfCorner(firstX, firstY, firstDirection, secondX, secondY, secondDirection, radius, isRight, skipTopPartWhenBorder = false, skipBottomPartWhenBorder = false) {
                     
-                    if (isBackground) {
-                        // TODO: we should not do this!?
-                        ctx.lineTo(firstX, firstY)
-                            if (!isRight && !leftPath.length) addPart(firstX, firstY, DrawLineWhenBackground, isRight)
-                            if (isRight && !rightPath.length) addPart(firstX, firstY, DrawLineWhenBackground, isRight)
-                    }
-                    else {
-                        // TODO: we should not do this!?
-                        ctx.moveTo(firstX, firstY)
-                            if (!isRight && !leftPath.length) addPart(firstX, firstY, DrawLineWhenBackground, isRight)
-                            if (isRight && !rightPath.length) addPart(firstX, firstY, DrawLineWhenBackground, isRight)
-                    }
+                    if (!isRight && !leftPath.length) addPart(firstX, firstY, DrawLineWhenBackground, isRight)
+                    if (isRight && !rightPath.length) addPart(firstX, firstY, DrawLineWhenBackground, isRight)
                 
                     // FIXME: adjust radius to make it fit!
                     
                     // Forwards
                     if (firstDirection == Direction_TopToBottom && secondDirection == Direction_LeftToRight) {
-                        ctx.arcTo(firstX, secondY, firstX + radius, secondY, radius)
-                            addPart(firstX, secondY - radius, DrawLine, isRight)
-                            addPart(firstX + radius, secondY, DrawArc_DownToRight, isRight)
-                        ctx.lineTo(secondX, secondY)
-                            addPart(secondX, secondY, DrawLine, isRight)
+                        addPart(firstX, secondY - radius, DrawLine, isRight)
+                        addPart(firstX + radius, secondY, DrawArc_DownToRight, isRight)
+                        addPart(secondX, secondY, DrawLine, isRight)
                     }
                     else if (firstDirection == Direction_LeftToRight && secondDirection == Direction_BottomToTop) {
-                        ctx.arcTo(secondX, firstY, secondX, firstY - radius, radius)
-                            addPart(secondX - radius, firstY, DrawLine, isRight)
-                            addPart(secondX, firstY - radius, DrawArc_RightToUp, isRight)
-                        ctx.lineTo(secondX, secondY)
-                            addPart(secondX, secondY, DrawLine, isRight)
+                        addPart(secondX - radius, firstY, DrawLine, isRight)
+                        addPart(secondX, firstY - radius, DrawArc_RightToUp, isRight)
+                        addPart(secondX, secondY, DrawLine, isRight)
                     }
                     else if (firstDirection == Direction_BottomToTop && secondDirection == Direction_RightToLeft) {
-                        ctx.arcTo(firstX, secondY, firstX - radius, secondY, radius)
-                            addPart(firstX, secondY + radius, DrawLine, isRight)
-                            addPart(firstX - radius, secondY, DrawArc_UpToLeft, isRight)
-                        ctx.lineTo(secondX, secondY)
-                            addPart(secondX, secondY, DrawLine, isRight)
+                        addPart(firstX, secondY + radius, DrawLine, isRight)
+                        addPart(firstX - radius, secondY, DrawArc_UpToLeft, isRight)
+                        addPart(secondX, secondY, DrawLine, isRight)
                     }
                     else if (firstDirection == Direction_RightToLeft && secondDirection == Direction_TopToBottom) {
-                        ctx.arcTo(secondX, firstY, secondX, firstY + radius, radius)
-                            addPart(secondX + radius, firstY, DrawLine, isRight)
-                            addPart(secondX, firstY + radius, DrawArc_LeftToDown, isRight)
-                        ctx.lineTo(secondX, secondY)
-                            addPart(secondX, secondY, DrawLine, isRight)
+                        addPart(secondX + radius, firstY, DrawLine, isRight)
+                        addPart(secondX, firstY + radius, DrawArc_LeftToDown, isRight)
+                        addPart(secondX, secondY, DrawLine, isRight)
                     }
                     // Backwards
                     else if (firstDirection == Direction_TopToBottom && secondDirection == Direction_RightToLeft) {
-                        ctx.arcTo(firstX, secondY, firstX + radius, secondY, radius)
-                            addPart(firstX, secondY + radius, DrawLine, isRight)
-                            addPart(firstX + radius, secondY, DrawArc_UpToRight, isRight)
-                        ctx.lineTo(secondX, secondY)
-                            addPart(secondX, secondY, DrawLine, isRight)
+                        addPart(firstX, secondY + radius, DrawLine, isRight)
+                        addPart(firstX + radius, secondY, DrawArc_UpToRight, isRight)
+                        addPart(secondX, secondY, DrawLine, isRight)
                     }
                     else if (firstDirection == Direction_RightToLeft && secondDirection == Direction_BottomToTop) {
-                        ctx.arcTo(secondX, firstY, secondX, firstY + radius, radius)
-                            addPart(secondX - radius, firstY, DrawLine, isRight)
-                            addPart(secondX, firstY + radius, DrawArc_RightToDown, isRight)
-                        ctx.lineTo(secondX, secondY)
-                            addPart(secondX, secondY, DrawLine, isRight)
+                        addPart(secondX - radius, firstY, DrawLine, isRight)
+                        addPart(secondX, firstY + radius, DrawArc_RightToDown, isRight)
+                        addPart(secondX, secondY, DrawLine, isRight)
                     }
                     else if (firstDirection == Direction_BottomToTop && secondDirection == Direction_LeftToRight) {
-                        ctx.arcTo(firstX, secondY, firstX - radius, secondY, radius)
-                            addPart(firstX, secondY - radius, DrawLine, isRight)
-                            addPart(firstX - radius, secondY, DrawArc_DownToLeft, isRight)
-                        ctx.lineTo(secondX, secondY)
-                            addPart(secondX, secondY, DrawLine, isRight)
+                        addPart(firstX, secondY - radius, DrawLine, isRight)
+                        addPart(firstX - radius, secondY, DrawArc_DownToLeft, isRight)
+                        addPart(secondX, secondY, DrawLine, isRight)
                     }
                     else if (firstDirection == Direction_LeftToRight && secondDirection == Direction_TopToBottom) {
-                        ctx.arcTo(secondX, firstY, secondX, firstY - radius, radius)
-                            addPart(secondX + radius, firstY, DrawLine, isRight)
-                            addPart(secondX, firstY - radius, DrawArc_LeftToUp, isRight)
-                        ctx.lineTo(secondX, secondY)
-                            addPart(secondX, secondY, DrawLine, isRight)
+                        addPart(secondX + radius, firstY, DrawLine, isRight)
+                        addPart(secondX, firstY - radius, DrawArc_LeftToUp, isRight)
+                        addPart(secondX, secondY, DrawLine, isRight)
                     }
                     else {
                         console.log("ERROR: unsupported combination of directions!")
@@ -444,8 +411,6 @@ Flowify.canvas = function () {
                 if (fillColorAlpha) {
                     
                     // Draw background
-                    
-                    ctx.beginPath()
                     
                     if (!partialRectAtStart) {
                         let lanePart = laneParts[0]
@@ -578,12 +543,6 @@ Flowify.canvas = function () {
                                   lanePart.x + previousLanePart.width, lanePart.y + lanePart.height / 2, radius, isBackground = true)
                     }
                     
-                    ctx.closePath()
-                    ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
-                    ctx.fill()
-                    
-                    my.nrOfDrawCalls++
-                    
                 }
 HACK_STOP_ADDING = false
                 
@@ -591,8 +550,6 @@ HACK_STOP_ADDING = false
                     
                     // Draw borders
                     
-                    ctx.beginPath()
-
                     // Left side (top to bottom)
                     
                     if (!partialRectAtStart) {
@@ -648,7 +605,7 @@ HACK_STOP_ADDING = false
                                 // which is the last part of the previous lane: a splitter.
                                 if (lanePartIndex == 1 && partialRectAtStart && isRightSideAtStart) {
                                     // TODO: we should also change leftMiddleY
-                                    heightToDrawOfPreviousLane = 0
+                                    // heightToDrawOfPreviousLane = 0
                                     skipTopPartWhenBorder = true
                                 }
                                 
@@ -657,7 +614,7 @@ HACK_STOP_ADDING = false
                                 // which is the first part of the next lane: a joiner.
                                 if (lanePartIndex == laneParts.length - 1 && partialRectAtEnd && isRightSideAtEnd) {
                                     // TODO: we should also change leftMiddleY
-                                    heightToDrawOfCurrentLane = 0
+                                    // heightToDrawOfCurrentLane = 0
                                     skipBottomPartWhenBorder = true
                                 }
                                 
@@ -666,7 +623,7 @@ HACK_STOP_ADDING = false
                                 // args: leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius
                                 drawLeft(previousLanePart.x, previousLanePart.y + previousLanePart.height - heightToDrawOfPreviousLane, 
                                         lanePart.y - distanceBetweenRects / 2,
-                                        lanePart.x, lanePart.y + heightToDrawOfCurrentLane, radius)
+                                        lanePart.x, lanePart.y + heightToDrawOfCurrentLane, radius, skipTopPartWhenBorder, skipBottomPartWhenBorder)
                             }
                             
                         }
@@ -740,7 +697,7 @@ HACK_STOP_ADDING = false
                                 // which is the last part of the previous lane: a splitter.
                                 if (lanePartIndex == 0 && partialRectAtStart && !isRightSideAtStart) {
                                     // TODO: we should also change rightMiddleY
-                                    heightToDrawOfCurrentLane = 0
+                                    // heightToDrawOfCurrentLane = 0
                                     skipTopPartWhenBorder = true
                                 }
                                 
@@ -749,7 +706,7 @@ HACK_STOP_ADDING = false
                                 // which is the first part of the next lane: a joiner.
                                 if (lanePartIndex == laneParts.length - 2 && partialRectAtEnd && !isRightSideAtEnd) {
                                     // TODO: we should also change rightMiddleY
-                                    heightToDrawOfPreviousLane = 0
+                                    // heightToDrawOfPreviousLane = 0
                                     skipBottomPartWhenBorder = true
                                 }
                                 
@@ -758,7 +715,7 @@ HACK_STOP_ADDING = false
                                 // args: rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius
                                 drawRight(lanePart.x + lanePart.width, lanePart.y + lanePart.height - heightToDrawOfCurrentLane, 
                                           previousLanePart.y - distanceBetweenRects / 2,
-                                          previousLanePart.x + previousLanePart.width, previousLanePart.y + heightToDrawOfPreviousLane, radius)
+                                          previousLanePart.x + previousLanePart.width, previousLanePart.y + heightToDrawOfPreviousLane, radius, skipTopPartWhenBorder, skipBottomPartWhenBorder)
                             }
                         }
                         else {
@@ -777,11 +734,6 @@ HACK_STOP_ADDING = false
                                   lanePart.x + previousLanePart.width, lanePart.y + lanePart.height / 2, radius)
                     }
                     
-                    ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
-                    ctx.lineWidth = lineWidth
-                    ctx.stroke()
-                
-                    my.nrOfDrawCalls++
                 }
 
                 // Drawing the lane as left and right paths
@@ -832,7 +784,7 @@ HACK_STOP_ADDING = false
                     drawPath(leftPath, isBackground = true)
                     drawPath(rightPath, isBackground = true)
                     ctx.closePath()
-                    ctx.fillStyle = "#FFCCCC" // FIXME: my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
+                    ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
                     ctx.fill()
                     
                     my.nrOfDrawCalls++
@@ -841,7 +793,7 @@ HACK_STOP_ADDING = false
                 if (lineColorAlpha) {
                     ctx.beginPath()
                     drawPath(leftPath, isBackground = false)
-                    ctx.strokeStyle = "#FF0000" // FIXME:  my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
+                    ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
                     ctx.lineWidth = lineWidth
                     ctx.stroke()
                     
@@ -849,7 +801,7 @@ HACK_STOP_ADDING = false
                                     
                     ctx.beginPath()
                     drawPath(rightPath, isBackground = false)
-                    ctx.strokeStyle =  "#FF0000" // FIXME: my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
+                    ctx.strokeStyle =  my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
                     ctx.lineWidth = lineWidth
                     ctx.stroke()
                     
