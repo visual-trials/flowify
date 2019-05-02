@@ -217,33 +217,33 @@ struct FlowStyleEvenOdd
     i32 line_width;
 };
 
-// TODO: we might want to put the Draw-structs in a separate file
+// TODO: we might want to put the Drawable-structs in a separate file
 
-struct DrawLanePart
+struct DrawableLanePart
 {
     Rect2d rect;
     Direction direction;
     
-    DrawLanePart * next_part;
+    DrawableLanePart * next_part;
     // TODO: maybe add fill_color (when a part is selected for example)
 };
 
-struct DrawLane
+struct DrawableLane
 {
     Rect2d bounding_rect; // We can use this to check whether any of the lane-parts is inside the screen (so we know we should draw the lane)
     
-    DrawLanePart * first_part;
-    DrawLanePart * last_part;
+    DrawableLanePart * first_part;
+    DrawableLanePart * last_part;
     
     // TODO: how to signify that the first/last part should not have a line on either the left or right side?
     
-    DrawLane * splitting_from_lane;
+    DrawableLane * splitting_from_lane;
     b32 is_right_side_at_split;
     Pos2d splitting_point;
     
     b32 is_splitter_at_end;
     
-    DrawLane * joining_towards_lane;
+    DrawableLane * joining_towards_lane;
     b32 is_right_side_at_join;
     Pos2d joining_point;
     
@@ -255,7 +255,7 @@ struct DrawLane
     i32 line_width;
 };
 
-struct DrawText
+struct DrawableText
 {
     Pos2d position;
     String * text; // FIXME: there is no need to use a pointer here!
@@ -263,7 +263,7 @@ struct DrawText
     Color4 color;
 };
 
-struct DrawRect
+struct DrawableRect
 {
     Rect2d rect;
     Color4 line_color;
@@ -271,7 +271,7 @@ struct DrawRect
     i32 line_width;
 };
 
-struct DrawRoundedRect
+struct DrawableRoundedRect
 {
     Rect2d rect;
     i32 radius;
@@ -280,23 +280,23 @@ struct DrawRoundedRect
     i32 line_width;
 };
 
-enum DrawType
+enum DrawableType
 {
-    Draw_Text,
-    Draw_Rect,
-    Draw_RoundedRect,
-    Draw_Lane
+    Drawable_Text,
+    Drawable_Rect,
+    Drawable_RoundedRect,
+    Drawable_Lane
 };
 
-struct DrawEntry
+struct DrawableEntry
 {
-    DrawType type; // Lane / RoundedRect / Rect / Text
+    DrawableType type; // Lane / RoundedRect / Rect / Text
     void * item_to_draw;
     
-    DrawEntry * first_child_entry;
-    DrawEntry * last_child_entry;
+    DrawableEntry * first_child_entry;
+    DrawableEntry * last_child_entry;
     
-    DrawEntry * next_entry;
+    DrawableEntry * next_entry;
 };
 
 struct Flowifier
@@ -304,12 +304,12 @@ struct Flowifier
     DynamicArray flow_elements;
     
     FragmentedMemoryArena draw_arena;
-    DrawEntry * first_draw_entry;
-    DrawEntry * last_draw_entry;
+    DrawableEntry * first_draw_entry;
+    DrawableEntry * last_draw_entry;
     
-    DrawEntry * last_lane_entry;
+    DrawableEntry * last_lane_entry;
     
-    DrawLane * current_lane;
+    DrawableLane * current_lane;
     
     FlowElement * first_function;
     FlowElement * latest_function;
