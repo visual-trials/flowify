@@ -253,8 +253,6 @@ Flowify.canvas = function () {
                 let leftPath = []
                 let rightPath = []
                 
-                // FIXME: how to do radius? Determine based on abs(x_prev - x) ?
-                
                 function addMove(x, y, isRight) {
                     if (HACK_STOP_ADDING) return
                     if (isRight) {
@@ -337,10 +335,12 @@ Flowify.canvas = function () {
                 function drawRight(rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius, isBackground = false) {
                     // Right side (bottom to top)
                     if (isBackground) {
+                        // TODO: we should not do this!?
                         ctx.lineTo(rightBottomX, bottomY)
                             if (!rightPath.length) addLine(rightBottomX, bottomY, true)
                     }
                     else {
+                        // TODO: we should not do this!?
                         ctx.moveTo(rightBottomX, bottomY)
                             if (!rightPath.length) addMove(rightBottomX, bottomY, true)
                     }
@@ -379,47 +379,80 @@ Flowify.canvas = function () {
                     }
                 }
                 
-                function drawOneSideOfCorner(firstX, firstY, firstDirection, secondX, secondY, secondDirection, radius, isBackground = false) {
+                function drawOneSideOfCorner(firstX, firstY, firstDirection, secondX, secondY, secondDirection, radius, isRight, isBackground = false) {
                     
                     if (isBackground) {
+                        // TODO: we should not do this!?
                         ctx.lineTo(firstX, firstY)
+                            if (!isRight && !leftPath.length) addLine(firstX, firstY, isRight)
+                            if (isRight && !rightPath.length) addLine(firstX, firstY, isRight)
                     }
                     else {
+                        // TODO: we should not do this!?
                         ctx.moveTo(firstX, firstY)
+                            if (!isRight && !leftPath.length) addMove(firstX, firstY, isRight)
+                            if (isRight && !rightPath.length) addMove(firstX, firstY, isRight)
                     }
+                
+                    // FIXME: adjust radius to make it fit!
+                    
                     // Forwards
                     if (firstDirection == Direction_TopToBottom && secondDirection == Direction_LeftToRight) {
                         ctx.arcTo(firstX, secondY, firstX + radius, secondY, radius)
+                            addLine(firstX, secondY - radius, isRight)
+                            addArc(firstX + radius, secondY, DrawArc_DownToRight, isRight)
                         ctx.lineTo(secondX, secondY)
+                            addLine(secondX, secondY, isRight)
                     }
                     else if (firstDirection == Direction_LeftToRight && secondDirection == Direction_BottomToTop) {
                         ctx.arcTo(secondX, firstY, secondX, firstY - radius, radius)
+                            addLine(secondX - radius, firstY, isRight)
+                            addArc(secondX, firstY - radius, DrawArc_RightToUp, isRight)
                         ctx.lineTo(secondX, secondY)
+                            addLine(secondX, secondY, isRight)
                     }
                     else if (firstDirection == Direction_BottomToTop && secondDirection == Direction_RightToLeft) {
                         ctx.arcTo(firstX, secondY, firstX - radius, secondY, radius)
+                            addLine(firstX, secondY + radius, isRight)
+                            addArc(firstX - radius, secondY, DrawArc_UpToLeft, isRight)
                         ctx.lineTo(secondX, secondY)
+                            addLine(secondX, secondY, isRight)
                     }
                     else if (firstDirection == Direction_RightToLeft && secondDirection == Direction_TopToBottom) {
                         ctx.arcTo(secondX, firstY, secondX, firstY + radius, radius)
+                            addLine(secondX + radius, firstY, isRight)
+                            addArc(secondX, firstY + radius, DrawArc_LeftToDown, isRight)
                         ctx.lineTo(secondX, secondY)
+                            addLine(secondX, secondY, isRight)
                     }
                     // Backwards
-                    else if (firstDirection == Direction_LeftToRight && secondDirection == Direction_TopToBottom) {
-                        ctx.arcTo(secondX, firstY, secondX, firstY - radius, radius)
+                    else if (firstDirection == Direction_TopToBottom && secondDirection == Direction_RightToLeft) {
+                        ctx.arcTo(firstX, secondY, firstX + radius, secondY, radius)
+                            addLine(firstX, secondY + radius, isRight)
+                            addArc(firstX + radius, secondY, DrawArc_UpToRight, isRight)
                         ctx.lineTo(secondX, secondY)
-                    }
-                    else if (firstDirection == Direction_BottomToTop && secondDirection == Direction_LeftToRight) {
-                        ctx.arcTo(firstX, secondY, firstX - radius, secondY, radius)
-                        ctx.lineTo(secondX, secondY)
+                            addLine(secondX, secondY, isRight)
                     }
                     else if (firstDirection == Direction_RightToLeft && secondDirection == Direction_BottomToTop) {
                         ctx.arcTo(secondX, firstY, secondX, firstY + radius, radius)
+                            addLine(secondX - radius, firstY, isRight)
+                            addArc(secondX, firstY + radius, DrawArc_RightToDown, isRight)
                         ctx.lineTo(secondX, secondY)
+                            addLine(secondX, secondY, isRight)
                     }
-                    else if (firstDirection == Direction_TopToBottom && secondDirection == Direction_RightToLeft) {
-                        ctx.arcTo(firstX, secondY, firstX + radius, secondY, radius)
+                    else if (firstDirection == Direction_BottomToTop && secondDirection == Direction_LeftToRight) {
+                        ctx.arcTo(firstX, secondY, firstX - radius, secondY, radius)
+                            addLine(firstX, secondY - radius, isRight)
+                            addArc(firstX - radius, secondY, DrawArc_DownToLeft, isRight)
                         ctx.lineTo(secondX, secondY)
+                            addLine(secondX, secondY, isRight)
+                    }
+                    else if (firstDirection == Direction_LeftToRight && secondDirection == Direction_TopToBottom) {
+                        ctx.arcTo(secondX, firstY, secondX, firstY - radius, radius)
+                            addLine(secondX + radius, firstY, isRight)
+                            addArc(secondX, firstY - radius, DrawArc_LeftToUp, isRight)
+                        ctx.lineTo(secondX, secondY)
+                            addLine(secondX, secondY, isRight)
                     }
                     else {
                         console.log("ERROR: unsupported combination of directions!")
@@ -473,7 +506,7 @@ Flowify.canvas = function () {
                                     secondY = lanePart.y + lanePart.height
                                 }
                             
-                                drawOneSideOfCorner(firstX, firstY, firstDirection, secondX, secondY, secondDirection, radius, isBackground = true)
+                                drawOneSideOfCorner(firstX, firstY, firstDirection, secondX, secondY, secondDirection, radius, isRight = false, isBackground = true)
                             }
                             else {
                                 // TODO: where do we want the middleY to be?
@@ -538,7 +571,7 @@ Flowify.canvas = function () {
                                     secondY = lanePart.y + lanePart.height
                                 }
                             
-                                drawOneSideOfCorner(firstX, firstY, firstDirection, secondX, secondY, secondDirection, radius, isBackground = true)
+                                drawOneSideOfCorner(firstX, firstY, firstDirection, secondX, secondY, secondDirection, radius, isRight = true, isBackground = true)
                             }
                             else {
                                 // TODO: where do we want the middleY to be?
@@ -619,7 +652,7 @@ HACK_STOP_ADDING = false
                                     secondY = lanePart.y + lanePart.height
                                 }
                             
-                                drawOneSideOfCorner(firstX, firstY, firstDirection, secondX, secondY, secondDirection, radius)
+                                drawOneSideOfCorner(firstX, firstY, firstDirection, secondX, secondY, secondDirection, radius, isRight = false)
                             }
                             else {
                             
@@ -700,7 +733,7 @@ HACK_STOP_ADDING = false
                                     secondY = lanePart.y + lanePart.height
                                 }
                             
-                                drawOneSideOfCorner(firstX, firstY, firstDirection, secondX, secondY, secondDirection, radius)
+                                drawOneSideOfCorner(firstX, firstY, firstDirection, secondX, secondY, secondDirection, radius, isRight = true)
                             }
                             else {
                             
