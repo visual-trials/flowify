@@ -418,7 +418,7 @@ Flowify.canvas = function () {
                         // args: leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius
                         drawLeft(lanePart.x, lanePart.y, 
                                 lanePart.y + lanePart.height / 4, // TODO: 1 / 4 as middleY (we shouldnt use drawLeft, we only draw a straight (half) lanePart)
-                                lanePart.x, lanePart.y + lanePart.height / 2, radius, isBackground = true)
+                                lanePart.x, lanePart.y + lanePart.height / 2, radius)
                     }
                     
                     // Left side (top to bottom)
@@ -452,7 +452,7 @@ Flowify.canvas = function () {
                                     secondY = lanePart.y + lanePart.height
                                 }
                             
-                                drawOneSideOfCorner(firstX, firstY, firstDirection, secondX, secondY, secondDirection, radius, isRight = false, isBackground = true)
+                                drawOneSideOfCorner(firstX, firstY, firstDirection, secondX, secondY, secondDirection, radius, isRight = false)
                             }
                             else {
                                 // TODO: where do we want the middleY to be?
@@ -460,7 +460,7 @@ Flowify.canvas = function () {
                                 // args: leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius
                                 drawLeft(previousLanePart.x, previousLanePart.y + previousLanePart.height / 2, 
                                         lanePart.y - distanceBetweenRects / 2,
-                                        lanePart.x, lanePart.y + lanePart.height / 2, radius, isBackground = true)
+                                        lanePart.x, lanePart.y + lanePart.height / 2, radius)
                             }
                             
                         }
@@ -477,7 +477,7 @@ Flowify.canvas = function () {
                         // args: leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius
                         drawLeft(lanePart.x, lanePart.y + lanePart.height / 2, 
                                 lanePart.y + lanePart.height * 3 / 4, // TODO: 3 / 4 as middleY (we shouldnt use drawLeft, we only draw a straight (half) lanePart)
-                                lanePart.x, lanePart.y + lanePart.height, radius, isBackground = true)
+                                lanePart.x, lanePart.y + lanePart.height, radius)
                     }
                     
                     // Right side (bottom to top)
@@ -487,7 +487,7 @@ Flowify.canvas = function () {
                         // args: rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius
                         drawRight(lanePart.x + lanePart.width, lanePart.y + lanePart.height / 2, 
                                   lanePart.y + lanePart.height * 3 / 4, // TODO: 3 / 4 as middleY (we shouldnt use drawRight, we only draw a straight (half) lanePart)
-                                  lanePart.x + lanePart.width, lanePart.y + lanePart.height, radius, isBackground = true)
+                                  lanePart.x + lanePart.width, lanePart.y + lanePart.height, radius)
                     }
                     previousLanePart = null
                     for (let lanePartIndex = laneParts.length - 1; lanePartIndex >= 0; lanePartIndex--) {
@@ -517,7 +517,7 @@ Flowify.canvas = function () {
                                     secondY = lanePart.y + lanePart.height
                                 }
                             
-                                drawOneSideOfCorner(firstX, firstY, firstDirection, secondX, secondY, secondDirection, radius, isRight = true, isBackground = true)
+                                drawOneSideOfCorner(firstX, firstY, firstDirection, secondX, secondY, secondDirection, radius, isRight = true)
                             }
                             else {
                                 // TODO: where do we want the middleY to be?
@@ -525,7 +525,7 @@ Flowify.canvas = function () {
                                 // args: rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius
                                 drawRight(lanePart.x + lanePart.width, lanePart.y + lanePart.height / 2,
                                           previousLanePart.y - distanceBetweenRects / 2,
-                                          previousLanePart.x + previousLanePart.width, previousLanePart.y + previousLanePart.height / 2, radius, isBackground = true)
+                                          previousLanePart.x + previousLanePart.width, previousLanePart.y + previousLanePart.height / 2, radius)
                             }
                         }
                         else {
@@ -540,7 +540,7 @@ Flowify.canvas = function () {
                         // args: rightTopX, topY, rightMiddleY, rightBottomX, bottomY, radius
                         drawRight(lanePart.x + lanePart.width, lanePart.y, 
                                   lanePart.y + lanePart.height / 4, // TODO: 1 / 4 as middleY (we shouldnt use drawRight, we only draw a straight (half) lanePart)
-                                  lanePart.x + previousLanePart.width, lanePart.y + lanePart.height / 2, radius, isBackground = true)
+                                  lanePart.x + previousLanePart.width, lanePart.y + lanePart.height / 2, radius)
                     }
                     
                 }
