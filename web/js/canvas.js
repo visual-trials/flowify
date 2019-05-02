@@ -773,75 +773,78 @@ HACK_STOP_ADDING = false
                 
                     my.nrOfDrawCalls++
                 }
+
+                // Drawing the lane as left and right paths
                 
-                
-/*
-if (!my.alreadyLogged) { 
-    console.log(laneParts)                   
-    console.log(leftPath)
-    console.log(rightPath)
-    my.alreadyLogged = true
-}
-*/
-                
-drawPath = function (path, isBackground) {
-    let previousX = null
-    let previousY = null
-    for (let partIndex = 0; partIndex < path.length; partIndex++) {
-        let part = path[partIndex]
-        let type = part.type
-        let x = part.x
-        let y = part.y
-        
-        let radius = previousX - x
-        if (radius < 0) {
-            radius = -radius
-        }
-            
-        if (type === DrawMove) {
-            ctx.moveTo(x, y)
-        }
-        else if (type === DrawLine) {
-            ctx.lineTo(x, y)
-        }
-        else if (type === DrawLineWhenBackground) {
-            if (isBackground) {
-                ctx.lineTo(x, y)
-            }
-            else {
-                ctx.moveTo(x, y)
-            }
-        }
-        else if (type === DrawArc_DownToLeft || type === DrawArc_DownToRight || type === DrawArc_UpToLeft || type === DrawArc_UpToRight) {
-            ctx.arcTo(previousX, y, x, y, radius)
-        }
-        else if (type === DrawArc_LeftToUp || type === DrawArc_LeftToDown || type === DrawArc_RightToUp || type === DrawArc_RightToDown) {
-            ctx.arcTo(x, previousY, x, y, radius)
-        }
+                drawPath = function (path, isBackground) {
+                    let previousX = null
+                    let previousY = null
+                    for (let partIndex = 0; partIndex < path.length; partIndex++) {
+                        let part = path[partIndex]
+                        let type = part.type
+                        let x = part.x
+                        let y = part.y
+                        
+                        let radius = previousX - x
+                        if (radius < 0) {
+                            radius = -radius
+                        }
+                            
+                        if (type === DrawMove) {
+                            ctx.moveTo(x, y)
+                        }
+                        else if (type === DrawLine) {
+                            ctx.lineTo(x, y)
+                        }
+                        else if (type === DrawLineWhenBackground) {
+                            if (isBackground) {
+                                ctx.lineTo(x, y)
+                            }
+                            else {
+                                ctx.moveTo(x, y)
+                            }
+                        }
+                        else if (type === DrawArc_DownToLeft || type === DrawArc_DownToRight || type === DrawArc_UpToLeft || type === DrawArc_UpToRight) {
+                            ctx.arcTo(previousX, y, x, y, radius)
+                        }
+                        else if (type === DrawArc_LeftToUp || type === DrawArc_LeftToDown || type === DrawArc_RightToUp || type === DrawArc_RightToDown) {
+                            ctx.arcTo(x, previousY, x, y, radius)
+                        }
+                                    
+                        previousX = x
+                        previousY = y
+                    }
+                }
+
+
+                if (fillColorAlpha) {
+                    ctx.beginPath()
+                    drawPath(leftPath, isBackground = true)
+                    drawPath(rightPath, isBackground = true)
+                    ctx.closePath()
+                    ctx.fillStyle = "#FFCCCC" // FIXME: my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
+                    ctx.fill()
                     
-        previousX = x
-        previousY = y
-    }
-}
+                    my.nrOfDrawCalls++
+                }
 
-ctx.beginPath()
-drawPath(leftPath, isBackground = true)
-drawPath(rightPath, isBackground = true)
-ctx.closePath()
-ctx.fillStyle = "#FFCCCC"
-ctx.fill()
-
-ctx.beginPath()
-drawPath(leftPath, isBackground = false)
-ctx.strokeStyle = "#FF0000"
-ctx.lineWidth = 4
-ctx.stroke()
-                
-ctx.beginPath()
-drawPath(rightPath, isBackground = false)
-ctx.strokeStyle = "#FF0000"
-ctx.lineWidth = 4
-ctx.stroke()
+                if (lineColorAlpha) {
+                    ctx.beginPath()
+                    drawPath(leftPath, isBackground = false)
+                    ctx.strokeStyle = "#FF0000" // FIXME:  my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
+                    ctx.lineWidth = lineWidth
+                    ctx.stroke()
+                    
+                    my.nrOfDrawCalls++
+                                    
+                    ctx.beginPath()
+                    drawPath(rightPath, isBackground = false)
+                    ctx.strokeStyle =  "#FF0000" // FIXME: my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
+                    ctx.lineWidth = lineWidth
+                    ctx.stroke()
+                    
+                    my.nrOfDrawCalls++
+                }
 
             },
             
