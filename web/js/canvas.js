@@ -637,6 +637,9 @@ HACK_STOP_ADDING = false
                             }
                             else {
                             
+                                let skipTopPartWhenBorder = false
+                                let skipBottomPartWhenBorder = false
+                                
                                 let heightToDrawOfPreviousLane = previousLanePart.height / 2
                                 let heightToDrawOfCurrentLane = lanePart.height / 2
                             
@@ -646,6 +649,7 @@ HACK_STOP_ADDING = false
                                 if (lanePartIndex == 1 && partialRectAtStart && isRightSideAtStart) {
                                     // TODO: we should also change leftMiddleY
                                     heightToDrawOfPreviousLane = 0
+                                    skipTopPartWhenBorder = true
                                 }
                                 
                                 // We are at the end of a lane that ends in a joiner (its right side)
@@ -654,6 +658,7 @@ HACK_STOP_ADDING = false
                                 if (lanePartIndex == laneParts.length - 1 && partialRectAtEnd && isRightSideAtEnd) {
                                     // TODO: we should also change leftMiddleY
                                     heightToDrawOfCurrentLane = 0
+                                    skipBottomPartWhenBorder = true
                                 }
                                 
                                 // TODO: where do we want the middleY to be?
@@ -724,6 +729,9 @@ HACK_STOP_ADDING = false
                             }
                             else {
                             
+                                let skipTopPartWhenBorder = false
+                                let skipBottomPartWhenBorder = false
+                                
                                 let heightToDrawOfPreviousLane = previousLanePart.height / 2
                                 let heightToDrawOfCurrentLane = lanePart.height / 2
                                 
@@ -733,6 +741,7 @@ HACK_STOP_ADDING = false
                                 if (lanePartIndex == 0 && partialRectAtStart && !isRightSideAtStart) {
                                     // TODO: we should also change rightMiddleY
                                     heightToDrawOfCurrentLane = 0
+                                    skipTopPartWhenBorder = true
                                 }
                                 
                                 // We are at the end of a lane that ends in a joiner (its left side)
@@ -741,6 +750,7 @@ HACK_STOP_ADDING = false
                                 if (lanePartIndex == laneParts.length - 2 && partialRectAtEnd && !isRightSideAtEnd) {
                                     // TODO: we should also change rightMiddleY
                                     heightToDrawOfPreviousLane = 0
+                                    skipBottomPartWhenBorder = true
                                 }
                                 
                                 // TODO: where do we want the middleY to be?
