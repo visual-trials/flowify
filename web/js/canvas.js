@@ -392,9 +392,8 @@ Flowify.canvas = function () {
                     }
                     
                     // Draw left side
-                    // TODO: we should not do this!?
-                    ctx.lineTo(leftTopX, topY)
-                        if (!leftPath.length) addPart(leftTopX, topY, DrawLineWhenBackground, false)
+                    
+                    if (!leftPath.length) addPart(leftTopX, topY, DrawLineWhenBackground, false)
                     
                     if (leftBottomX < leftTopX) {
                         // bottom is to the left of the top
@@ -436,9 +435,8 @@ Flowify.canvas = function () {
                     }
                     
                     // Right side (bottom to top)
-                    // TODO: we should not do this!?
-                    ctx.lineTo(rightBottomX, bottomY)
-                        if (!rightPath.length) addPart(rightBottomX, bottomY, DrawLineWhenBackground, true)
+                    
+                    if (!rightPath.length) addPart(rightBottomX, bottomY, DrawLineWhenBackground, true)
                             
                     if (rightBottomX < rightTopX) {
                         // bottom is to the left of the top
@@ -464,8 +462,7 @@ Flowify.canvas = function () {
                     }
                     else {
                         // straight vertical line
-                        ctx.lineTo(rightTopX, topY)
-                            addPart(rightTopX, topY, DrawLine, true)
+                        addPart(rightTopX, topY, DrawLine, true)
                     }
                 }
                 
