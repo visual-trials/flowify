@@ -333,10 +333,10 @@ void push_lane_part_to_lane(BasicRenderer * renderer, DrawableLane * lane, Rect2
 void push_path_part(LaneRenderer * lane_renderer, DrawablePathPart path_part, b32 is_right)
 {
     if (is_right) {
-        // FIXME: rightPath.push({"type": type, "x": x, "y": y})
+        add_to_array(&lane_renderer->right_path_parts, &path_part);
     }
     else {
-        // FIXME: leftPath.push({"type": type, "x": x, "y": y})
+        add_to_array(&lane_renderer->left_path_parts, &path_part);
     }
 }
 
