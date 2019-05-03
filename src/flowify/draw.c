@@ -115,10 +115,9 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     {
         assert(renderer->draw_arena.memory);
         
-        reset_fragmented_memory_arena(&renderer->draw_arena, true);
-        renderer->first_drawable_entry = 0;
-        renderer->last_drawable_entry = 0;
-        renderer->last_lane_entry = 0;
+        init_basic_renderer(&flowifier->renderer);
+        init_lane_renderer(&flowifier->lane_renderer);
+        
         flowifier->current_lane = 0;
     }
     
@@ -677,7 +676,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     {
         DrawableEntry * drawable_entry = renderer->first_drawable_entry;
         
-        draw_entries(drawable_entry);
+        draw_entries(&flowifier->lane_renderer, drawable_entry);
     }
 }
 

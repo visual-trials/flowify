@@ -340,33 +340,36 @@ void push_path_part(LaneRenderer * lane_renderer, DrawablePathPart path_part, b3
     }
 }
 
-void draw_lane_using_directional_rects(
+void draw_lane_using_directional_rects(LaneRenderer * lane_renderer,
                DirectionalRect2d * lane_parts, i32 lane_parts_count,
                b32 partial_rect_at_start, b32 is_right_side_at_start, 
                b32 partial_rect_at_end, b32 is_right_side_at_end, 
                i32 radius, Color4 line_color, Color4 fill_color, i32 line_width)
 {
     
-    DrawablePathPart left_path_parts_index[2];
-    i32 left_path_parts_count = 2;
+    DrawablePathPart path_part = {};
     
-    left_path_parts_index[0].position.x = 200;
-    left_path_parts_index[0].position.y = 200;
-    left_path_parts_index[0].part_type = PathPart_Move;
+    b32 is_right = false;
     
-    left_path_parts_index[1].position.x = 200;
-    left_path_parts_index[1].position.y = 300;
-    left_path_parts_index[1].part_type = PathPart_Line;
+    path_part.position.x = 300;
+    path_part.position.y = 200;
+    path_part.part_type = PathPart_Move;
+    push_path_part(lane_renderer, path_part, is_right);
     
-    DrawablePathPart right_path_parts_index[2];
-    i32 right_path_parts_count = 0;
+    path_part.position.x = 200;
+    path_part.position.y = 300;
+    path_part.part_type = PathPart_Line;
+    push_path_part(lane_renderer, path_part, is_right);
     
-    draw_lane_paths(left_path_parts_index, left_path_parts_count, right_path_parts_index, right_path_parts_count, 
+    DrawablePathPart * left_path_parts = (DrawablePathPart *)lane_renderer->left_path_parts.items;
+    DrawablePathPart * right_path_parts = (DrawablePathPart *)lane_renderer->right_path_parts.items;
+    draw_lane_paths(left_path_parts, lane_renderer->left_path_parts.nr_of_items, 
+                    right_path_parts, lane_renderer->right_path_parts.nr_of_items, 
                     line_color, fill_color, line_width);
     
 }
 
-void draw_an_entry(DrawableEntry * drawable_entry)
+void draw_an_entry(LaneRenderer * lane_renderer, DrawableEntry * drawable_entry)
 {
     // FIXME: it's probably a better idea to check whether an entry is on the screen when trying to push it
     
@@ -597,7 +600,8 @@ void draw_an_entry(DrawableEntry * drawable_entry)
                       add_rect_at_end, lane->is_right_side_at_join, 
                       bending_radius, line_color, fill_color, line_width);
                       
-            draw_lane_using_directional_rects(directional_rects, directional_rects_index, 
+            draw_lane_using_directional_rects(lane_renderer,
+                      directional_rects, directional_rects_index, 
                       add_rect_at_start, lane->is_right_side_at_split, 
                       add_rect_at_end, lane->is_right_side_at_join, 
                       bending_radius, line_color, fill_color, line_width);
@@ -606,16 +610,16 @@ void draw_an_entry(DrawableEntry * drawable_entry)
     }
 }
 
-void draw_entries(DrawableEntry * drawable_entry)
+void draw_entries(LaneRenderer * lane_renderer, DrawableEntry * drawable_entry)
 {
     while (drawable_entry)
     {
-        draw_an_entry(drawable_entry);
+        draw_an_entry(lane_renderer, drawable_entry);
         
         // If there are childs, first draw them, only after that we draw next entries (siblings)
         if (drawable_entry->first_child_entry)
         {
-            draw_entries(drawable_entry->first_child_entry);
+            draw_entries(lane_renderer, drawable_entry->first_child_entry);
         }
         
         drawable_entry = drawable_entry->next_entry;
