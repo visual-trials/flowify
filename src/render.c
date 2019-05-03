@@ -340,6 +340,32 @@ void push_path_part(LaneRenderer * lane_renderer, DrawablePathPart path_part, b3
     }
 }
 
+void draw_lane_using_directional_rects(
+               DirectionalRect2d * lane_parts, i32 lane_parts_count,
+               b32 partial_rect_at_start, b32 is_right_side_at_start, 
+               b32 partial_rect_at_end, b32 is_right_side_at_end, 
+               i32 radius, Color4 line_color, Color4 fill_color, i32 line_width)
+{
+    
+    DrawablePathPart left_path_parts_index[2];
+    i32 left_path_parts_count = 2;
+    
+    left_path_parts_index[0].position.x = 200;
+    left_path_parts_index[0].position.y = 200;
+    left_path_parts_index[0].part_type = PathPart_Move;
+    
+    left_path_parts_index[1].position.x = 200;
+    left_path_parts_index[1].position.y = 300;
+    left_path_parts_index[1].part_type = PathPart_Line;
+    
+    DrawablePathPart right_path_parts_index[2];
+    i32 right_path_parts_count = 0;
+    
+    draw_lane_paths(left_path_parts_index, left_path_parts_count, right_path_parts_index, right_path_parts_count, 
+                    line_color, fill_color, line_width);
+    
+}
+
 void draw_an_entry(DrawableEntry * drawable_entry)
 {
     // FIXME: it's probably a better idea to check whether an entry is on the screen when trying to push it
@@ -571,22 +597,11 @@ void draw_an_entry(DrawableEntry * drawable_entry)
                       add_rect_at_end, lane->is_right_side_at_join, 
                       bending_radius, line_color, fill_color, line_width);
                       
-            DrawablePathPart left_path_parts_index[2];
-            i32 left_path_parts_count = 2;
+            draw_lane_using_directional_rects(directional_rects, directional_rects_index, 
+                      add_rect_at_start, lane->is_right_side_at_split, 
+                      add_rect_at_end, lane->is_right_side_at_join, 
+                      bending_radius, line_color, fill_color, line_width);
             
-            left_path_parts_index[0].position.x = 200;
-            left_path_parts_index[0].position.y = 200;
-            left_path_parts_index[0].part_type = PathPart_Move;
-            
-            left_path_parts_index[1].position.x = 200;
-            left_path_parts_index[1].position.y = 300;
-            left_path_parts_index[1].part_type = PathPart_Line;
-            
-            DrawablePathPart right_path_parts_index[2];
-            i32 right_path_parts_count = 0;
-            
-            draw_lane_paths(left_path_parts_index, left_path_parts_count, right_path_parts_index, right_path_parts_count, 
-                            line_color, fill_color, line_width);
         }
     }
 }
