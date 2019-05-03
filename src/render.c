@@ -330,8 +330,9 @@ void push_lane_part_to_lane(BasicRenderer * renderer, DrawableLane * lane, Rect2
     lane->last_part = drawable_lane_part;
 }
 
-void push_path_part(LaneRenderer * lane_renderer, DrawablePathPart path_part, b32 is_right)
+void push_path_part(LaneRenderer * lane_renderer, i32 x, i32 y, PathPartType type, b32 is_right)
 {
+    DrawablePathPart path_part = (DrawablePathPart){ x, y, type };
     if (is_right) {
         add_to_array(&lane_renderer->right_path_parts, &path_part);
     }
@@ -347,19 +348,8 @@ void draw_lane_using_directional_rects(LaneRenderer * lane_renderer,
                i32 radius, Color4 line_color, Color4 fill_color, i32 line_width)
 {
     
-    DrawablePathPart path_part = {};
-    
-    b32 is_right = false;
-    
-    path_part.position.x = 300;
-    path_part.position.y = 200;
-    path_part.part_type = PathPart_Move;
-    push_path_part(lane_renderer, path_part, is_right);
-    
-    path_part.position.x = 200;
-    path_part.position.y = 300;
-    path_part.part_type = PathPart_Line;
-    push_path_part(lane_renderer, path_part, is_right);
+    push_path_part(lane_renderer, 300, 200, PathPart_Move, false);
+    push_path_part(lane_renderer, 200, 300, PathPart_Line, false);
     
     DrawablePathPart * left_path_parts = (DrawablePathPart *)lane_renderer->left_path_parts.items;
     DrawablePathPart * right_path_parts = (DrawablePathPart *)lane_renderer->right_path_parts.items;
