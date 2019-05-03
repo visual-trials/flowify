@@ -223,8 +223,8 @@ struct Flowifier
 
     // FIXME: replace this with BasicRenderer!
     FragmentedMemoryArena draw_arena;
-    DrawableEntry * first_draw_entry;
-    DrawableEntry * last_draw_entry;
+    DrawableEntry * first_drawable_entry;
+    DrawableEntry * last_drawable_entry;
     
     // FIXME: add LaneRenderer!
     
@@ -342,8 +342,8 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     {
         reset_fragmented_memory_arena(&flowifier->draw_arena, true);
     }
-    flowifier->first_draw_entry = 0;
-    flowifier->last_draw_entry = 0;
+    flowifier->first_drawable_entry = 0;
+    flowifier->last_drawable_entry = 0;
     
     // FIXME: init LaneRenderer: init_lane_renderer()
     

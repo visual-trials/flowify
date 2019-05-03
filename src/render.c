@@ -120,8 +120,8 @@ struct DrawableEntry
 struct BasicRenderer
 {
     FragmentedMemoryArena draw_arena;
-    DrawableEntry * first_draw_entry;
-    DrawableEntry * last_draw_entry;
+    DrawableEntry * first_drawable_entry;
+    DrawableEntry * last_drawable_entry;
 };
 
 struct LaneRenderer
@@ -155,13 +155,13 @@ void push_path_part(LaneRenderer * lane_renderer, DrawablePathPart path_part, b3
     }
 }
 
-void draw_an_entry(DrawableEntry * draw_entry)
+void draw_an_entry(DrawableEntry * drawable_entry)
 {
     // FIXME: it's probably a better idea to check whether an entry is on the screen when trying to push it
     
-    if (draw_entry->type == Drawable_RoundedRect)
+    if (drawable_entry->type == Drawable_RoundedRect)
     {
-        DrawableRoundedRect * rounded_rect = (DrawableRoundedRect *)draw_entry->item_to_draw;
+        DrawableRoundedRect * rounded_rect = (DrawableRoundedRect *)drawable_entry->item_to_draw;
         if (rect_is_inside_screen(rounded_rect->rect))
         {
             draw_rounded_rectangle(rounded_rect->rect, 
@@ -171,9 +171,9 @@ void draw_an_entry(DrawableEntry * draw_entry)
                                    rounded_rect->line_width);
         }
     }
-    else if (draw_entry->type == Drawable_Rect)
+    else if (drawable_entry->type == Drawable_Rect)
     {
-        DrawableRect * rect = (DrawableRect *)draw_entry->item_to_draw;
+        DrawableRect * rect = (DrawableRect *)drawable_entry->item_to_draw;
         if (rect_is_inside_screen(rect->rect))
         {
             draw_rectangle(rect->rect, 
@@ -182,9 +182,9 @@ void draw_an_entry(DrawableEntry * draw_entry)
                            rect->line_width);
         }
     }
-    else if (draw_entry->type == Drawable_Text)
+    else if (drawable_entry->type == Drawable_Text)
     {
-        DrawableText * text = (DrawableText *)draw_entry->item_to_draw;
+        DrawableText * text = (DrawableText *)drawable_entry->item_to_draw;
         // FIXME: we need the size of the text to draw to determine whether the text is on the screen
         Rect2d text_rect = {};
         text_rect.position = text->position;
@@ -195,9 +195,9 @@ void draw_an_entry(DrawableEntry * draw_entry)
             draw_text(text->position, text->text, text->font, text->color);
         }
     }
-    else if (draw_entry->type == Drawable_Lane)
+    else if (drawable_entry->type == Drawable_Lane)
     {
-        DrawableLane * lane = (DrawableLane *)draw_entry->item_to_draw;
+        DrawableLane * lane = (DrawableLane *)drawable_entry->item_to_draw;
         i32 bending_radius = lane->bending_radius;
         Color4 line_color = lane->line_color;
         Color4 fill_color = lane->fill_color;
@@ -406,18 +406,18 @@ void draw_an_entry(DrawableEntry * draw_entry)
     }
 }
 
-void draw_entries(DrawableEntry * draw_entry)
+void draw_entries(DrawableEntry * drawable_entry)
 {
-    while (draw_entry)
+    while (drawable_entry)
     {
-        draw_an_entry(draw_entry);
+        draw_an_entry(drawable_entry);
         
         // If there are childs, first draw them, only after that we draw next entries (siblings)
-        if (draw_entry->first_child_entry)
+        if (drawable_entry->first_child_entry)
         {
-            draw_entries(draw_entry->first_child_entry);
+            draw_entries(drawable_entry->first_child_entry);
         }
         
-        draw_entry = draw_entry->next_entry;
+        drawable_entry = drawable_entry->next_entry;
     }
 }
