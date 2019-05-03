@@ -220,10 +220,13 @@ struct FlowStyleEvenOdd
 struct Flowifier
 {
     DynamicArray flow_elements;
-    
+
+    // FIXME: replace this with BasicRenderer!
     FragmentedMemoryArena draw_arena;
     DrawableEntry * first_draw_entry;
     DrawableEntry * last_draw_entry;
+    
+    // FIXME: add LaneRenderer!
     
     DrawableEntry * last_lane_entry;
     
@@ -330,6 +333,7 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     flowifier->first_function = 0;
     flowifier->latest_function = 0;
     
+    // FIXME: let BasicRenderer do this! init_basic_renderer()
     if (!flowifier->draw_arena.memory)
     {
         flowifier->draw_arena = new_fragmented_memory_arena(&global_memory, (Color4){50,100,50,255}, cstring_to_string("Draw arena"), true);
@@ -340,6 +344,10 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     }
     flowifier->first_draw_entry = 0;
     flowifier->last_draw_entry = 0;
+    
+    // FIXME: init LaneRenderer: init_lane_renderer()
+    
+    // TODO: do we want to keep these two? Or should they be in the lane_renderer? (probably keep them in Flowifier)
     flowifier->last_lane_entry = 0;
     flowifier->current_lane = 0;
     
