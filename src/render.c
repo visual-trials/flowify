@@ -16,6 +16,23 @@
 
  */
  
+struct DrawStyle
+{
+    Color4 line_color;
+    Color4 fill_color;
+    i32 corner_radius;
+    i32 line_width;
+};
+
+struct DrawStyleEvenOdd
+{
+    Color4 line_color;
+    Color4 even_fill_color;
+    Color4 odd_fill_color;
+    i32 corner_radius;
+    i32 line_width;
+};
+
 struct DrawableText
 {
     Pos2d position;
@@ -92,6 +109,7 @@ struct DrawableLane
     
     b32 is_joiner_at_beginning;
     
+    // FIXME: make this a DrawStyle!
     i32 bending_radius;
     Color4 line_color;
     Color4 fill_color;
@@ -122,27 +140,194 @@ struct BasicRenderer
     FragmentedMemoryArena draw_arena;
     DrawableEntry * first_drawable_entry;
     DrawableEntry * last_drawable_entry;
+    
+    DrawableEntry * last_lane_entry;
 };
 
 struct LaneRenderer
 {
-    ConsecutiveMemoryArena left_path_arena;
-    DrawablePathPart * left_lane_parts;
-    i32 nr_of_left_path_parts;
-    
-    ConsecutiveMemoryArena right_path_arena;
-    DrawablePathPart * right_lane_parts;
-    i32 nr_of_right_path_parts;
+    DynamicArray left_path_parts;
+    DynamicArray right_path_parts;
 };
 
 void init_basic_renderer(BasicRenderer * basic_renderer)
 {
-    // FIXME: implement this!
+    if (!basic_renderer->draw_arena.memory)
+    {
+        basic_renderer->draw_arena = new_fragmented_memory_arena(&global_memory, (Color4){50,100,50,255}, cstring_to_string("Basic renderer"), true);
+    }
+    else
+    {
+        reset_fragmented_memory_arena(&basic_renderer->draw_arena, true);
+    }
+    basic_renderer->first_drawable_entry = 0;
+    basic_renderer->last_drawable_entry = 0;
+    
+    basic_renderer->last_lane_entry = 0;
 }
 
 void init_lane_renderer(LaneRenderer * lane_renderer)
 {
-    // FIXME: implement this!
+    init_dynamic_array(&lane_renderer->left_path_parts, sizeof(DrawablePathPart), (Color4){50,100,150,255}, cstring_to_string("Left path parts"));
+    init_dynamic_array(&lane_renderer->right_path_parts, sizeof(DrawablePathPart), (Color4){50,100,150,255}, cstring_to_string("Right path parts"));
+}
+
+void add_child_drawable_entry(DrawableEntry * child_drawable_entry, DrawableEntry * parent_drawable_entry)
+{
+    if (!parent_drawable_entry->first_child_entry)
+    {
+        parent_drawable_entry->first_child_entry = child_drawable_entry;
+    }
+    else
+    {
+        parent_drawable_entry->last_child_entry->next_entry = child_drawable_entry;
+    }
+    parent_drawable_entry->last_child_entry = child_drawable_entry;
+}
+
+void add_drawable_entry(BasicRenderer * renderer, DrawableEntry * drawable_entry)
+{
+    if (drawable_entry->type == Drawable_Lane)
+    {
+        renderer->last_lane_entry = drawable_entry;
+    }
+    
+    if (!renderer->first_drawable_entry)
+    {
+        renderer->first_drawable_entry = drawable_entry;
+    }
+    else
+    {
+        renderer->last_drawable_entry->next_entry = drawable_entry;
+    }
+    
+    renderer->last_drawable_entry = drawable_entry;
+}
+
+void push_text(BasicRenderer * renderer, Pos2d position, String * text, Font font, Color4 color)
+{
+    DrawableEntry * drawable_entry = (DrawableEntry *)push_struct(&renderer->draw_arena, sizeof(DrawableEntry));
+    drawable_entry->type = Drawable_Text;
+    drawable_entry->next_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
+    drawable_entry->first_child_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
+    drawable_entry->last_child_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
+    
+    DrawableText * drawable_text = (DrawableText *)push_struct(&renderer->draw_arena, sizeof(DrawableText));
+    drawable_entry->item_to_draw = drawable_text;
+    
+    drawable_text->position = position;
+    drawable_text->text = text;
+    drawable_text->font = font;
+    drawable_text->color = color;
+    
+    add_drawable_entry(renderer, drawable_entry);
+}
+
+void push_rectangle(BasicRenderer * renderer, Rect2d rect, Color4 line_color, Color4 fill_color, i32 line_width)
+{
+    DrawableEntry * drawable_entry = (DrawableEntry *)push_struct(&renderer->draw_arena, sizeof(DrawableEntry));
+    drawable_entry->type = Drawable_Rect;
+    drawable_entry->next_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
+    drawable_entry->first_child_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
+    drawable_entry->last_child_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
+    
+    DrawableRect * drawable_rect = (DrawableRect *)push_struct(&renderer->draw_arena, sizeof(DrawableRect));
+    drawable_entry->item_to_draw = drawable_rect;
+    
+    drawable_rect->rect = rect;
+    drawable_rect->line_color = line_color;
+    drawable_rect->fill_color = fill_color;
+    drawable_rect->line_width = line_width;
+    
+    add_drawable_entry(renderer, drawable_entry);
+}
+
+void push_rounded_rectangle(BasicRenderer * renderer, Rect2d rect, i32 radius, Color4 line_color, Color4 fill_color, i32 line_width)
+{
+    DrawableEntry * drawable_entry = (DrawableEntry *)push_struct(&renderer->draw_arena, sizeof(DrawableEntry));
+    drawable_entry->type = Drawable_RoundedRect;
+    drawable_entry->next_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
+    drawable_entry->first_child_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
+    drawable_entry->last_child_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
+    
+    DrawableRoundedRect * drawable_rounded_rect = (DrawableRoundedRect *)push_struct(&renderer->draw_arena, sizeof(DrawableRoundedRect));
+    drawable_entry->item_to_draw = drawable_rounded_rect;
+    
+    drawable_rounded_rect->rect = rect;
+    drawable_rounded_rect->radius = radius;
+    drawable_rounded_rect->line_color = line_color;
+    drawable_rounded_rect->fill_color = fill_color;
+    drawable_rounded_rect->line_width = line_width;
+    
+    add_drawable_entry(renderer, drawable_entry);
+}
+
+DrawableLane * push_lane(BasicRenderer * renderer, DrawStyle lane_style, b32 add_to_last_lane = true)
+{
+    DrawableEntry * drawable_entry = (DrawableEntry *)push_struct(&renderer->draw_arena, sizeof(DrawableEntry));
+    drawable_entry->type = Drawable_Lane;
+    drawable_entry->next_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
+    drawable_entry->first_child_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
+    drawable_entry->last_child_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
+    
+    DrawableLane * drawable_lane = (DrawableLane *)push_struct(&renderer->draw_arena, sizeof(DrawableLane));
+    drawable_entry->item_to_draw = drawable_lane;
+    
+    // TODO: we should let push_struct reset the memory of the struct!
+    drawable_lane->bounding_rect = (Rect2d){};
+    
+    drawable_lane->first_part = 0;
+    drawable_lane->last_part = 0;
+    
+    drawable_lane->splitting_from_lane = 0;
+    drawable_lane->is_right_side_at_split = false;
+    drawable_lane->splitting_point = (Pos2d){};
+    
+    drawable_lane->is_splitter_at_end = false;
+    
+    drawable_lane->joining_towards_lane = 0;
+    drawable_lane->is_right_side_at_join = false;
+    drawable_lane->joining_point = (Pos2d){};
+    
+    drawable_lane->is_joiner_at_beginning = false;
+    
+    drawable_lane->bending_radius = lane_style.corner_radius;
+    drawable_lane->line_color = lane_style.line_color;
+    drawable_lane->fill_color = lane_style.fill_color;
+    drawable_lane->line_width = lane_style.line_width;
+        
+    if (add_to_last_lane && renderer->last_lane_entry)
+    {
+        // We just want to extend the last_lane_entry, we don't want to add an entry in the regular list of entries
+        add_child_drawable_entry(drawable_entry, renderer->last_lane_entry);
+    }
+    else
+    {
+        add_drawable_entry(renderer, drawable_entry);
+    }
+    
+    return drawable_lane;
+}
+
+// TODO: we might want to add fill_color as an argument here
+void push_lane_part_to_lane(BasicRenderer * renderer, DrawableLane * lane, Rect2d rect, Direction direction)
+{
+    assert(lane);
+    
+    DrawableLanePart * drawable_lane_part = (DrawableLanePart *)push_struct(&renderer->draw_arena, sizeof(DrawableLanePart));
+    drawable_lane_part->rect = rect;
+    drawable_lane_part->next_part = 0; // TODO: we should let push_struct reset the memory of the struct!
+    drawable_lane_part->direction = direction;
+    
+    if (!lane->first_part)
+    {
+        lane->first_part = drawable_lane_part;
+    }
+    else
+    {
+        lane->last_part->next_part = drawable_lane_part;
+    }
+    lane->last_part = drawable_lane_part;
 }
 
 void push_path_part(LaneRenderer * lane_renderer, DrawablePathPart path_part, b32 is_right)

@@ -200,35 +200,12 @@ struct FlowMargin
     i32 horizontal;
 };
 
-struct FlowStyle
-{
-    Color4 line_color;
-    Color4 fill_color;
-    i32 corner_radius;
-    i32 line_width;
-};
-
-struct FlowStyleEvenOdd
-{
-    Color4 line_color;
-    Color4 even_fill_color;
-    Color4 odd_fill_color;
-    i32 corner_radius;
-    i32 line_width;
-};
-
 struct Flowifier
 {
     DynamicArray flow_elements;
 
-    // FIXME: replace this with BasicRenderer!
-    FragmentedMemoryArena draw_arena;
-    DrawableEntry * first_drawable_entry;
-    DrawableEntry * last_drawable_entry;
-    
-    // FIXME: add LaneRenderer!
-    
-    DrawableEntry * last_lane_entry;
+    BasicRenderer renderer;
+    LaneRenderer lane_renderer;
     
     DrawableLane * current_lane;
     
@@ -245,7 +222,7 @@ struct Flowifier
     
     Color4 text_color;
     
-    // FIXME: give these a better name: statement_line_color and statement_fill_color, statement_line_width
+    // FIXME: bundle these into a lane_style
     Color4 line_color;
     // FIXME: isnt the unhighlighted_color == statement_fill_color?
     Color4 unhighlighted_color;
@@ -277,13 +254,13 @@ struct Flowifier
     Color4 function_fill_color;
     i32 function_line_width;
     
-    FlowStyleEvenOdd expression_style;
+    DrawStyleEvenOdd expression_style;
     
-    FlowStyle variable_style;
-    FlowStyle variable_styles[20]; // FIXME: make sure nr_of_variable_colors is always smaller than (or equal to) the size of this array!
+    DrawStyle variable_style;
+    DrawStyle variable_styles[20]; // FIXME: make sure nr_of_variable_colors is always smaller than (or equal to) the size of this array!
     i32 nr_of_variable_colors;
     
-    FlowStyle scalar_style;
+    DrawStyle scalar_style;
     
     // TODO: make a struct for 2 colors, 1 line width!
     Color4 detail_line_color;
@@ -333,22 +310,10 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     flowifier->first_function = 0;
     flowifier->latest_function = 0;
     
-    // FIXME: let BasicRenderer do this! init_basic_renderer()
-    if (!flowifier->draw_arena.memory)
-    {
-        flowifier->draw_arena = new_fragmented_memory_arena(&global_memory, (Color4){50,100,50,255}, cstring_to_string("Draw arena"), true);
-    }
-    else
-    {
-        reset_fragmented_memory_arena(&flowifier->draw_arena, true);
-    }
-    flowifier->first_drawable_entry = 0;
-    flowifier->last_drawable_entry = 0;
+    init_basic_renderer(&flowifier->renderer);
+    init_lane_renderer(&flowifier->lane_renderer);
     
-    // FIXME: init LaneRenderer: init_lane_renderer()
-    
-    // TODO: do we want to keep these two? Or should they be in the lane_renderer? (probably keep them in Flowifier)
-    flowifier->last_lane_entry = 0;
+    // TODO: do we want to keep this one? Or should it be in the renderer/lane_renderer? (probably keep them in Flowifier)
     flowifier->current_lane = 0;
     
     flowifier->parser = parser;

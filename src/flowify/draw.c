@@ -16,9 +16,9 @@
 
  */
 
-FlowStyle get_style_by_oddness(FlowStyleEvenOdd style_even_odd, b32 is_odd)
+DrawStyle get_style_by_oddness(DrawStyleEvenOdd style_even_odd, b32 is_odd)
 {
-    FlowStyle style = {};
+    DrawStyle style = {};
     style.line_color = style_even_odd.line_color;
     style.corner_radius = style_even_odd.corner_radius;
     style.line_width = style_even_odd.line_width;
@@ -35,194 +35,29 @@ FlowStyle get_style_by_oddness(FlowStyleEvenOdd style_even_odd, b32 is_odd)
     return style;
 }
 
-// Drawable entries
-
-void add_child_drawable_entry(DrawableEntry * child_drawable_entry, DrawableEntry * parent_drawable_entry)
-{
-    if (!parent_drawable_entry->first_child_entry)
-    {
-        parent_drawable_entry->first_child_entry = child_drawable_entry;
-    }
-    else
-    {
-        parent_drawable_entry->last_child_entry->next_entry = child_drawable_entry;
-    }
-    parent_drawable_entry->last_child_entry = child_drawable_entry;
-}
-
-void add_drawable_entry(Flowifier * flowifier, DrawableEntry * drawable_entry)
-{
-    // TODO: right now, if we want a lane entry to be added to the regular list of draw entries,
-    //       we have to set flowifier->last_lane_entry to 0 before calling this function
-    if (drawable_entry->type == Drawable_Lane)
-    {
-        if (flowifier->last_lane_entry)
-        {
-            // We just want to extend the last_lane_entry, we don't want to add an entry in the regular list of entries
-            add_child_drawable_entry(drawable_entry, flowifier->last_lane_entry);
-            return;
-        }
-        else
-        {
-            flowifier->last_lane_entry = drawable_entry;
-        }
-    }
-    
-    if (!flowifier->first_drawable_entry)
-    {
-        flowifier->first_drawable_entry = drawable_entry;
-    }
-    else
-    {
-        flowifier->last_drawable_entry->next_entry = drawable_entry;
-    }
-    
-    flowifier->last_drawable_entry = drawable_entry;
-}
-
-void push_text(Flowifier * flowifier, Pos2d position, String * text, Font font, Color4 color)
-{
-    DrawableEntry * drawable_entry = (DrawableEntry *)push_struct(&flowifier->draw_arena, sizeof(DrawableEntry));
-    drawable_entry->type = Drawable_Text;
-    drawable_entry->next_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
-    drawable_entry->first_child_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
-    drawable_entry->last_child_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
-    
-    DrawableText * drawable_text = (DrawableText *)push_struct(&flowifier->draw_arena, sizeof(DrawableText));
-    drawable_entry->item_to_draw = drawable_text;
-    
-    drawable_text->position = position;
-    drawable_text->text = text;
-    drawable_text->font = font;
-    drawable_text->color = color;
-    
-    add_drawable_entry(flowifier, drawable_entry);
-}
-
-void push_rectangle(Flowifier * flowifier, Rect2d rect, Color4 line_color, Color4 fill_color, i32 line_width)
-{
-    DrawableEntry * drawable_entry = (DrawableEntry *)push_struct(&flowifier->draw_arena, sizeof(DrawableEntry));
-    drawable_entry->type = Drawable_Rect;
-    drawable_entry->next_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
-    drawable_entry->first_child_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
-    drawable_entry->last_child_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
-    
-    DrawableRect * drawable_rect = (DrawableRect *)push_struct(&flowifier->draw_arena, sizeof(DrawableRect));
-    drawable_entry->item_to_draw = drawable_rect;
-    
-    drawable_rect->rect = rect;
-    drawable_rect->line_color = line_color;
-    drawable_rect->fill_color = fill_color;
-    drawable_rect->line_width = line_width;
-    
-    add_drawable_entry(flowifier, drawable_entry);
-}
-
-void push_rounded_rectangle(Flowifier * flowifier, Rect2d rect, i32 radius, Color4 line_color, Color4 fill_color, i32 line_width)
-{
-    DrawableEntry * drawable_entry = (DrawableEntry *)push_struct(&flowifier->draw_arena, sizeof(DrawableEntry));
-    drawable_entry->type = Drawable_RoundedRect;
-    drawable_entry->next_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
-    drawable_entry->first_child_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
-    drawable_entry->last_child_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
-    
-    DrawableRoundedRect * drawable_rounded_rect = (DrawableRoundedRect *)push_struct(&flowifier->draw_arena, sizeof(DrawableRoundedRect));
-    drawable_entry->item_to_draw = drawable_rounded_rect;
-    
-    drawable_rounded_rect->rect = rect;
-    drawable_rounded_rect->radius = radius;
-    drawable_rounded_rect->line_color = line_color;
-    drawable_rounded_rect->fill_color = fill_color;
-    drawable_rounded_rect->line_width = line_width;
-    
-    add_drawable_entry(flowifier, drawable_entry);
-}
-
-DrawableLane * push_lane(Flowifier * flowifier)
-{
-    DrawableEntry * drawable_entry = (DrawableEntry *)push_struct(&flowifier->draw_arena, sizeof(DrawableEntry));
-    drawable_entry->type = Drawable_Lane;
-    drawable_entry->next_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
-    drawable_entry->first_child_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
-    drawable_entry->last_child_entry = 0; // TODO: we should let push_struct reset the memory of the struct!
-    
-    DrawableLane * drawable_lane = (DrawableLane *)push_struct(&flowifier->draw_arena, sizeof(DrawableLane));
-    drawable_entry->item_to_draw = drawable_lane;
-    
-    // TODO: we should let push_struct reset the memory of the struct!
-    drawable_lane->bounding_rect = (Rect2d){};
-    
-    drawable_lane->first_part = 0;
-    drawable_lane->last_part = 0;
-    
-    drawable_lane->splitting_from_lane = 0;
-    drawable_lane->is_right_side_at_split = false;
-    drawable_lane->splitting_point = (Pos2d){};
-    
-    drawable_lane->is_splitter_at_end = false;
-    
-    drawable_lane->joining_towards_lane = 0;
-    drawable_lane->is_right_side_at_join = false;
-    drawable_lane->joining_point = (Pos2d){};
-    
-    drawable_lane->is_joiner_at_beginning = false;
-    
-    drawable_lane->bending_radius = flowifier->bending_radius;
-    drawable_lane->line_color = flowifier->line_color;
-    drawable_lane->fill_color = flowifier->unhighlighted_color;
-    drawable_lane->line_width = flowifier->line_width;
-        
-    add_drawable_entry(flowifier, drawable_entry);
-    
-    return drawable_lane;
-}
-
-// TODO: we might want to add fill_color as an argument here
-void push_lane_part_to_current_lane(Flowifier * flowifier, Rect2d rect, Direction direction)
-{
-    assert(flowifier->current_lane);
-    
-    DrawableLane * current_lane = flowifier->current_lane;
-    
-    DrawableLanePart * drawable_lane_part = (DrawableLanePart *)push_struct(&flowifier->draw_arena, sizeof(DrawableLanePart));
-    drawable_lane_part->rect = rect;
-    drawable_lane_part->next_part = 0; // TODO: we should let push_struct reset the memory of the struct!
-    drawable_lane_part->direction = direction;
-    
-    if (!current_lane->first_part)
-    {
-        current_lane->first_part = drawable_lane_part;
-    }
-    else
-    {
-        current_lane->last_part->next_part = drawable_lane_part;
-    }
-    current_lane->last_part = drawable_lane_part;
-}
-
 void push_interaction_rectangle(Flowifier * flowifier, FlowElement * flow_element)
 {
     if (flowifier->interaction.hovered_element_index == flow_element->index)
     {
-        push_rectangle(flowifier, flow_element->rect_abs, flowifier->hovered_color, flowifier->hovered_fill, flowifier->hovered_line_width);
+        push_rectangle(&flowifier->renderer, flow_element->rect_abs, flowifier->hovered_color, flowifier->hovered_fill, flowifier->hovered_line_width);
     }
     /*
     // FIXME: disabled for now
     if (flowifier->interaction.selected_element_index == flow_element->index)
     {
-        push_rectangle(flowifier, flow_element->rect_abs, flowifier->selected_color, flowifier->selected_fill, flowifier->selected_line_width);
+        push_rectangle(&flowifier->renderer, flow_element->rect_abs, flowifier->selected_color, flowifier->selected_fill, flowifier->selected_line_width);
     }
     */
     /*
     // FIXME: disabled for now
     if (flowifier->show_help_rectangles)
     {
-        push_rectangle(flowifier, flow_element->rect_abs, flowifier->help_rectangle_color, flowifier->help_rectangle_fill, flowifier->help_rectangle_line_width);
+        push_rectangle(&flowifier->renderer, flow_element->rect_abs, flowifier->help_rectangle_color, flowifier->help_rectangle_fill, flowifier->help_rectangle_line_width);
     }
     */
 }
 
-void push_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, FlowStyle style, b32 draw_rectangle, b32 draw_source_text)
+void push_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, DrawStyle style, b32 draw_rectangle, b32 draw_source_text)
 {
     
     Color4 fill_color = style.fill_color;
@@ -233,7 +68,7 @@ void push_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, F
     
     if (draw_rectangle)
     {
-        push_rounded_rectangle(flowifier, flow_element->rect_abs, style.corner_radius, style.line_color, fill_color, style.line_width);
+        push_rounded_rectangle(&flowifier->renderer, flow_element->rect_abs, style.corner_radius, style.line_color, fill_color, style.line_width);
     }
     
     if (draw_source_text && flow_element->source_text.length)
@@ -254,7 +89,7 @@ void push_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, F
         text_position.x += (flow_element->rect_abs.size.width - source_text_size.width) / 2;
         text_position.y += (flow_element->rect_abs.size.height - source_text_size.height) / 2;
         
-        push_text(flowifier, text_position, &flow_element->source_text, flowifier->font, flowifier->text_color);
+        push_text(&flowifier->renderer, text_position, &flow_element->source_text, flowifier->font, flowifier->text_color);
     }
     
     push_interaction_rectangle(flowifier, flow_element);
@@ -263,7 +98,7 @@ void push_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, F
 // TODO: maybe use a different name for this function?
 void push_straight_element(Flowifier * flowifier, FlowElement * flow_element)
 {
-    push_lane_part_to_current_lane(flowifier, flow_element->rect_abs, Direction_TopToBottom);
+    push_lane_part_to_lane(&flowifier->renderer, flowifier->current_lane, flow_element->rect_abs, Direction_TopToBottom);
     push_interaction_rectangle(flowifier, flow_element);
 }
 
@@ -274,20 +109,29 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
 {
     assert(flow_element);
     
+    BasicRenderer * renderer = &flowifier->renderer;
+    
     if (flow_element->type == FlowElement_Root)
     {
-        assert(flowifier->draw_arena.memory);
+        assert(renderer->draw_arena.memory);
         
-        reset_fragmented_memory_arena(&flowifier->draw_arena, true);
-        flowifier->first_drawable_entry = 0;
-        flowifier->last_drawable_entry = 0;
-        flowifier->last_lane_entry = 0;
+        reset_fragmented_memory_arena(&renderer->draw_arena, true);
+        renderer->first_drawable_entry = 0;
+        renderer->last_drawable_entry = 0;
+        renderer->last_lane_entry = 0;
         flowifier->current_lane = 0;
     }
     
     // TODO: add is_position_of and position_originates_from
 
     Rect2d no_rect = {-1,-1,-1,-1};
+    
+    // FIXME: make a lane_style inside flowifier!
+    DrawStyle lane_style = {};
+    lane_style.line_color = flowifier->line_color;
+    lane_style.fill_color = flowifier->unhighlighted_color;
+    lane_style.corner_radius = flowifier->statement_corner_radius;
+    lane_style.line_width = flowifier->line_width;
     
     // TODO: we probably want flags here!
     if (flow_element->type == FlowElement_PassThrough || 
@@ -305,7 +149,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         // FIXME: we should put bars on the sides of a UnaryExpression IF its a statement!!
         
         
-        FlowStyle variable_style = flowifier->variable_style;
+        DrawStyle variable_style = flowifier->variable_style;
         
         if (flowifier->use_variable_color_variations)
         {
@@ -331,7 +175,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     else if (flow_element->type == FlowElement_ArrayAccess)
     {
         i32 expression_depth = 1; // FIXME: fill this with the depth of the expression-stack! We should probably store this in FlowElement
-        FlowStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
+        DrawStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
         
         FlowElement * array_identifier_element = flow_element->first_child;
         FlowElement * array_key_expression_element = array_identifier_element->next_sibling;
@@ -344,7 +188,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
              flow_element->type == FlowElement_ForCond)
     {
         i32 expression_depth = 0; // FIXME: fill this with the depth of the expression-stack! We should probably store this in FlowElement
-        FlowStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
+        DrawStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
         
         FlowElement * keyword_element = flow_element->first_child;
         FlowElement * cond_expression_element = keyword_element->next_sibling;
@@ -359,7 +203,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     else if (flow_element->type == FlowElement_ForeachCond)
     {
         i32 expression_depth = 0; // FIXME: fill this with the depth of the expression-stack! We should probably store this in FlowElement
-        FlowStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
+        DrawStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
         
         FlowElement * foreach_keyword_element = flow_element->first_child;
         FlowElement * foreach_array_expression_element = foreach_keyword_element->next_sibling;
@@ -383,7 +227,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     else if (flow_element->type == FlowElement_Return)
     {
         i32 expression_depth = 0; // FIXME: fill this with the depth of the expression-stack! We should probably store this in FlowElement
-        FlowStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
+        DrawStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
         
         FlowElement * return_keyword_element = flow_element->first_child;
         FlowElement * return_expression_element = return_keyword_element->next_sibling;
@@ -400,7 +244,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     else if (flow_element->type == FlowElement_UnaryPostOperation)
     {
         i32 expression_depth = 0; // FIXME: fill this with the depth of the expression-stack! We should probably store this in FlowElement
-        FlowStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
+        DrawStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
         
         FlowElement * assignee_element = flow_element->first_child;
         FlowElement * unary_operator_element = assignee_element->next_sibling;
@@ -418,7 +262,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     else if (flow_element->type == FlowElement_UnaryPreOperation)
     {
         i32 expression_depth = 0; // FIXME: fill this with the depth of the expression-stack! We should probably store this in FlowElement
-        FlowStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
+        DrawStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
         
         FlowElement * unary_operator_element = flow_element->first_child;
         FlowElement * assignee_element = unary_operator_element->next_sibling;
@@ -436,7 +280,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     else if (flow_element->type == FlowElement_BinaryOperation)
     {
         i32 expression_depth = 1; // FIXME: fill this with the depth of the expression-stack! We should probably store this in FlowElement
-        FlowStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
+        DrawStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
         
         FlowElement * left_side_expression_element = flow_element->first_child;
         FlowElement * binary_operator_element = left_side_expression_element->next_sibling;
@@ -453,7 +297,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     else if (flow_element->type == FlowElement_Assignment)
     {
         i32 expression_depth = 0; // FIXME: fill this with the depth of the expression-stack! We should probably store this in FlowElement
-        FlowStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
+        DrawStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
         
         FlowElement * assignee_element = flow_element->first_child;
         FlowElement * assignment_operator_element = assignee_element->next_sibling;
@@ -482,11 +326,11 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_elements(flowifier, if_cond_element);
 
         DrawableLane * cond_lane_end = flowifier->current_lane;
-        DrawableLane * then_lane = push_lane(flowifier);
+        DrawableLane * then_lane = push_lane(renderer, lane_style);
         DrawableLane * then_lane_end = 0;
-        DrawableLane * else_lane = push_lane(flowifier);
+        DrawableLane * else_lane = push_lane(renderer, lane_style);
         DrawableLane * else_lane_end = 0;
-        DrawableLane * end_if_lane = push_lane(flowifier);
+        DrawableLane * end_if_lane = push_lane(renderer, lane_style);
         
         cond_lane_end->is_splitter_at_end = true;
         
@@ -542,11 +386,11 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         draw_elements(flowifier, for_init_element);
         
         DrawableLane * for_lane = flowifier->current_lane;
-        DrawableLane * cond_lane = push_lane(flowifier);
+        DrawableLane * cond_lane = push_lane(renderer, lane_style);
         DrawableLane * cond_lane_end = 0;
-        DrawableLane * body_lane = push_lane(flowifier);
+        DrawableLane * body_lane = push_lane(renderer, lane_style);
         DrawableLane * body_lane_end = 0;
-        DrawableLane * end_for_lane = push_lane(flowifier);
+        DrawableLane * end_for_lane = push_lane(renderer, lane_style);
         
         // TODO: we  draw the if-cond in a way so that the side-lines are drawn AND the if-cond-expression is drawn
         // FIXME: this element is in between a join and split, so what to do with the previous_in_flow and next_in_flow?
@@ -586,10 +430,10 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         Rect2d passdown_rect = for_passdown_element->rect_abs;
         
-        push_lane_part_to_current_lane(flowifier, passright_rect, Direction_LeftToRight);
-        push_lane_part_to_current_lane(flowifier, passup_rect, Direction_BottomToTop);
-        push_lane_part_to_current_lane(flowifier, passleft_rect, Direction_RightToLeft);
-        push_lane_part_to_current_lane(flowifier, passdown_rect, Direction_TopToBottom);
+        push_lane_part_to_lane(renderer, flowifier->current_lane, passright_rect, Direction_LeftToRight);
+        push_lane_part_to_lane(renderer, flowifier->current_lane, passup_rect, Direction_BottomToTop);
+        push_lane_part_to_lane(renderer, flowifier->current_lane, passleft_rect, Direction_RightToLeft);
+        push_lane_part_to_lane(renderer, flowifier->current_lane, passdown_rect, Direction_TopToBottom);
         
         push_interaction_rectangle(flowifier, for_passright_element);
         push_interaction_rectangle(flowifier, for_passup_element);
@@ -630,11 +474,11 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         push_straight_element(flowifier, foreach_init_element);
         
         DrawableLane * foreach_lane = flowifier->current_lane;
-        DrawableLane * cond_lane = push_lane(flowifier);
+        DrawableLane * cond_lane = push_lane(renderer, lane_style);
         DrawableLane * cond_lane_end = 0;
-        DrawableLane * body_lane = push_lane(flowifier);
+        DrawableLane * body_lane = push_lane(renderer, lane_style);
         DrawableLane * body_lane_end = 0;
-        DrawableLane * end_foreach_lane = push_lane(flowifier);
+        DrawableLane * end_foreach_lane = push_lane(renderer, lane_style);
         
         // TODO: we  draw the if-cond in a way so that the side-lines are drawn AND the if-cond-expression is drawn
         // FIXME: this element is in between a join and split, so what to do with the previous_in_flow and next_in_flow?
@@ -672,10 +516,10 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         Rect2d passdown_rect = foreach_passdown_element->rect_abs;
         
-        push_lane_part_to_current_lane(flowifier, passright_rect, Direction_LeftToRight);
-        push_lane_part_to_current_lane(flowifier, passup_rect, Direction_BottomToTop);
-        push_lane_part_to_current_lane(flowifier, passleft_rect, Direction_RightToLeft);
-        push_lane_part_to_current_lane(flowifier, passdown_rect, Direction_TopToBottom);
+        push_lane_part_to_lane(renderer, flowifier->current_lane, passright_rect, Direction_LeftToRight);
+        push_lane_part_to_lane(renderer, flowifier->current_lane, passup_rect, Direction_BottomToTop);
+        push_lane_part_to_lane(renderer, flowifier->current_lane, passleft_rect, Direction_RightToLeft);
+        push_lane_part_to_lane(renderer, flowifier->current_lane, passdown_rect, Direction_TopToBottom);
         
         push_interaction_rectangle(flowifier, foreach_passright_element);
         push_interaction_rectangle(flowifier, foreach_passup_element);
@@ -708,7 +552,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * function_element = function_call_arguments->next_sibling;
         
         i32 expression_depth = 0; // FIXME: fill this with the depth of the expression-stack! We should probably store this in FlowElement
-        FlowStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
+        DrawStyle expression_style = get_style_by_oddness(flowifier->expression_style, expression_depth % 2);
         
         Rect2d rect = function_call_element->rect_abs;
         
@@ -725,7 +569,8 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
             rect.size.height -= bending_radius + bending_radius;
         }
         
-        push_rounded_rectangle(flowifier, rect, flowifier->bending_radius, 
+        // FIXME: use DrawStyle here!
+        push_rounded_rectangle(renderer, rect, flowifier->bending_radius, 
                                flowifier->function_line_color, flowifier->function_fill_color, flowifier->function_line_width);
 
         push_interaction_rectangle(flowifier, function_call_element);
@@ -746,8 +591,8 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         else
         {
             DrawableLane * parent_lane = flowifier->current_lane;
-            flowifier->last_lane_entry = 0; // TODO: this is a way to make sure we start with a new set of lane-entries in the draw-list
-            flowifier->current_lane = push_lane(flowifier);
+            b32 add_to_last_lane = false; // this is to make sure we start with a new set of lane-entries in the draw-list
+            flowifier->current_lane = push_lane(renderer, lane_style, add_to_last_lane);
 
             FlowElement * parameters_element = function_call_arguments->next_sibling;
             FlowElement * function_element = parameters_element->next_sibling;
@@ -802,11 +647,12 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     {
         if (flow_element->type == FlowElement_Root)
         {
-            push_rounded_rectangle(flowifier, flow_element->rect_abs, flowifier->bending_radius, 
+            // FIXME: use DrawStyle here!
+            push_rounded_rectangle(renderer, flow_element->rect_abs, flowifier->bending_radius, 
                                    flowifier->function_line_color, flowifier->function_fill_color, flowifier->function_line_width);
                                    
-            flowifier->last_lane_entry = 0; // TODO: this is a way to make sure we start with a new set of lane-entries in the draw-list
-            flowifier->current_lane = push_lane(flowifier);
+            b32 add_to_last_lane = false; // this is to make sure we start with a new set of lane-entries in the draw-list
+            flowifier->current_lane = push_lane(renderer, lane_style, add_to_last_lane);
         }
                                
         FlowElement * child_element = flow_element->first_child;
@@ -829,7 +675,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     
     if (flow_element->type == FlowElement_Root)
     {
-        DrawableEntry * drawable_entry = flowifier->first_drawable_entry;
+        DrawableEntry * drawable_entry = renderer->first_drawable_entry;
         
         draw_entries(drawable_entry);
     }
