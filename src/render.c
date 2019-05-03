@@ -503,16 +503,32 @@ void push_parts_on_one_side_of_corner(LaneRenderer * lane_renderer,
 }
 
 
-
 void draw_lane_using_directional_rects(LaneRenderer * lane_renderer,
                DirectionalRect2d * lane_parts, i32 lane_parts_count,
                b32 partial_rect_at_start, b32 is_right_side_at_start, 
                b32 partial_rect_at_end, b32 is_right_side_at_end, 
                i32 radius, Color4 line_color, Color4 fill_color, i32 line_width)
 {
+    if (lane_parts_count <= 0) {
+        return;
+    }
     
-    push_path_part(lane_renderer, 300, 200, PathPart_Move, false);
-    push_path_part(lane_renderer, 200, 300, PathPart_Line, false);
+    // Left side (top to bottom)
+    
+    if (!partial_rect_at_start) {
+        DirectionalRect2d lane_part = lane_parts[0];
+        
+        // args: leftTopX, topY, leftMiddleY, leftBottomX, bottomY, radius
+        push_left_parts(lane_renderer,
+                        lane_part.position.x, lane_part.position.y, 
+                        lane_part.position.y + lane_part.size.height / 4, // TODO: 1 / 4 as middle_y (we shouldnt use drawLeft, we only draw a straight (half) lane_part)
+                        lane_part.position.x, lane_part.position.y + lane_part.size.height / 2, radius);
+    }
+    
+
+
+
+
     
     DrawablePathPart * left_path_parts = (DrawablePathPart *)lane_renderer->left_path_parts.items;
     DrawablePathPart * right_path_parts = (DrawablePathPart *)lane_renderer->right_path_parts.items;
@@ -748,10 +764,12 @@ void draw_an_entry(LaneRenderer * lane_renderer, DrawableEntry * drawable_entry)
                 // TODO: not needed anymore: directional_rects[directional_rects_index - 1].size.height = directional_rects[directional_rects_index - 1].size.height / 2;
             }
             
+            /*
             draw_lane(directional_rects, directional_rects_index, 
                       add_rect_at_start, lane->is_right_side_at_split, 
                       add_rect_at_end, lane->is_right_side_at_join, 
                       bending_radius, line_color, fill_color, line_width);
+                      */
                       
             draw_lane_using_directional_rects(lane_renderer,
                       directional_rects, directional_rects_index, 
