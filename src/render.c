@@ -939,13 +939,6 @@ void draw_an_entry(LaneRenderer * lane_renderer, DrawableEntry * drawable_entry)
                 // TODO: not needed anymore: directional_rects[directional_rects_index - 1].size.height = directional_rects[directional_rects_index - 1].size.height / 2;
             }
             
-            /*
-            draw_lane(directional_rects, directional_rects_index, 
-                      add_rect_at_start, lane->is_right_side_at_split, 
-                      add_rect_at_end, lane->is_right_side_at_join, 
-                      bending_radius, line_color, fill_color, line_width);
-                      */
-                      
             draw_lane_using_directional_rects(lane_renderer,
                       directional_rects, directional_rects_index, 
                       add_rect_at_start, lane->is_right_side_at_split, 

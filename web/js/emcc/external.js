@@ -3,7 +3,6 @@
 mergeInto(LibraryManager.library, { jsClipRect: function(){} })
 mergeInto(LibraryManager.library, { jsUnClipRect: function(){} })
 mergeInto(LibraryManager.library, { jsDrawRoundedRect: function(){} })
-mergeInto(LibraryManager.library, { jsDrawLane: function(){} })
 mergeInto(LibraryManager.library, { jsDrawLanePaths: function(){} })
 mergeInto(LibraryManager.library, { jsDrawRect: function(){} })
 mergeInto(LibraryManager.library, { jsDrawLine: function(){} })

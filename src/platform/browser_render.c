@@ -34,13 +34,6 @@ extern "C" {
                                   i32 fill_color_rgb, i32 fill_color_alpha, 
                                   i32 line_width);
                                   
-    extern void jsDrawLane(DirectionalRect2d * lane_parts_index, i32 lane_parts_count, 
-                           b32 partial_rect_at_start, b32 is_right_side_at_start, 
-                           b32 partial_rect_at_end, b32 is_right_side_at_end, 
-                           i32 radius, i32 line_color_rgb, i32 line_color_alpha, 
-                           i32 fill_color_rgb, i32 fill_color_alpha, 
-                           i32 line_width);
-                                  
     extern void jsDrawLanePaths(DrawablePathPart * left_path_parts_index, i32 left_path_parts_count, 
                                 DrawablePathPart * right_path_parts_index, i32 right_path_parts_count, 
                                 i32 line_color_rgb, i32 line_color_alpha, 
@@ -103,23 +96,6 @@ void draw_rounded_rectangle(Pos2d position, Size2d size, i32 r,
 void draw_rounded_rectangle(Rect2d rect, i32 r, Color4 line_color, Color4 fill_color, i32 line_width)
 {
     draw_rounded_rectangle(rect.position, rect.size, r, line_color, fill_color, line_width);
-}
-
-void draw_lane(DirectionalRect2d * lane_parts, i32 lane_parts_count,
-               b32 partial_rect_at_start, b32 is_right_side_at_start, 
-               b32 partial_rect_at_end, b32 is_right_side_at_end, 
-               i32 radius, Color4 line_color, Color4 fill_color, i32 line_width)
-{
-    i32 line_color_rgb = line_color.r + line_color.g * 256 + line_color.b * 256 * 256; 
-    i32 line_color_alpha = (i32)line_color.a;
-    
-    i32 fill_color_rgb = fill_color.r + fill_color.g * 256 + fill_color.b * 256 * 256;
-    i32 fill_color_alpha = (i32)fill_color.a;
-    
-    jsDrawLane(lane_parts, lane_parts_count, 
-               partial_rect_at_start, is_right_side_at_start, 
-               partial_rect_at_end, is_right_side_at_end, 
-               radius, line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
 }
 
 void draw_lane_paths(DrawablePathPart * left_path_parts_index, i32 left_path_parts_count, 
