@@ -48,13 +48,11 @@ void push_interaction_rectangle(Flowifier * flowifier, FlowElement * flow_elemen
         push_rectangle(&flowifier->renderer, flow_element->rect_abs, flowifier->selected_color, flowifier->selected_fill, flowifier->selected_line_width);
     }
     */
-    /*
     // FIXME: disabled for now
     if (flowifier->show_help_rectangles)
     {
         push_rectangle(&flowifier->renderer, flow_element->rect_abs, flowifier->help_rectangle_color, flowifier->help_rectangle_fill, flowifier->help_rectangle_line_width);
     }
-    */
 }
 
 void push_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, DrawStyle style, b32 draw_rectangle, b32 draw_source_text)

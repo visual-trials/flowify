@@ -767,7 +767,6 @@ extern "C" {
         }
             
         // Button for toggling showing help rectangles
-        /*
         {
             Size2d size_button = {50, 50};
             Pos2d position_button = {};
@@ -786,7 +785,6 @@ extern "C" {
                 flowifier->show_help_rectangles = !flowifier->show_help_rectangles;
             }
         }
-        */
         
         // do_memory_usage(memory, input, &world->verbose_memory_usage);
         // do_frame_timing(&global_input, &world->verbose_frame_times);
