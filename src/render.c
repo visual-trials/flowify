@@ -505,8 +505,8 @@ void push_parts_on_one_side_of_corner(LaneRenderer * lane_renderer,
 
 void draw_lane_using_directional_rects(LaneRenderer * lane_renderer,
                DirectionalRect2d * lane_parts, i32 lane_parts_count,
-               b32 partial_rect_at_start, b32 is_right_side_at_start, 
-               b32 partial_rect_at_end, b32 is_right_side_at_end, 
+               b32 partial_rect_at_start, b32 is_right_side_at_start, b32 is_joiner_at_beginning,
+               b32 partial_rect_at_end, b32 is_right_side_at_end, b32 is_splitter_at_end,
                i32 radius, Color4 line_color, Color4 fill_color, i32 line_width)
 {
     if (lane_parts_count <= 0) {
@@ -517,7 +517,7 @@ void draw_lane_using_directional_rects(LaneRenderer * lane_renderer,
         
     // Left side (top to bottom)
     
-    if (!partial_rect_at_start) {
+    if (!partial_rect_at_start && !is_joiner_at_beginning) {
         DirectionalRect2d lane_part = lane_parts[0];
         
         push_left_parts(lane_renderer,
@@ -603,7 +603,7 @@ void draw_lane_using_directional_rects(LaneRenderer * lane_renderer,
         previous_lane_part = lane_part;
     }
         
-    if (!partial_rect_at_end) {
+    if (!partial_rect_at_end && !is_splitter_at_end) {
         DirectionalRect2d lane_part = lane_parts[lane_parts_count - 1];
         
         push_left_parts(lane_renderer, lane_part.position.x, lane_part.position.y + lane_part.size.height / 2, 
@@ -612,7 +612,7 @@ void draw_lane_using_directional_rects(LaneRenderer * lane_renderer,
     }
     
     // Right side (bottom to top)
-    if (!partial_rect_at_end) {
+    if (!partial_rect_at_end && !is_splitter_at_end) {
         DirectionalRect2d lane_part = lane_parts[lane_parts_count - 1];
         
         push_right_parts(lane_renderer, lane_part.position.x + lane_part.size.width, lane_part.position.y + lane_part.size.height / 2, 
@@ -694,7 +694,7 @@ void draw_lane_using_directional_rects(LaneRenderer * lane_renderer,
         previous_lane_part = lane_part;
     }
     
-    if (!partial_rect_at_start) {
+    if (!partial_rect_at_start && !is_joiner_at_beginning) {
         DirectionalRect2d lane_part = lane_parts[0];
         
         push_right_parts(lane_renderer, lane_part.position.x + lane_part.size.width, lane_part.position.y, 
@@ -939,13 +939,13 @@ void draw_an_entry(LaneRenderer * lane_renderer, DrawableEntry * drawable_entry)
                 // TODO: not needed anymore: directional_rects[directional_rects_index - 1].size.height = directional_rects[directional_rects_index - 1].size.height / 2;
             }
             
-            b32 partial_rect_at_start = add_rect_at_start; // || lane->is_joiner_at_beginning;
-            b32 partial_rect_at_end = add_rect_at_end; // || lane->is_splitter_at_end;
+            b32 partial_rect_at_start = add_rect_at_start;
+            b32 partial_rect_at_end = add_rect_at_end;
             
             draw_lane_using_directional_rects(lane_renderer,
                       directional_rects, directional_rects_index, 
-                      partial_rect_at_start, lane->is_right_side_at_split, 
-                      partial_rect_at_end, lane->is_right_side_at_join, 
+                      partial_rect_at_start, lane->is_right_side_at_split, lane->is_joiner_at_beginning,
+                      partial_rect_at_end, lane->is_right_side_at_join, lane->is_splitter_at_end,
                       bending_radius, line_color, fill_color, line_width);
             
         }
