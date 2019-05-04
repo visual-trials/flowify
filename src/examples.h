@@ -76,7 +76,7 @@ const char * simple_if_program_text =
     "$b = 76;\n"
     "\n"
     "if ($b > 50) {\n"
-    "	$b = 50;\n"
+    "	$b++;\n"
     "}\n"
     "\n"
     "$c = $myVar + $b;\n"

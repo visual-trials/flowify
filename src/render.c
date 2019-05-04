@@ -939,10 +939,13 @@ void draw_an_entry(LaneRenderer * lane_renderer, DrawableEntry * drawable_entry)
                 // TODO: not needed anymore: directional_rects[directional_rects_index - 1].size.height = directional_rects[directional_rects_index - 1].size.height / 2;
             }
             
+            b32 partial_rect_at_start = add_rect_at_start; // || lane->is_joiner_at_beginning;
+            b32 partial_rect_at_end = add_rect_at_end; // || lane->is_splitter_at_end;
+            
             draw_lane_using_directional_rects(lane_renderer,
                       directional_rects, directional_rects_index, 
-                      add_rect_at_start, lane->is_right_side_at_split, 
-                      add_rect_at_end, lane->is_right_side_at_join, 
+                      partial_rect_at_start, lane->is_right_side_at_split, 
+                      partial_rect_at_end, lane->is_right_side_at_join, 
                       bending_radius, line_color, fill_color, line_width);
             
         }

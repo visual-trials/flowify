@@ -250,6 +250,15 @@ Flowify.canvas = function () {
                         "type": type,
                     })
                 }
+                
+if (!my.alreadyLogged) {
+    my.alreadyLogged = 0
+}
+if (my.alreadyLogged < 4) {
+    console.log(rightPathParts)
+    my.alreadyLogged++
+}
+
 
                 // Drawing the lane as left and right paths
                 
