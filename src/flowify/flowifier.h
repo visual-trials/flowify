@@ -226,7 +226,7 @@ struct Flowifier
     Color4 line_color;
     // FIXME: isnt the unhighlighted_color == statement_fill_color?
     Color4 unhighlighted_color;
-    i32 statement_corner_radius;
+    i32 bending_radius;
     i32 line_width;
     
     // TODO: should we add highlighted_color to the Style struct? or is the highlighted_color the same for alle types of elements?
@@ -281,7 +281,6 @@ struct Flowifier
     
     FlowMargin statement_margin;
     
-    i32 bending_radius;
     i32 if_middle_margin;
     i32 for_middle_margin;
     i32 for_right_margin;
@@ -328,7 +327,7 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     
     flowifier->line_color          = (Color4){  0,   0,   0, 255};
     flowifier->text_color          = (Color4){  0,   0,   0, 255};
-    flowifier->statement_corner_radius = 20;
+    flowifier->bending_radius = 16;
     flowifier->line_width = 2;
     
     // FIXME: isnt the unhighlighted_color == statement_fill_color?
@@ -462,7 +461,6 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     flowifier->statement_margin.vertical = 20;
     flowifier->statement_margin.horizontal = 20;
     
-    flowifier->bending_radius = 16;
     flowifier->if_middle_margin = 80;
     flowifier->for_middle_margin = 80;
     flowifier->for_right_margin = 100;

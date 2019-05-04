@@ -126,7 +126,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     DrawStyle lane_style = {};
     lane_style.line_color = flowifier->line_color;
     lane_style.fill_color = flowifier->unhighlighted_color;
-    lane_style.corner_radius = flowifier->statement_corner_radius;
+    lane_style.corner_radius = flowifier->bending_radius;
     lane_style.line_width = flowifier->line_width;
     
     // TODO: we probably want flags here!
