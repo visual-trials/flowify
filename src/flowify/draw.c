@@ -116,7 +116,6 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         assert(renderer->draw_arena.memory);
         
         init_basic_renderer(&flowifier->renderer);
-        init_lane_renderer(&flowifier->lane_renderer);
         
         flowifier->current_lane = 0;
     }

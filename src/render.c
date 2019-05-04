@@ -513,6 +513,8 @@ void draw_lane_using_directional_rects(LaneRenderer * lane_renderer,
         return;
     }
     
+    init_lane_renderer(lane_renderer);
+        
     // Left side (top to bottom)
     
     if (!partial_rect_at_start) {
