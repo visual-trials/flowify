@@ -786,7 +786,7 @@ extern "C" {
             }
         }
         
-        // do_memory_usage(memory, input, &world->verbose_memory_usage);
+        do_memory_usage(memory, input, &world->verbose_memory_usage);
         // do_frame_timing(&global_input, &world->verbose_frame_times);
         do_physical_pixels_switch(&global_input);
     }

@@ -57,7 +57,6 @@ void push_interaction_rectangle(Flowifier * flowifier, FlowElement * flow_elemen
 
 void push_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, DrawStyle style, b32 draw_rectangle, b32 draw_source_text)
 {
-    
     Color4 fill_color = style.fill_color;
     if (flowifier->interaction.highlighted_element_index == flow_element->index)
     {
@@ -106,7 +105,7 @@ void draw_entries(DrawableEntry * drawable_entry);
 void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
 {
     assert(flow_element);
-    
+
     BasicRenderer * renderer = &flowifier->renderer;
     
     if (flow_element->type == FlowElement_Root)
@@ -659,6 +658,20 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
                 draw_elements(flowifier, child_element);
             }
             while ((child_element = child_element->next_sibling));
+        }
+        
+    }
+    else
+    {
+        if (flow_element->type != FlowElement_Unknown)
+        {
+            // Now ignoring the FlowElement_Unknown here
+        }
+        else
+        {
+            log("Found an invalid element type!");
+            log_int(flow_element->type);
+            assert(false);
         }
         
     }
