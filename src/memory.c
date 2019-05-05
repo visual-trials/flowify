@@ -21,6 +21,7 @@
 // We need to be able to assert (which requires 'abort') and log here. But the renderer has not been included. 
 void abort(const char * text, const char * file_name, i32 line_number);
 void log(const char * text);
+void log(ShortString * text);
 void log_int(i32 integer);
 
 struct MemoryBlock
@@ -137,6 +138,14 @@ u16 increase_consecutive_memory_blocks(ConsecutiveMemoryArena * memory_arena, i3
         // We don't need any memory(blocks) so we don't increase at all
         return 0;
     }
+// FIXME: remove this!    
+if (required_nr_of_blocks > 1)
+{
+    log("more than 1 required_nr_of_blocks");
+    log_int(required_nr_of_blocks);
+    log(&memory_arena->description);
+}
+    
     Memory * memory = memory_arena->memory;
     
     u16 original_block_index = memory_arena->first_block_index;
