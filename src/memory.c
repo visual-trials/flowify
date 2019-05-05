@@ -132,6 +132,11 @@ ConsecutiveMemoryArena new_consecutive_memory_arena(Memory * memory, Color4 colo
 
 u16 increase_consecutive_memory_blocks(ConsecutiveMemoryArena * memory_arena, i32 required_nr_of_blocks)
 {
+    if (required_nr_of_blocks == 0)
+    {
+        // We don't need any memory(blocks) so we don't increase at all
+        return 0;
+    }
     Memory * memory = memory_arena->memory;
     
     u16 original_block_index = memory_arena->first_block_index;
