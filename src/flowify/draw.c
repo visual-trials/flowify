@@ -663,7 +663,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     }
     else
     {
-        if (flow_element->type != FlowElement_Unknown)
+        if (flow_element->type == FlowElement_Unknown)
         {
             // Now ignoring the FlowElement_Unknown here
         }
