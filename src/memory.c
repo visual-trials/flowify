@@ -18,6 +18,10 @@
 
 #define NR_OF_MEMORY_BLOCKS 512
 
+// We need to be able to assert (which requires 'abort') and log here. But the renderer has not been included. 
+void abort(const char * text, const char * file_name, i32 line_number);
+void log(const char * text);
+
 struct MemoryBlock
 {
     i32 bytes_used;
@@ -203,7 +207,9 @@ u16 increase_consecutive_memory_blocks(ConsecutiveMemoryArena * memory_arena, i3
     }
     else
     {
-        // If we didn't found the room for the blocks, we return index = 0
+        // If we didn't find the room for the blocks, we return index = 0
+        log("We didn't find the room for the consecutive blocks!");
+        assert(false);
         return 0;
     }
 
@@ -299,7 +305,9 @@ u16 add_memory_block(FragmentedMemoryArena * memory_arena)
         }
     }
     
-    return block_index;
+    log("We didn't find the room to add a memory block for the fragmented arena!");
+    assert(false);
+    return 0;
 }
 
 void * push_struct(FragmentedMemoryArena * memory_arena, i32 size_struct)
