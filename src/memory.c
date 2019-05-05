@@ -21,6 +21,7 @@
 // We need to be able to assert (which requires 'abort') and log here. But the renderer has not been included. 
 void abort(const char * text, const char * file_name, i32 line_number);
 void log(const char * text);
+void log_int(i32 integer);
 
 struct MemoryBlock
 {
@@ -209,6 +210,8 @@ u16 increase_consecutive_memory_blocks(ConsecutiveMemoryArena * memory_arena, i3
     {
         // If we didn't find the room for the blocks, we return index = 0
         log("We didn't find the room for the consecutive blocks!");
+        log("required_nr_of_blocks: ");
+        log_int(required_nr_of_blocks);
         assert(false);
         return 0;
     }
