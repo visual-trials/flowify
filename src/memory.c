@@ -443,21 +443,60 @@ void init_fragmented_dynamic_array(FragmentedDynamicArray * fragmented_dynamic_a
     }
 }
 
-void * add_to_array(FragmentedDynamicArray * fragmented_dynamic_array, void * item)
+void * add_to_indexed_array(FragmentedDynamicArray * fragmented_dynamic_array, void * item_to_add)
 {
-    
-    // FIXME: implement this!
-    
-    return 0; // FIXME!
+    FragmentedMemoryArena * memory_arena = &fragmented_dynamic_array->memory_arena;
+    ConsecutiveMemoryArena * index_memory_arena = &fragmented_dynamic_array->index_memory_arena;
+
+    i32 item_size = fragmented_dynamic_array->item_size;
+
+    void * item_address = 0;
+
+    {
+        // Adding item to FragmentedMemoryArena
+        item_address = push_struct(memory_arena, fragmented_dynamic_array->item_size);
+        memory_copy(item_address, item_to_add, fragmented_dynamic_array->item_size);
+    }
+
+    {
+        // Adding index item to ConsecutiveMemoryArena
+
+        Memory * index_memory = index_memory_arena->memory;
+
+        i32 available_index_memory_size = index_memory_arena->nr_of_blocks * index_memory->block_size;
+        i32 required_index_memory_size = fragmented_dynamic_array->index_entry_size * (fragmented_dynamic_array->nr_of_index_entries + 1);
+        if (required_index_memory_size > available_index_memory_size)
+        {
+            // TODO: maybe its better to give increase_consecutive_memory_blocks the nr_of_required_bytes instead of the nr_of_required_blocks?
+            // TODO: and also let it return the pointer to the start of the first block
+            i32 required_nr_of_blocks = (i32)((f32)required_index_memory_size / (f32)index_memory->block_size) + 1; // first round down, then add one
+            increase_consecutive_memory_blocks(index_memory_arena, required_nr_of_blocks);
+
+            void * index_table = (void *)((i32)index_memory->base_address + index_memory->block_size * index_memory_arena->first_block_index);
+
+            fragmented_dynamic_array->index_table = index_table;
+        }
+
+        // TODO: should we increase .bytes_used on the memory block?
+
+        void * index_address = (void *)((i32)fragmented_dynamic_array->index_table + (fragmented_dynamic_array->nr_of_index_entries * fragmented_dynamic_array->index_entry_size));
+        // Copy the item addres at the place of he index_addres
+        memory_copy(index_address, item_address, fragmented_dynamic_array->index_entry_size);
+        fragmented_dynamic_array->nr_of_index_entries++;
+    }
+
+    // TODO: dont we also want to return the index? fragmented_dynamic_array->nr_of_index_entries - 1;
+
+    return item_address;
     
 }
 
 void * get_item_by_index(FragmentedDynamicArray * fragmented_dynamic_array, i32 index)
 {
+    void * index_address = (void *)((i32)fragmented_dynamic_array->index_table + (index * fragmented_dynamic_array->index_entry_size)); 
+    void * item_address = *(void**)index_address;
     
-    // FIXME: implement this!
-    
-    return 0; // FIXME!
+    return item_address;
 }
 
 // Consecutive Dynamic Array
@@ -514,7 +553,7 @@ void init_consecutive_dynamic_array(ConsecutiveDynamicArray * consecutive_dynami
     }
 }
 
-void * add_to_array(ConsecutiveDynamicArray * consecutive_dynamic_array, void * item)
+void * add_to_array(ConsecutiveDynamicArray * consecutive_dynamic_array, void * item_to_add)
 {
     ConsecutiveMemoryArena * memory_arena = &consecutive_dynamic_array->memory_arena;
     Memory * memory = memory_arena->memory;
@@ -536,7 +575,7 @@ void * add_to_array(ConsecutiveDynamicArray * consecutive_dynamic_array, void * 
     // TODO: should we increase .bytes_used on the memory block?
     
     void * destination = (void *)((i32)consecutive_dynamic_array->items + (consecutive_dynamic_array->nr_of_items * consecutive_dynamic_array->item_size));
-    memory_copy(destination, item, consecutive_dynamic_array->item_size);
+    memory_copy(destination, item_to_add, consecutive_dynamic_array->item_size);
     consecutive_dynamic_array->nr_of_items++;
     
     return destination;
