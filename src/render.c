@@ -146,8 +146,8 @@ struct BasicRenderer
 
 struct LaneRenderer
 {
-    DynamicArray left_path_parts;
-    DynamicArray right_path_parts;
+    ConsecutiveDynamicArray left_path_parts;
+    ConsecutiveDynamicArray right_path_parts;
 };
 
 void init_basic_renderer(BasicRenderer * basic_renderer)
@@ -168,8 +168,8 @@ void init_basic_renderer(BasicRenderer * basic_renderer)
 
 void init_lane_renderer(LaneRenderer * lane_renderer)
 {
-    init_dynamic_array(&lane_renderer->left_path_parts, sizeof(DrawablePathPart), (Color4){50,100,150,255}, cstring_to_string("Left path parts"));
-    init_dynamic_array(&lane_renderer->right_path_parts, sizeof(DrawablePathPart), (Color4){50,100,150,255}, cstring_to_string("Right path parts"));
+    init_consecutive_dynamic_array(&lane_renderer->left_path_parts, sizeof(DrawablePathPart), (Color4){50,100,150,255}, cstring_to_string("Left path parts"));
+    init_consecutive_dynamic_array(&lane_renderer->right_path_parts, sizeof(DrawablePathPart), (Color4){50,100,150,255}, cstring_to_string("Right path parts"));
 }
 
 void add_child_drawable_entry(DrawableEntry * child_drawable_entry, DrawableEntry * parent_drawable_entry)

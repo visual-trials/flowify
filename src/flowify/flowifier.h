@@ -202,7 +202,8 @@ struct FlowMargin
 
 struct Flowifier
 {
-    DynamicArray flow_elements;
+    // FIXME: this can't be a ConsecutiveDynamicArray because we keep pointers of the elements!
+    ConsecutiveDynamicArray flow_elements;
 
     BasicRenderer renderer;
     LaneRenderer lane_renderer;
@@ -468,7 +469,7 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     flowifier->default_element_width = 100;
     flowifier->default_element_height = 64;
     
-    init_dynamic_array(&flowifier->flow_elements, sizeof(FlowElement), (Color4){0,255,255,255}, cstring_to_string("Flowifier"));
+    init_consecutive_dynamic_array(&flowifier->flow_elements, sizeof(FlowElement), (Color4){0,255,255,255}, cstring_to_string("Flowifier"));
     
     // Note: we start elements with index = 1 (by creating a dummy here). That way we can use index 0 as being no-index.
     FlowElement * dummy_element = new_element(flowifier, 0, FlowElement_Unknown);

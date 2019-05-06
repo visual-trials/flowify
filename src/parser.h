@@ -207,7 +207,8 @@ struct Parser
     Tokenizer * tokenizer;
     i32 current_token_index;
 
-    DynamicArray nodes;
+    // FIXME: this can't be a ConsecutiveDynamicArray because we keep pointers of the nodes!
+    ConsecutiveDynamicArray nodes;
 };
 
 void init_parser(Parser * parser, Tokenizer * tokenizer)
@@ -215,7 +216,7 @@ void init_parser(Parser * parser, Tokenizer * tokenizer)
     parser->current_token_index = 0;
     parser->tokenizer = tokenizer;
 
-    init_dynamic_array(&parser->nodes, sizeof(Node), (Color4){255,0,255,255}, cstring_to_string("Parser"));
+    init_consecutive_dynamic_array(&parser->nodes, sizeof(Node), (Color4){255,0,255,255}, cstring_to_string("Parser"));
 }
 
 void next_token(Parser * parser)

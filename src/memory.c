@@ -380,9 +380,9 @@ void reset_fragmented_memory_arena(FragmentedMemoryArena * memory_arena, b32 cre
     }
 }
 
-// Dynamic Array
+// Consecutive Dynamic Array
 
-struct DynamicArray
+struct ConsecutiveDynamicArray
 {
     void * items;
     i32 nr_of_items;
@@ -391,13 +391,13 @@ struct DynamicArray
     ConsecutiveMemoryArena memory_arena;
 };
 
-DynamicArray create_dynamic_array(i32 item_size, Color4 color, String description)
+ConsecutiveDynamicArray create_consecutive_dynamic_array(i32 item_size, Color4 color, String description)
 {
-    DynamicArray dynamic_array = {};
+    ConsecutiveDynamicArray consecutive_dynamic_array = {};
     
     // TODO: we should check if the item_size is not larger than the block_size!
     // TODO: we should adjust the item_size to be aligned by 4 or 8 bytes!
-    dynamic_array.item_size = item_size;
+    consecutive_dynamic_array.item_size = item_size;
     
     if(!global_memory.block_size)
     {
@@ -405,42 +405,42 @@ DynamicArray create_dynamic_array(i32 item_size, Color4 color, String descriptio
     }
     
     // TODO: maybe we want to reserve 1 block or allow an initial amount of items and reserve memory for those
-    dynamic_array.memory_arena = new_consecutive_memory_arena(&global_memory, color, description, 0);
+    consecutive_dynamic_array.memory_arena = new_consecutive_memory_arena(&global_memory, color, description, 0);
     
-    dynamic_array.nr_of_items = 0;
-    dynamic_array.items = 0;  // TODO: this needs to be set if memory is reserved (now nothing is reserved)
+    consecutive_dynamic_array.nr_of_items = 0;
+    consecutive_dynamic_array.items = 0;  // TODO: this needs to be set if memory is reserved (now nothing is reserved)
     
-    return dynamic_array;
+    return consecutive_dynamic_array;
 }
 
-void reset_dynamic_array(DynamicArray * dynamic_array)
+void reset_consecutive_dynamic_array(ConsecutiveDynamicArray * consecutive_dynamic_array)
 {
     // TODO: maybe we want to reserve 1 block or allow an initial amount of items and reserve memory for those
-    reset_consecutive_memory_arena(&dynamic_array->memory_arena);
+    reset_consecutive_memory_arena(&consecutive_dynamic_array->memory_arena);
     
-    dynamic_array->nr_of_items = 0;
-    dynamic_array->items = 0;  // TODO: this needs to be set if memory is reserved (now nothing is reserved)
+    consecutive_dynamic_array->nr_of_items = 0;
+    consecutive_dynamic_array->items = 0;  // TODO: this needs to be set if memory is reserved (now nothing is reserved)
 }
 
-void init_dynamic_array(DynamicArray * dynamic_array, i32 item_size, Color4 color, String description)
+void init_consecutive_dynamic_array(ConsecutiveDynamicArray * consecutive_dynamic_array, i32 item_size, Color4 color, String description)
 {
-    if (!dynamic_array->memory_arena.memory)
+    if (!consecutive_dynamic_array->memory_arena.memory)
     {
-        *dynamic_array = create_dynamic_array(item_size, color, description);
+        *consecutive_dynamic_array = create_consecutive_dynamic_array(item_size, color, description);
     }
     else
     {
-        reset_dynamic_array(dynamic_array);
+        reset_consecutive_dynamic_array(consecutive_dynamic_array);
     }
 }
 
-void * add_to_array(DynamicArray * dynamic_array, void * item)
+void * add_to_array(ConsecutiveDynamicArray * consecutive_dynamic_array, void * item)
 {
-    ConsecutiveMemoryArena * memory_arena = &dynamic_array->memory_arena;
+    ConsecutiveMemoryArena * memory_arena = &consecutive_dynamic_array->memory_arena;
     Memory * memory = memory_arena->memory;
     
     i32 available_memory_size = memory_arena->nr_of_blocks * memory->block_size;
-    i32 required_memory_size = dynamic_array->item_size * (dynamic_array->nr_of_items + 1);
+    i32 required_memory_size = consecutive_dynamic_array->item_size * (consecutive_dynamic_array->nr_of_items + 1);
     if (required_memory_size > available_memory_size)
     {
         // TODO: maybe its better to give increase_consecutive_memory_blocks the nr_of_required_bytes instead of the nr_of_required_blocks?
@@ -450,14 +450,14 @@ void * add_to_array(DynamicArray * dynamic_array, void * item)
         
         void * items = (void *)((i32)memory->base_address + memory->block_size * memory_arena->first_block_index);
         
-        dynamic_array->items = items;
+        consecutive_dynamic_array->items = items;
     }
     
     // TODO: should we increase .bytes_used on the memory block?
     
-    void * destination = (void *)((i32)dynamic_array->items + (dynamic_array->nr_of_items * dynamic_array->item_size));
-    memory_copy(destination, item, dynamic_array->item_size);
-    dynamic_array->nr_of_items++;
+    void * destination = (void *)((i32)consecutive_dynamic_array->items + (consecutive_dynamic_array->nr_of_items * consecutive_dynamic_array->item_size));
+    memory_copy(destination, item, consecutive_dynamic_array->item_size);
+    consecutive_dynamic_array->nr_of_items++;
     
     return destination;
 }

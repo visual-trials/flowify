@@ -29,7 +29,7 @@ struct ScrollableText
 {
     b32 is_active;  // TODO: implement this
     
-    DynamicArray lines;
+    ConsecutiveDynamicArray lines;
     
     i32 widest_line;
     
@@ -84,7 +84,7 @@ void init_scrollable_text(ScrollableText * scrollable_text, Window * window, b32
     
     // TODO: get a description and color as parameter and pass it to create_dynamic_array!
     
-    init_dynamic_array(&scrollable_text->lines, sizeof(String), (Color4){255,100,100,255}, cstring_to_string("Scrollable Text"));
+    init_consecutive_dynamic_array(&scrollable_text->lines, sizeof(String), (Color4){255,100,100,255}, cstring_to_string("Scrollable Text"));
     
     scrollable_text->window = window;
     
@@ -154,7 +154,7 @@ void split_string_into_scrollable_lines(String string, ScrollableText * scrollab
     line_string.data = string.data; // first line starts at beginning of the string
     line_string.length = 0;
     
-    reset_dynamic_array(&scrollable_text->lines);
+    reset_consecutive_dynamic_array(&scrollable_text->lines);
     
     i32 position = 0;
     i32 start_of_line = 0;

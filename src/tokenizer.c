@@ -181,7 +181,8 @@ struct Tokenizer
 {
     u8 * at;
     
-    DynamicArray tokens;
+    // FIXME: can this be a ConsecutiveDynamicArray? Do we keep pointers of the tokens?!
+    ConsecutiveDynamicArray tokens;
     
     i32 current_line_index;
 };
@@ -191,7 +192,7 @@ void init_tokenizer(Tokenizer * tokenizer)
     tokenizer->at = 0;
     tokenizer->current_line_index = 0;
 
-    init_dynamic_array(&tokenizer->tokens, sizeof(Token), (Color4){0,255,0,255}, cstring_to_string("Tokenizer"));
+    init_consecutive_dynamic_array(&tokenizer->tokens, sizeof(Token), (Color4){0,255,0,255}, cstring_to_string("Tokenizer"));
 }
 
 b32 is_end_of_line(char ch)
