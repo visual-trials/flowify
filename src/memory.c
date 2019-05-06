@@ -380,6 +380,59 @@ void reset_fragmented_memory_arena(FragmentedMemoryArena * memory_arena, b32 cre
     }
 }
 
+// Fragmented Dynamic Array
+
+struct FragmentedDynamicArray
+{
+    FragmentedMemoryArena memory_arena;
+    i32 item_size; // nr of bytes per item (this is just for convenience: we don't want to pass the item_size each time we want to add to the array)
+    
+    void * index_table;
+    i32 nr_of_index_entries;
+    i32 index_entry_size; // nr of bytes per index-entry
+    ConsecutiveMemoryArena index_memory_arena;
+};
+
+FragmentedDynamicArray create_fragmented_dynamic_array(i32 item_size, Color4 color, String description)
+{
+    FragmentedDynamicArray fragmented_dynamic_array = {};
+
+    // FIXME: implement this!
+    
+    return fragmented_dynamic_array;
+}
+
+void reset_fragmented_dynamic_array(FragmentedDynamicArray * fragmented_dynamic_array)
+{
+    
+    // FIXME: implement this!
+    
+}
+
+void init_fragmented_dynamic_array(FragmentedDynamicArray * fragmented_dynamic_array, i32 item_size, Color4 color, String description)
+{
+    
+    // FIXME: implement this!
+    
+}
+
+void * add_to_array(FragmentedDynamicArray * fragmented_dynamic_array, void * item)
+{
+    
+    // FIXME: implement this!
+    
+    return 0; // FIXME!
+    
+}
+
+void * get_item_by_index(FragmentedDynamicArray * fragmented_dynamic_array, i32 index)
+{
+    
+    // FIXME: implement this!
+    
+    return 0; // FIXME!
+}
+
 // Consecutive Dynamic Array
 
 struct ConsecutiveDynamicArray
