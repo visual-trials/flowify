@@ -178,26 +178,6 @@ const char * large_example_program_text =
     "\n"
     "updateAndGetCodeAndVisualInfoForFile($fileToFlowifyWithoutExtention);\n"  // TODO: removed "list($code, $visualInfos) =" here
     "\n"
-    "function doDiff($firstString, $secondString) {\n"
-    "\n"
-    "    $stringX = $firstString;\n"
-    "    $stringY = $secondString;\n"
-    "\n"
-//    "    $lengthX = strlen($stringX);\n"
-//    "    $lengthY = strlen($stringY);\n"
-    "\n"
-    "    $foundBestSteps = [];\n"
-    // TODO: I removed [ 'edits' => 0 ] here: the parser can't handle constant array values yet
-    // TODO: I removed " ':' . " here: the parser can't handle multiple concatenations
-//    "    $foundBestSteps[$lengthX . $lengthY] = [];\n"
-    "\n"
-//    "    $bestStep = findBestNextStep(0, 0, $stringX, $stringY, $lengthX, $lengthY, $foundBestSteps);\n"
-    "\n"
-//    "    $path = createPathFromBestSteps(0, 0, $foundBestSteps);\n"
-    "\n"
-//    "    return $path;\n"
-    "\n"
-    "}\n"
     "function updateAndGetCodeAndVisualInfoForFile($fileToFlowifyWithoutExtention) {\n"
     "    \n"
     "    // TODO: the order of the coordinates is now by AST-order, not by horizontal position in the line\n"
@@ -309,7 +289,6 @@ const char * large_example_program_text =
     "        }\n"
     "    }\n"
     "}\n"
-/*
     "\n"
     "function doDiff($firstString, $secondString) {\n"
     "\n"
@@ -438,6 +417,5 @@ const char * large_example_program_text =
     "\n"
     "    return $bestStep;\n"
     "}"
-*/
 ;
     
