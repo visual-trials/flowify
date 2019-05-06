@@ -494,6 +494,7 @@ void * add_to_indexed_array(FragmentedDynamicArray * fragmented_dynamic_array, v
 void * get_item_by_index(FragmentedDynamicArray * fragmented_dynamic_array, i32 index)
 {
     void * index_address = (void *)((i32)fragmented_dynamic_array->index_table + (index * fragmented_dynamic_array->index_entry_size)); 
+    // FIXME: is this correct??
     void * item_address = *(void**)index_address;
     
     return item_address;
