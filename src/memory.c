@@ -397,23 +397,50 @@ FragmentedDynamicArray create_fragmented_dynamic_array(i32 item_size, Color4 col
 {
     FragmentedDynamicArray fragmented_dynamic_array = {};
 
-    // FIXME: implement this!
+    // TODO: we should check if the item_size is not larger than the block_size!
+    // TODO: we should adjust the item_size to be aligned by 4 or 8 bytes!
+    fragmented_dynamic_array.item_size = item_size;
+
+    if(!global_memory.block_size)
+    {
+        init_memory(&global_memory);
+    }
+
+    // TODO: maybe we want to reserve 1 block or allow an initial amount of items and reserve memory for those
+    b32 create_initial_block = false;
+    fragmented_dynamic_array.memory_arena = new_fragmented_memory_arena(&global_memory, color, description, create_initial_block);
+
+    // TODO: we should append "_index" to the description
+    // TODO: maybe we want to reserve 1 block or allow an initial amount of index-items and reserve memory for those
+    fragmented_dynamic_array.index_memory_arena = new_consecutive_memory_arena(&global_memory, color, description, 0);
+    fragmented_dynamic_array.index_table = 0; // TODO: this needs to be set if memory is reserved (now nothing is reserved)
+    fragmented_dynamic_array.nr_of_index_entries = 0;
+    fragmented_dynamic_array.index_entry_size = sizeof(void *);
     
     return fragmented_dynamic_array;
 }
 
 void reset_fragmented_dynamic_array(FragmentedDynamicArray * fragmented_dynamic_array)
 {
-    
-    // FIXME: implement this!
-    
+    // TODO: maybe we want to reserve 1 block or allow an initial amount of items and reserve memory for those
+    reset_fragmented_memory_arena(&fragmented_dynamic_array->memory_arena);
+    // TODO: maybe we want to reserve 1 block or allow an initial amount of index-items and reserve memory for those
+    reset_consecutive_memory_arena(&fragmented_dynamic_array->index_memory_arena);
+
+    fragmented_dynamic_array->index_table = 0; // TODO: this needs to be set if memory is reserved (now nothing is reserved)
+    fragmented_dynamic_array->nr_of_index_entries = 0;
 }
 
 void init_fragmented_dynamic_array(FragmentedDynamicArray * fragmented_dynamic_array, i32 item_size, Color4 color, String description)
 {
-    
-    // FIXME: implement this!
-    
+    if (!fragmented_dynamic_array->memory_arena.memory)
+    {
+        *fragmented_dynamic_array = create_fragmented_dynamic_array(item_size, color, description);
+    }
+    else
+    {
+        reset_fragmented_dynamic_array(fragmented_dynamic_array);
+    }
 }
 
 void * add_to_array(FragmentedDynamicArray * fragmented_dynamic_array, void * item)
