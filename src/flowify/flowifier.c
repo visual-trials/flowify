@@ -164,18 +164,10 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node, 
             //log(function_call_node->identifier);
             FlowElement * function_element = get_function_element(flowifier, function_call_node->identifier);
 
-            if (function_element)
+            if (function_element && !function_element->parent) // FIXME: only adding if the function has no parent yet (to prevent infinite recursion)
             {
                 // Right now, a function_call is always be collapsed by default
-                // FIXME: right now we collapse large function, kind of arbritary
-                if (function_element->first_child && function_element->first_child->nr_of_children > 2)
-                {
-                    function_call_element->is_collapsed = true;
-                }
-                else
-                {
-                    function_call_element->is_collapsed = false;
-                }
+                function_call_element->is_collapsed = true;
 
                 // TODO: we do not connect first and last statements in a body, with statements in a next or previous body anymore. 
                 //       So first_in_flow and last_in_flow are probably deprecated!
@@ -567,27 +559,6 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         
         new_statement_element = foreach_element;
     }
-    else if (statement_node->type == Node_Stmt_Function)
-    {
-        Node * function_parameters_node = statement_node->first_child;
-        Node * function_body_node = function_parameters_node->next_sibling;
-        
-        FlowElement * function_element = new_element(flowifier, statement_node, FlowElement_Function);
-        
-        FlowElement * function_body_element = new_element(flowifier, function_body_node, FlowElement_FunctionBody);
-        
-        flowify_statements(flowifier, function_body_element);
-        
-        add_child_element(function_body_element, function_element);
-        
-        // TODO: we might want to say that the first_in_flow of a function is actually the first statement element in the function?
-        // Note that flowify_statements(...) (see above) already set first_in_flow and last_in_flow (to the first and last statement 
-        // in the body resp.) of the function_body_element.
-        function_element->first_in_flow = function_body_element->first_in_flow;
-        function_element->last_in_flow = function_body_element->last_in_flow;
-        
-        new_statement_element = function_element;
-    }
     else if (statement_node->type == Node_Stmt_Return)
     {
         FlowElement * return_element = new_element(flowifier, statement_node, FlowElement_Return);
@@ -637,32 +608,32 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
     return new_statement_element;
 }
 
+void flowify_function(Flowifier * flowifier, Node * function_node)
+{
+    Node * function_parameters_node = function_node->first_child;
+    Node * function_body_node = function_parameters_node->next_sibling;
+   
+    FlowElement * function_element = get_function_element(flowifier, function_node->identifier);
+    assert(function_element);
+    
+    FlowElement * function_body_element = new_element(flowifier, function_body_node, FlowElement_FunctionBody);
+    
+    flowify_statements(flowifier, function_body_element);
+    
+    add_child_element(function_body_element, function_element);
+    
+    // TODO: we might want to say that the first_in_flow of a function is actually the first statement element in the function?
+    // Note that flowify_statements(...) (see above) already set first_in_flow and last_in_flow (to the first and last statement 
+    // in the body resp.) of the function_body_element.
+    function_element->first_in_flow = function_body_element->first_in_flow;
+    function_element->last_in_flow = function_body_element->last_in_flow;
+}
+
 void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
 {
     Node * parent_node = parent_element->ast_node;
-    Node * statement_node = 0;
     
-    // Functions
-    statement_node = parent_node->first_child;
-    if (statement_node)
-    {
-        do
-        {
-            if (statement_node->type == Node_Stmt_Function)
-            {
-                FlowElement * new_function_element = flowify_statement(flowifier, statement_node);
-                // log("Found function!");
-                // log(new_function_element->ast_node->identifier);
-
-                // TODO: right now we store functions in one (global) linked list
-                add_function_element(flowifier, new_function_element);
-            }
-        }
-        while((statement_node = statement_node->next_sibling));
-    }
-    
-    // Non-functions
-    statement_node = parent_node->first_child;
+    Node * statement_node = parent_node->first_child;
     FlowElement * previous_statement_element = 0;
     parent_element->first_in_flow = parent_element;
     parent_element->last_in_flow = parent_element;
@@ -670,7 +641,11 @@ void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
     {
         do // Loop through all statements (in the parent)
         {
-            if (statement_node->type != Node_Stmt_Function)
+            if (statement_node->type == Node_Stmt_Function)
+            {
+                flowify_function(flowifier, statement_node);
+            }
+            else
             {
                 FlowElement * new_statement_element = flowify_statement(flowifier, statement_node);
                     
@@ -678,7 +653,6 @@ void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
                 {
                     // The first element is found, we assume its also the first_in_flow
                     parent_element->first_in_flow = new_statement_element->first_in_flow;
-                    
                 }
                 
                 add_child_element(new_statement_element, parent_element);
@@ -699,3 +673,33 @@ void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
         while((statement_node = statement_node->next_sibling));
     }
 }
+
+// We create stub for all the function definitions
+void find_and_create_stub_functions(Flowifier * flowifier, Node * parent_node)
+{
+    Node * statement_node = parent_node->first_child;
+    if (statement_node)
+    {
+        do
+        {
+            if (statement_node->type == Node_Stmt_Function)
+            {
+                FlowElement * stub_function_element = new_element(flowifier, statement_node, FlowElement_Function);
+                add_function_element(flowifier, stub_function_element);
+                
+                find_and_create_stub_functions(flowifier, statement_node);
+            }
+        }
+        while((statement_node = statement_node->next_sibling));
+    }
+}
+
+FlowElement * flowify_root(Flowifier * flowifier, Node * root_node)
+{
+    FlowElement * root_element = new_element(flowifier, root_node, FlowElement_Root);
+    
+    find_and_create_stub_functions(flowifier, root_node);
+    flowify_statements(flowifier, root_element);
+    
+    return root_element;
+}    

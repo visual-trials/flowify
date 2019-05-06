@@ -145,9 +145,7 @@ extern "C" {
         Node * root_node = parse_program(parser);
         
         // Flowify
-        // FIXME: create the root_element inside flowify_statements (and put it in the Flowifier-struct
-        FlowElement * root_element = new_element(flowifier, root_node, FlowElement_Root);
-        flowify_statements(flowifier, root_element);
+        FlowElement * root_element = flowify_root(flowifier, root_node);
         
         // FIXME: put root_element inside the Flowifier-struct!
         world->root_element = root_element;

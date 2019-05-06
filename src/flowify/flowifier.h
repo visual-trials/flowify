@@ -307,6 +307,7 @@ Color4 lighten_color(Color4 dark_color, i32 factor)
 
 void init_flowifier(Flowifier * flowifier, Parser * parser)
 {
+    // TODO: right now we store functions in one linked list (maybe use an array/hashmap)
     flowifier->first_function = 0;
     flowifier->latest_function = 0;
     
