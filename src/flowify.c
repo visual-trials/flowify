@@ -266,8 +266,7 @@ extern "C" {
         Input * input = &global_input;
         Flowifier * flowifier = &world->flowifier;
 
-        FlowElement * flow_elements = (FlowElement *)flowifier->flow_elements.items;
-        i32 nr_of_flow_elements = flowifier->flow_elements.nr_of_items;
+        i32 nr_of_flow_elements = flowifier->flow_elements.nr_of_index_entries;
         
         // Process input
         if (flowifier->has_absolute_positions)
@@ -278,7 +277,7 @@ extern "C" {
             
             if (flowifier->interaction.acted_upon_element_index)
             {
-                FlowElement * acted_upon_element = &flow_elements[flowifier->interaction.acted_upon_element_index];
+                FlowElement * acted_upon_element = (FlowElement *)get_item_by_index(&flowifier->flow_elements, flowifier->interaction.acted_upon_element_index);
                 
                 // TODO: right now when a FunctionBody or FunctionCallIdentifier is double-clicked,
                 //       we do as-if the FunctionCall is clicked. We probably shouldn't hardcode this here
@@ -383,7 +382,7 @@ extern "C" {
             flowifier->interaction.highlighted_element_index++;
             while (flowifier->interaction.highlighted_element_index < nr_of_flow_elements)
             {
-                FlowElement * newly_highlighted_flow_element = &flow_elements[flowifier->interaction.highlighted_element_index];
+                FlowElement * newly_highlighted_flow_element = (FlowElement *)get_item_by_index(&flowifier->flow_elements, flowifier->interaction.highlighted_element_index);
                 if (newly_highlighted_flow_element->is_highlightable)
                 {
                     break;
@@ -396,7 +395,7 @@ extern "C" {
             flowifier->interaction.highlighted_element_index = 1;
             while (flowifier->interaction.highlighted_element_index < nr_of_flow_elements)
             {
-                FlowElement * newly_highlighted_flow_element = &flow_elements[flowifier->interaction.highlighted_element_index];
+                FlowElement * newly_highlighted_flow_element = (FlowElement *)get_item_by_index(&flowifier->flow_elements, flowifier->interaction.highlighted_element_index);
                 if (newly_highlighted_flow_element->is_highlightable)
                 {
                     break;
@@ -683,14 +682,13 @@ extern "C" {
         
         Token * tokens = (Token *)world->tokenizer.tokens.items;
         
-        FlowElement * flow_elements = (FlowElement *)flowifier->flow_elements.items;
-        i32 nr_of_flow_elements = flowifier->flow_elements.nr_of_items;
+        i32 nr_of_flow_elements = flowifier->flow_elements.nr_of_index_entries;
         
         String * lines = (String *)scrollable_program_text->lines.items;
 
         if (nr_of_flow_elements > 0 && flowifier->interaction.hovered_element_index > 0)
         {
-            FlowElement * highlighted_flow_element = &flow_elements[flowifier->interaction.hovered_element_index];
+            FlowElement * highlighted_flow_element = (FlowElement *)get_item_by_index(&flowifier->flow_elements, flowifier->interaction.hovered_element_index);
             Node * node = highlighted_flow_element->ast_node;
             
             remove_highlighted_line_parts(scrollable_program_text);

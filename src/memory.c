@@ -138,13 +138,6 @@ u16 increase_consecutive_memory_blocks(ConsecutiveMemoryArena * memory_arena, i3
         // We don't need any memory(blocks) so we don't increase at all
         return 0;
     }
-// FIXME: remove this!    
-if (required_nr_of_blocks > 1)
-{
-    log("more than 1 required_nr_of_blocks");
-    log_int(required_nr_of_blocks);
-    log(&memory_arena->description);
-}
     
     Memory * memory = memory_arena->memory;
     
