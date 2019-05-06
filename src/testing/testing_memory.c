@@ -48,9 +48,14 @@ extern "C" {
         world->fragmented_dynamic_array = create_fragmented_dynamic_array(item_size, (Color4){255,100,0,255}, description);
 
         world->my_world_text = (char*)add_to_indexed_array(&world->fragmented_dynamic_array, myText);
-myText[0] = 'p';
-log(myText);
-log(world->my_world_text);
+        myText[0] = 'p';
+        world->my_world_text = (char*)add_to_indexed_array(&world->fragmented_dynamic_array, myText);
+        myText[0] = 'U';
+        world->my_world_text = (char*)add_to_indexed_array(&world->fragmented_dynamic_array, myText);
+        log(world->my_world_text);
+        log((char*)get_item_by_index(&world->fragmented_dynamic_array, 0));
+        log((char*)get_item_by_index(&world->fragmented_dynamic_array, 1));
+        log((char*)get_item_by_index(&world->fragmented_dynamic_array, 2));
 
 /*        
         FragmentedMemoryArena memory_arena = new_fragmented_memory_arena(memory, (Color4){0,255,0,255}, cstring_to_string("Fragmented"), true);

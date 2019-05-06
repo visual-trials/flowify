@@ -480,9 +480,9 @@ void * add_to_indexed_array(FragmentedDynamicArray * fragmented_dynamic_array, v
 
         // TODO: should we increase .bytes_used on the memory block?
 
-        void * index_address = (void *)((i32)fragmented_dynamic_array->index_table + (fragmented_dynamic_array->nr_of_index_entries * fragmented_dynamic_array->index_entry_size));
+        i32 * index_address = (i32 *)((i32)fragmented_dynamic_array->index_table + (fragmented_dynamic_array->nr_of_index_entries * fragmented_dynamic_array->index_entry_size));
         // Copy the item addres at the place of he index_addres
-        memory_copy(index_address, item_address, fragmented_dynamic_array->index_entry_size);
+        *index_address = (i32)item_address;
         fragmented_dynamic_array->nr_of_index_entries++;
     }
 
@@ -497,7 +497,7 @@ void * get_item_by_index(FragmentedDynamicArray * fragmented_dynamic_array, i32 
     // FIXME: we should check if the index is withing bounds!
     void * index_address = (void *)((i32)fragmented_dynamic_array->index_table + (index * fragmented_dynamic_array->index_entry_size)); 
     void * item_address = *(void**)index_address;
-    
+
     return item_address;
 }
 
