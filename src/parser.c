@@ -111,9 +111,9 @@ Node * parse_variable(Parser * parser, NodeType node_type, b32 allow_variable_re
     }
    
     expect_token(parser, Token_VariableIdentifier);
-    Token * variable_token = latest_eaten_token(parser);
+    Token variable_token = latest_eaten_token(parser);
     
-    variable_node->identifier = variable_token->text;
+    variable_node->identifier = variable_token.text;
     
     end_node(parser, variable_node);
     
@@ -130,8 +130,8 @@ Node * parse_variable_assignment(Parser * parser, NodeType node_type, Node * var
     add_child_node(variable_node, variable_assignment_node);
 
     // The assignment operator acts as the identifier of the assignment-expression (note: we assume its has just been comsumed, so we get the latest token)
-    Token * assignment_operator_token = latest_eaten_token(parser);
-    variable_assignment_node->identifier = assignment_operator_token->text;
+    Token assignment_operator_token = latest_eaten_token(parser);
+    variable_assignment_node->identifier = assignment_operator_token.text;
 
     // Right side of the expression (an expression)
     Node * child_expression_node = parse_expression(parser);
@@ -149,8 +149,8 @@ Node * parse_binary_op_expression(Parser * parser, NodeType node_type, Node * le
     binary_expression_node->first_token_index = left_sub_expression->first_token_index;
     
     // The binary operator acts as the identifier of the binary-expression (note: we assume its has just been comsumed, so we get the latest token)
-    Token * binary_operator_token = latest_eaten_token(parser);
-    binary_expression_node->identifier = binary_operator_token->text;
+    Token binary_operator_token = latest_eaten_token(parser);
+    binary_expression_node->identifier = binary_operator_token.text;
     
     Node * right_sub_expression = parse_sub_expression(parser);
     add_child_node(left_sub_expression, binary_expression_node);
@@ -183,8 +183,8 @@ Node * parse_sub_expression(Parser * parser)
         sub_expression_node = start_node(parser, Node_Expr_PreInc, StartOnLatestToken);
         
         // The unary operator acts as the identifier of the unary-expression (note: we assume its has just been comsumed, so we get the latest token)
-        Token * unary_operator_token = latest_eaten_token(parser);
-        sub_expression_node->identifier = unary_operator_token->text;
+        Token unary_operator_token = latest_eaten_token(parser);
+        sub_expression_node->identifier = unary_operator_token.text;
     
         Node * variable_node = parse_variable(parser, Node_Expr_Variable, true);
         add_child_node(variable_node, sub_expression_node);
@@ -196,8 +196,8 @@ Node * parse_sub_expression(Parser * parser)
         sub_expression_node = start_node(parser, Node_Expr_PreDec, StartOnLatestToken);
         
         // The unary operator acts as the identifier of the unary-expression (note: we assume its has just been comsumed, so we get the latest token)
-        Token * unary_operator_token = latest_eaten_token(parser);
-        sub_expression_node->identifier = unary_operator_token->text;
+        Token unary_operator_token = latest_eaten_token(parser);
+        sub_expression_node->identifier = unary_operator_token.text;
         
         Node * variable_node = parse_variable(parser, Node_Expr_Variable, true);
         add_child_node(variable_node, sub_expression_node);
@@ -206,10 +206,10 @@ Node * parse_sub_expression(Parser * parser)
     }
     else if (accept_token(parser, Token_VariableIdentifier))
     {
-        Token * variable_token = latest_eaten_token(parser);
+        Token variable_token = latest_eaten_token(parser);
         
         Node * variable_node = start_node(parser, Node_Expr_Variable, StartOnLatestToken);
-        variable_node->identifier = variable_token->text;
+        variable_node->identifier = variable_token.text;
             
         if (accept_token(parser, Token_OpenBracket))
         {
@@ -228,8 +228,8 @@ Node * parse_sub_expression(Parser * parser)
             sub_expression_node = start_node(parser, Node_Expr_PostInc, StartOnTokenBeforeLatestToken);
                 
             // The unary operator acts as the identifier of the unary-expression (note: we assume its has just been comsumed, so we get the latest token)
-            Token * unary_operator_token = latest_eaten_token(parser);
-            sub_expression_node->identifier = unary_operator_token->text;
+            Token unary_operator_token = latest_eaten_token(parser);
+            sub_expression_node->identifier = unary_operator_token.text;
         
             add_child_node(variable_node, sub_expression_node);
             
@@ -241,8 +241,8 @@ Node * parse_sub_expression(Parser * parser)
             sub_expression_node = start_node(parser, Node_Expr_PostDec, StartOnTokenBeforeLatestToken);
                 
             // The unary operator acts as the identifier of the unary-expression (note: we assume its has just been comsumed, so we get the latest token)
-            Token * unary_operator_token = latest_eaten_token(parser);
-            sub_expression_node->identifier = unary_operator_token->text;
+            Token unary_operator_token = latest_eaten_token(parser);
+            sub_expression_node->identifier = unary_operator_token.text;
         
             add_child_node(variable_node, sub_expression_node);
             
@@ -283,8 +283,8 @@ Node * parse_sub_expression(Parser * parser)
     {
         sub_expression_node = start_node(parser, Node_Scalar_Number, StartOnLatestToken);
         
-        Token * number_token = latest_eaten_token(parser);
-        sub_expression_node->value = number_token->text;
+        Token number_token = latest_eaten_token(parser);
+        sub_expression_node->value = number_token.text;
         
         end_node(parser, sub_expression_node);
     }
@@ -292,8 +292,8 @@ Node * parse_sub_expression(Parser * parser)
     {
         sub_expression_node = start_node(parser, Node_Scalar_Float, StartOnLatestToken);
         
-        Token * float_token = latest_eaten_token(parser);
-        sub_expression_node->value = float_token->text;
+        Token float_token = latest_eaten_token(parser);
+        sub_expression_node->value = float_token.text;
         
         end_node(parser, sub_expression_node);
     }
@@ -301,8 +301,8 @@ Node * parse_sub_expression(Parser * parser)
     {
         sub_expression_node = start_node(parser, Node_Scalar_String, StartOnLatestToken);
         
-        Token * string_token = latest_eaten_token(parser);
-        sub_expression_node->value = string_token->text;
+        Token string_token = latest_eaten_token(parser);
+        sub_expression_node->value = string_token.text;
         
         end_node(parser, sub_expression_node);
     }
@@ -310,8 +310,8 @@ Node * parse_sub_expression(Parser * parser)
     {
         sub_expression_node = start_node(parser, Node_Scalar_EmptyArray, StartOnLatestToken);
         
-        Token * open_bracket_token = latest_eaten_token(parser);
-        sub_expression_node->value = open_bracket_token->text;
+        Token open_bracket_token = latest_eaten_token(parser);
+        sub_expression_node->value = open_bracket_token.text;
         
         // TODO: we should allow for non-empty arrays
         
@@ -323,8 +323,8 @@ Node * parse_sub_expression(Parser * parser)
     {
         sub_expression_node = start_node(parser, Node_Scalar_True, StartOnLatestToken);
         
-        Token * true_token = latest_eaten_token(parser);
-        sub_expression_node->value = true_token->text;
+        Token true_token = latest_eaten_token(parser);
+        sub_expression_node->value = true_token.text;
         
         end_node(parser, sub_expression_node);
     }
@@ -332,8 +332,8 @@ Node * parse_sub_expression(Parser * parser)
     {
         sub_expression_node = start_node(parser, Node_Scalar_False, StartOnLatestToken);
         
-        Token * false_token = latest_eaten_token(parser);
-        sub_expression_node->value = false_token->text;
+        Token false_token = latest_eaten_token(parser);
+        sub_expression_node->value = false_token.text;
         
         end_node(parser, sub_expression_node);
     }
@@ -341,8 +341,8 @@ Node * parse_sub_expression(Parser * parser)
     {
         sub_expression_node = start_node(parser, Node_Scalar_Null, StartOnLatestToken);
         
-        Token * null_token = latest_eaten_token(parser);
-        sub_expression_node->value = null_token->text;
+        Token null_token = latest_eaten_token(parser);
+        sub_expression_node->value = null_token.text;
         
         end_node(parser, sub_expression_node);
     }
@@ -350,8 +350,8 @@ Node * parse_sub_expression(Parser * parser)
     {
         sub_expression_node = start_node(parser, Node_Expr_FuncCall, StartOnLatestToken);
         
-        Token * function_call_identifier_token = latest_eaten_token(parser);
-        sub_expression_node->identifier = function_call_identifier_token->text;
+        Token function_call_identifier_token = latest_eaten_token(parser);
+        sub_expression_node->identifier = function_call_identifier_token.text;
         
         Node * arguments_node = parse_arguments(parser, Node_Expr_FuncCall_Args);
         add_child_node(arguments_node, sub_expression_node);
@@ -360,10 +360,10 @@ Node * parse_sub_expression(Parser * parser)
     }
     else
     {
-        Token * latest_token = latest_eaten_token(parser);
+        Token latest_token = latest_eaten_token(parser);
         log("ERROR: unknown sub expression!");
-        log(latest_token->text);
-        log_int(latest_token->line_index + 1);
+        log(latest_token.text);
+        log_int(latest_token.line_index + 1);
         sub_expression_node = 0;  // TODO: we should "free" this sub_expression_node (but an error occured so it might nog matter)
         return sub_expression_node;
     }
@@ -523,13 +523,13 @@ Node * parse_statement(Parser * parser)
         // Note: we do not allow single-line bodies atm (without braces)
 
         // TODO: currently we set "if" as identifier of the if-cond expression to (later on) draw this text. We probably want to signify a if-keyword a different way.
-        Token * if_token = latest_eaten_token(parser);
+        Token if_token = latest_eaten_token(parser);
         
         // If-condition
         expect_token(parser, Token_OpenParenteses);
         
         Node * condition_node = parse_child_expression_node(parser, Node_Stmt_If_Cond);
-        condition_node->identifier = if_token->text; // TODO: this is a little weird: the 'if'-token is not really part of the cond-expression
+        condition_node->identifier = if_token.text; // TODO: this is a little weird: the 'if'-token is not really part of the cond-expression
         add_child_node(condition_node, if_node);
        
         expect_token(parser, Token_CloseParenteses);
@@ -557,7 +557,7 @@ Node * parse_statement(Parser * parser)
         Node * for_node = start_node(parser, Node_Stmt_For, StartOnLatestToken);
         
         // TODO: currently we set "for" as identifier of the for-cond expression to (later on) draw this text. We probably want to signify a for-keyword a different way.
-        Token * for_token = latest_eaten_token(parser);
+        Token for_token = latest_eaten_token(parser);
         
         expect_token(parser, Token_OpenParenteses);
         
@@ -569,7 +569,7 @@ Node * parse_statement(Parser * parser)
         
         // For_Cond
         Node * cond_node = parse_child_expression_node(parser, Node_Stmt_For_Cond);
-        cond_node->identifier = for_token->text; // TODO: this is a little weird: the 'for'-token is not really part of the cond-expression
+        cond_node->identifier = for_token.text; // TODO: this is a little weird: the 'for'-token is not really part of the cond-expression
         add_child_node(cond_node, for_node);
         
         expect_token(parser, Token_Semicolon);
@@ -593,13 +593,13 @@ Node * parse_statement(Parser * parser)
         // Foreach
         Node * foreach_node = start_node(parser, Node_Stmt_Foreach, StartOnLatestToken);
         
-        Token * foreach_token = latest_eaten_token(parser);  // TODO: currently we set "foreach" as identifier of the foreach-cond expression to (later on) draw this text. We probably want to signify a foreach-keyword a different way.
+        Token foreach_token = latest_eaten_token(parser);  // TODO: currently we set "foreach" as identifier of the foreach-cond expression to (later on) draw this text. We probably want to signify a foreach-keyword a different way.
         
         expect_token(parser, Token_OpenParenteses);
         
         // ForeachCond
         Node * foreach_cond_node = start_node(parser, Node_Stmt_Foreach_Cond, StartOnLatestToken);
-        foreach_cond_node->identifier = foreach_token->text; // TODO: this is a little weird: the 'for'-token is not really part of the cond-expression
+        foreach_cond_node->identifier = foreach_token.text; // TODO: this is a little weird: the 'for'-token is not really part of the cond-expression
         add_child_node(foreach_cond_node, foreach_node);
         
         // Foreach_Array
@@ -608,8 +608,8 @@ Node * parse_statement(Parser * parser)
         
         expect_token(parser, Token_As);
 
-        Token * as_token = latest_eaten_token(parser);  // TODO: currently we set "as" as identifier of the foreach-array expression to (later on) draw this text. We probably want to signify a as-keyword a different way.
-        foreach_array_node->identifier = as_token->text; // TODO: this is a little weird: the 'as'-token is not really part of the array-expression
+        Token as_token = latest_eaten_token(parser);  // TODO: currently we set "as" as identifier of the foreach-array expression to (later on) draw this text. We probably want to signify a as-keyword a different way.
+        foreach_array_node->identifier = as_token.text; // TODO: this is a little weird: the 'as'-token is not really part of the array-expression
         
         // Foreach_Value_Var
         
@@ -622,8 +622,8 @@ Node * parse_statement(Parser * parser)
             // If there is an "=>", the first variable was the Key_Var instead, the next variable becomes the Value_Var
             foreach_first_var_node->type = Node_Stmt_Foreach_Key_Var;  // Foreach_Value_Var --becomes--> Foreach_Key_Var
 
-            Token * arrow_token = latest_eaten_token(parser);  // TODO: currently we set "=>" as identifier of the foreach-key_var expression to (later on) draw this text. We probably want to signify a "=>"-keyword a different way.
-            foreach_first_var_node->identifier = arrow_token->text; // TODO: this is a little weird: the 'as'-token is not really part of the array-expression
+            Token arrow_token = latest_eaten_token(parser);  // TODO: currently we set "=>" as identifier of the foreach-key_var expression to (later on) draw this text. We probably want to signify a "=>"-keyword a different way.
+            foreach_first_var_node->identifier = arrow_token.text; // TODO: this is a little weird: the 'as'-token is not really part of the array-expression
         
             Node * foreach_second_var_node = parse_variable(parser, Node_Stmt_Foreach_Value_Var, true);
             add_child_node(foreach_second_var_node, foreach_cond_node);
@@ -644,11 +644,11 @@ Node * parse_statement(Parser * parser)
     {
         if (expect_token(parser, Token_Identifier))
         {
-            Token * function_identifier_token = latest_eaten_token(parser);
+            Token function_identifier_token = latest_eaten_token(parser);
 
             Node * function_node = start_node(parser, Node_Stmt_Function, StartOnTokenBeforeLatestToken);
         
-            function_node->identifier = function_identifier_token->text;
+            function_node->identifier = function_identifier_token.text;
             
             Node * function_parameters_node = parse_parameters(parser, Node_Stmt_Function_Params);
             add_child_node(function_parameters_node, function_node);
@@ -692,8 +692,8 @@ Node * parse_statement(Parser * parser)
         Node * return_node = start_node(parser, Node_Stmt_Return, StartOnLatestToken);
         
         // TODO: currently we set "return" as identifier of the return expression to (later on) draw this text. We probably want to signify a return a different way.
-        Token * return_token = latest_eaten_token(parser);
-        return_node->identifier = return_token->text;
+        Token return_token = latest_eaten_token(parser);
+        return_node->identifier = return_token.text;
             
         if (accept_token(parser, Token_Semicolon))
         {
@@ -729,18 +729,18 @@ Node * parse_statement(Parser * parser)
             
             // TODO: create a helper-function that log the current position!
             
-            Token * latest_token = latest_eaten_token(parser);
+            Token latest_token = latest_eaten_token(parser);
             log("Latest eaten token is:");
-            log(latest_token->text);
+            log(latest_token.text);
             
             Tokenizer * tokenizer = parser->tokenizer;
             Token * tokens = (Token *)tokenizer->tokens.items;
-            Token * token = &tokens[parser->current_token_index];
+            Token token = tokens[parser->current_token_index];
             log("Next token is:");
-            log(token->text);
+            log(token.text);
             
             log("Line number:");
-            log_int(token->line_index + 1);
+            log_int(token.line_index + 1);
             
             return 0;
         }

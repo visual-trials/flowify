@@ -242,12 +242,12 @@ i32 latest_eaten_token_index(Parser * parser)
     return parser->current_token_index - 1;
 }
 
-Token * latest_eaten_token(Parser * parser)
+Token latest_eaten_token(Parser * parser)
 {
     Tokenizer * tokenizer = parser->tokenizer;
     
     Token * tokens = (Token *)tokenizer->tokens.items;
-    Token * token = &tokens[latest_eaten_token_index(parser)];
+    Token token = tokens[latest_eaten_token_index(parser)];
     
     return token;
 }
@@ -257,9 +257,9 @@ b32 accept_token(Parser * parser, i32 token_type)  // TODO: somehow we can't use
     Tokenizer * tokenizer = parser->tokenizer;
 
     Token * tokens = (Token *)tokenizer->tokens.items;
-    Token * token = &tokens[parser->current_token_index];
+    Token token = tokens[parser->current_token_index];
     
-    if (token->type == token_type)
+    if (token.type == token_type)
     {
         next_token(parser);
         return true;
@@ -291,17 +291,17 @@ b32 expect_token(Parser * parser, i32 token_type)  // TODO: somehow we can't use
     // Line number
     Tokenizer * tokenizer = parser->tokenizer;
     Token * tokens = (Token *)tokenizer->tokens.items;
-    Token * token = &tokens[parser->current_token_index];
+    Token token = tokens[parser->current_token_index];
     
     ShortString decimal_shortstring;
-    int_to_string(token->line_index + 1, &decimal_shortstring);
+    int_to_string(token.line_index + 1, &decimal_shortstring);
     String decimal_string = shortstring_to_string(&decimal_shortstring);
     append_string(&error_message, &decimal_string);
 
     // Next token
     append_text = cstring_to_string(". Next token is: ");
     append_string(&error_message, &append_text);
-    append_string(&error_message, &token->text);
+    append_string(&error_message, &token.text);
     
     log(error_message);
     
@@ -371,11 +371,11 @@ String get_source_text_from_ast_node(Parser * parser, Node * node)
         Tokenizer * tokenizer = parser->tokenizer;
         
         Token * tokens = (Token *)tokenizer->tokens.items;
-        Token * start_token = &tokens[node->first_token_index];
-        Token * end_token = &tokens[node->last_token_index];
+        Token start_token = tokens[node->first_token_index];
+        Token end_token = tokens[node->last_token_index];
         
-        source_text.data = start_token->text.data;
-        source_text.length = end_token->text.data + end_token->text.length - start_token->text.data;
+        source_text.data = start_token.text.data;
+        source_text.length = end_token.text.data + end_token.text.length - start_token.text.data;
     }
     
     return source_text;

@@ -182,8 +182,8 @@ struct Tokenizer
     // WARNING: we should NEVER keep a pointer to a DyncamicString here! Since the .data of the DynamicString might move!
     u8 * at;
     
-    // FIXME: can this be a ConsecutiveDynamicArray? Do we keep pointers of the tokens?! I think we copy tokens, so its probably ok?
-    //        we also directly use the index of tokens on the .items of the ConsecutiveDynamicArray (in parser.h). So that's ok.
+    // This can be a ConsecutiveDynamicArray! We do NOT keep pointers of the tokens. We copy tokens, so this ok.
+    // We also directly use the .items[index] on this token-array (in parser.h). So that's ok.
     ConsecutiveDynamicArray tokens;
     
     i32 current_line_index;
