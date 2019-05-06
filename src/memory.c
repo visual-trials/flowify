@@ -455,6 +455,7 @@ void * add_to_indexed_array(FragmentedDynamicArray * fragmented_dynamic_array, v
     {
         // Adding item to FragmentedMemoryArena
         item_address = push_struct(memory_arena, fragmented_dynamic_array->item_size);
+        // Copying the data to the new address
         memory_copy(item_address, item_to_add, fragmented_dynamic_array->item_size);
     }
 
@@ -493,8 +494,8 @@ void * add_to_indexed_array(FragmentedDynamicArray * fragmented_dynamic_array, v
 
 void * get_item_by_index(FragmentedDynamicArray * fragmented_dynamic_array, i32 index)
 {
+    // FIXME: we should check if the index is withing bounds!
     void * index_address = (void *)((i32)fragmented_dynamic_array->index_table + (index * fragmented_dynamic_array->index_entry_size)); 
-    // FIXME: is this correct??
     void * item_address = *(void**)index_address;
     
     return item_address;

@@ -18,10 +18,12 @@
  
 struct WorldData
 {
-    b32 increased_memory;
+//    b32 increased_memory;
     
-    ConsecutiveMemoryArena consecutive_memory_arena;
-    
+//    ConsecutiveMemoryArena consecutive_memory_arena;
+    FragmentedDynamicArray fragmented_dynamic_array;
+
+    char * my_world_text;
     b32 verbose_frame_times;
     b32 verbose_memory_usage;
 };
@@ -39,7 +41,18 @@ extern "C" {
     {
         WorldData * world = &global_world;
         Memory * memory = &global_memory;
-        
+
+        char myText[] = "My text";
+        i32 item_size = sizeof(myText);
+        String description = {};
+        world->fragmented_dynamic_array = create_fragmented_dynamic_array(item_size, (Color4){255,100,0,255}, description);
+
+        world->my_world_text = (char*)add_to_indexed_array(&world->fragmented_dynamic_array, myText);
+myText[0] = 'p';
+log(myText);
+log(world->my_world_text);
+
+/*        
         FragmentedMemoryArena memory_arena = new_fragmented_memory_arena(memory, (Color4){0,255,0,255}, cstring_to_string("Fragmented"), true);
         
         LargeStruct * large_struct = (LargeStruct *)push_struct(&memory_arena, sizeof(LargeStruct));
@@ -55,7 +68,7 @@ extern "C" {
         log_int((i32)large_struct2);
         
         // reset_fragmented_memory_arena(&memory_arena);
-        
+  */      
         world->verbose_memory_usage = true;
     }
     
@@ -88,8 +101,10 @@ extern "C" {
         draw_text((Pos2d){100,100}, &address, font, black);
         draw_text((Pos2d){100,140}, &size, font, black);
         draw_text((Pos2d){100,180}, &pointer_length, font, black);
+
+
         
-        
+/*        
         // Button to increase memory
         ShortString label;
         copy_char_to_string('=', &label);
@@ -108,7 +123,7 @@ extern "C" {
             increase_consecutive_memory_blocks(&world->consecutive_memory_arena, 20);
             world->increased_memory = true;
         }
-        
+*/        
         // Draw memory usage
         do_memory_usage(memory, input, &world->verbose_memory_usage);
         
