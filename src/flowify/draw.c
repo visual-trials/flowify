@@ -72,7 +72,7 @@ void push_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, D
         // FIXME: combine this with get_size_based_on_source_text() in layout.c!
         Size2d source_text_size = {};
         source_text_size.height = flowifier->character_height;
-        // FIXME: hack: eulating 'kerning' here: space between characters
+        // FIXME: hack: emulating 'kerning' here: space between characters
         source_text_size.width = flow_element->source_text.length * (flowifier->character_width + 1) - 1;
         /*
         // FIXME: this is slow!!
@@ -634,7 +634,6 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     {
         if (flow_element->type == FlowElement_Root)
         {
-            // FIXME: use DrawStyle here!
             push_rounded_rectangle(renderer, flow_element->rect_abs, flowifier->function_style);
                                    
             b32 add_to_last_lane = false; // this is to make sure we start with a new set of lane-entries in the draw-list

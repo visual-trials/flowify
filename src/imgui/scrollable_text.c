@@ -510,8 +510,14 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
                 // Line number
                 Pos2d position_line_nr = position;
                 int_to_string(file_line_index + 1, &line_nr_text);
-// FIXME: this is SLOW!
+                
+                Size2d line_nr_size = {};
+                // FIXME: hack: emulating 'kerning' here: space between characters
+                line_nr_size.width = line_nr_text.length * (white_space_size.width + 1) - 1;
+                /*
+                // FIXME: this is SLOW!
                 Size2d line_nr_size = get_text_size(&line_nr_text, font);
+                */
                 position_line_nr.x -= white_space_size.width * 3 + line_nr_size.width;
                 draw_text(position_line_nr, &line_nr_text, font, grey);
             }
