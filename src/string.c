@@ -77,13 +77,13 @@ i32 get_number_based_on_string(String string)
 }
 
 // TODO: we don't need a pointer to the source here. Better not to take the pointer, we don't want to change the source anyway!
-void append_string(String * dest, String * src)
+void append_string(String * dest, String src)
 {
-    for (i32 i = 0; i < src->length; i++)
+    for (i32 i = 0; i < src.length; i++)
     {
-        dest->data[dest->length + i] = src->data[i];
+        dest->data[dest->length + i] = src.data[i];
     }
-    dest->length = dest->length + src->length;
+    dest->length = dest->length + src.length;
 }
 
 b32 equals(String string1, String string2)
