@@ -147,7 +147,7 @@ extern "C" {
         // Flowify
         FlowElement * root_element = flowify_root(flowifier, root_node);
         
-        // FIXME: put root_element inside the Flowifier-struct!
+        // TODO: maybe put root_element inside the Flowifier-struct?
         world->root_element = root_element;
         
         // dump_element_tree(root_element, &world->flowify_dump_text);
@@ -270,7 +270,7 @@ extern "C" {
         if (flowifier->has_absolute_positions)
         {
             i32 old_selected_element_index = flowifier->interaction.selected_element_index;
-            // FIXME: turned off for now: 
+            
             process_interactions(flowifier, input, world->root_element);
             
             if (flowifier->interaction.acted_upon_element_index)
@@ -525,7 +525,7 @@ extern "C" {
         
         // Help button
         
-        b32 help_button_is_active = false; // FIXME?
+        b32 help_button_is_active = false;
         b32 help_button_is_pressed = do_button(position_help_button, size_help_button, &help_label, help_button_is_active, &global_input);
         
         if (help_button_is_pressed)
@@ -615,7 +615,7 @@ extern "C" {
         }
         
         // Menu button
-        b32 menu_button_is_active = false; // FIXME?
+        b32 menu_button_is_active = false;
         b32 menu_button_is_pressed = do_integer_button(position_menu_button, size_menu_button, 0, menu_button_is_active, &global_input);
         
         if (menu_button_is_pressed)
