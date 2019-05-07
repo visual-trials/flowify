@@ -20,11 +20,12 @@
 #include <stdio.h>
 
 #if DO_ASSERTIONS
-// FIXME: implement win32 version: #define assert(expression) if(!(expression)) {*(int *)0 = 0;}
+// FIXME: implement win32 version: 
+#define assert(expression) if(!(expression)) {*(int *)0 = 0;}
 // FIXME: implement win32 version: #define assert_message(expression, message) if(!(expression)) {abort(message, __FILE__, __LINE__);}
 // BROWSER VERSION: #define assert(expression) if(!(expression)) {abort("Assertion failed!", __FILE__, __LINE__);}
 // BROWSER VERSION: #define assert_message(expression, message) if(!(expression)) {abort(message, __FILE__, __LINE__);}
-#define assert(expression)
+// #define assert(expression)
 #define assert_message(expression, message)
 #else
 #define assert(expression)

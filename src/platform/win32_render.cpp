@@ -112,13 +112,177 @@ void draw_rectangle(Rect2d rect, DrawStyle draw_style)
     draw_rectangle(rect.position, rect.size, draw_style);
 }
 
+
+void draw_path(DrawablePathPart * path_parts, i32 path_parts_count, b32 is_background, ID2D1GeometrySink * sink)
+{
+    b32 figure_is_open = false;
+    i32 previous_x = 0;
+    i32 previous_y = 0;
+    for (i32 part_index = 0; part_index < path_parts_count; part_index++)
+    {
+        DrawablePathPart path_part = path_parts[part_index];
+        PathPartType type = path_part.part_type;
+        i32 x = path_part.position.x;
+        i32 y = path_part.position.y;
+        
+        D2D1_POINT_2F position = D2D1::Point2F(x, y);
+    
+        i32 radius = previous_x - x;
+        if (radius < 0)
+        {
+            radius = -radius;
+        }
+            
+        if (type == PathPart_Move)
+        {
+            if (figure_is_open)
+            {
+                sink->EndFigure(D2D1_FIGURE_END_OPEN);
+                figure_is_open = false;
+            }
+            sink->BeginFigure(position, D2D1_FIGURE_BEGIN_FILLED);
+            figure_is_open = true;
+        }
+        else if (type == PathPart_Line)
+        {
+            assert(figure_is_open);
+            sink->AddLine(position);
+        }
+        else if (type == PathPart_LineWhenBackground)
+        {
+            if (is_background)
+            {
+                assert(figure_is_open);
+/*                
+// FIXME: HACK!
+if (!figure_is_open)
+{
+    sink->BeginFigure(position, D2D1_FIGURE_BEGIN_FILLED);
+    figure_is_open = true;
+}
+*/
+                sink->AddLine(position);
+            }
+            else {
+                if (figure_is_open)
+                {
+                    sink->EndFigure(D2D1_FIGURE_END_OPEN);
+                    figure_is_open = false;
+                }
+                sink->BeginFigure(position, D2D1_FIGURE_BEGIN_FILLED);
+                figure_is_open = true;
+            }
+        }
+        else if (type == PathPart_Arc_DownToLeft || type == PathPart_Arc_DownToRight || type == PathPart_Arc_UpToLeft || type == PathPart_Arc_UpToRight)
+        {
+            /*
+            sink->AddArc(left_arc_segment);
+            */
+            // ctx.arcTo(previousX, y, x, y, radius)
+        }
+        else if (type == PathPart_Arc_LeftToUp || type == PathPart_Arc_LeftToDown || type == PathPart_Arc_RightToUp || type == PathPart_Arc_RightToDown)
+        {
+            /*
+            sink->AddArc(left_arc_segment);
+            */
+            // ctx.arcTo(x, previousY, x, y, radius)
+        }
+                    
+        previous_x = x;
+        previous_y = y;
+    }
+    
+}
+
+
 void draw_lane_paths(DrawablePathPart * left_path_parts_index, i32 left_path_parts_count, 
                      DrawablePathPart * right_path_parts_index, i32 right_path_parts_count, 
                      DrawStyle draw_style)
 {
+    ID2D1SolidColorBrush * line_brush = 0;
+    ID2D1SolidColorBrush * fill_brush = 0;
     
-    // FIXME: implement this!
+    ID2D1PathGeometry * path_geometry = 0;
+    ID2D1GeometrySink * sink = 0;
     
+    // Drawing the lane as left and right paths
+                
+    if (draw_style.line_color.a)
+    {
+        d2d_factory->CreatePathGeometry(&path_geometry);
+        path_geometry->Open(&sink);
+        sink->SetFillMode(D2D1_FILL_MODE_WINDING);
+
+        b32 is_background = false;
+        draw_path(left_path_parts_index, left_path_parts_count, is_background, sink);
+        sink->EndFigure(D2D1_FIGURE_END_OPEN);
+        
+        draw_path(right_path_parts_index, right_path_parts_count, is_background, sink);
+        sink->EndFigure(D2D1_FIGURE_END_OPEN);
+        
+        sink->Close();
+        sink->Release();
+        
+        get_brush(draw_style.line_color, &line_brush);
+        render_target->DrawGeometry(path_geometry, line_brush, draw_style.line_width);    
+        release_brush(line_brush);
+        
+        path_geometry->Release();
+    }
+/*
+    if (draw_style.fill_color.a)
+    {
+        d2d_factory->CreatePathGeometry(&path_geometry);
+        path_geometry->Open(&sink);
+        sink->SetFillMode(D2D1_FILL_MODE_WINDING);
+
+        b32 is_background = true;
+// FIXME: there is a problem now: we don't start with a move, triggering the assert (inside draw_path)
+//        but even if that is worked around, nothing is drawn. So this must be debugged.
+        draw_path(left_path_parts_index, left_path_parts_count, is_background, sink);
+        draw_path(right_path_parts_index, right_path_parts_count, is_background, sink);
+        sink->EndFigure(D2D1_FIGURE_END_CLOSED);
+        
+        sink->Close();
+        sink->Release();
+        
+        get_brush(draw_style.fill_color, &fill_brush);
+        render_target->FillGeometry(path_geometry, fill_brush);
+        release_brush(fill_brush);
+        
+        path_geometry->Release();
+    }
+    */
+/*
+                if (fillColorAlpha) {
+                    ctx.beginPath()
+                    drawPath(leftPathParts, isBackground = true)
+                    drawPath(rightPathParts, isBackground = true)
+                    ctx.closePath()
+                    ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
+                    ctx.fill()
+                    
+                    my.nrOfDrawCalls++
+                }
+
+                if (lineColorAlpha) {
+                    ctx.beginPath()
+                    drawPath(leftPathParts, isBackground = false)
+                    ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
+                    ctx.lineWidth = lineWidth
+                    ctx.stroke()
+                    
+                    my.nrOfDrawCalls++
+                                    
+                    ctx.beginPath()
+                    drawPath(rightPathParts, isBackground = false)
+                    ctx.strokeStyle =  my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
+                    ctx.lineWidth = lineWidth
+                    ctx.stroke()
+                    
+                    my.nrOfDrawCalls++
+                }
+*/    
 }
                
 void draw_line(Pos2d start_position, Pos2d end_position, Color4 line_color, i32 line_width, b32 round_cap = false)
