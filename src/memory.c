@@ -487,7 +487,8 @@ void * add_to_indexed_array(FragmentedDynamicArray * fragmented_dynamic_array, v
 
 void * get_item_by_index(FragmentedDynamicArray * fragmented_dynamic_array, i32 index)
 {
-    // FIXME: we should check if the index is withing bounds!
+    assert(index < fragmented_dynamic_array->nr_of_index_entries);
+    
     void * index_address = (void *)((i32)fragmented_dynamic_array->index_table + (index * fragmented_dynamic_array->index_entry_size)); 
     void * item_address = *(void**)index_address;
 
