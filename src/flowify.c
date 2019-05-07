@@ -699,8 +699,10 @@ extern "C" {
             
             remove_highlighted_line_parts(scrollable_program_text);
             
-            if (highlighted_flow_element->type != FlowElement_Root &&
-                highlighted_flow_element->type != FlowElement_FunctionBody) {
+            if (node && 
+                highlighted_flow_element->type != FlowElement_Root &&
+                highlighted_flow_element->type != FlowElement_FunctionBody)
+            {
                 // Not highlighting Root or FunctionBody
                 
                 for (i32 token_index = node->first_token_index; token_index <= node->last_token_index; token_index++)
