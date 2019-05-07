@@ -16,194 +16,6 @@
 
  */
  
-struct DrawStyle
-{
-    Color4 line_color;
-    Color4 fill_color;
-    i32 corner_radius;
-    i32 line_width;
-};
-
-struct DrawStyleEvenOdd
-{
-    Color4 line_color;
-    Color4 even_fill_color;
-    Color4 odd_fill_color;
-    i32 corner_radius;
-    i32 line_width;
-};
-
-struct DrawableText
-{
-    Pos2d position;
-    String * text; // FIXME: there is no need to use a pointer here!
-    Font font;
-    Color4 color;
-};
-
-struct DrawableRect
-{
-    Rect2d rect;
-    Color4 line_color;
-    Color4 fill_color;
-    i32 line_width;
-};
-
-struct DrawableRoundedRect
-{
-    Rect2d rect;
-    i32 radius;
-    Color4 line_color;
-    Color4 fill_color;
-    i32 line_width;
-};
-
-enum PathPartType
-{
-    PathPart_Move = 0,
-    PathPart_Line = 1,
-    PathPart_LineWhenBackground = 2,
-    PathPart_Arc_DownToLeft = 3,
-    PathPart_Arc_DownToRight = 4,
-    PathPart_Arc_LeftToUp = 5,
-    PathPart_Arc_LeftToDown = 6,
-    PathPart_Arc_UpToLeft = 7,
-    PathPart_Arc_UpToRight = 8,
-    PathPart_Arc_RightToUp = 9,
-    PathPart_Arc_RightToDown = 10
-};
-
-struct DrawablePathPart
-{
-    Pos2d position;
-    PathPartType part_type;
-};
-
-struct DrawableLanePart
-{
-    Rect2d rect;
-    Direction direction;
-    
-    DrawableLanePart * next_part;
-    // TODO: maybe add fill_color (when a part is selected for example)
-};
-
-struct DrawableLane
-{
-    Rect2d bounding_rect; // We can use this to check whether any of the lane-parts is inside the screen (so we know we should draw the lane)
-    
-    DrawableLanePart * first_part;
-    DrawableLanePart * last_part;
-    
-    // TODO: how to signify that the first/last part should not have a line on either the left or right side?
-    
-    DrawableLane * splitting_from_lane;
-    b32 is_right_side_at_split;
-    Pos2d splitting_point;
-    
-    b32 is_splitter_at_end;
-    
-    DrawableLane * joining_towards_lane;
-    b32 is_right_side_at_join;
-    Pos2d joining_point;
-    
-    b32 is_joiner_at_beginning;
-    
-    // FIXME: make this a DrawStyle!
-    i32 bending_radius;
-    Color4 line_color;
-    Color4 fill_color;
-    i32 line_width;
-};
-
-enum DrawableType
-{
-    Drawable_Text,
-    Drawable_Rect,
-    Drawable_RoundedRect,
-    Drawable_Lane
-};
-
-struct DrawableEntry
-{
-    DrawableType type; // Lane / RoundedRect / Rect / Text
-    void * item_to_draw;
-    
-    DrawableEntry * first_child_entry;
-    DrawableEntry * last_child_entry;
-    
-    DrawableEntry * next_entry;
-};
-
-struct BasicRenderer
-{
-    FragmentedMemoryArena draw_arena;
-    DrawableEntry * first_drawable_entry;
-    DrawableEntry * last_drawable_entry;
-    
-    DrawableEntry * last_lane_entry;
-};
-
-struct LaneRenderer
-{
-    ConsecutiveDynamicArray left_path_parts;
-    ConsecutiveDynamicArray right_path_parts;
-};
-
-void init_basic_renderer(BasicRenderer * basic_renderer)
-{
-    if (!basic_renderer->draw_arena.memory)
-    {
-        basic_renderer->draw_arena = new_fragmented_memory_arena(&global_memory, (Color4){50,100,50,255}, cstring_to_string("Basic renderer"), true);
-    }
-    else
-    {
-        reset_fragmented_memory_arena(&basic_renderer->draw_arena, true);
-    }
-    basic_renderer->first_drawable_entry = 0;
-    basic_renderer->last_drawable_entry = 0;
-    
-    basic_renderer->last_lane_entry = 0;
-}
-
-void init_lane_renderer(LaneRenderer * lane_renderer)
-{
-    init_consecutive_dynamic_array(&lane_renderer->left_path_parts, sizeof(DrawablePathPart), (Color4){50,100,150,255}, cstring_to_string("Left path parts"));
-    init_consecutive_dynamic_array(&lane_renderer->right_path_parts, sizeof(DrawablePathPart), (Color4){50,100,150,255}, cstring_to_string("Right path parts"));
-}
-
-void add_child_drawable_entry(DrawableEntry * child_drawable_entry, DrawableEntry * parent_drawable_entry)
-{
-    if (!parent_drawable_entry->first_child_entry)
-    {
-        parent_drawable_entry->first_child_entry = child_drawable_entry;
-    }
-    else
-    {
-        parent_drawable_entry->last_child_entry->next_entry = child_drawable_entry;
-    }
-    parent_drawable_entry->last_child_entry = child_drawable_entry;
-}
-
-void add_drawable_entry(BasicRenderer * renderer, DrawableEntry * drawable_entry)
-{
-    if (drawable_entry->type == Drawable_Lane)
-    {
-        renderer->last_lane_entry = drawable_entry;
-    }
-    
-    if (!renderer->first_drawable_entry)
-    {
-        renderer->first_drawable_entry = drawable_entry;
-    }
-    else
-    {
-        renderer->last_drawable_entry->next_entry = drawable_entry;
-    }
-    
-    renderer->last_drawable_entry = drawable_entry;
-}
-
 void push_text(BasicRenderer * renderer, Pos2d position, String * text, Font font, Color4 color)
 {
     DrawableEntry * drawable_entry = (DrawableEntry *)push_struct(&renderer->draw_arena, sizeof(DrawableEntry));
@@ -223,7 +35,7 @@ void push_text(BasicRenderer * renderer, Pos2d position, String * text, Font fon
     add_drawable_entry(renderer, drawable_entry);
 }
 
-void push_rectangle(BasicRenderer * renderer, Rect2d rect, Color4 line_color, Color4 fill_color, i32 line_width)
+void push_rectangle(BasicRenderer * renderer, Rect2d rect, DrawStyle draw_style)
 {
     DrawableEntry * drawable_entry = (DrawableEntry *)push_struct(&renderer->draw_arena, sizeof(DrawableEntry));
     drawable_entry->type = Drawable_Rect;
@@ -235,14 +47,12 @@ void push_rectangle(BasicRenderer * renderer, Rect2d rect, Color4 line_color, Co
     drawable_entry->item_to_draw = drawable_rect;
     
     drawable_rect->rect = rect;
-    drawable_rect->line_color = line_color;
-    drawable_rect->fill_color = fill_color;
-    drawable_rect->line_width = line_width;
+    drawable_rect->draw_style = draw_style;
     
     add_drawable_entry(renderer, drawable_entry);
 }
 
-void push_rounded_rectangle(BasicRenderer * renderer, Rect2d rect, i32 radius, Color4 line_color, Color4 fill_color, i32 line_width)
+void push_rounded_rectangle(BasicRenderer * renderer, Rect2d rect, DrawStyle draw_style)
 {
     DrawableEntry * drawable_entry = (DrawableEntry *)push_struct(&renderer->draw_arena, sizeof(DrawableEntry));
     drawable_entry->type = Drawable_RoundedRect;
@@ -254,10 +64,7 @@ void push_rounded_rectangle(BasicRenderer * renderer, Rect2d rect, i32 radius, C
     drawable_entry->item_to_draw = drawable_rounded_rect;
     
     drawable_rounded_rect->rect = rect;
-    drawable_rounded_rect->radius = radius;
-    drawable_rounded_rect->line_color = line_color;
-    drawable_rounded_rect->fill_color = fill_color;
-    drawable_rounded_rect->line_width = line_width;
+    drawable_rounded_rect->draw_style = draw_style;
     
     add_drawable_entry(renderer, drawable_entry);
 }
@@ -291,10 +98,7 @@ DrawableLane * push_lane(BasicRenderer * renderer, DrawStyle lane_style, b32 add
     
     drawable_lane->is_joiner_at_beginning = false;
     
-    drawable_lane->bending_radius = lane_style.corner_radius;
-    drawable_lane->line_color = lane_style.line_color;
-    drawable_lane->fill_color = lane_style.fill_color;
-    drawable_lane->line_width = lane_style.line_width;
+    drawable_lane->draw_style = lane_style;
         
     if (add_to_last_lane && renderer->last_lane_entry)
     {
@@ -507,11 +311,13 @@ void draw_lane_using_directional_rects(LaneRenderer * lane_renderer,
                DirectionalRect2d * lane_parts, i32 lane_parts_count,
                b32 partial_rect_at_start, b32 is_right_side_at_start, b32 is_joiner_at_beginning,
                b32 partial_rect_at_end, b32 is_right_side_at_end, b32 is_splitter_at_end,
-               i32 radius, Color4 line_color, Color4 fill_color, i32 line_width)
+               DrawStyle lane_style)
 {
     if (lane_parts_count <= 0) {
         return;
     }
+    
+    i32 radius = lane_style.corner_radius;
     
     init_lane_renderer(lane_renderer);
         
@@ -709,7 +515,7 @@ void draw_lane_using_directional_rects(LaneRenderer * lane_renderer,
     DrawablePathPart * right_path_parts = (DrawablePathPart *)lane_renderer->right_path_parts.items;
     draw_lane_paths(left_path_parts, lane_renderer->left_path_parts.nr_of_items, 
                     right_path_parts, lane_renderer->right_path_parts.nr_of_items, 
-                    line_color, fill_color, line_width);
+                    lane_style);
     
 }
 
@@ -723,10 +529,7 @@ void draw_an_entry(LaneRenderer * lane_renderer, DrawableEntry * drawable_entry)
         if (rect_is_inside_screen(rounded_rect->rect))
         {
             draw_rounded_rectangle(rounded_rect->rect, 
-                                   rounded_rect->radius, 
-                                   rounded_rect->line_color, 
-                                   rounded_rect->fill_color, 
-                                   rounded_rect->line_width);
+                                   rounded_rect->draw_style);
         }
     }
     else if (drawable_entry->type == Drawable_Rect)
@@ -735,9 +538,7 @@ void draw_an_entry(LaneRenderer * lane_renderer, DrawableEntry * drawable_entry)
         if (rect_is_inside_screen(rect->rect))
         {
             draw_rectangle(rect->rect, 
-                           rect->line_color, 
-                           rect->fill_color, 
-                           rect->line_width);
+                           rect->draw_style);
         }
     }
     else if (drawable_entry->type == Drawable_Text)
@@ -756,10 +557,6 @@ void draw_an_entry(LaneRenderer * lane_renderer, DrawableEntry * drawable_entry)
     else if (drawable_entry->type == Drawable_Lane)
     {
         DrawableLane * lane = (DrawableLane *)drawable_entry->item_to_draw;
-        i32 bending_radius = lane->bending_radius;
-        Color4 line_color = lane->line_color;
-        Color4 fill_color = lane->fill_color;
-        i32 line_width = lane->line_width;
     
         b32 some_lane_parts_are_on_screen = false;
         
@@ -946,7 +743,7 @@ void draw_an_entry(LaneRenderer * lane_renderer, DrawableEntry * drawable_entry)
                       directional_rects, directional_rects_index, 
                       partial_rect_at_start, lane->is_right_side_at_split, lane->is_joiner_at_beginning,
                       partial_rect_at_end, lane->is_right_side_at_join, lane->is_splitter_at_end,
-                      bending_radius, line_color, fill_color, line_width);
+                      lane->draw_style);
             
         }
     }

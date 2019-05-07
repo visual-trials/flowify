@@ -513,8 +513,7 @@ extern "C" {
             detail_rect.position.x += world->root_element->rect.size.width + 20;
             // detail_rect.position.y = selected_flow_element->absolute_position.y + selected_flow_element->rect.size.height / 2 - detail_rect.size.height / 4;
             
-            draw_rounded_rectangle(detail_rect.position, detail_rect.size, flowifier->bending_radius, 
-                                   flowifier->detail_line_color, flowifier->detail_fill_color, flowifier->detail_line_width);
+            draw_rounded_rectangle(detail_rect.position, detail_rect.size, flowifier->detail_style);
 
             // FIXME: update_scrollable_text should be called in update_frame!!
             world->flowify_detail_window.screen_rect = detail_rect;
@@ -548,10 +547,14 @@ extern "C" {
             Color4 text_color = {   0,   0,   0, 255};
             Color4 line_color = { 100, 100, 100, 255};
             Color4 fill_color = { 255, 255, 255, 255};
-            i32 line_width = 1;
-            i32 bending_radius = 5;
             
-            draw_rounded_rectangle(position_help, size_help, bending_radius, line_color, fill_color, line_width);
+            DrawStyle draw_style = {};
+            draw_style.corner_radius = 5;
+            draw_style.line_width = 1;
+            draw_style.line_color = line_color;
+            draw_style.fill_color = fill_color;
+            
+            draw_rounded_rectangle(position_help, size_help, draw_style);
             Pos2d current_position = position_help;
             
             current_position.x += 20;
@@ -652,10 +655,15 @@ extern "C" {
             size_menu.height = size_menu_item.height * world->nr_of_program_texts;
             Color4 line_color = { 100, 100, 100, 255};
             Color4 fill_color = { 255, 255, 255,   0};
-            i32 line_width = 1;
-            i32 bending_radius = 5;
             
-            draw_rounded_rectangle(position_menu, size_menu, bending_radius, line_color, fill_color, line_width);
+            DrawStyle draw_style = {};
+            draw_style.corner_radius = 5;
+            draw_style.line_width = 1;
+            draw_style.line_color = line_color;
+            draw_style.fill_color = fill_color;
+            
+            
+            draw_rounded_rectangle(position_menu, size_menu, draw_style);
                 
         }
         
@@ -729,11 +737,15 @@ extern "C" {
 
         if (world->show_code)
         {
-            Color4 code_fill_color = { 255, 255, 255, 255 };
-            Color4 code_line_color = { 200, 200, 200, 255 };
-            i32 code_line_width = 2;
-            draw_rounded_rectangle(world->code_rect.position, world->code_rect.size, flowifier->bending_radius, 
-                                   code_line_color, code_fill_color, code_line_width);
+            Color4 fill_color = { 255, 255, 255, 255 };
+            Color4 line_color = { 200, 200, 200, 255 };
+            
+            DrawStyle code_style = {};
+            code_style.line_width = 2;
+            code_style.fill_color = fill_color;
+            code_style.line_color = line_color;
+            
+            draw_rounded_rectangle(world->code_rect.position, world->code_rect.size, code_style);
                                    
             Size2d program_name_size = get_text_size(&world->program_name, font);
             Pos2d program_name_position = {};

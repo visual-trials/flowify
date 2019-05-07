@@ -222,51 +222,21 @@ struct Flowifier
     // Colors and line widths
     
     Color4 text_color;
-    
-    // FIXME: bundle these into a lane_style
-    Color4 line_color;
-    // FIXME: isnt the unhighlighted_color == statement_fill_color?
-    Color4 unhighlighted_color;
-    i32 bending_radius;
-    i32 line_width;
-    
-    // TODO: should we add highlighted_color to the Style struct? or is the highlighted_color the same for alle types of elements?
     Color4 highlighted_color;
     
-    b32 show_help_rectangles;
-    
-    // TODO: make a struct for 2 colors, 1 line width!
-    Color4 help_rectangle_color;
-    Color4 help_rectangle_fill;
-    i32 help_rectangle_line_width;
-    
-    // TODO: make a struct for 2 colors, 1 line width!
-    Color4 hovered_color;
-    Color4 hovered_fill;
-    i32 hovered_line_width;
-    
-    // TODO: make a struct for 2 colors, 1 line width!
-    Color4 selected_color;
-    Color4 selected_fill;
-    i32 selected_line_width;
-    
-    // TODO: make a struct for 2 colors, 1 line width!
-    Color4 function_line_color;
-    Color4 function_fill_color;
-    i32 function_line_width;
-    
+    DrawStyle lane_style;
+    DrawStyle help_rectangle_style;
+    DrawStyle hovered_style;
+    DrawStyle selected_style;
+    DrawStyle function_style;
+    DrawStyle scalar_style;
     DrawStyleEvenOdd expression_style;
-    
     DrawStyle variable_style;
     DrawStyle variable_styles[20]; // FIXME: make sure nr_of_variable_colors is always smaller than (or equal to) the size of this array!
     i32 nr_of_variable_colors;
+    DrawStyle detail_style;
     
-    DrawStyle scalar_style;
-    
-    // TODO: make a struct for 2 colors, 1 line width!
-    Color4 detail_line_color;
-    Color4 detail_fill_color;
-    i32 detail_line_width;
+    b32 show_help_rectangles;
     
     // Font
     Font font;
@@ -277,9 +247,7 @@ struct Flowifier
     // Layout, sizes
     
     FlowMargin expression_margin;
-    
     FlowMargin variable_margin;
-    
     FlowMargin statement_margin;
     
     i32 if_middle_margin;
@@ -327,33 +295,33 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     flowifier->use_variable_color_variations = true;
     flowifier->has_absolute_positions = false;
     
-    flowifier->line_color          = (Color4){  0,   0,   0, 255};
-    flowifier->text_color          = (Color4){  0,   0,   0, 255};
-    flowifier->bending_radius = 16;
-    flowifier->line_width = 2;
+    flowifier->text_color = (Color4){  0,   0,   0, 255};
     
-    // FIXME: isnt the unhighlighted_color == statement_fill_color?
-    flowifier->unhighlighted_color = (Color4){180, 180, 255, 255};
     flowifier->highlighted_color   = (Color4){180, 255, 180, 255};
     
+    flowifier->lane_style.line_color = (Color4){  0,   0,   0, 255};
+    flowifier->lane_style.fill_color = (Color4){180, 180, 255, 255};
+    flowifier->lane_style.corner_radius = 16;
+    flowifier->lane_style.line_width = 2;
+    
     flowifier->show_help_rectangles = false;
-    flowifier->help_rectangle_color     = (Color4){255, 0, 0, 255};
-    flowifier->help_rectangle_fill      = (Color4){255, 0, 0, 20};
-    flowifier->help_rectangle_line_width = 2;
+    flowifier->help_rectangle_style.line_color = (Color4){255, 0, 0, 255};
+    flowifier->help_rectangle_style.fill_color = (Color4){255, 0, 0, 20};
+    flowifier->help_rectangle_style.line_width = 2;
     
     // FIXME: set fill/stroke to 0 alpha for now: this alpha seems to cause significant performance drains (when its a very large rect)
-    flowifier->hovered_color     = (Color4){0, 0, 255, 255};
-    flowifier->hovered_fill      = (Color4){0, 0, 255, 0}; 
-    flowifier->hovered_line_width = 2;
+    flowifier->hovered_style.line_color = (Color4){0, 0, 255, 255};
+    flowifier->hovered_style.fill_color = (Color4){0, 0, 255, 0}; 
+    flowifier->hovered_style.line_width = 2;
     
     // FIXME: set fill/stroke to 0 alpha for now: this alpha seems to cause significant performance drains (when its a very large rect)
-    flowifier->selected_color     = (Color4){255, 0, 255, 255};
-    flowifier->selected_fill      = (Color4){255, 0, 255, 0};
-    flowifier->selected_line_width = 2;
+    flowifier->selected_style.line_color = (Color4){255, 0, 255, 255};
+    flowifier->selected_style.fill_color = (Color4){255, 0, 255, 0};
+    flowifier->selected_style.line_width = 2;
     
-    flowifier->function_line_color = (Color4){ 200, 200, 200, 255};
-    flowifier->function_fill_color = (Color4){ 255, 255, 255, 255};
-    flowifier->function_line_width = 2;
+    flowifier->function_style.line_color = (Color4){ 200, 200, 200, 255};
+    flowifier->function_style.fill_color = (Color4){ 255, 255, 255, 255};
+    flowifier->function_style.line_width = 2;
     
     flowifier->expression_style.line_color = (Color4){ 200, 255, 200, 255};
     flowifier->expression_style.even_fill_color = (Color4){ 235, 255, 235, 255};
@@ -436,10 +404,9 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     flowifier->scalar_style.corner_radius = 10;
     flowifier->scalar_style.line_width = 2;
     
-    
-    flowifier->detail_line_color = (Color4){ 200, 200, 200, 255};
-    flowifier->detail_fill_color = (Color4){ 255, 255, 255, 200};
-    flowifier->detail_line_width = 2;
+    flowifier->detail_style.line_color = (Color4){ 200, 200, 200, 255};
+    flowifier->detail_style.fill_color = (Color4){ 255, 255, 255, 200};
+    flowifier->detail_style.line_width = 2;
     
     flowifier->font.height = 18;
     flowifier->font.family = Font_CourierNew;

@@ -84,38 +84,37 @@ void unclip_rectangle()
     render_target->PopAxisAlignedClip();
 }
 
-void draw_rectangle(Pos2d position, Size2d size, Color4 line_color, Color4 fill_color, i32 line_width)
+void draw_rectangle(Pos2d position, Size2d size, DrawStyle draw_style)
 {
     ID2D1SolidColorBrush * line_brush = 0;
     ID2D1SolidColorBrush * fill_brush = 0;
     
     D2D1_RECT_F rectangle = D2D1::RectF(position.x, position.y, position.x + size.width, position.y + size.height);
     
-    if (fill_color.a)
+    if (draw_style.fill_color.a)
     {
-        get_brush(fill_color, &fill_brush);
+        get_brush(draw_style.fill_color, &fill_brush);
         render_target->FillRectangle(&rectangle, fill_brush);
         release_brush(fill_brush);
     }
     
-    if (line_color.a)
+    if (draw_style.line_color.a)
     {
-        get_brush(line_color, &line_brush);
+        get_brush(draw_style.line_color, &line_brush);
         render_target->DrawRectangle(&rectangle, line_brush, line_width);
         release_brush(line_brush);
     }
 
 }
 
-void draw_rectangle(Rect2d rect, Color4 line_color, Color4 fill_color, i32 line_width)
+void draw_rectangle(Rect2d rect, DrawStyle draw_style)
 {
-    draw_rectangle(rect.position, rect.size, line_color, fill_color, line_width);
+    draw_rectangle(rect.position, rect.size, draw_style);
 }
 
-void draw_lane(DirectionalRect2d * lane_parts, i32 lane_parts_count,
-               b32 partial_rect_at_start, b32 is_right_side_at_start, 
-               b32 partial_rect_at_end, b32 is_right_side_at_end, 
-               i32 radius, Color4 line_color, Color4 fill_color, i32 line_width)
+void draw_lane_paths(DrawablePathPart * left_path_parts_index, i32 left_path_parts_count, 
+                     DrawablePathPart * right_path_parts_index, i32 right_path_parts_count, 
+                     DrawStyle draw_style)
 {
     
     // FIXME: implement this!

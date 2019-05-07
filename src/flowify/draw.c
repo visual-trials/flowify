@@ -39,33 +39,32 @@ void push_interaction_rectangle(Flowifier * flowifier, FlowElement * flow_elemen
 {
     if (flowifier->interaction.hovered_element_index == flow_element->index)
     {
-        push_rectangle(&flowifier->renderer, flow_element->rect_abs, flowifier->hovered_color, flowifier->hovered_fill, flowifier->hovered_line_width);
+        push_rectangle(&flowifier->renderer, flow_element->rect_abs, flowifier->hovered_style);
     }
     /*
     // FIXME: disabled for now
     if (flowifier->interaction.selected_element_index == flow_element->index)
     {
-        push_rectangle(&flowifier->renderer, flow_element->rect_abs, flowifier->selected_color, flowifier->selected_fill, flowifier->selected_line_width);
+        push_rectangle(&flowifier->renderer, flow_element->rect_abs, flowifier->selected_style);
     }
     */
     // FIXME: disabled for now
     if (flowifier->show_help_rectangles)
     {
-        push_rectangle(&flowifier->renderer, flow_element->rect_abs, flowifier->help_rectangle_color, flowifier->help_rectangle_fill, flowifier->help_rectangle_line_width);
+        push_rectangle(&flowifier->renderer, flow_element->rect_abs, flowifier->help_rectangle_style);
     }
 }
 
-void push_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, DrawStyle style, b32 draw_rectangle, b32 draw_source_text)
+void push_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, DrawStyle draw_style, b32 draw_rectangle, b32 draw_source_text)
 {
-    Color4 fill_color = style.fill_color;
     if (flowifier->interaction.highlighted_element_index == flow_element->index)
     {
-        fill_color = flowifier->highlighted_color;
+        draw_style.fill_color = flowifier->highlighted_color;
     }
     
     if (draw_rectangle)
     {
-        push_rounded_rectangle(&flowifier->renderer, flow_element->rect_abs, style.corner_radius, style.line_color, fill_color, style.line_width);
+        push_rounded_rectangle(&flowifier->renderer, flow_element->rect_abs, draw_style);
     }
     
     if (draw_source_text && flow_element->source_text.length)
@@ -121,12 +120,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
 
     Rect2d no_rect = {-1,-1,-1,-1};
     
-    // FIXME: make a lane_style inside flowifier!
-    DrawStyle lane_style = {};
-    lane_style.line_color = flowifier->line_color;
-    lane_style.fill_color = flowifier->unhighlighted_color;
-    lane_style.corner_radius = flowifier->bending_radius;
-    lane_style.line_width = flowifier->line_width;
+    DrawStyle lane_style = flowifier->lane_style;
     
     // TODO: we probably want flags here!
     if (flow_element->type == FlowElement_PassThrough || 
@@ -557,16 +551,14 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
             
             // FIXME: We should add a Stmt_Expr element to all statements instead (and give it margins only for function-calls!)
             //        Other statements (previous_in_flow and next_in_flow) can then also correctly connect with that element!
-            i32 bending_radius = flowifier->bending_radius;
+            i32 bending_radius = flowifier->lane_style.corner_radius;
             rect.position.x += bending_radius;
             rect.position.y += bending_radius;
             rect.size.width -= bending_radius + bending_radius;
             rect.size.height -= bending_radius + bending_radius;
         }
         
-        // FIXME: use DrawStyle here!
-        push_rounded_rectangle(renderer, rect, flowifier->bending_radius, 
-                               flowifier->function_line_color, flowifier->function_fill_color, flowifier->function_line_width);
+        push_rounded_rectangle(renderer, rect, flowifier->function_style);
 
         push_interaction_rectangle(flowifier, function_call_element);
         
@@ -643,8 +635,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         if (flow_element->type == FlowElement_Root)
         {
             // FIXME: use DrawStyle here!
-            push_rounded_rectangle(renderer, flow_element->rect_abs, flowifier->bending_radius, 
-                                   flowifier->function_line_color, flowifier->function_fill_color, flowifier->function_line_width);
+            push_rounded_rectangle(renderer, flow_element->rect_abs, flowifier->function_style);
                                    
             b32 add_to_last_lane = false; // this is to make sure we start with a new set of lane-entries in the draw-list
             flowifier->current_lane = push_lane(renderer, lane_style, add_to_last_lane);

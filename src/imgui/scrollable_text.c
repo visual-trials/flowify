@@ -412,6 +412,9 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
     grey.a = 100;
     
     Color4 selected_color = {180, 255, 180, 255};
+    
+    DrawStyle draw_style;
+    draw_style.line_width = 1;
 
     Font font = scrollable_text->font;
     i32 line_margin = scrollable_text->line_margin;
@@ -430,10 +433,18 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
     {
         Color4 screen_rect_color = {0, 0, 255, 255};
         Color4 inside_rect_color = {255, 0, 0, 255};
-        draw_rectangle(window->screen_rect.position, window->screen_rect.size, screen_rect_color, no_color, 1);
-        draw_rectangle(absolute_base_position, window->inside_rect.size, inside_rect_color, no_color, 1);
+
+        draw_style.fill_color = no_color;
+        
+        draw_style.line_color = screen_rect_color;
+        draw_rectangle(window->screen_rect.position, window->screen_rect.size, draw_style);
+        
+        draw_style.line_color = inside_rect_color;
+        draw_rectangle(absolute_base_position, window->inside_rect.size, draw_style);
     }
                 
+    draw_style.line_color = no_color;
+    
     if (scrollable_text->lines.nr_of_items > 0)
     {
         HighlightedLinePart * line_part = scrollable_text->first_highlighted_line_part;
@@ -453,7 +464,8 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
                 size.width = x_width_part;
                 size.height = font.height + line_margin;
                 
-                draw_rectangle(position, size, no_color, selected_color, 1);
+                draw_style.fill_color = selected_color;
+                draw_rectangle(position, size, draw_style);
             }
             
             line_part = line_part->next_highlighted_line_part;
@@ -541,7 +553,8 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
         // TODO: not drawing the scrollbar also changes the width!
         if (height_vertical_fraction != 1)
         {
-            draw_rectangle(vertical_scrollbar_rect.position, vertical_scrollbar_rect.size, no_color, scrollbar_color, 1);
+            draw_style.fill_color = scrollbar_color;
+            draw_rectangle(vertical_scrollbar_rect.position, vertical_scrollbar_rect.size, draw_style);
         }
     }
     

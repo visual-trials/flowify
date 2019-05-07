@@ -111,7 +111,7 @@ Size2d layout_horizontally(Rect2d * first_rect, Rect2d * second_rect, Rect2d * t
 
 void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
 {
-    i32 bending_radius = flowifier->bending_radius;
+    i32 bending_radius = flowifier->lane_style.corner_radius;
     i32 default_element_width = flowifier->default_element_width;
     i32 default_element_height = flowifier->default_element_height;
     i32 if_middle_margin = flowifier->if_middle_margin;

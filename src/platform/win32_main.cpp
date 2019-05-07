@@ -42,6 +42,7 @@ LARGE_INTEGER clock_counter_after_wait;
 #include "../memory.c"
 #include "../input.c"
 
+#include "../render.h"
 #include "win32_render.cpp"
 #include "../render.c"
 

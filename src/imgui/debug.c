@@ -94,6 +94,10 @@ void do_memory_usage(Memory * memory, Input * input, b32 * is_verbose)
         nr_of_bars_to_show = (screen->width - left_margin - right_margin) / bar_width;
     }
     
+    DrawStyle draw_style = {};
+    draw_style.line_color = no_color;
+    draw_style.line_width = 1;
+    
     for (i32 memory_block_index = 0; memory_block_index < nr_of_bars_to_show; memory_block_index++)
     {
         if (memory->blocks_used[memory_block_index])
@@ -103,16 +107,19 @@ void do_memory_usage(Memory * memory, Input * input, b32 * is_verbose)
             
             i32 percentage_used = (i32)(bar_height * (f32)((f32)bytes_used / (f32)block_size));
             
-            Color4 color = memory->blocks[memory_block_index].color;
+            Color4 fill_color = memory->blocks[memory_block_index].color;
+            Color4 light_fill_color = fill_color;
+            light_fill_color.a /= 3;
             
-            Color4 light_color = color;
-            light_color.a /= 3;
+            draw_style.fill_color = fill_color;
+            draw_rectangle((Pos2d){start_position.x + memory_block_index * bar_width, start_position.y + bar_height - percentage_used}, (Size2d){bar_width,percentage_used}, draw_style);
             
-            draw_rectangle((Pos2d){start_position.x + memory_block_index * bar_width, start_position.y + bar_height - percentage_used}, (Size2d){bar_width,percentage_used}, no_color, color, 1);
-            draw_rectangle((Pos2d){start_position.x + memory_block_index * bar_width, start_position.y}, (Size2d){bar_width, bar_height - percentage_used}, no_color, light_color, 1);
+            draw_style.fill_color = light_fill_color;
+            draw_rectangle((Pos2d){start_position.x + memory_block_index * bar_width, start_position.y}, (Size2d){bar_width, bar_height - percentage_used}, draw_style);
         }
         else {
-            draw_rectangle((Pos2d){start_position.x + memory_block_index * bar_width, start_position.y}, (Size2d){bar_width, bar_height}, no_color, light_blue, 1);
+            draw_style.fill_color = light_blue;
+            draw_rectangle((Pos2d){start_position.x + memory_block_index * bar_width, start_position.y}, (Size2d){bar_width, bar_height}, draw_style);
         }
     }
     
@@ -148,7 +155,9 @@ void do_frame_timing(Input * input, b32 * is_verbose)
     Color4 light_color =     {0, 255, 0, 200};
     Color4 no_color = {};
     
-    i32 line_width = 1;
+    DrawStyle draw_style = {};
+    draw_style.line_color = no_color;
+    draw_style.line_width = 1;
     
     Size2d graph_size = {};
     graph_size.width = nr_of_bars_to_show * (bar_width + margin_between_bars);
@@ -182,7 +191,8 @@ void do_frame_timing(Input * input, b32 * is_verbose)
             bar_size.height = ((input_time + updating_time + rendering_time) / normal_value) * normal_bar_height;
             bar_position.y = bar_start - bar_size.height;
             
-            draw_rectangle(bar_position, bar_size, no_color, rendering_color, line_width);
+            draw_style.line_color = rendering_color;
+            draw_rectangle(bar_position, bar_size, draw_style);
         }
         else
         {
@@ -193,7 +203,8 @@ void do_frame_timing(Input * input, b32 * is_verbose)
             bar_size.height = (input_time / normal_value) * normal_bar_height;
             bar_position.y = bar_start - bar_size.height;
             
-            draw_rectangle(bar_position, bar_size, no_color, input_color, line_width);
+            draw_style.line_color = input_color;
+            draw_rectangle(bar_position, bar_size, draw_style);
                            
             // Updating time
             
@@ -201,7 +212,8 @@ void do_frame_timing(Input * input, b32 * is_verbose)
             bar_size.height = (updating_time / normal_value) * normal_bar_height;
             bar_position.y = bar_start - bar_size.height;
             
-            draw_rectangle(bar_position, bar_size, no_color, updating_color, line_width);
+            draw_style.line_color = updating_color;
+            draw_rectangle(bar_position, bar_size, draw_style);
                        
             // Rendering time
             
@@ -209,7 +221,8 @@ void do_frame_timing(Input * input, b32 * is_verbose)
             bar_size.height = (rendering_time / normal_value) * normal_bar_height;
             bar_position.y = bar_start - bar_size.height;
             
-            draw_rectangle(bar_position, bar_size, no_color, rendering_color, line_width);
+            draw_style.line_color = rendering_color;
+            draw_rectangle(bar_position, bar_size, draw_style);
                            
             // Waiting time
             
@@ -217,7 +230,8 @@ void do_frame_timing(Input * input, b32 * is_verbose)
             bar_size.height = (waiting_time / normal_value) * normal_bar_height;
             bar_position.y = bar_start - bar_size.height;
             
-            draw_rectangle(bar_position, bar_size, no_color, waiting_color, line_width);
+            draw_style.line_color = waiting_color;
+            draw_rectangle(bar_position, bar_size, draw_style);
         }
     }
     

@@ -30,6 +30,7 @@
 #include "../memory.c"
 #include "../input.c"
 
+#include "../render.h"
 #include "browser_render.c"
 #include "../render.c"
 

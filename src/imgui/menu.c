@@ -21,8 +21,14 @@ b32 do_button(Pos2d position, Size2d size, ShortString * label, b32 is_active, I
     
     HoveredOrPressed hovered_or_pressed = check_hovered_or_pressed(position, size, input);
     
-    Color4 line_color = {  0,   0,   0, 255};
-    Color4 fill_color = {255, 255, 255, 255};
+    Color4 default_line_color = {  0,   0,   0, 255};
+    Color4 default_fill_color = {255, 255, 255, 255};
+    
+    Color4 text_color = {  0,   0,   0, 255};
+    
+    DrawStyle draw_style = {};
+    draw_style.line_color = default_line_color;
+    draw_style.fill_color = default_fill_color;
     
     if (is_active)
     {
@@ -31,28 +37,29 @@ b32 do_button(Pos2d position, Size2d size, ShortString * label, b32 is_active, I
             label = label_active;
             if (hovered_or_pressed.is_hovered)
             {
-                fill_color.r = 200;
-                fill_color.g = 200;
-                fill_color.b = 200;
+                draw_style.fill_color.r = 200;
+                draw_style.fill_color.g = 200;
+                draw_style.fill_color.b = 200;
             }
         }
         else
         {
-            fill_color.r = 255;
-            fill_color.g = 255;
-            fill_color.b = 200;
+            draw_style.fill_color.r = 255;
+            draw_style.fill_color.g = 255;
+            draw_style.fill_color.b = 200;
         }
     }
     else if (hovered_or_pressed.is_hovered)
     {
-        fill_color.r = 200;
-        fill_color.g = 200;
-        fill_color.b = 200;
+        draw_style.fill_color.r = 200;
+        draw_style.fill_color.g = 200;
+        draw_style.fill_color.b = 200;
     }
     
-    i32 line_width = 1;
+    draw_style.line_width = 1;
+    draw_style.corner_radius = 5;
     
-    draw_rounded_rectangle(position, size, 5, line_color, fill_color, line_width);
+    draw_rounded_rectangle(position, size, draw_style);
     
     // FIXME: HACK!
     if (label)
@@ -67,13 +74,13 @@ b32 do_button(Pos2d position, Size2d size, ShortString * label, b32 is_active, I
         Pos2d text_position = {};
         text_position.x = position.x + (size.width - text_size.width) / 2;
         text_position.y = position.y + (size.height - text_size.height) / 2;
-        draw_text(text_position, label, font, line_color);
+        draw_text(text_position, label, font, text_color);
     }
     else
     {
         // Drawing menu-icon (3 horizontal lines in button)
         Color4 open_menu_line_color = {70, 70, 70, 255};
-        line_width = 3;
+        i32 line_width = 3;
         b32 round_cap = true;
         Pos2d start_position = {};
         Pos2d end_position = {};
@@ -113,26 +120,31 @@ b32 do_menu_item(Pos2d position, Size2d size, ShortString * label, b32 is_active
     
     HoveredOrPressed hovered_or_pressed = check_hovered_or_pressed(position, size, input);
     
-    Color4 text_color = {  0,   0,   0, 255};
-    Color4 line_color = {  0,   0,   0,   0};
-    Color4 fill_color = {255, 255, 255, 255};
+    Color4 default_line_color = {  0,   0,   0, 255};
+    Color4 default_fill_color = {255, 255, 255, 255};
     
+    Color4 text_color = {  0,   0,   0, 255};
+    
+    DrawStyle draw_style = {};
+    draw_style.line_color = default_line_color;
+    draw_style.fill_color = default_fill_color;
+
     if (is_active)
     {
-        fill_color.r = 255;
-        fill_color.g = 255;
-        fill_color.b = 200;
+        draw_style.fill_color.r = 255;
+        draw_style.fill_color.g = 255;
+        draw_style.fill_color.b = 200;
     }
     else if (hovered_or_pressed.is_hovered)
     {
-        fill_color.r = 220;
-        fill_color.g = 220;
-        fill_color.b = 220;
+        draw_style.fill_color.r = 220;
+        draw_style.fill_color.g = 220;
+        draw_style.fill_color.b = 220;
     }
     
-    i32 line_width = 1;
+    draw_style.line_width = 1;
     
-    draw_rectangle(position, size, line_color, fill_color, line_width);
+    draw_rectangle(position, size, draw_style);
     
     Font font = {};
     font.height = 20;

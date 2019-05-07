@@ -22,8 +22,6 @@ const f32 textHeightToFontSizeRatio[] = {
     1.1328125  // Courier New
 };
 
-struct DrawablePathPart;
-
 extern "C" { 
     extern void jsClipRect(i32 x, i32 y, i32 width, i32 height);
     
@@ -81,52 +79,51 @@ void unclip_rectangle()
     jsUnClipRect();
 }
 
-void draw_rounded_rectangle(Pos2d position, Size2d size, i32 r,
-                            Color4 line_color, Color4 fill_color, i32 line_width)
+void draw_rounded_rectangle(Pos2d position, Size2d size, DrawStyle draw_style)
 {
-    i32 line_color_rgb = line_color.r + line_color.g * 256 + line_color.b * 256 * 256; 
-    i32 line_color_alpha = (i32)line_color.a;
+    i32 line_color_rgb = draw_style.line_color.r + draw_style.line_color.g * 256 + draw_style.line_color.b * 256 * 256; 
+    i32 line_color_alpha = (i32)draw_style.line_color.a;
     
-    i32 fill_color_rgb = fill_color.r + fill_color.g * 256 + fill_color.b * 256 * 256;
-    i32 fill_color_alpha = (i32)fill_color.a;
+    i32 fill_color_rgb = draw_style.fill_color.r + draw_style.fill_color.g * 256 + draw_style.fill_color.b * 256 * 256;
+    i32 fill_color_alpha = (i32)draw_style.fill_color.a;
     
-    jsDrawRoundedRect(position.x, position.y, size.width, size.height, r, line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
+    jsDrawRoundedRect(position.x, position.y, size.width, size.height, draw_style.corner_radius, line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, draw_style.line_width);
 }
 
-void draw_rounded_rectangle(Rect2d rect, i32 r, Color4 line_color, Color4 fill_color, i32 line_width)
+void draw_rounded_rectangle(Rect2d rect, DrawStyle draw_style)
 {
-    draw_rounded_rectangle(rect.position, rect.size, r, line_color, fill_color, line_width);
+    draw_rounded_rectangle(rect.position, rect.size, draw_style);
 }
 
 void draw_lane_paths(DrawablePathPart * left_path_parts_index, i32 left_path_parts_count, 
                      DrawablePathPart * right_path_parts_index, i32 right_path_parts_count, 
-                     Color4 line_color, Color4 fill_color, i32 line_width)
+                     DrawStyle draw_style)
 {
-    i32 line_color_rgb = line_color.r + line_color.g * 256 + line_color.b * 256 * 256; 
-    i32 line_color_alpha = (i32)line_color.a;
+    i32 line_color_rgb = draw_style.line_color.r + draw_style.line_color.g * 256 + draw_style.line_color.b * 256 * 256; 
+    i32 line_color_alpha = (i32)draw_style.line_color.a;
     
-    i32 fill_color_rgb = fill_color.r + fill_color.g * 256 + fill_color.b * 256 * 256;
-    i32 fill_color_alpha = (i32)fill_color.a;
+    i32 fill_color_rgb = draw_style.fill_color.r + draw_style.fill_color.g * 256 + draw_style.fill_color.b * 256 * 256;
+    i32 fill_color_alpha = (i32)draw_style.fill_color.a;
     
     jsDrawLanePaths(left_path_parts_index, left_path_parts_count, right_path_parts_index, right_path_parts_count, 
-                    line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
+                    line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, draw_style.line_width);
 }
 
 void draw_rectangle(Pos2d position, Size2d size, 
-                    Color4 line_color, Color4 fill_color, i32 line_width)
+                    DrawStyle draw_style)
 {
-    i32 line_color_rgb = line_color.r + line_color.g * 256 + line_color.b * 256 * 256; 
-    i32 line_color_alpha = (i32)line_color.a;
+    i32 line_color_rgb = draw_style.line_color.r + draw_style.line_color.g * 256 + draw_style.line_color.b * 256 * 256; 
+    i32 line_color_alpha = (i32)draw_style.line_color.a;
     
-    i32 fill_color_rgb = fill_color.r + fill_color.g * 256 + fill_color.b * 256 * 256;
-    i32 fill_color_alpha = (i32)fill_color.a;
+    i32 fill_color_rgb = draw_style.fill_color.r + draw_style.fill_color.g * 256 + draw_style.fill_color.b * 256 * 256;
+    i32 fill_color_alpha = (i32)draw_style.fill_color.a;
     
-    jsDrawRect(position.x, position.y, size.width, size.height, line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
+    jsDrawRect(position.x, position.y, size.width, size.height, line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, draw_style.line_width);
 }
 
-void draw_rectangle(Rect2d rect, Color4 line_color, Color4 fill_color, i32 line_width)
+void draw_rectangle(Rect2d rect, DrawStyle draw_style)
 {
-    draw_rectangle(rect.position, rect.size, line_color, fill_color, line_width);
+    draw_rectangle(rect.position, rect.size, draw_style);
 }
 
 void draw_line(Pos2d start_position, Pos2d end_position, 
