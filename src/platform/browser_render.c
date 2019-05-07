@@ -147,9 +147,9 @@ void draw_ellipse(Pos2d position, Size2d size,
     jsDrawEllipse(position.x, position.y, size.width, size.height, line_color_rgb, line_color_alpha, fill_color_rgb, fill_color_alpha, line_width);
 }
 
-Size2d get_text_size(String * text, Font font)
+Size2d get_text_size(String text, Font font)
 {
-    f32 text_width = jsGetTextWidth(text->data, text->length, font.height, font.family);
+    f32 text_width = jsGetTextWidth(text.data, text.length, font.height, font.family);
     
     Size2d text_size = {};
     text_size.width = (i32)text_width;
@@ -163,7 +163,7 @@ Size2d get_text_size(ShortString * text, Font font)
     String text_string = {};
     text_string.data = text->data;
     text_string.length = text->length;
-    return get_text_size(&text_string, font);
+    return get_text_size(text_string, font);
 }
 
 Size2dFloat get_text_size_float(ShortString * text, Font font)
@@ -177,19 +177,19 @@ Size2dFloat get_text_size_float(ShortString * text, Font font)
     return text_size;
 }
 
+void draw_text(Pos2d position, String text, Font font, Color4 font_color)
+{
+    i32 font_color_rgb = font_color.r + font_color.g * 256 + font_color.b * 256 * 256; 
+    i32 font_color_alpha = (i32)font_color.a;
+
+    jsDrawText(position.x, position.y, text.data, text.length, font.height, font.family, font_color_rgb, font_color_alpha);
+}
+
 void draw_text(Pos2d position, ShortString * text, Font font, Color4 font_color)
 {
     i32 font_color_rgb = font_color.r + font_color.g * 256 + font_color.b * 256 * 256; 
     i32 font_color_alpha = (i32)font_color.a;
     
-    jsDrawText(position.x, position.y, text->data, text->length, font.height, font.family, font_color_rgb, font_color_alpha);
-}
-
-void draw_text(Pos2d position, String * text, Font font, Color4 font_color)
-{
-    i32 font_color_rgb = font_color.r + font_color.g * 256 + font_color.b * 256 * 256; 
-    i32 font_color_alpha = (i32)font_color.a;
-
     jsDrawText(position.x, position.y, text->data, text->length, font.height, font.family, font_color_rgb, font_color_alpha);
 }
 

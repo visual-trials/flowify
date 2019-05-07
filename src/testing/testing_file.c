@@ -100,9 +100,9 @@ extern "C" {
         i32 help_text_x = ((f32)input->screen.width / (f32)2) - ((f32)help_text_size.width / (f32)2);
         draw_text((Pos2d){help_text_x, 50}, &help_text, font, black);
         
-        Size2d file_name_size = get_text_size(&world->file_name, font);
+        Size2d file_name_size = get_text_size(world->file_name, font);
         i32 file_name_x = ((f32)input->screen.width / (f32)2) - ((f32)file_name_size.width / (f32)2);
-        draw_text((Pos2d){file_name_x, 80}, &world->file_name, font, black);
+        draw_text((Pos2d){file_name_x, 80}, world->file_name, font, black);
         
         // TODO: show file-name and file-length
         // ShortString file_length_text;

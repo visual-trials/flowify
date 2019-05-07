@@ -646,10 +646,10 @@ void draw_ellipse(Pos2d position, Size2d size,
     
 }
 
-Size2d get_text_size(String * text, Font font)
+Size2d get_text_size(String text, Font font)
 {
     u16 wide_text[MAX_LENGTH_SHORT_STRING];
-    MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, (LPCCH)text->data, text->length, (LPWSTR)wide_text, MAX_LENGTH_SHORT_STRING);
+    MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, (LPCCH)text.data, text.length, (LPWSTR)wide_text, MAX_LENGTH_SHORT_STRING);
 
     IDWriteTextFormat * text_format;
     
@@ -672,7 +672,7 @@ Size2d get_text_size(String * text, Font font)
     // TODO: shouldn't we release the text layout? Do we want to (re)create it here every time?
     HRESULT text_layout_result = direct_write_factory->CreateTextLayout(
         (LPWSTR)wide_text,
-        text->length,
+        text.length,
         text_format,
         0, // We do not set a max width, and we do not use word wrapping
         0, // We do not set a max height, and we do not use word wrapping
@@ -697,7 +697,7 @@ Size2d get_text_size(ShortString * text, Font font)
     text_string.data = text->data;
     text_string.length = text->length;
     
-    return get_text_size(&text_string, font);
+    return get_text_size(text_string, font);
 }
 
 Size2dFloat get_text_size_float(ShortString * text, Font font)
@@ -745,13 +745,13 @@ Size2dFloat get_text_size_float(ShortString * text, Font font)
     return text_size;
 }
 
-void draw_text(Pos2d position, String * text, Font font, Color4 font_color)
+void draw_text(Pos2d position, String text, Font font, Color4 font_color)
 {
     ID2D1SolidColorBrush * font_brush = 0;
     get_brush(font_color, &font_brush);
 
     u16 wide_text[MAX_LENGTH_SHORT_STRING];
-    MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, (LPCCH)text->data, text->length, (LPWSTR)wide_text, MAX_LENGTH_SHORT_STRING);
+    MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, (LPCCH)text.data, text.length, (LPWSTR)wide_text, MAX_LENGTH_SHORT_STRING);
 
     IDWriteTextFormat * text_format;
     
@@ -774,7 +774,7 @@ void draw_text(Pos2d position, String * text, Font font, Color4 font_color)
     // TODO: shouldn't we release the text layout? Do we want to (re)create it here every time?
     HRESULT text_layout_result = direct_write_factory->CreateTextLayout(
         (LPWSTR)wide_text,
-        text->length,
+        text.length,
         text_format,
         0, // We do not set a max width, and we do not use word wrapping
         0, // We do not set a max height, and we do not use word wrapping

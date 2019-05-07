@@ -22,9 +22,7 @@ struct Entity
 {
     Pos2d pos;
     Size2d size;
-    Color4 line_color;
-    Color4 fill_color;
-    i32 line_width;
+    DrawStyle draw_style;
     
     b32 has_text;
     ShortString text;
@@ -56,10 +54,9 @@ extern "C" {
         Color4 violet = {255, 50, 255, 255};
         Color4 light_violet = {255, 200, 255, 255};
 
-        first_entity->line_color = violet;
-        first_entity->fill_color = light_violet;
-        
-        first_entity->line_width = 1;
+        first_entity->draw_style.line_color = violet;
+        first_entity->draw_style.fill_color = light_violet;
+        first_entity->draw_style.line_width = 1;
         
         first_entity->size.width = 300;
         first_entity->size.height = 300;
@@ -79,10 +76,9 @@ extern "C" {
         Color4 blue = {0, 0, 255, 255};
         Color4 light_blue = {150, 150, 255, 255};
         
-        second_entity->line_color = blue;
-        second_entity->fill_color = light_blue;
-        
-        second_entity->line_width = 2;
+        second_entity->draw_style.line_color = blue;
+        second_entity->draw_style.fill_color = light_blue;
+        second_entity->draw_style.line_width = 2;
         
         second_entity->pos.x = 400;
         second_entity->pos.y = 30;
@@ -114,8 +110,7 @@ extern "C" {
             Entity * current_entity = world->entities + entity_index;
             
             draw_rectangle(current_entity->pos, current_entity->size,
-                           current_entity->line_color, current_entity->fill_color, 
-                           current_entity->line_width);
+                           current_entity->draw_style);
                            
             if (current_entity->has_text)
             {
@@ -127,7 +122,11 @@ extern "C" {
                 
                 draw_text(current_entity->pos, &current_entity->text, current_entity->text_font, black);
                 
-                draw_rectangle(current_entity->pos, text_size_int, red, no_color, 1);
+                DrawStyle draw_style = {};
+                draw_style.line_width = 1;
+                draw_style.line_color = red;
+                draw_style.fill_color = no_color;
+                draw_rectangle(current_entity->pos, text_size_int, draw_style);
                                
                 ShortString width_string = {};
                 float_to_string(text_size_float.width, &width_string);

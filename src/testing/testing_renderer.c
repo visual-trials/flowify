@@ -61,8 +61,12 @@ extern "C" {
         
         Color4 line_color_rect = { 20,  80, 205, 255};
         Color4 fill_color_rect = { 40, 173, 255, 255};
+        DrawStyle draw_style_rect = {};
+        draw_style_rect.line_color = line_color_rect;
+        draw_style_rect.fill_color = fill_color_rect;
+        draw_style_rect.line_width = 8;
         
-        draw_rectangle((Pos2d){200, 100}, (Size2d){400, 300}, line_color_rect, fill_color_rect, 8);
+        draw_rectangle((Pos2d){200, 100}, (Size2d){400, 300}, draw_style_rect);
         
         Color4 line_color_ellipse = {120, 140,  55, 255};
         Color4 fill_color_ellipse = {173, 240, 169, 200};
@@ -71,8 +75,13 @@ extern "C" {
         
         Color4 line_color_rounded = { 20,  40,  55, 255};
         Color4 fill_color_rounded = { 40,  69, 173, 150};
+        DrawStyle draw_style_rounded = {};
+        draw_style_rounded.line_color = line_color_rounded;
+        draw_style_rounded.fill_color = fill_color_rounded;
+        draw_style_rounded.corner_radius = 20;
+        draw_style_rounded.line_width = 4;
         
-        draw_rounded_rectangle((Pos2d){500, 200}, (Size2d){200, 350}, 20, line_color_rounded, fill_color_rounded, 4);
+        draw_rounded_rectangle((Pos2d){500, 200}, (Size2d){200, 350}, draw_style_rounded);
         
         if (world->clip_rectangle)
         {
@@ -149,10 +158,20 @@ extern "C" {
         Color4 white = {255, 255, 255, 255};
         Color4 no_color = {};
         
-        draw_rectangle((Pos2d){0, 0}, (Size2d){2, 2}, no_color, black, 1);
-        draw_rectangle((Pos2d){2, 2}, (Size2d){3, 3}, no_color, black, 1);
-        draw_rectangle((Pos2d){10, 0}, (Size2d){2, 2}, black, no_color, 1);
-        draw_rectangle((Pos2d){12, 2}, (Size2d){3, 3}, black, no_color, 1);
+        DrawStyle draw_style_filled = {};
+        draw_style_filled.line_color = no_color;
+        draw_style_filled.fill_color = black;
+        draw_style_filled.line_width = 1;
+        
+        DrawStyle draw_style_border = {};
+        draw_style_border.line_color = black;
+        draw_style_border.fill_color = no_color;
+        draw_style_border.line_width = 1;
+        
+        draw_rectangle((Pos2d){0, 0}, (Size2d){2, 2}, draw_style_filled);
+        draw_rectangle((Pos2d){2, 2}, (Size2d){3, 3}, draw_style_filled);
+        draw_rectangle((Pos2d){10, 0}, (Size2d){2, 2}, draw_style_border);
+        draw_rectangle((Pos2d){12, 2}, (Size2d){3, 3}, draw_style_border);
 
         draw_line((Pos2d){0, 900}, (Pos2d){50, 900}, red, 1);
         
@@ -170,8 +189,8 @@ extern "C" {
         draw_text((Pos2d){500, 300}, &height_text, font, black);
         
         black.a = 100;
-        draw_rectangle((Pos2d){100, 0}, (Size2d){50, 50}, no_color, black, 1);
-        draw_rectangle((Pos2d){150, 40}, (Size2d){50, 50}, no_color, black, 1);
+        draw_rectangle((Pos2d){100, 0}, (Size2d){50, 50}, draw_style_filled);
+        draw_rectangle((Pos2d){150, 40}, (Size2d){50, 50}, draw_style_filled);
 
 
     }

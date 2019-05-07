@@ -262,13 +262,20 @@ extern "C" {
                     position_text.x = position_rectangle.x + horizontal_margin;
                     position_text.y = position_rectangle.y + vertical_margin;
                     
+                    DrawStyle draw_style = {};
+                    draw_style.line_width = 1;
+                    draw_style.corner_radius = 3;
+                    draw_style.line_color = black;
+                    
                     if (keyboard->keys_that_are_down[key_code])
                     {
-                        draw_rounded_rectangle(position_rectangle, size_rectangle, 3, black, black, 1);
+                        draw_style.fill_color = black;
+                        draw_rounded_rectangle(position_rectangle, size_rectangle, draw_style);
                         draw_text(position_text, &key_name, font, white);
                     }
                     else {
-                        draw_rounded_rectangle(position_rectangle, size_rectangle, 3, black, white, 1);
+                        draw_style.fill_color = white;
+                        draw_rounded_rectangle(position_rectangle, size_rectangle, draw_style);
                         draw_text(position_text, &key_name, font, black);
                     }
                 }

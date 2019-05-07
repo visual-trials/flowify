@@ -747,11 +747,11 @@ extern "C" {
             
             draw_rounded_rectangle(world->code_rect.position, world->code_rect.size, code_style);
                                    
-            Size2d program_name_size = get_text_size(&world->program_name, font);
+            Size2d program_name_size = get_text_size(world->program_name, font);
             Pos2d program_name_position = {};
             program_name_position.x = world->title_rect.position.x + world->title_rect.size.width / 2 - program_name_size.width / 2;
             program_name_position.y = world->title_rect.position.y + world->title_rect.size.height / 2 - program_name_size.height / 2;
-            draw_text(program_name_position, &world->program_name, font, black);
+            draw_text(program_name_position, world->program_name, font, black);
             
             draw_scrollable_text(scrollable_program_text);
         }

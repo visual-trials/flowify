@@ -16,7 +16,7 @@
 
  */
  
-void push_text(BasicRenderer * renderer, Pos2d position, String * text, Font font, Color4 color)
+void push_text(BasicRenderer * renderer, Pos2d position, String text, Font font, Color4 color)
 {
     DrawableEntry * drawable_entry = (DrawableEntry *)push_struct(&renderer->draw_arena, sizeof(DrawableEntry));
     drawable_entry->type = Drawable_Text;
@@ -548,7 +548,7 @@ void draw_an_entry(LaneRenderer * lane_renderer, DrawableEntry * drawable_entry)
         Rect2d text_rect = {};
         text_rect.position = text->position;
         text_rect.size.height = 50; // FIXME: hack!
-        text_rect.size.width = text->text->length * 10; // FIXME: hack!
+        text_rect.size.width = text->text.length * 10; // FIXME: hack!
         if (rect_is_inside_screen(text_rect))
         {
             draw_text(text->position, text->text, text->font, text->color);

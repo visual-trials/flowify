@@ -36,7 +36,7 @@ struct DrawStyleEvenOdd
 struct DrawableText
 {
     Pos2d position;
-    String * text; // FIXME: there is no need to use a pointer here!
+    String text;
     Font font;
     Color4 color;
 };

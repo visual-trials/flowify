@@ -85,7 +85,7 @@ void push_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, D
         text_position.x += (flow_element->rect_abs.size.width - source_text_size.width) / 2;
         text_position.y += (flow_element->rect_abs.size.height - source_text_size.height) / 2;
         
-        push_text(&flowifier->renderer, text_position, &flow_element->source_text, flowifier->font, flowifier->text_color);
+        push_text(&flowifier->renderer, text_position, flow_element->source_text, flowifier->font, flowifier->text_color);
     }
     
     push_interaction_rectangle(flowifier, flow_element);

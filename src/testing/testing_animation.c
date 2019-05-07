@@ -23,9 +23,7 @@ struct Entity
     // TODO: shape
     Pos2d pos;
     Size2d size;
-    Color4 line_color;
-    Color4 fill_color;
-    i32 line_width;
+    DrawStyle draw_style;
 };
 
 struct WorldData
@@ -68,10 +66,9 @@ extern "C" {
         world->first_entity_index = world->nr_of_entities++;
         Entity * first_entity = world->entities + world->first_entity_index;
         
-        first_entity->line_color = green;
-        first_entity->fill_color = blue;
-        
-        first_entity->line_width = 5;
+        first_entity->draw_style.line_color = green;
+        first_entity->draw_style.fill_color = blue;
+        first_entity->draw_style.line_width = 5;
         
         first_entity->size.width = 100;
         first_entity->size.height = 100;
@@ -91,10 +88,9 @@ extern "C" {
 
         // Third entity
         
-        third_entity->line_color = red;
-        third_entity->fill_color = yellow;
-        
-        third_entity->line_width = 3;
+        third_entity->draw_style.line_color = red;
+        third_entity->draw_style.fill_color = yellow;
+        third_entity->draw_style.line_width = 3;
         
         third_entity->pos.x = 200;
         third_entity->pos.y = 50;
@@ -138,9 +134,7 @@ extern "C" {
         {
             Entity * current_entity = world->entities + entity_index;
             
-            draw_rectangle(current_entity->pos, current_entity->size,
-                           current_entity->line_color, current_entity->fill_color, 
-                           current_entity->line_width);
+            draw_rectangle(current_entity->pos, current_entity->size, current_entity->draw_style);
         }
         
         // Draw frame timing

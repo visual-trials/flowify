@@ -503,7 +503,7 @@ void draw_scrollable_text(ScrollableText * scrollable_text)
             {
                 line_text.length = scrollable_text->max_line_width_in_characters;
             }
-            draw_text(position, &line_text, font, black);
+            draw_text(position, line_text, font, black);
             
             if (scrollable_text->draw_line_numbers)
             {
