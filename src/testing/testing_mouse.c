@@ -23,9 +23,7 @@ struct entity
     // TODO: shape
     Pos2d  pos;
     Size2d size;
-    Color4 line_color;
-    Color4 fill_color;
-    i32 line_width;
+    DrawStyle draw_style;
     
     b32 has_text;
     ShortString text;
@@ -90,10 +88,10 @@ extern "C" {
                 Color4 dark_grey = {50, 50, 50, 255};
                 Color4 violet = {240, 200, 255, 255};
                 
-                current_entity->line_color = dark_grey;
-                current_entity->fill_color = violet;
+                current_entity->draw_style.line_color = dark_grey;
+                current_entity->draw_style.fill_color = violet;
                 
-                current_entity->line_width = 2;
+                current_entity->draw_style.line_width = 2;
                 
                 current_entity->size.width = 150;
                 current_entity->size.height = 150;
@@ -140,9 +138,7 @@ extern "C" {
         {
             entity * current_entity = world->entities + entity_index;
             
-            draw_rectangle(current_entity->pos, current_entity->size,
-                           current_entity->line_color, current_entity->fill_color, 
-                           current_entity->line_width);
+            draw_rectangle(current_entity->pos, current_entity->size, current_entity->draw_style);
             if (current_entity->has_text)
             {
                 draw_text(current_entity->pos, &current_entity->text, font, black);
@@ -159,6 +155,21 @@ extern "C" {
         i32 line_length = 30;
         
         draw_cross(mouse->position, distance_from_center, line_length, dark_blue, line_width);
+        
+        DrawStyle draw_style = {};
+        draw_style.fill_color = (Color4){0,0,255,255};
+        if (mouse->left_button_has_gone_up)
+        {
+            draw_rectangle((Pos2d){80, 20}, (Size2d){20,20}, draw_style);
+        }
+        if (mouse->left_button_is_down)
+        {
+            draw_rectangle((Pos2d){80, 50}, (Size2d){20,20}, draw_style);
+        }
+        if (mouse->left_button_has_gone_down)
+        {
+            draw_rectangle((Pos2d){80, 80}, (Size2d){20,20}, draw_style);
+        }
         
     }
 }

@@ -538,7 +538,8 @@ Flowify.input = function () {
     
     my.addInputListeners = function () {
         Flowify.canvas.canvasElement.addEventListener("mousedown", my.mouseButtonDown, false)
-        Flowify.canvas.canvasElement.addEventListener("mouseup", my.mouseButtonUp, false)
+        // We want to know if the mouse goes up OUTSIDE the canvas, so we attach the eventlistener to the 'window' instead
+        window.addEventListener("mouseup", my.mouseButtonUp, false)
         Flowify.canvas.canvasElement.addEventListener("mousemove", my.mouseMoved, false)
         // TODO: the mouseenter is not triggered on *page load* for Chrome. It is for FF.
         //       See this link *why* we want to use it: 
