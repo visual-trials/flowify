@@ -191,7 +191,7 @@ void do_frame_timing(Input * input, b32 * is_verbose)
             bar_size.height = ((input_time + updating_time + rendering_time) / normal_value) * normal_bar_height;
             bar_position.y = bar_start - bar_size.height;
             
-            draw_style.line_color = rendering_color;
+            draw_style.fill_color = rendering_color;
             draw_rectangle(bar_position, bar_size, draw_style);
         }
         else
@@ -203,7 +203,7 @@ void do_frame_timing(Input * input, b32 * is_verbose)
             bar_size.height = (input_time / normal_value) * normal_bar_height;
             bar_position.y = bar_start - bar_size.height;
             
-            draw_style.line_color = input_color;
+            draw_style.fill_color = input_color;
             draw_rectangle(bar_position, bar_size, draw_style);
                            
             // Updating time
@@ -212,7 +212,7 @@ void do_frame_timing(Input * input, b32 * is_verbose)
             bar_size.height = (updating_time / normal_value) * normal_bar_height;
             bar_position.y = bar_start - bar_size.height;
             
-            draw_style.line_color = updating_color;
+            draw_style.fill_color = updating_color;
             draw_rectangle(bar_position, bar_size, draw_style);
                        
             // Rendering time
@@ -221,7 +221,7 @@ void do_frame_timing(Input * input, b32 * is_verbose)
             bar_size.height = (rendering_time / normal_value) * normal_bar_height;
             bar_position.y = bar_start - bar_size.height;
             
-            draw_style.line_color = rendering_color;
+            draw_style.fill_color = rendering_color;
             draw_rectangle(bar_position, bar_size, draw_style);
                            
             // Waiting time
@@ -230,7 +230,7 @@ void do_frame_timing(Input * input, b32 * is_verbose)
             bar_size.height = (waiting_time / normal_value) * normal_bar_height;
             bar_position.y = bar_start - bar_size.height;
             
-            draw_style.line_color = waiting_color;
+            draw_style.fill_color = waiting_color;
             draw_rectangle(bar_position, bar_size, draw_style);
         }
     }

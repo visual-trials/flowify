@@ -228,7 +228,7 @@ extern "C" {
         
         world->current_program_text_index = 3;
         
-        world->verbose_memory_usage = true;
+        world->verbose_memory_usage = false;
         world->verbose_frame_times = false;
 
         world->screen_margins.left = 20;
@@ -794,7 +794,7 @@ extern "C" {
             }
         }
         
-        do_memory_usage(memory, input, &world->verbose_memory_usage);
+        // do_memory_usage(memory, input, &world->verbose_memory_usage);
         // do_frame_timing(&global_input, &world->verbose_frame_times);
         do_physical_pixels_switch(&global_input);
     }
