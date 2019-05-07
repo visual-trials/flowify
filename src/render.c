@@ -682,7 +682,7 @@ void draw_an_entry(LaneRenderer * lane_renderer, DrawableEntry * drawable_entry)
                 
                 directional_rect.position = rect_to_add_at_start.position;
                 directional_rect.size = rect_to_add_at_start.size;
-                directional_rect.direction = lane_part->direction;
+                directional_rect.direction = Direction_TopToBottom; // We assume the first rect is always top-to-bottom
                 
                 assert(directional_rects_index < 100);
                 directional_rects[directional_rects_index++] = directional_rect;
@@ -711,7 +711,7 @@ void draw_an_entry(LaneRenderer * lane_renderer, DrawableEntry * drawable_entry)
                 
                 directional_rect.position = rect_to_add_at_end.position;
                 directional_rect.size = rect_to_add_at_end.size;
-                directional_rect.direction = lane_part->direction;
+                directional_rect.direction = Direction_TopToBottom; // We assume the first rect is always top-to-bottom
                 
                 assert(directional_rects_index < 100);
                 directional_rects[directional_rects_index++] = directional_rect;

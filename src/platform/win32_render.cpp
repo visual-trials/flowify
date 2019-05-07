@@ -101,7 +101,7 @@ void draw_rectangle(Pos2d position, Size2d size, DrawStyle draw_style)
     if (draw_style.line_color.a)
     {
         get_brush(draw_style.line_color, &line_brush);
-        render_target->DrawRectangle(&rectangle, line_brush, line_width);
+        render_target->DrawRectangle(&rectangle, line_brush, draw_style.line_width);
         release_brush(line_brush);
     }
 
@@ -148,33 +148,33 @@ void draw_line(Pos2d start_position, Pos2d end_position, Color4 line_color, i32 
     release_brush(line_brush);
 }
 
-void draw_rounded_rectangle(Pos2d position, Size2d size, i32 r, Color4 line_color, Color4 fill_color, i32 line_width)
+void draw_rounded_rectangle(Pos2d position, Size2d size, DrawStyle draw_style)
 {
     ID2D1SolidColorBrush * line_brush = 0;
     ID2D1SolidColorBrush * fill_brush = 0;
     
     D2D1_RECT_F rectangle = D2D1::RectF(position.x, position.y, position.x + size.width, position.y + size.height);
-    D2D1_ROUNDED_RECT rounded_rectangle = D2D1::RoundedRect(rectangle, r, r);
+    D2D1_ROUNDED_RECT rounded_rectangle = D2D1::RoundedRect(rectangle, draw_style.corner_radius, draw_style.corner_radius);
     
-    if (fill_color.a)
+    if (draw_style.fill_color.a)
     {
-        get_brush(fill_color, &fill_brush);
+        get_brush(draw_style.fill_color, &fill_brush);
         render_target->FillRoundedRectangle(&rounded_rectangle, fill_brush);
         release_brush(fill_brush);
     }
     
-    if (line_color.a)
+    if (draw_style.line_color.a)
     {
-        get_brush(line_color, &line_brush);
-        render_target->DrawRoundedRectangle(&rounded_rectangle, line_brush, line_width);
+        get_brush(draw_style.line_color, &line_brush);
+        render_target->DrawRoundedRectangle(&rounded_rectangle, line_brush, draw_style.line_width);
         release_brush(line_brush);
     }
     
 }
 
-void draw_rounded_rectangle(Rect2d rect, i32 r, Color4 line_color, Color4 fill_color, i32 line_width)
+void draw_rounded_rectangle(Rect2d rect, DrawStyle draw_style)
 {
-    draw_rounded_rectangle(rect.position, rect.size, r, line_color, fill_color, line_width);
+    draw_rounded_rectangle(rect.position, rect.size, draw_style);
 }
 
 void draw_cornered_lane_segment(HorLine hor_line, VertLine vert_line, 
@@ -797,7 +797,7 @@ void draw_text(Pos2d position, ShortString * text, Font font, Color4 font_color)
     text_string.data = text->data;
     text_string.length = text->length;
     
-    draw_text(position, &text_string, font, font_color);
+    draw_text(position, text_string, font, font_color);
 }
 
 void draw_text_c(Pos2d position, const char * cstring, Font font, Color4 font_color)
