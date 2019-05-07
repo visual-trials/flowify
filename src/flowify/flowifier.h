@@ -202,7 +202,7 @@ struct FlowMargin
 
 struct Flowifier
 {
-    // FIXME: this can't be a ConsecutiveDynamicArray because we keep pointers of the elements!
+    // Note: this can't be a ConsecutiveDynamicArray because we keep pointers of the elements
     FragmentedDynamicArray flow_elements;
 
     BasicRenderer renderer;

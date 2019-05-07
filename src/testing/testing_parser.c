@@ -159,7 +159,7 @@ extern "C" {
         {
             world->selected_token_index = 0;
         }        
-        if (world->selected_node_index >= world->parser.nodes.nr_of_items)
+        if (world->selected_node_index >= world->parser.nodes.nr_of_index_entries)
         {
             world->selected_node_index = 0;
         }
@@ -230,12 +230,11 @@ extern "C" {
         }
         */
         Token * tokens = (Token *)world->tokenizer.tokens.items;
-        Node * nodes = (Node *)world->parser.nodes.items;
         String * lines = (String *)scrollable_program_text->lines.items;
         
-        if (world->parser.nodes.nr_of_items > 0)
+        if (world->parser.nodes.nr_of_index_entries > 0)
         {
-            Node * node = &nodes[world->selected_node_index];
+            Node * node = (Node *)get_item_by_index(&world->parser.nodes, world->selected_node_index);
             
             remove_highlighted_line_parts(scrollable_program_text);
             for (i32 token_index = node->first_token_index; token_index <= node->last_token_index; token_index++)
