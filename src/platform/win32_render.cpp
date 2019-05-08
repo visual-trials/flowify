@@ -206,7 +206,7 @@ void draw_lane_paths(DrawablePathPart * left_path_parts_index, i32 left_path_par
     ID2D1GeometrySink * sink = 0;
     
     // Drawing the lane as left and right paths
-                
+/*                
     if (draw_style.line_color.a)
     {
         d2d_factory->CreatePathGeometry(&path_geometry);
@@ -229,7 +229,8 @@ void draw_lane_paths(DrawablePathPart * left_path_parts_index, i32 left_path_par
         
         path_geometry->Release();
     }
-/*
+*/
+
     if (draw_style.fill_color.a)
     {
         d2d_factory->CreatePathGeometry(&path_geometry);
@@ -239,9 +240,19 @@ void draw_lane_paths(DrawablePathPart * left_path_parts_index, i32 left_path_par
         b32 is_background = true;
 // FIXME: there is a problem now: we don't start with a move, triggering the assert (inside draw_path)
 //        but even if that is worked around, nothing is drawn. So this must be debugged.
+D2D1_POINT_2F pos1 = D2D1::Point2F(100, 100);
+D2D1_POINT_2F pos2 = D2D1::Point2F(200, 100);
+D2D1_POINT_2F pos3 = D2D1::Point2F(200, 200);
+        sink->BeginFigure(pos1, D2D1_FIGURE_BEGIN_FILLED);
+        sink->AddLine(pos2);
+        sink->AddLine(pos3);
+        sink->EndFigure(D2D1_FIGURE_END_CLOSED);
+
+/*
         draw_path(left_path_parts_index, left_path_parts_count, is_background, sink);
         draw_path(right_path_parts_index, right_path_parts_count, is_background, sink);
         sink->EndFigure(D2D1_FIGURE_END_CLOSED);
+        */
         
         sink->Close();
         sink->Release();
@@ -252,7 +263,7 @@ void draw_lane_paths(DrawablePathPart * left_path_parts_index, i32 left_path_par
         
         path_geometry->Release();
     }
-    */
+    
 /*
                 if (fillColorAlpha) {
                     ctx.beginPath()
