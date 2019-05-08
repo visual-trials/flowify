@@ -172,16 +172,12 @@ void draw_path(DrawablePathPart * path_parts, i32 path_parts_count, b32 is_backg
         }
         else if (type == PathPart_Arc_DownToLeft || type == PathPart_Arc_DownToRight || type == PathPart_Arc_UpToLeft || type == PathPart_Arc_UpToRight)
         {
-            /*
-            sink->AddArc(left_arc_segment);
-            */
+            // sink->AddArc(left_arc_segment);
             // ctx.arcTo(previousX, y, x, y, radius)
         }
         else if (type == PathPart_Arc_LeftToUp || type == PathPart_Arc_LeftToDown || type == PathPart_Arc_RightToUp || type == PathPart_Arc_RightToDown)
         {
-            /*
-            sink->AddArc(left_arc_segment);
-            */
+            // sink->AddArc(left_arc_segment);
             // ctx.arcTo(x, previousY, x, y, radius)
         }
                     
