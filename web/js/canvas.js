@@ -252,10 +252,14 @@ Flowify.canvas = function () {
                 }
                 
 // FIXME: we currently start with a LineWhenBackhround. But we *SHOULD* start with a Move instead!
+// FIXME2: we currently have path with 0 length! We shouldn't send these to the renderer!
 if (!my.alreadyLogged) {
+    my.alreadyLogged = 0
+}
+if (my.alreadyLogged < 3) {
     console.log(leftPathParts)
     console.log(rightPathParts)
-    my.alreadyLogged = true
+    my.alreadyLogged++
 }
                 
                 // Drawing the lane as left and right paths
