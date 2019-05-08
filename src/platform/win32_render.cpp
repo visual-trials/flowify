@@ -113,9 +113,8 @@ void draw_rectangle(Rect2d rect, DrawStyle draw_style)
 }
 
 
-void draw_path(DrawablePathPart * path_parts, i32 path_parts_count, b32 is_background, ID2D1GeometrySink * sink)
+void draw_path(DrawablePathPart * path_parts, i32 path_parts_count, b32 is_background, ID2D1GeometrySink * sink, b32 figure_is_started = false)
 {
-    b32 figure_is_open = false;
     i32 previous_x = 0;
     i32 previous_y = 0;
     for (i32 part_index = 0; part_index < path_parts_count; part_index++)
@@ -135,42 +134,40 @@ void draw_path(DrawablePathPart * path_parts, i32 path_parts_count, b32 is_backg
             
         if (type == PathPart_Move)
         {
-            if (figure_is_open)
+            if (figure_is_started)
             {
                 sink->EndFigure(D2D1_FIGURE_END_OPEN);
-                figure_is_open = false;
+                figure_is_started = false;
             }
             sink->BeginFigure(position, D2D1_FIGURE_BEGIN_FILLED);
-            figure_is_open = true;
+            figure_is_started = true;
         }
         else if (type == PathPart_Line)
         {
-            assert(figure_is_open);
+            assert(figure_is_started);
             sink->AddLine(position);
         }
         else if (type == PathPart_LineWhenBackground)
         {
             if (is_background)
             {
-                assert(figure_is_open);
-/*                
-// FIXME: HACK!
-if (!figure_is_open)
-{
-    sink->BeginFigure(position, D2D1_FIGURE_BEGIN_FILLED);
-    figure_is_open = true;
-}
-*/
+                // FIXME: we currently start with a LineWhenBackhround. But we *SHOULD* start with a move instead!
+                // assert(figure_is_started);
+                if (!figure_is_started)
+                {
+                    sink->BeginFigure(position, D2D1_FIGURE_BEGIN_FILLED);
+                    figure_is_started = true;
+                }
                 sink->AddLine(position);
             }
             else {
-                if (figure_is_open)
+                if (figure_is_started)
                 {
                     sink->EndFigure(D2D1_FIGURE_END_OPEN);
-                    figure_is_open = false;
+                    figure_is_started = false;
                 }
                 sink->BeginFigure(position, D2D1_FIGURE_BEGIN_FILLED);
-                figure_is_open = true;
+                figure_is_started = true;
             }
         }
         else if (type == PathPart_Arc_DownToLeft || type == PathPart_Arc_DownToRight || type == PathPart_Arc_UpToLeft || type == PathPart_Arc_UpToRight)
@@ -206,7 +203,28 @@ void draw_lane_paths(DrawablePathPart * left_path_parts_index, i32 left_path_par
     ID2D1GeometrySink * sink = 0;
     
     // Drawing the lane as left and right paths
-/*                
+    if (draw_style.fill_color.a)
+    {
+        d2d_factory->CreatePathGeometry(&path_geometry);
+        path_geometry->Open(&sink);
+        sink->SetFillMode(D2D1_FILL_MODE_WINDING);
+
+        b32 is_background = true;
+        draw_path(left_path_parts_index, left_path_parts_count, is_background, sink);
+        b32 figure_is_started = true;
+        draw_path(right_path_parts_index, right_path_parts_count, is_background, sink, figure_is_started);
+        sink->EndFigure(D2D1_FIGURE_END_CLOSED);
+        
+        sink->Close();
+        sink->Release();
+        
+        get_brush(draw_style.fill_color, &fill_brush);
+        render_target->FillGeometry(path_geometry, fill_brush);
+        release_brush(fill_brush);
+        
+        path_geometry->Release();
+    }
+    
     if (draw_style.line_color.a)
     {
         d2d_factory->CreatePathGeometry(&path_geometry);
@@ -229,71 +247,7 @@ void draw_lane_paths(DrawablePathPart * left_path_parts_index, i32 left_path_par
         
         path_geometry->Release();
     }
-*/
 
-    if (draw_style.fill_color.a)
-    {
-        d2d_factory->CreatePathGeometry(&path_geometry);
-        path_geometry->Open(&sink);
-        sink->SetFillMode(D2D1_FILL_MODE_WINDING);
-
-        b32 is_background = true;
-// FIXME: there is a problem now: we don't start with a move, triggering the assert (inside draw_path)
-//        but even if that is worked around, nothing is drawn. So this must be debugged.
-D2D1_POINT_2F pos1 = D2D1::Point2F(100, 100);
-D2D1_POINT_2F pos2 = D2D1::Point2F(200, 100);
-D2D1_POINT_2F pos3 = D2D1::Point2F(200, 200);
-        sink->BeginFigure(pos1, D2D1_FIGURE_BEGIN_FILLED);
-        sink->AddLine(pos2);
-        sink->AddLine(pos3);
-        sink->EndFigure(D2D1_FIGURE_END_CLOSED);
-
-/*
-        draw_path(left_path_parts_index, left_path_parts_count, is_background, sink);
-        draw_path(right_path_parts_index, right_path_parts_count, is_background, sink);
-        sink->EndFigure(D2D1_FIGURE_END_CLOSED);
-        */
-        
-        sink->Close();
-        sink->Release();
-        
-        get_brush(draw_style.fill_color, &fill_brush);
-        render_target->FillGeometry(path_geometry, fill_brush);
-        release_brush(fill_brush);
-        
-        path_geometry->Release();
-    }
-    
-/*
-                if (fillColorAlpha) {
-                    ctx.beginPath()
-                    drawPath(leftPathParts, isBackground = true)
-                    drawPath(rightPathParts, isBackground = true)
-                    ctx.closePath()
-                    ctx.fillStyle = my.getCanvasRGBAColor(fillColorRGB, fillColorAlpha)
-                    ctx.fill()
-                    
-                    my.nrOfDrawCalls++
-                }
-
-                if (lineColorAlpha) {
-                    ctx.beginPath()
-                    drawPath(leftPathParts, isBackground = false)
-                    ctx.strokeStyle = my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
-                    ctx.lineWidth = lineWidth
-                    ctx.stroke()
-                    
-                    my.nrOfDrawCalls++
-                                    
-                    ctx.beginPath()
-                    drawPath(rightPathParts, isBackground = false)
-                    ctx.strokeStyle =  my.getCanvasRGBAColor(lineColorRGB, lineColorAlpha)
-                    ctx.lineWidth = lineWidth
-                    ctx.stroke()
-                    
-                    my.nrOfDrawCalls++
-                }
-*/    
 }
                
 void draw_line(Pos2d start_position, Pos2d end_position, Color4 line_color, i32 line_width, b32 round_cap = false)
