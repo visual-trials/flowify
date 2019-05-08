@@ -250,7 +250,13 @@ Flowify.canvas = function () {
                         "type": type,
                     })
                 }
-
+                
+// FIXME: we currently start with a LineWhenBackhround. But we *SHOULD* start with a Move instead!
+if (!my.alreadyLogged) {
+    console.log(leftPathParts)
+    console.log(rightPathParts)
+    my.alreadyLogged = true
+}
                 
                 // Drawing the lane as left and right paths
                 
