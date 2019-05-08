@@ -113,7 +113,7 @@ void draw_rectangle(Rect2d rect, DrawStyle draw_style)
 }
 
 
-void draw_path(DrawablePathPart * path_parts, i32 path_parts_count, b32 is_background, ID2D1GeometrySink * sink, b32 figure_is_started = false)
+b32 draw_path(DrawablePathPart * path_parts, i32 path_parts_count, b32 is_background, ID2D1GeometrySink * sink, b32 figure_is_started = false)
 {
     i32 previous_x = 0;
     i32 previous_y = 0;
@@ -185,6 +185,7 @@ void draw_path(DrawablePathPart * path_parts, i32 path_parts_count, b32 is_backg
         previous_y = y;
     }
     
+    return figure_is_started;
 }
 
 
@@ -206,10 +207,12 @@ void draw_lane_paths(DrawablePathPart * left_path_parts_index, i32 left_path_par
         sink->SetFillMode(D2D1_FILL_MODE_WINDING);
 
         b32 is_background = true;
-        draw_path(left_path_parts_index, left_path_parts_count, is_background, sink);
-        b32 figure_is_started = true;
-        draw_path(right_path_parts_index, right_path_parts_count, is_background, sink, figure_is_started);
-        sink->EndFigure(D2D1_FIGURE_END_CLOSED);
+        b32 figure_is_started = draw_path(left_path_parts_index, left_path_parts_count, is_background, sink);
+        figure_is_started = draw_path(right_path_parts_index, right_path_parts_count, is_background, sink, figure_is_started);
+        if (figure_is_started)
+        {
+            sink->EndFigure(D2D1_FIGURE_END_CLOSED);
+        }
         
         sink->Close();
         sink->Release();
@@ -228,11 +231,17 @@ void draw_lane_paths(DrawablePathPart * left_path_parts_index, i32 left_path_par
         sink->SetFillMode(D2D1_FILL_MODE_WINDING);
 
         b32 is_background = false;
-        draw_path(left_path_parts_index, left_path_parts_count, is_background, sink);
-        sink->EndFigure(D2D1_FIGURE_END_OPEN);
+        b32 figure_is_started = draw_path(left_path_parts_index, left_path_parts_count, is_background, sink);
+        if (figure_is_started)
+        {
+            sink->EndFigure(D2D1_FIGURE_END_OPEN);
+        }
         
-        draw_path(right_path_parts_index, right_path_parts_count, is_background, sink);
-        sink->EndFigure(D2D1_FIGURE_END_OPEN);
+        figure_is_started = draw_path(right_path_parts_index, right_path_parts_count, is_background, sink);
+        if (figure_is_started)
+        {
+            sink->EndFigure(D2D1_FIGURE_END_OPEN);
+        }
         
         sink->Close();
         sink->Release();
