@@ -78,6 +78,63 @@ sub_expr :=
     "[" "]"                         // TODO: we should allow for non-empty arrays!
     null
     identifier arguments
+
+
+---
+
+expr = assign
+
+assign :=
+    (var ( "=" | "+=" | "-=" | "*=" | "/=" | "%=" ) cond
+
+cond :=
+    log_or ("??" log_or)*
+
+// TODO: add ? ... : (ternary)
+
+log_or :=
+    log_and ("||" log_and)*
+
+log_and :=
+    equal ("&&" equal)*
+
+// TODO: add bitwise operators too! | & ^
+
+equal :=
+    relate (("==" | "!=" | "===" | "!==") relate)*
+
+relate :=
+    add (("<" | ">" | ">=" | "<=") add)*
+
+add :=
+    multi (("+" | "-") multi)*
+
+multi :=
+    unary (("*" | "/" | "%") unary)*
+
+// TODO: add exponent ** too!
+
+unary :=
+    ("+" | "-" | "!" | "~")* term
+
+term :=
+    ("(int)" | "(float)" | "(string)" | "(array)" | "(object)" | "(bool)" | "@") term
+    "(" expr ")"
+    "[" expr "]"                    
+    "[" expr "=>" expr, ... "]"      // TODO: what exactly is allowed here?
+    "[" "]"                    
+    ("--" | "++") var
+    var ("++" | "--")
+    var
+    number
+    float
+    single_quoted_string
+    null
+    identifier arguments
+
+var :=
+    $var_ident "[" expr "]"
+    $var_ident
     
 */
 
