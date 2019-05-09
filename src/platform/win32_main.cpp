@@ -173,6 +173,7 @@ LRESULT CALLBACK WindowProcedure(HWND window,
                             i32 identifier = touch_input.dwID;
                             
                             POINT point_input;
+                            // FIXME: for some reason the x and y don't seem to be corrent!
                             point_input.x = TOUCH_COORD_TO_PIXEL(touch_input.x);
                             point_input.y = TOUCH_COORD_TO_PIXEL(touch_input.y);
                             ScreenToClient(window, &point_input);
