@@ -91,6 +91,7 @@ expr = assign
 assign :=
     (var ( "=" | "+=" | "-=" | "*=" | "/=" | "%=" ) cond
 
+// TODO: the ??-oprator is RIGHT-associative. How should we deal with that?
 cond :=
     log_or ("??" log_or)*
 
