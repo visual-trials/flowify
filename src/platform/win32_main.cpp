@@ -97,7 +97,11 @@ LRESULT CALLBACK WindowProcedure(HWND window,
         {
            new_input.mouse.left_button_has_gone_down = true;
            new_input.mouse.left_button_is_down = true;
-           // FIXME: new_input.mouse.left_button_has_gone_down_twice = ...;
+        }
+        break;
+        case WM_LBUTTONDBLCLK: 
+        {
+           new_input.mouse.left_button_has_gone_down_twice = true;
         }
         break;
         case WM_LBUTTONUP:
@@ -110,7 +114,11 @@ LRESULT CALLBACK WindowProcedure(HWND window,
         {
            new_input.mouse.right_button_has_gone_down = true;
            new_input.mouse.right_button_is_down = true;
-           // FIXME: new_input.mouse.right_button_has_gone_down_twice = ...;
+        }
+        break;
+        case WM_RBUTTONDBLCLK: 
+        {
+           new_input.mouse.right_button_has_gone_down_twice = true;
         }
         break;
         case WM_RBUTTONUP:
@@ -273,7 +281,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
     global_memory.size = dynamic_memory_size;
 
     WNDCLASSA window_class = {};
-    window_class.style         = CS_HREDRAW|CS_VREDRAW;
+    window_class.style         = CS_HREDRAW|CS_VREDRAW|CS_DBLCLKS;
     window_class.lpfnWndProc   = WindowProcedure;
     window_class.hInstance     = instance;
     window_class.hCursor       = LoadCursor(0, IDC_ARROW);
