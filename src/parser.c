@@ -84,6 +84,10 @@ sub_expr :=
 
 expr = assign
 
+// TODO: add 'and', 'or', 'xor'
+
+// TODO: add 'yield', 'yield from'
+
 assign :=
     (var ( "=" | "+=" | "-=" | "*=" | "/=" | "%=" ) cond
 
@@ -101,7 +105,7 @@ log_and :=
 // TODO: add bitwise operators too! | & ^
 
 equal :=
-    relate (("==" | "!=" | "===" | "!==") relate)*
+    relate (("==" | "!=" | "===" | "!==" | "<>" | "<=>") relate)*
 
 relate :=
     add (("<" | ">" | ">=" | "<=") add)*
@@ -117,6 +121,8 @@ multi :=
 unary :=
     ("+" | "-" | "!" | "~")* term
 
+// TODO: add 'instanceof'
+
 term :=
     ("(int)" | "(float)" | "(string)" | "(array)" | "(object)" | "(bool)" | "@") term
     "(" expr ")"
@@ -131,6 +137,8 @@ term :=
     single_quoted_string
     null
     identifier arguments
+
+// TODO: add 'new' and 'clone'
 
 var :=
     $var_ident "[" expr "]"
