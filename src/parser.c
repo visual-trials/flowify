@@ -107,7 +107,7 @@ relate :=
     add (("<" | ">" | ">=" | "<=") add)*
 
 add :=
-    multi (("+" | "-") multi)*
+    multi (("+" | "-" | ".") multi)*
 
 multi :=
     unary (("*" | "/" | "%") unary)*
