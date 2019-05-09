@@ -125,12 +125,16 @@ b32 draw_path(DrawablePathPart * path_parts, i32 path_parts_count, b32 is_backgr
         i32 y = path_part.position.y;
         
         D2D1_POINT_2F position = D2D1::Point2F(x, y);
+        D2D1_ARC_SEGMENT arc_segment;
     
         i32 radius = previous_x - x;
         if (radius < 0)
         {
             radius = -radius;
         }
+        
+        D2D1_SIZE_F size_arc = D2D1::SizeF(radius, radius);
+
             
         if (type == PathPart_Move)
         {
@@ -170,15 +174,61 @@ b32 draw_path(DrawablePathPart * path_parts, i32 path_parts_count, b32 is_backgr
                 figure_is_started = true;
             }
         }
-        else if (type == PathPart_Arc_DownToLeft || type == PathPart_Arc_DownToRight || type == PathPart_Arc_UpToLeft || type == PathPart_Arc_UpToRight)
+        else if (type == PathPart_Arc_DownToLeft)
         {
-            // sink->AddArc(left_arc_segment);
-            // ctx.arcTo(previousX, y, x, y, radius)
+            arc_segment = D2D1::ArcSegment(position, size_arc,
+                                           90, D2D1_SWEEP_DIRECTION_CLOCKWISE,  // The 90 doesn't seem to matter. Probably because we have no straight part in the Arc
+                                           D2D1_ARC_SIZE_SMALL ); // means: smaller than 180 degrees
+            sink->AddArc(arc_segment);
         }
-        else if (type == PathPart_Arc_LeftToUp || type == PathPart_Arc_LeftToDown || type == PathPart_Arc_RightToUp || type == PathPart_Arc_RightToDown)
+        else if (type == PathPart_Arc_DownToRight)
         {
-            // sink->AddArc(left_arc_segment);
-            // ctx.arcTo(x, previousY, x, y, radius)
+            arc_segment = D2D1::ArcSegment(position, size_arc,
+                                           90, D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE,
+                                           D2D1_ARC_SIZE_SMALL ); // means: smaller than 180 degrees
+            sink->AddArc(arc_segment);
+        }
+        else if( type == PathPart_Arc_UpToLeft)
+        {
+            arc_segment = D2D1::ArcSegment(position, size_arc,
+                                           90, D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE,
+                                           D2D1_ARC_SIZE_SMALL ); // means: smaller than 180 degrees
+            sink->AddArc(arc_segment);
+        }
+        else if (type == PathPart_Arc_UpToRight)
+        {
+            arc_segment = D2D1::ArcSegment(position, size_arc,
+                                           90, D2D1_SWEEP_DIRECTION_CLOCKWISE,
+                                           D2D1_ARC_SIZE_SMALL ); // means: smaller than 180 degrees
+            sink->AddArc(arc_segment);
+        }
+        else if (type == PathPart_Arc_LeftToUp) 
+        {
+            arc_segment = D2D1::ArcSegment(position, size_arc,
+                                           90, D2D1_SWEEP_DIRECTION_CLOCKWISE,
+                                           D2D1_ARC_SIZE_SMALL ); // means: smaller than 180 degrees
+            sink->AddArc(arc_segment);
+        }
+        else if (type == PathPart_Arc_LeftToDown) 
+        {
+            arc_segment = D2D1::ArcSegment(position, size_arc,
+                                           90, D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE,
+                                           D2D1_ARC_SIZE_SMALL ); // means: smaller than 180 degrees
+            sink->AddArc(arc_segment);
+        }
+        else if (type == PathPart_Arc_RightToUp) 
+        {
+            arc_segment = D2D1::ArcSegment(position, size_arc,
+                                           90, D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE,
+                                           D2D1_ARC_SIZE_SMALL ); // means: smaller than 180 degrees
+            sink->AddArc(arc_segment);
+        }
+        else if (type == PathPart_Arc_RightToDown)
+        {
+            arc_segment = D2D1::ArcSegment(position, size_arc,
+                                           90, D2D1_SWEEP_DIRECTION_CLOCKWISE,
+                                           D2D1_ARC_SIZE_SMALL ); // means: smaller than 180 degrees
+            sink->AddArc(arc_segment);
         }
                     
         previous_x = x;
