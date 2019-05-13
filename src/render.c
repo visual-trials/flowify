@@ -244,62 +244,62 @@ void push_right_parts(LaneRenderer * lane_renderer,
 }
 
 void push_parts_on_one_side_of_corner(LaneRenderer * lane_renderer, 
-                                      i32 first_x, i32 first_y, Direction first_direction, 
-                                      i32 second_x, i32 second_y, Direction second_direction, 
+                                      i32 start_x, i32 start_y, Direction start_direction, 
+                                      i32 end_x, i32 end_y, Direction end_direction, 
                                       i32 radius, b32 is_right, 
-                                      b32 skip_top_part_when_border = false, 
-                                      b32 skip_bottom_part_when_border = false) {
+                                      b32 skip_top_part_when_border = false /* FIXME: use this!? */, 
+                                      b32 skip_bottom_part_when_border = false /* FIXME: use this!? */) {
     
     if (!is_right && !lane_renderer->left_path_parts.nr_of_items) {
-        push_path_part(lane_renderer, first_x, first_y, PathPart_LineWhenBackground, is_right);
+        push_path_part(lane_renderer, start_x, start_y, PathPart_LineWhenBackground, is_right);
     }
     if (is_right && !lane_renderer->right_path_parts.nr_of_items) {
-        push_path_part(lane_renderer, first_x, first_y, PathPart_LineWhenBackground, is_right);
+        push_path_part(lane_renderer, start_x, start_y, PathPart_LineWhenBackground, is_right);
     }
 
     // FIXME: adjust radius to make it fit!
     
     // Forwards
-    if (first_direction == Direction_TopToBottom && second_direction == Direction_LeftToRight) {
-        push_path_part(lane_renderer, first_x, second_y - radius, PathPart_Line, is_right);
-        push_path_part(lane_renderer, first_x + radius, second_y, PathPart_Arc_DownToRight, is_right);
-        push_path_part(lane_renderer, second_x, second_y, PathPart_Line, is_right);
+    if (start_direction == Direction_TopToBottom && end_direction == Direction_LeftToRight) {
+        push_path_part(lane_renderer, start_x, end_y - radius, PathPart_Line, is_right);
+        push_path_part(lane_renderer, start_x + radius, end_y, PathPart_Arc_DownToRight, is_right);
+        push_path_part(lane_renderer, end_x, end_y, PathPart_Line, is_right);
     }
-    else if (first_direction == Direction_LeftToRight && second_direction == Direction_BottomToTop) {
-        push_path_part(lane_renderer, second_x - radius, first_y, PathPart_Line, is_right);
-        push_path_part(lane_renderer, second_x, first_y - radius, PathPart_Arc_RightToUp, is_right);
-        push_path_part(lane_renderer, second_x, second_y, PathPart_Line, is_right);
+    else if (start_direction == Direction_LeftToRight && end_direction == Direction_BottomToTop) {
+        push_path_part(lane_renderer, end_x - radius, start_y, PathPart_Line, is_right);
+        push_path_part(lane_renderer, end_x, start_y - radius, PathPart_Arc_RightToUp, is_right);
+        push_path_part(lane_renderer, end_x, end_y, PathPart_Line, is_right);
     }
-    else if (first_direction == Direction_BottomToTop && second_direction == Direction_RightToLeft) {
-        push_path_part(lane_renderer, first_x, second_y + radius, PathPart_Line, is_right);
-        push_path_part(lane_renderer, first_x - radius, second_y, PathPart_Arc_UpToLeft, is_right);
-        push_path_part(lane_renderer, second_x, second_y, PathPart_Line, is_right);
+    else if (start_direction == Direction_BottomToTop && end_direction == Direction_RightToLeft) {
+        push_path_part(lane_renderer, start_x, end_y + radius, PathPart_Line, is_right);
+        push_path_part(lane_renderer, start_x - radius, end_y, PathPart_Arc_UpToLeft, is_right);
+        push_path_part(lane_renderer, end_x, end_y, PathPart_Line, is_right);
     }
-    else if (first_direction == Direction_RightToLeft && second_direction == Direction_TopToBottom) {
-        push_path_part(lane_renderer, second_x + radius, first_y, PathPart_Line, is_right);
-        push_path_part(lane_renderer, second_x, first_y + radius, PathPart_Arc_LeftToDown, is_right);
-        push_path_part(lane_renderer, second_x, second_y, PathPart_Line, is_right);
+    else if (start_direction == Direction_RightToLeft && end_direction == Direction_TopToBottom) {
+        push_path_part(lane_renderer, end_x + radius, start_y, PathPart_Line, is_right);
+        push_path_part(lane_renderer, end_x, start_y + radius, PathPart_Arc_LeftToDown, is_right);
+        push_path_part(lane_renderer, end_x, end_y, PathPart_Line, is_right);
     }
     // Backwards
-    else if (first_direction == Direction_TopToBottom && second_direction == Direction_RightToLeft) {
-        push_path_part(lane_renderer, first_x, second_y + radius, PathPart_Line, is_right);
-        push_path_part(lane_renderer, first_x + radius, second_y, PathPart_Arc_UpToRight, is_right);
-        push_path_part(lane_renderer, second_x, second_y, PathPart_Line, is_right);
+    else if (start_direction == Direction_TopToBottom && end_direction == Direction_RightToLeft) {
+        push_path_part(lane_renderer, start_x, end_y + radius, PathPart_Line, is_right);
+        push_path_part(lane_renderer, start_x + radius, end_y, PathPart_Arc_UpToRight, is_right);
+        push_path_part(lane_renderer, end_x, end_y, PathPart_Line, is_right);
     }
-    else if (first_direction == Direction_RightToLeft && second_direction == Direction_BottomToTop) {
-        push_path_part(lane_renderer, second_x - radius, first_y, PathPart_Line, is_right);
-        push_path_part(lane_renderer, second_x, first_y + radius, PathPart_Arc_RightToDown, is_right);
-        push_path_part(lane_renderer, second_x, second_y, PathPart_Line, is_right);
+    else if (start_direction == Direction_RightToLeft && end_direction == Direction_BottomToTop) {
+        push_path_part(lane_renderer, end_x - radius, start_y, PathPart_Line, is_right);
+        push_path_part(lane_renderer, end_x, start_y + radius, PathPart_Arc_RightToDown, is_right);
+        push_path_part(lane_renderer, end_x, end_y, PathPart_Line, is_right);
     }
-    else if (first_direction == Direction_BottomToTop && second_direction == Direction_LeftToRight) {
-        push_path_part(lane_renderer, first_x, second_y - radius, PathPart_Line, is_right);
-        push_path_part(lane_renderer, first_x - radius, second_y, PathPart_Arc_DownToLeft, is_right);
-        push_path_part(lane_renderer, second_x, second_y, PathPart_Line, is_right);
+    else if (start_direction == Direction_BottomToTop && end_direction == Direction_LeftToRight) {
+        push_path_part(lane_renderer, start_x, end_y - radius, PathPart_Line, is_right);
+        push_path_part(lane_renderer, start_x - radius, end_y, PathPart_Arc_DownToLeft, is_right);
+        push_path_part(lane_renderer, end_x, end_y, PathPart_Line, is_right);
     }
-    else if (first_direction == Direction_LeftToRight && second_direction == Direction_TopToBottom) {
-        push_path_part(lane_renderer, second_x + radius, first_y, PathPart_Line, is_right);
-        push_path_part(lane_renderer, second_x, first_y - radius, PathPart_Arc_LeftToUp, is_right);
-        push_path_part(lane_renderer, second_x, second_y, PathPart_Line, is_right);
+    else if (start_direction == Direction_LeftToRight && end_direction == Direction_TopToBottom) {
+        push_path_part(lane_renderer, end_x + radius, start_y, PathPart_Line, is_right);
+        push_path_part(lane_renderer, end_x, start_y - radius, PathPart_Arc_LeftToUp, is_right);
+        push_path_part(lane_renderer, end_x, end_y, PathPart_Line, is_right);
     }
     else {
         log("ERROR: unsupported combination of directions!");
