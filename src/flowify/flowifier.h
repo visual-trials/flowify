@@ -322,6 +322,7 @@ void init_flowifier(Flowifier * flowifier, Parser * parser)
     flowifier->function_style.line_color = (Color4){ 200, 200, 200, 255};
     flowifier->function_style.fill_color = (Color4){ 255, 255, 255, 255};
     flowifier->function_style.line_width = 2;
+    flowifier->function_style.corner_radius = 10;
     
     flowifier->expression_style.line_color = (Color4){ 200, 255, 200, 255};
     flowifier->expression_style.even_fill_color = (Color4){ 235, 255, 235, 255};
