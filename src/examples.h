@@ -109,7 +109,7 @@ const char * simple_for_program_text =
     "\n"
     "$b = 76;\n"
     "\n"
-    "for ($i = 0; $i < 10; $i = $i + 1) {\n"
+    "for ($i = 0; $i < 10; $i++) {\n"
     "    $b = $b - 5;\n"
     "}\n"
 ;
