@@ -195,8 +195,8 @@ void push_left_parts(LaneRenderer * lane_renderer,
 }
 
 void push_right_parts(LaneRenderer * lane_renderer, 
-                     i32 right_top_x, i32 top_y, i32 right_middle_y, 
-                     i32 right_bottom_x, i32 bottom_y, i32 radius, 
+                     i32 right_bottom_x, i32 bottom_y, i32 right_middle_y, 
+                     i32 right_top_x, i32 top_y, i32 radius, 
                      b32 skip_top_part_when_border = false, 
                      b32 skip_bottom_part_when_border = false) {
     
@@ -379,6 +379,8 @@ void draw_lane_using_directional_rects(LaneRenderer * lane_renderer,
         
     // Left side (top to bottom)
     
+    b32 is_right = false;
+            
     // Check if first rect should be drawn from its top to the half of its height
     // This is only done if this rect wasn't part of the previous lane (indicated by a partial rect that was added at the start)
     // and this lane wasn't a joiner at the beginning (because then this first half would be drawn by the lane that joins with us.
@@ -398,8 +400,6 @@ void draw_lane_using_directional_rects(LaneRenderer * lane_renderer,
         DirectionalRect2d lane_part = lane_parts[lane_part_index];
         
         if (lane_part_index > 0) {
-            
-            b32 is_right = false;
             
             // If either the current lane part of the previous lane part is not top-to-bottom
             // it means we have to draw a corner
@@ -457,25 +457,38 @@ void draw_lane_using_directional_rects(LaneRenderer * lane_renderer,
     if (!partial_rect_at_end && !is_splitter_at_end) {
         DirectionalRect2d lane_part = lane_parts[lane_parts_count - 1];
         
-        push_left_parts(lane_renderer, lane_part.position.x, lane_part.position.y + lane_part.size.height / 2, 
+        Pos2d start_side_point = get_half_way_side_point(lane_part, is_right);
+        
+        Pos2d end_side_point = {};
+        end_side_point.x = lane_part.position.x;
+        end_side_point.y = lane_part.position.y + lane_part.size.height;
+        
+        push_left_parts(lane_renderer, start_side_point.x, start_side_point.y, 
                 lane_part.position.y + lane_part.size.height * 3 / 4, // TODO: 3 / 4 as middleY (we shouldnt use push_left_parts, we only draw a straight (half) lane_part)
-                lane_part.position.x, lane_part.position.y + lane_part.size.height, radius);
+                end_side_point.x, end_side_point.y, radius);
     }
     
     // Right side (bottom to top)
+    
+    is_right = true;
+        
     if (!partial_rect_at_end && !is_splitter_at_end) {
         DirectionalRect2d lane_part = lane_parts[lane_parts_count - 1];
         
-        push_right_parts(lane_renderer, lane_part.position.x + lane_part.size.width, lane_part.position.y + lane_part.size.height / 2, 
+        Pos2d start_side_point = {};
+        start_side_point.x = lane_part.position.x + lane_part.size.width;
+        start_side_point.y = lane_part.position.y + lane_part.size.height;
+        
+        Pos2d end_side_point = get_half_way_side_point(lane_part, is_right);
+        
+        push_right_parts(lane_renderer, start_side_point.x, start_side_point.y, 
                   lane_part.position.y + lane_part.size.height * 3 / 4, // TODO: 3 / 4 as middleY (we shouldnt use push_right_parts, we only draw a straight (half) lane_part)
-                  lane_part.position.x + lane_part.size.width, lane_part.position.y + lane_part.size.height, radius);
+                  end_side_point.x, end_side_point.y, radius);
     }
     
     previous_lane_part = empty_lane_part;
     for (i32 lane_part_index = lane_parts_count - 1; lane_part_index >= 0; lane_part_index--) {
         DirectionalRect2d lane_part = lane_parts[lane_part_index];
-        
-        b32 is_right = true;
         
         if (lane_part_index < lane_parts_count - 1) {
             
@@ -517,8 +530,8 @@ void draw_lane_using_directional_rects(LaneRenderer * lane_renderer,
                     skip_bottom_part_when_border = true;
                 }
                 
-                push_right_parts(lane_renderer, end_side_point.x, end_side_point.y, 
-                                 right_middle_y, start_side_point.x, start_side_point.y, 
+                push_right_parts(lane_renderer, start_side_point.x, start_side_point.y, 
+                                 right_middle_y, end_side_point.x, end_side_point.y, 
                                  radius, skip_top_part_when_border, skip_bottom_part_when_border);
             }
         }
@@ -532,9 +545,15 @@ void draw_lane_using_directional_rects(LaneRenderer * lane_renderer,
     if (!partial_rect_at_start && !is_joiner_at_beginning) {
         DirectionalRect2d lane_part = lane_parts[0];
         
-        push_right_parts(lane_renderer, lane_part.position.x + lane_part.size.width, lane_part.position.y, 
+        Pos2d end_side_point = {};
+        end_side_point.x = lane_part.position.x + lane_part.size.width;
+        end_side_point.y = lane_part.position.y;
+        
+        Pos2d start_side_point = get_half_way_side_point(lane_part, is_right);
+        
+        push_right_parts(lane_renderer, start_side_point.x, start_side_point.y, 
                          lane_part.position.y + lane_part.size.height / 4, // TODO: 1 / 4 as middleY (we shouldnt use push_right_parts, we only draw a straight (half) lane_part)
-                         lane_part.position.x + previous_lane_part.size.width, lane_part.position.y + lane_part.size.height / 2, radius);
+                         end_side_point.x, end_side_point.y, radius);
     }
     
 
