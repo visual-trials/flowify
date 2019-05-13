@@ -145,101 +145,108 @@ void push_path_part(LaneRenderer * lane_renderer, i32 x, i32 y, PathPartType typ
     }
 }
 
-void push_left_parts(LaneRenderer * lane_renderer, 
-                     i32 left_top_x, i32 top_y, i32 left_middle_y, 
-                     i32 left_bottom_x, i32 bottom_y, i32 radius, 
-                     b32 skip_top_part_when_border = false, 
-                     b32 skip_bottom_part_when_border = false) {
+void push_side_parts(LaneRenderer * lane_renderer, 
+                     i32 start_x, i32 start_y, i32 middle_y, 
+                     i32 end_x, i32 end_y, i32 radius, b32 is_right,
+                     b32 skip_start_part_when_border = false, 
+                     b32 skip_end_part_when_border = false) {
 
-    PathPartType top_line_type = PathPart_Line;
-    if (skip_top_part_when_border) {
-        top_line_type = PathPart_LineWhenBackground;
+    PathPartType start_line_type = PathPart_Line;
+    if (skip_start_part_when_border) {
+        start_line_type = PathPart_LineWhenBackground;
     }
-    PathPartType bottom_line_type = PathPart_Line;
-    if (skip_bottom_part_when_border) {
-        bottom_line_type = PathPart_LineWhenBackground;
-    }
-    
-    // Draw left side
-    
-    if (!lane_renderer->left_path_parts.nr_of_items) {
-        push_path_part(lane_renderer, left_top_x, top_y, PathPart_LineWhenBackground, false);
+    PathPartType end_line_type = PathPart_Line;
+    if (skip_end_part_when_border) {
+        end_line_type = PathPart_LineWhenBackground;
     }
     
-    if (left_bottom_x < left_top_x) {
-        // bottom is to the left of the top
-        if (left_top_x - left_bottom_x < radius * 2) {
-            radius = (left_top_x - left_bottom_x) / 2;
+    if (!is_right)
+    {
+        if (!lane_renderer->left_path_parts.nr_of_items) {
+            push_path_part(lane_renderer, start_x, start_y, PathPart_LineWhenBackground, false);
         }
-        push_path_part(lane_renderer, left_top_x, left_middle_y - radius, top_line_type, false);
-        push_path_part(lane_renderer, left_top_x - radius, left_middle_y, PathPart_Arc_DownToLeft, false);
-        push_path_part(lane_renderer, left_bottom_x + radius, left_middle_y, PathPart_Line, false);
-        push_path_part(lane_renderer, left_bottom_x, left_middle_y + radius, PathPart_Arc_LeftToDown, false);
-        push_path_part(lane_renderer, left_bottom_x, bottom_y, bottom_line_type, false);
     }
-    else if (left_bottom_x > left_top_x) {
-        // bottom is to the right of the top
-        if (left_bottom_x - left_top_x < radius * 2) {
-            radius = (left_bottom_x - left_top_x) / 2;
+    else
+    {
+        if (!lane_renderer->right_path_parts.nr_of_items) {
+            push_path_part(lane_renderer, start_x, start_y, PathPart_LineWhenBackground, true);
         }
-        push_path_part(lane_renderer, left_top_x, left_middle_y - radius, top_line_type, false);
-        push_path_part(lane_renderer, left_top_x + radius, left_middle_y, PathPart_Arc_DownToRight, false);
-        push_path_part(lane_renderer, left_bottom_x - radius, left_middle_y, PathPart_Line, false);
-        push_path_part(lane_renderer, left_bottom_x, left_middle_y + radius, PathPart_Arc_RightToDown, false);
-        push_path_part(lane_renderer, left_bottom_x, bottom_y, bottom_line_type, false);
+    }
+    
+    if (end_x < start_x) {
+        // end is to the left of the start
+        if (start_x - end_x < radius * 2) {
+            radius = (start_x - end_x) / 2;
+        }
+        push_path_part(lane_renderer, start_x, middle_y - radius, start_line_type, false);
+        push_path_part(lane_renderer, start_x - radius, middle_y, PathPart_Arc_DownToLeft, false);
+        push_path_part(lane_renderer, end_x + radius, middle_y, PathPart_Line, false);
+        push_path_part(lane_renderer, end_x, middle_y + radius, PathPart_Arc_LeftToDown, false);
+        push_path_part(lane_renderer, end_x, end_y, end_line_type, false);
+    }
+    else if (end_x > start_x) {
+        // end is to the right of the start
+        if (end_x - start_x < radius * 2) {
+            radius = (end_x - start_x) / 2;
+        }
+        push_path_part(lane_renderer, start_x, middle_y - radius, start_line_type, false);
+        push_path_part(lane_renderer, start_x + radius, middle_y, PathPart_Arc_DownToRight, false);
+        push_path_part(lane_renderer, end_x - radius, middle_y, PathPart_Line, false);
+        push_path_part(lane_renderer, end_x, middle_y + radius, PathPart_Arc_RightToDown, false);
+        push_path_part(lane_renderer, end_x, end_y, end_line_type, false);
     }
     else {
         // straight vertical line
-        push_path_part(lane_renderer, left_bottom_x, bottom_y, PathPart_Line, false);
+        push_path_part(lane_renderer, end_x, end_y, PathPart_Line, false);
     }
 }
 
 void push_right_parts(LaneRenderer * lane_renderer, 
-                     i32 right_bottom_x, i32 bottom_y, i32 right_middle_y, 
-                     i32 right_top_x, i32 top_y, i32 radius, 
-                     b32 skip_top_part_when_border = false, 
-                     b32 skip_bottom_part_when_border = false) {
+                     i32 start_x, i32 start_y, i32 middle_y, 
+                     i32 end_x, i32 end_y, i32 radius, 
+                     b32 skip_start_part_when_border = false,
+                     b32 skip_end_part_when_border = false) {
     
-    PathPartType top_line_type = PathPart_Line;
-    if (skip_top_part_when_border) {
-        top_line_type = PathPart_LineWhenBackground;
+    PathPartType end_line_type = PathPart_Line;
+    if (skip_end_part_when_border) {
+        end_line_type = PathPart_LineWhenBackground;
     }
-    PathPartType bottom_line_type = PathPart_Line;
-    if (skip_bottom_part_when_border) {
-        bottom_line_type = PathPart_LineWhenBackground;
+    PathPartType start_line_type = PathPart_Line;
+    if (skip_start_part_when_border) {
+        start_line_type = PathPart_LineWhenBackground;
     }
     
     // Right side (bottom to top)
     
     if (!lane_renderer->right_path_parts.nr_of_items) {
-        push_path_part(lane_renderer, right_bottom_x, bottom_y, PathPart_LineWhenBackground, true);
+        push_path_part(lane_renderer, start_x, start_y, PathPart_LineWhenBackground, true);
     }
             
-    if (right_bottom_x < right_top_x) {
-        // bottom is to the left of the top
-        if (right_top_x - right_bottom_x < radius * 2) {
-            radius = (right_top_x - right_bottom_x) / 2;
+    if (start_x < end_x) {
+        // start is to the left of the end
+        if (end_x - start_x < radius * 2) {
+            radius = (end_x - start_x) / 2;
         }
-        push_path_part(lane_renderer, right_bottom_x, right_middle_y + radius, bottom_line_type, true);
-        push_path_part(lane_renderer, right_bottom_x + radius, right_middle_y, PathPart_Arc_UpToRight, true);
-        push_path_part(lane_renderer, right_top_x - radius, right_middle_y, PathPart_Line, true);
-        push_path_part(lane_renderer, right_top_x, right_middle_y - radius, PathPart_Arc_RightToUp, true);
-        push_path_part(lane_renderer, right_top_x, top_y, top_line_type, true);
+        push_path_part(lane_renderer, start_x, middle_y + radius, start_line_type, true);
+        push_path_part(lane_renderer, start_x + radius, middle_y, PathPart_Arc_UpToRight, true);
+        push_path_part(lane_renderer, end_x - radius, middle_y, PathPart_Line, true);
+        push_path_part(lane_renderer, end_x, middle_y - radius, PathPart_Arc_RightToUp, true);
+        push_path_part(lane_renderer, end_x, end_y, end_line_type, true);
     }
-    else if (right_bottom_x > right_top_x) {
-        // bottom is to the right of the top
-        if (right_bottom_x - right_top_x < radius * 2) {
-            radius = (right_bottom_x - right_top_x) / 2;
+    else if (start_x > end_x) {
+        // start is to the right of the end
+        if (start_x - end_x < radius * 2) {
+            radius = (start_x - end_x) / 2;
         }
-        push_path_part(lane_renderer, right_bottom_x, right_middle_y + radius, bottom_line_type, true);
-        push_path_part(lane_renderer, right_bottom_x - radius, right_middle_y, PathPart_Arc_UpToLeft, true);
-        push_path_part(lane_renderer, right_top_x + radius, right_middle_y, PathPart_Line, true);
-        push_path_part(lane_renderer, right_top_x, right_middle_y - radius, PathPart_Arc_LeftToUp, true);
-        push_path_part(lane_renderer, right_top_x, top_y, top_line_type, true);
+        push_path_part(lane_renderer, start_x, middle_y + radius, start_line_type, true);
+        push_path_part(lane_renderer, start_x - radius, middle_y, PathPart_Arc_UpToLeft, true);
+        push_path_part(lane_renderer, end_x + radius, middle_y, PathPart_Line, true);
+        push_path_part(lane_renderer, end_x, middle_y - radius, PathPart_Arc_LeftToUp, true);
+        push_path_part(lane_renderer, end_x, end_y, end_line_type, true);
     }
     else {
         // straight vertical line
-        push_path_part(lane_renderer, right_top_x, top_y, PathPart_Line, true);
+        push_path_part(lane_renderer, end_x, end_y, PathPart_Line, true);
     }
 }
 
@@ -387,10 +394,16 @@ void draw_lane_using_directional_rects(LaneRenderer * lane_renderer,
     if (!partial_rect_at_start && !is_joiner_at_beginning) {
         DirectionalRect2d lane_part = lane_parts[0];
         
-        push_left_parts(lane_renderer,
-                        lane_part.position.x, lane_part.position.y, 
-                        lane_part.position.y + lane_part.size.height / 4, // TODO: 1 / 4 as middle_y (we shouldnt use push_left_parts, we only draw a straight (half) lane_part)
-                        lane_part.position.x, lane_part.position.y + lane_part.size.height / 2, radius);
+        Pos2d start_side_point = {};
+        start_side_point.x = lane_part.position.x;
+        start_side_point.y = lane_part.position.y;
+        
+        Pos2d end_side_point = get_half_way_side_point(lane_part, is_right);
+        
+        i32 middle_y = lane_part.position.y + lane_part.size.height / 4; // TODO: 1 / 4 as middle_y (we shouldnt use push_side_parts, we only draw a straight (half) lane_part)
+        
+        push_side_parts(lane_renderer, start_side_point.x, start_side_point.y, 
+                        middle_y, end_side_point.x, end_side_point.y, radius, is_right);
     }
     
     DirectionalRect2d empty_lane_part = {};
@@ -421,14 +434,14 @@ void draw_lane_using_directional_rects(LaneRenderer * lane_renderer,
                 b32 skip_bottom_part_when_border = false;
                 
                 i32 distance_between_rects = lane_part.position.y - (previous_lane_part.position.y + previous_lane_part.size.height);
-                i32 left_middle_y = lane_part.position.y - distance_between_rects / 2;
+                i32 middle_y = lane_part.position.y - distance_between_rects / 2;
                 
                 if (lane_part_index == 1 && partial_rect_at_start && is_right_side_at_start) {
                     // We are at the beginning of a lane that begins from a splitter (its right side)
                     // We should not *stroke* the left side of the previous lane_part,
                     // which is the last part of the previous lane: a splitter.
-                    // TODO: now forcing left_middle_y to be right below the top lane_part. We might want to add an extra line/move instead (towards a real splitting point)
-                    left_middle_y = previous_lane_part.position.y + previous_lane_part.size.height + radius;
+                    // TODO: now forcing middle_y to be right below the top lane_part. We might want to add an extra line/move instead (towards a real splitting point)
+                    middle_y = previous_lane_part.position.y + previous_lane_part.size.height + radius;
                     skip_top_part_when_border = true;
                 }
                 
@@ -436,14 +449,14 @@ void draw_lane_using_directional_rects(LaneRenderer * lane_renderer,
                     // We are at the end of a lane that ends in a joiner (its right side)
                     // We should not *stroke* the left side of the current lane_part,
                     // which is the first part of the next lane: a joiner.
-                    // TODO: now forcing left_middle_y to be right above the bottom lane_part. We might want to add an extra line/move instead (towards a real joining point)
-                    left_middle_y = lane_part.position.y - radius;
+                    // TODO: now forcing middle_y to be right above the bottom lane_part. We might want to add an extra line/move instead (towards a real joining point)
+                    middle_y = lane_part.position.y - radius;
                     skip_bottom_part_when_border = true;
                 }
                 
-                push_left_parts(lane_renderer, start_side_point.x, start_side_point.y, 
-                                left_middle_y, end_side_point.x, end_side_point.y, 
-                                radius, skip_top_part_when_border, skip_bottom_part_when_border);
+                push_side_parts(lane_renderer, start_side_point.x, start_side_point.y, 
+                                middle_y, end_side_point.x, end_side_point.y, 
+                                radius, is_right, skip_top_part_when_border, skip_bottom_part_when_border);
             }
             
         }
@@ -463,9 +476,10 @@ void draw_lane_using_directional_rects(LaneRenderer * lane_renderer,
         end_side_point.x = lane_part.position.x;
         end_side_point.y = lane_part.position.y + lane_part.size.height;
         
-        push_left_parts(lane_renderer, start_side_point.x, start_side_point.y, 
-                lane_part.position.y + lane_part.size.height * 3 / 4, // TODO: 3 / 4 as middleY (we shouldnt use push_left_parts, we only draw a straight (half) lane_part)
-                end_side_point.x, end_side_point.y, radius);
+        i32 middle_y = lane_part.position.y + lane_part.size.height * 3 / 4; // TODO: 3 / 4 as middleY (we shouldnt use push_side_parts, we only draw a straight (half) lane_part)
+        
+        push_side_parts(lane_renderer, start_side_point.x, start_side_point.y, 
+                        middle_y, end_side_point.x, end_side_point.y, radius, is_right);
     }
     
     // Right side (bottom to top)
@@ -532,7 +546,7 @@ void draw_lane_using_directional_rects(LaneRenderer * lane_renderer,
                 
                 push_right_parts(lane_renderer, start_side_point.x, start_side_point.y, 
                                  right_middle_y, end_side_point.x, end_side_point.y, 
-                                 radius, skip_top_part_when_border, skip_bottom_part_when_border);
+                                 radius, skip_bottom_part_when_border, skip_top_part_when_border);
             }
         }
         else {
