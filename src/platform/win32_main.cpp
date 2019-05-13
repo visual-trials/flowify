@@ -59,7 +59,21 @@ i64 performance_count_frequency;
 
 b32 touch_is_enabled;
 TOUCHINPUT touch_inputs[MAX_NR_OF_TOUCHES];
+i32 last_added_touch_identifier;
+LARGE_INTEGER last_added_touch_time;
 
+inline LARGE_INTEGER get_clock_counter(void)
+{    
+    LARGE_INTEGER clock_counter;
+    QueryPerformanceCounter(&clock_counter);
+    return clock_counter;
+}
+
+inline f32 get_seconds_elapsed(LARGE_INTEGER start_counter, LARGE_INTEGER end_counter)
+{
+    f32 seconds_elapsed = ((f32)(end_counter.QuadPart - start_counter.QuadPart) / (f32)performance_count_frequency);
+    return seconds_elapsed;
+}
 
 LRESULT CALLBACK WindowProcedure(HWND window, 
                                  UINT msg, 
@@ -97,7 +111,11 @@ LRESULT CALLBACK WindowProcedure(HWND window,
         {
            new_input.mouse.left_button_has_gone_down = true;
            new_input.mouse.left_button_is_down = true;
-           // FIXME: new_input.mouse.left_button_has_gone_down_twice = ...;
+        }
+        break;
+        case WM_LBUTTONDBLCLK: 
+        {
+           new_input.mouse.left_button_has_gone_down_twice = true;
         }
         break;
         case WM_LBUTTONUP:
@@ -110,7 +128,11 @@ LRESULT CALLBACK WindowProcedure(HWND window,
         {
            new_input.mouse.right_button_has_gone_down = true;
            new_input.mouse.right_button_is_down = true;
-           // FIXME: new_input.mouse.right_button_has_gone_down_twice = ...;
+        }
+        break;
+        case WM_RBUTTONDBLCLK: 
+        {
+           new_input.mouse.right_button_has_gone_down_twice = true;
         }
         break;
         case WM_RBUTTONUP:
@@ -151,6 +173,7 @@ LRESULT CALLBACK WindowProcedure(HWND window,
                             i32 identifier = touch_input.dwID;
                             
                             POINT point_input;
+                            // FIXME: for some reason the x and y don't seem to be corrent!
                             point_input.x = TOUCH_COORD_TO_PIXEL(touch_input.x);
                             point_input.y = TOUCH_COORD_TO_PIXEL(touch_input.y);
                             ScreenToClient(window, &point_input);
@@ -174,6 +197,13 @@ LRESULT CALLBACK WindowProcedure(HWND window,
                                 {
                                     // The touch_input has ended, so we should mark it as such
                                     new_input.touch.touches[touch_index].has_ended = true;
+                                    
+                                    LARGE_INTEGER touch_going_up_time = get_clock_counter();
+                                    if (identifier == last_added_touch_identifier && get_seconds_elapsed(last_added_touch_time, touch_going_up_time) < 0.3)
+                                    {
+                                        new_input.touch.touches[touch_index].has_ended_quickly = true;
+                                        last_added_touch_identifier = -1;
+                                    }
                                     
                                     if (new_input.touch.touches[touch_index].position.x != x ||
                                         new_input.touch.touches[touch_index].position.y != y)
@@ -202,9 +232,14 @@ LRESULT CALLBACK WindowProcedure(HWND window,
                                     new_input.touch.touches[touch_index].has_moved = false;
                                     new_input.touch.touches[touch_index].has_started = false;
                                     new_input.touch.touches[touch_index].has_ended = false;
+                                    new_input.touch.touches[touch_index].has_ended_quickly = false;
                                     new_input.touch.touches[touch_index].was_canceled = false;
                                     new_input.touch.touches[touch_index].position.x = x;
                                     new_input.touch.touches[touch_index].position.y = y;
+                                    
+                                    // This is use to detect a short ending of a touch
+                                    last_added_touch_identifier = identifier;
+                                    last_added_touch_time = get_clock_counter();
                                     
                                     new_input.touch.touch_count += 1;
                                 }
@@ -240,19 +275,6 @@ LRESULT CALLBACK WindowProcedure(HWND window,
     return 0;
 }
 
-inline LARGE_INTEGER get_clock_counter(void)
-{    
-    LARGE_INTEGER clock_counter;
-    QueryPerformanceCounter(&clock_counter);
-    return clock_counter;
-}
-
-inline f32 get_seconds_elapsed(LARGE_INTEGER start_counter, LARGE_INTEGER end_counter)
-{
-    f32 seconds_elapsed = ((f32)(end_counter.QuadPart - start_counter.QuadPart) / (f32)performance_count_frequency);
-    return seconds_elapsed;
-}
-
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, int cmd_show)
 {
     // FIXME: this only works in Windows 10! And it doesn't work for direct2d!
@@ -273,7 +295,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
     global_memory.size = dynamic_memory_size;
 
     WNDCLASSA window_class = {};
-    window_class.style         = CS_HREDRAW|CS_VREDRAW;
+    window_class.style         = CS_HREDRAW|CS_VREDRAW|CS_DBLCLKS;
     window_class.lpfnWndProc   = WindowProcedure;
     window_class.hInstance     = instance;
     window_class.hCursor       = LoadCursor(0, IDC_ARROW);
@@ -317,6 +339,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
         RegisterTouchWindow(window, 0);
         touch_is_enabled = true;
     }
+    last_added_touch_identifier = -1;
     
     LARGE_INTEGER performance_count_frequency_result;
     QueryPerformanceFrequency(&performance_count_frequency_result);
@@ -429,6 +452,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, 
             
             new_input.touch.touches[touch_index].has_moved = false;
             new_input.touch.touches[touch_index].has_started = false;
+            // new_input.touch.touches[touch_index].has_ended_quickly = false; // this is irrelevant, since we are going to delete it anyway
             // new_input.touch.touches[touch_index].has_ended = false; // this is irrelevant, since we are going to delete it anyway
             // new_input.touch.touches[touch_index].was_canceled = false; // this is irrelevant, since we are going to delete it anyway
         }
