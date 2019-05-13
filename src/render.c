@@ -160,6 +160,8 @@ void push_left_parts(LaneRenderer * lane_renderer,
         end_line_type = PathPart_LineWhenBackground;
     }
     
+    // Left side (top to bottom)
+    
     if (!lane_renderer->left_path_parts.nr_of_items) {
         push_path_part(lane_renderer, start_x, start_y, PathPart_LineWhenBackground, false);
     }
