@@ -79,7 +79,7 @@ const char * simple_if_program_text =
     "	$b++;\n"
     "}\n"
     "\n"
-//  FIXME: add this again:   "$c = $myVar + $b;\n"
+    "$c = $myVar + $b;\n"
 ;
 
 const char * simple_if_else_program_name = "simple_if_else_statement.php";
