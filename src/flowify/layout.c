@@ -464,8 +464,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         for_passdown_element->rect.position.y = for_init_element->rect.position.y + for_init_element->rect.size.height - for_passback_height;
         for_passdown_element->rect.position.x = for_init_element->rect.position.x + for_init_element->rect.size.width + for_middle_margin;
         
-        // FIXME: we are assuming the body + update is always vertically larger than the for_done_element
-        current_position_left.y = current_position_right.y;
+        current_position_left.y = current_position_right.y + bending_radius; // We add a little more margin at the bottom
         
         // We vertically-align the done element with the init-element
         for_done_element->rect.position.x = for_init_element->rect.position.x;
@@ -585,8 +584,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         foreach_passdown_element->rect.position.y = foreach_init_element->rect.position.y + foreach_init_element->rect.size.height - foreach_passback_height;
         foreach_passdown_element->rect.position.x = foreach_init_element->rect.position.x + foreach_init_element->rect.size.width + foreach_middle_margin;
         
-        // FIXME: we are assuming the body + update is always vertically larger than the foreach_done_element
-        current_position_left.y = current_position_right.y;
+        current_position_left.y = current_position_right.y + bending_radius; // We add a little more margin at the bottom
         
         // We vertically-align the done element with the init-element
         foreach_done_element->rect.position.x = foreach_init_element->rect.position.x;
