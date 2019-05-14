@@ -166,8 +166,8 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node, 
 
             if (function_element && !function_element->parent) // FIXME: only adding if the function has no parent yet (to prevent infinite recursion)
             {
-                // Right now, a function_call is always be collapsed by default
-                function_call_element->is_collapsed = false;
+                // Right now, a is always be collapsed by default
+                function_element->is_collapsed = true;
 
                 // TODO: we do not connect first and last statements in a body, with statements in a next or previous body anymore. 
                 //       So first_in_flow and last_in_flow are probably deprecated!
@@ -197,14 +197,13 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node, 
                 // log("Unknown function:");
                 // log(identifier);
                 
-                // Right now, a function_call (without a know function) is always be collapsed by default
-                // TODO: should it always stay collapsed?
-                function_call_element->is_collapsed = true;
-
                 // TODO: is it corrent that the hidden element has no corresponding ast-node?
                 FlowElement * hidden_function_element = new_element(flowifier, 0, FlowElement_Hidden);
                 add_child_element(hidden_function_element, function_call_element);
                 
+                // Right now, a hidden function is always be collapsed by default
+                hidden_function_element->is_collapsed = true;
+
                 // TODO: we do not connect first and last statements in a body, with statements in a next or previous body anymore. 
                 //       So first_in_flow and last_in_flow are probably deprecated!
                 //function_call_element->first_in_flow = hidden_function_element;

@@ -299,15 +299,34 @@ extern "C" {
                 
                 if (acted_upon_element->type == FlowElement_FunctionCall)
                 {
-                    acted_upon_element->is_collapsed = !acted_upon_element->is_collapsed;
-                    if (acted_upon_element->is_collapsed)
+                    // FIXME: we now try to find the Function-element (if it exists) and collapse/expand that
+                    //        but the way we try to find that Function-element is very specific. We need a more 
+                    //        general way of signifying what elements should be expanded when (double-clicking)
+                    //        on what (elements/buttons). And the same for collapsing.
+                    //        We might want a group of elements that collapse/expand together (to signify WHAT to collapse/expand)
+                    //        and these groups are then referred to by element/buttons (to signify WHEN to do the collapsing/expanding
+                    //        of these groups. Possibly caused not (only) by a double click of an element/buttons
+                    //        but also by the zoom-level of an element.
+                    
+                    FlowElement * function_call_element = acted_upon_element;
+                    FlowElement * function_call_identifier = function_call_element->first_child;
+                    FlowElement * function_call_arguments = function_call_identifier->next_sibling;
+                    if (function_call_arguments->next_sibling->type != FlowElement_Hidden)
                     {
-                        // TODO: if its now collapsed, the whole root element may be completely off screen.
-                        //       we want to re-position all elements, so at least this element becomes in-view
-                        //       this is a little dirty, but it kinda works for now
+                        FlowElement * parameters_element = function_call_arguments->next_sibling;
+                        FlowElement * function_element = parameters_element->next_sibling;
                         
-                        // FIXME: turned off for now: world->flowify_vertical_offset = -acted_upon_element->rect.position.y;
+                        function_element->is_collapsed = !function_element->is_collapsed;
+                        if (function_element->is_collapsed)
+                        {
+                            // TODO: if its now collapsed, the whole root element may be completely off screen.
+                            //       we want to re-position all elements, so at least this element becomes in-view
+                            //       this is a little dirty, but it kinda works for now
+                            
+                            // FIXME: turned off for now: world->flowify_vertical_offset = -acted_upon_element->rect.position.y;
+                        }
                     }
+                    
                 }
                 
                 flowifier->interaction.acted_upon_element_index = 0;

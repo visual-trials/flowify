@@ -620,10 +620,6 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         // Function call identifier and arguments
         
-        // FIXME: collapse only the arguments when collapsed, but not the identifier!
-        
-        // if (!function_call_element->is_collapsed)
-            
         function_call_identifier->rect.size = get_size_based_on_source_text(flowifier, function_call_identifier, flowifier->variable_margin);
         
         layout_elements(flowifier, function_call_arguments);
@@ -667,7 +663,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
             FlowElement * parameters_element = function_call_arguments->next_sibling;
             FlowElement * function_element = parameters_element->next_sibling;
             
-            if (function_call_element->is_collapsed)
+            if (function_element->is_collapsed)
             {
                 // Collapsed function
                 

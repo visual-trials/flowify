@@ -586,7 +586,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
             FlowElement * parameters_element = function_call_arguments->next_sibling;
             FlowElement * function_element = parameters_element->next_sibling;
 
-            if (!function_call_element->is_collapsed)
+            if (!function_element->is_collapsed)
             {
                 // Parameter Assignments
                 
