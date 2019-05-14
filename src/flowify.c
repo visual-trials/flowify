@@ -166,7 +166,7 @@ extern "C" {
         full_screen_rect.size.height = screen->height;
         
         Rect2d available_screen_rect = shrink_rect_by_margins(full_screen_rect, world->screen_margins);
-        f32 flow_code_fraction = 0.6;
+        f32 flow_code_fraction = 0.5;
         if (!world->show_code)
         {
             flow_code_fraction = 1.0;
