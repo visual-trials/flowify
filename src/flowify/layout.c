@@ -125,9 +125,9 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
     // TODO: is this the right way of doing this?
     if (flow_element->is_collapsed)
     {
-        // If an element is collapsed, we set its size to 0
-        flow_element->rect.size.width = 0;
-        flow_element->rect.size.height = 0;
+        // If an element is collapsed, we set its size to 5
+        flow_element->rect.size.width = 10;
+        flow_element->rect.size.height = 10;
         return;
     }
     

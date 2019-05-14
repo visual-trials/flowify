@@ -60,6 +60,7 @@ void push_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, D
     // FIXME: is this the right way?
     if (flow_element->is_collapsed)
     {
+        push_rectangle(&flowifier->renderer, flow_element->rect_abs, draw_style);
         return;
     }
     
@@ -114,6 +115,8 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
     // FIXME: is this the right way?
     if (flow_element->is_collapsed)
     {
+        // FIXME: what style should we use here?
+        push_rectangle_element(flowifier, flow_element, flowifier->variable_style, true, false);
         return;
     }
 
