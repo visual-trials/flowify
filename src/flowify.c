@@ -328,6 +328,11 @@ extern "C" {
                     }
                     
                 }
+                else
+                {
+                    // FIXME: do we want this on EVERY type of element?
+                    acted_upon_element->is_collapsed = !acted_upon_element->is_collapsed;
+                }
                 
                 flowifier->interaction.acted_upon_element_index = 0;
             }
