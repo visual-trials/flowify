@@ -57,6 +57,12 @@ void push_interaction_rectangle(Flowifier * flowifier, FlowElement * flow_elemen
 
 void push_rectangle_element(Flowifier * flowifier, FlowElement * flow_element, DrawStyle draw_style, b32 draw_rectangle, b32 draw_source_text)
 {
+    // FIXME: is this the right way?
+    if (flow_element->is_collapsed)
+    {
+        return;
+    }
+    
     if (flowifier->interaction.highlighted_element_index == flow_element->index)
     {
         draw_style.fill_color = flowifier->highlighted_color;
@@ -104,6 +110,12 @@ void draw_entries(DrawableEntry * drawable_entry);
 void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
 {
     assert(flow_element);
+
+    // FIXME: is this the right way?
+    if (flow_element->is_collapsed)
+    {
+        return;
+    }
 
     BasicRenderer * renderer = &flowifier->renderer;
     

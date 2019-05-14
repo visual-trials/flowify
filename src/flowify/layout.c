@@ -121,6 +121,16 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
     i32 foreach_right_margin = flowifier->for_right_margin; // TODO: duplicate
     
     assert(flow_element);
+
+    // TODO: is this the right way of doing this?
+    if (flow_element->is_collapsed)
+    {
+        // If an element is collapsed, we set its size to 0
+        flow_element->rect.size.width = 0;
+        flow_element->rect.size.height = 0;
+        return;
+    }
+    
     
     if (flow_element->type == FlowElement_Hidden)
     {
