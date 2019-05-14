@@ -358,6 +358,8 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         end_if_lane->is_joiner_at_beginning = true;
         
         flowifier->current_lane = end_if_lane;
+        
+        push_straight_element(flowifier, if_join_element);
     }
     else if (flow_element->type == FlowElement_For)
     {

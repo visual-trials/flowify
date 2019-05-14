@@ -324,8 +324,7 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
             then_else_height = if_else_element->rect.size.height;
         }
         
-        if_join_element->rect.size.width = default_element_width;
-        if_join_element->rect.size.height = 0; // FIXME: is this correct? // 2 * bending_radius;
+        if_join_element->rect.size.height = 2 * bending_radius;
         
         // Positioning
         
@@ -355,7 +354,10 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         
         if_join_element->rect.position = current_position;
         
+        if_join_element->rect.size.width = if_then_element->rect.position.x - if_join_element->rect.position.x + if_then_element->rect.size.width / 2;
+        
         current_position.y += if_join_element->rect.size.height;
+        
         
         i32 total_height = current_position.y - start_position.y;
         i32 total_width = current_position_right.x + if_then_element->rect.size.width - start_position.x;
