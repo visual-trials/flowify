@@ -697,7 +697,7 @@ extern "C" {
         
         if (world->show_code)
         {
-            Color4 fill_color = { 255, 255, 255, 255 };
+            Color4 fill_color = { 255, 255, 255, 230 };
             Color4 line_color = { 200, 200, 200, 255 };
             
             DrawStyle code_style = {};
