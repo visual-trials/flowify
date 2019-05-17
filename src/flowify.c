@@ -226,7 +226,7 @@ extern "C" {
         
         world->nr_of_program_texts = 9;
         
-        world->current_program_text_index = 3;
+        world->current_program_text_index = 5;
         
         world->verbose_memory_usage = false;
         world->verbose_frame_times = false;
@@ -249,7 +249,7 @@ extern "C" {
         world->last_touch_position.x = 0;
         world->last_touch_position.y = 0;
         
-        world->show_code = false;
+        world->show_code = true;
         
         update_window_dimensions(world, &input->screen);
         
@@ -331,7 +331,7 @@ extern "C" {
                 else
                 {
                     // FIXME: do we want this on EVERY type of element?
-                    acted_upon_element->is_collapsed = !acted_upon_element->is_collapsed;
+                    // acted_upon_element->is_collapsed = !acted_upon_element->is_collapsed;
                 }
                 
                 flowifier->interaction.acted_upon_element_index = 0;
@@ -429,26 +429,112 @@ extern "C" {
         
     }
     
-    // TODO: make this a more general function (add arguments nr_of_buttons and current_button_index)
-    //       then return button_pressed_index (so you can load the program text for that index)
-    void draw_and_update_button_menu(WorldData * world)
+    void draw_help(WorldData * world)
     {
-        // Draw (and update) button menu
-        
-        Size2d size_menu_button = {50, 50};
-        Pos2d position_menu_button = {20, 20};
-        Pos2d position_menu = {20, 71};
-        Size2d size_menu_item = {500, 50};
-        i32 margin_between_menu_items = 0;
+        // Help button
         
         Size2d size_help_button = {50, 50};
         Pos2d position_help_button = {}; 
-        position_help_button.x = global_input.screen.width - size_help_button.width - 20;
+        position_help_button.x = 20; // global_input.screen.width - size_help_button.width - 20;
         position_help_button.y = global_input.screen.height - size_help_button.height - 20;
         
         ShortString help_label;
         copy_cstring_to_short_string("help", &help_label);
         
+        b32 help_button_is_active = false;
+        b32 help_button_is_pressed = do_button(position_help_button, size_help_button, &help_label, help_button_is_active, &global_input);
+        
+        if (help_button_is_pressed)
+        {
+            world->help_is_expanded = !world->help_is_expanded;
+        }
+        
+        if (world->help_is_expanded)
+        {
+            Font font = {};
+            font.height = 20;
+            font.family = Font_CourierNew;
+            i32 line_height = 30;
+
+            Size2d size_help = {700, 500};
+            Pos2d position_help = {};
+            position_help.x = position_help_button.x; // - size_help.width + size_help_button.width;
+            position_help.y = position_help_button.y - size_help.height;
+            Color4 text_color = {   0,   0,   0, 255};
+            Color4 line_color = { 100, 100, 100, 255};
+            Color4 fill_color = { 255, 255, 255, 255};
+            
+            DrawStyle draw_style = {};
+            draw_style.corner_radius = 5;
+            draw_style.line_width = 1;
+            draw_style.line_color = line_color;
+            draw_style.fill_color = fill_color;
+            
+            draw_rounded_rectangle(position_help, size_help, draw_style);
+            Pos2d current_position = position_help;
+            
+            current_position.x += 20;
+            current_position.y += 20;
+            
+            ShortString help_text_item = {};
+            
+            copy_cstring_to_short_string("Mouse scroll:", &help_text_item);
+            draw_text(current_position, &help_text_item, font, text_color);
+            current_position.y += line_height;
+            copy_cstring_to_short_string("    move visualization up/down.", &help_text_item);
+            draw_text(current_position, &help_text_item, font, text_color);
+            current_position.y += line_height;
+            current_position.y += line_height / 2;
+            
+            copy_cstring_to_short_string("Mouse hover:", &help_text_item);
+            draw_text(current_position, &help_text_item, font, text_color);
+            current_position.y += line_height;
+            copy_cstring_to_short_string("    highlight element and (if code is expanded) its", &help_text_item);
+            draw_text(current_position, &help_text_item, font, text_color);
+            current_position.y += line_height;
+            copy_cstring_to_short_string("    corresponding code.", &help_text_item);
+            draw_text(current_position, &help_text_item, font, text_color);
+            current_position.y += line_height;
+            current_position.y += line_height / 2;
+            
+            copy_cstring_to_short_string("Mouse (click and) drag: ", &help_text_item);
+            draw_text(current_position, &help_text_item, font, text_color);
+            current_position.y += line_height;
+            copy_cstring_to_short_string("   move visualization up/down/left/right.", &help_text_item);
+            draw_text(current_position, &help_text_item, font, text_color);
+            current_position.y += line_height;
+            current_position.y += line_height / 2;
+            
+            copy_cstring_to_short_string("Mouse double-click on function:", &help_text_item);
+            draw_text(current_position, &help_text_item, font, text_color);
+            current_position.y += line_height;
+            copy_cstring_to_short_string("    expand/collapse the function body.", &help_text_item);
+            draw_text(current_position, &help_text_item, font, text_color);
+            current_position.y += line_height;
+            current_position.y += line_height / 2;
+            
+            copy_cstring_to_short_string("Mouse click on 'code' button:", &help_text_item);
+            draw_text(current_position, &help_text_item, font, text_color);
+            current_position.y += line_height;
+            copy_cstring_to_short_string("    expand/collapse the source code.", &help_text_item);
+            draw_text(current_position, &help_text_item, font, text_color);
+            current_position.y += line_height;
+            current_position.y += line_height / 2;
+            
+            copy_cstring_to_short_string("Mouse click on 'menu' button:", &help_text_item);
+            draw_text(current_position, &help_text_item, font, text_color);
+            current_position.y += line_height;
+            copy_cstring_to_short_string("    choose an example program.", &help_text_item);
+            draw_text(current_position, &help_text_item, font, text_color);
+            current_position.y += line_height;
+            current_position.y += line_height / 2;
+        }
+        
+        
+    }
+    
+    void draw_flow(WorldData * world)
+    {
         FlowElement * root_element = world->root_element;
         Input * input = &global_input;
         MouseInput * mouse = &input->mouse;
@@ -547,96 +633,121 @@ extern "C" {
         }
         */
         
-        // Help button
+    }
+    
+    void draw_code(WorldData * world)
+    {
+        Input * input = &global_input;
         
-        b32 help_button_is_active = false;
-        b32 help_button_is_pressed = do_button(position_help_button, size_help_button, &help_label, help_button_is_active, &global_input);
-        
-        if (help_button_is_pressed)
-        {
-            world->help_is_expanded = !world->help_is_expanded;
-        }
-        
-        if (world->help_is_expanded)
-        {
-            Font font = {};
-            font.height = 20;
-            font.family = Font_CourierNew;
-            i32 line_height = 30;
+        Font font = {};
+        font.height = 20;
+        font.family = Font_CourierNew;
 
-            Size2d size_help = {700, 500};
-            Pos2d position_help = {};
-            position_help.x = position_help_button.x - size_help.width + size_help_button.width;
-            position_help.y = position_help_button.y - size_help.height;
-            Color4 text_color = {   0,   0,   0, 255};
-            Color4 line_color = { 100, 100, 100, 255};
-            Color4 fill_color = { 255, 255, 255, 255};
+        Color4 black = {};
+        black.a = 255;
+        
+        Flowifier * flowifier = &world->flowifier;
+        ScrollableText * scrollable_program_text = &world->scrollable_program_text;
+        
+        Token * tokens = (Token *)world->tokenizer.tokens.items;
+        
+        i32 nr_of_flow_elements = flowifier->flow_elements.nr_of_index_entries;
+        
+        String * lines = (String *)scrollable_program_text->lines.items;
+
+        if (nr_of_flow_elements > 0 && flowifier->interaction.hovered_element_index > 0)
+        {
+            FlowElement * highlighted_flow_element = (FlowElement *)get_item_by_index(&flowifier->flow_elements, flowifier->interaction.hovered_element_index);
+            Node * node = highlighted_flow_element->ast_node;
             
-            DrawStyle draw_style = {};
-            draw_style.corner_radius = 5;
-            draw_style.line_width = 1;
-            draw_style.line_color = line_color;
-            draw_style.fill_color = fill_color;
+            remove_highlighted_line_parts(scrollable_program_text);
             
-            draw_rounded_rectangle(position_help, size_help, draw_style);
-            Pos2d current_position = position_help;
-            
-            current_position.x += 20;
-            current_position.y += 20;
-            
-            ShortString help_text_item = {};
-            
-            copy_cstring_to_short_string("Mouse scroll:", &help_text_item);
-            draw_text(current_position, &help_text_item, font, text_color);
-            current_position.y += line_height;
-            copy_cstring_to_short_string("    move visualization up/down.", &help_text_item);
-            draw_text(current_position, &help_text_item, font, text_color);
-            current_position.y += line_height;
-            current_position.y += line_height / 2;
-            
-            copy_cstring_to_short_string("Mouse hover:", &help_text_item);
-            draw_text(current_position, &help_text_item, font, text_color);
-            current_position.y += line_height;
-            copy_cstring_to_short_string("    highlight element and (if code is expanded) its", &help_text_item);
-            draw_text(current_position, &help_text_item, font, text_color);
-            current_position.y += line_height;
-            copy_cstring_to_short_string("    corresponding code.", &help_text_item);
-            draw_text(current_position, &help_text_item, font, text_color);
-            current_position.y += line_height;
-            current_position.y += line_height / 2;
-            
-            copy_cstring_to_short_string("Mouse (click and) drag: ", &help_text_item);
-            draw_text(current_position, &help_text_item, font, text_color);
-            current_position.y += line_height;
-            copy_cstring_to_short_string("   move visualization up/down/left/right.", &help_text_item);
-            draw_text(current_position, &help_text_item, font, text_color);
-            current_position.y += line_height;
-            current_position.y += line_height / 2;
-            
-            copy_cstring_to_short_string("Mouse double-click on function:", &help_text_item);
-            draw_text(current_position, &help_text_item, font, text_color);
-            current_position.y += line_height;
-            copy_cstring_to_short_string("    expand/collapse the function body.", &help_text_item);
-            draw_text(current_position, &help_text_item, font, text_color);
-            current_position.y += line_height;
-            current_position.y += line_height / 2;
-            
-            copy_cstring_to_short_string("Mouse click on 'code' button:", &help_text_item);
-            draw_text(current_position, &help_text_item, font, text_color);
-            current_position.y += line_height;
-            copy_cstring_to_short_string("    expand/collapse the source code.", &help_text_item);
-            draw_text(current_position, &help_text_item, font, text_color);
-            current_position.y += line_height;
-            current_position.y += line_height / 2;
-            
-            copy_cstring_to_short_string("Mouse click on 'menu' button:", &help_text_item);
-            draw_text(current_position, &help_text_item, font, text_color);
-            current_position.y += line_height;
-            copy_cstring_to_short_string("    choose an example program.", &help_text_item);
-            draw_text(current_position, &help_text_item, font, text_color);
-            current_position.y += line_height;
-            current_position.y += line_height / 2;
+            if (node && 
+                highlighted_flow_element->type != FlowElement_Root &&
+                highlighted_flow_element->type != FlowElement_FunctionBody)
+            {
+                // Not highlighting Root or FunctionBody
+                
+                for (i32 token_index = node->first_token_index; token_index <= node->last_token_index; token_index++)
+                {
+                    Token token = tokens[token_index];
+                    
+                    if (token.type != Token_EndOfStream)
+                    {
+                        String program_line_text = lines[token.line_index];
+                        
+                        i32 character_in_line_index = (i32)token.text.data - (i32)program_line_text.data;
+
+                        HighlightedLinePart * highlighted_line_part = add_new_highlighted_line_part(scrollable_program_text);
+
+                        highlighted_line_part->line_index = token.line_index;
+                        highlighted_line_part->start_character_index = (u16)character_in_line_index;
+                        highlighted_line_part->length = (u16)token.text.length;
+                    }
+                }
+
+                // remove_highlighted_line_parts(scrollable_flowify_dump); 
+                
+                // HighlightedLinePart * highlighted_line_part = add_new_highlighted_line_part(scrollable_flowify_dump);
+                // highlighted_line_part->line_index = highlighted_flow_element->highlighted_line_part.line_index;
+                // highlighted_line_part->start_character_index = highlighted_flow_element->highlighted_line_part.start_character_index;
+                // highlighted_line_part->length = highlighted_flow_element->highlighted_line_part.length;
+            }
         }
+        
+        if (world->show_code)
+        {
+            Color4 fill_color = { 255, 255, 255, 255 };
+            Color4 line_color = { 200, 200, 200, 255 };
+            
+            DrawStyle code_style = {};
+            code_style.line_width = 2;
+            code_style.fill_color = fill_color;
+            code_style.line_color = line_color;
+            
+            draw_rounded_rectangle(world->code_rect.position, world->code_rect.size, code_style);
+                                   
+            Size2d program_name_size = get_text_size(world->program_name, font);
+            Pos2d program_name_position = {};
+            program_name_position.x = world->title_rect.position.x + world->title_rect.size.width / 2 - program_name_size.width / 2;
+            program_name_position.y = world->title_rect.position.y + world->title_rect.size.height / 2 - program_name_size.height / 2;
+            draw_text(program_name_position, world->program_name, font, black);
+            
+            draw_scrollable_text(scrollable_program_text);
+        }
+        
+        ShortString code_label;
+        copy_cstring_to_short_string("code", &code_label);
+        
+        Size2d size_code_button = {50, 50};
+        Pos2d position_code_button = {};
+        position_code_button.x = global_input.screen.width - size_code_button.width - 20;
+        position_code_button.y = 20;
+
+        b32 code_button_is_pressed = do_button(position_code_button, size_code_button, &code_label, world->show_code, &global_input);
+
+        if (code_button_is_pressed)
+        {
+            world->show_code = !world->show_code;
+            update_window_dimensions(world, &input->screen);
+            b32 center_only_horizontally = true;
+            center_root_element(world, center_only_horizontally);
+        }
+            
+    }
+    
+    // TODO: make this a more general function (add arguments nr_of_buttons and current_button_index)
+    //       then return button_pressed_index (so you can load the program text for that index)
+    void draw_and_update_button_menu(WorldData * world)
+    {
+        // Draw (and update) button menu
+        
+        Size2d size_menu_button = {50, 50};
+        Pos2d position_menu_button = {20, 20};
+        Pos2d position_menu = {20, 71};
+        Size2d size_menu_item = {500, 50};
+        i32 margin_between_menu_items = 0;
+        
         
         // Menu button
         b32 menu_button_is_active = false;
@@ -700,107 +811,19 @@ extern "C" {
         Memory * memory = &global_memory;
         Flowifier * flowifier = &world->flowifier;
         
-        ScrollableText * scrollable_program_text = &world->scrollable_program_text;
         // ScrollableText * scrollable_flowify_dump = &world->scrollable_flowify_dump;
         
-        Font font = {};
-        font.height = 20;
-        font.family = Font_CourierNew;
-
-        Color4 black = {};
-        black.a = 255;
-        
-        Token * tokens = (Token *)world->tokenizer.tokens.items;
-        
-        i32 nr_of_flow_elements = flowifier->flow_elements.nr_of_index_entries;
-        
-        String * lines = (String *)scrollable_program_text->lines.items;
-
-        if (nr_of_flow_elements > 0 && flowifier->interaction.hovered_element_index > 0)
-        {
-            FlowElement * highlighted_flow_element = (FlowElement *)get_item_by_index(&flowifier->flow_elements, flowifier->interaction.hovered_element_index);
-            Node * node = highlighted_flow_element->ast_node;
-            
-            remove_highlighted_line_parts(scrollable_program_text);
-            
-            if (node && 
-                highlighted_flow_element->type != FlowElement_Root &&
-                highlighted_flow_element->type != FlowElement_FunctionBody)
-            {
-                // Not highlighting Root or FunctionBody
-                
-                for (i32 token_index = node->first_token_index; token_index <= node->last_token_index; token_index++)
-                {
-                    Token token = tokens[token_index];
-                    
-                    if (token.type != Token_EndOfStream)
-                    {
-                        String program_line_text = lines[token.line_index];
-                        
-                        i32 character_in_line_index = (i32)token.text.data - (i32)program_line_text.data;
-
-                        HighlightedLinePart * highlighted_line_part = add_new_highlighted_line_part(scrollable_program_text);
-
-                        highlighted_line_part->line_index = token.line_index;
-                        highlighted_line_part->start_character_index = (u16)character_in_line_index;
-                        highlighted_line_part->length = (u16)token.text.length;
-                    }
-                }
-
-                // remove_highlighted_line_parts(scrollable_flowify_dump); 
-                
-                // HighlightedLinePart * highlighted_line_part = add_new_highlighted_line_part(scrollable_flowify_dump);
-                // highlighted_line_part->line_index = highlighted_flow_element->highlighted_line_part.line_index;
-                // highlighted_line_part->start_character_index = highlighted_flow_element->highlighted_line_part.start_character_index;
-                // highlighted_line_part->length = highlighted_flow_element->highlighted_line_part.length;
-            }
-        }
         
         // Turned off for the moment: 
         // draw_scrollable_text(scrollable_flowify_dump);
         
+        draw_flow(world);
+        draw_code(world);
         draw_and_update_button_menu(world);
+        draw_help(world);
 
-        if (world->show_code)
-        {
-            Color4 fill_color = { 255, 255, 255, 255 };
-            Color4 line_color = { 200, 200, 200, 255 };
-            
-            DrawStyle code_style = {};
-            code_style.line_width = 2;
-            code_style.fill_color = fill_color;
-            code_style.line_color = line_color;
-            
-            draw_rounded_rectangle(world->code_rect.position, world->code_rect.size, code_style);
-                                   
-            Size2d program_name_size = get_text_size(world->program_name, font);
-            Pos2d program_name_position = {};
-            program_name_position.x = world->title_rect.position.x + world->title_rect.size.width / 2 - program_name_size.width / 2;
-            program_name_position.y = world->title_rect.position.y + world->title_rect.size.height / 2 - program_name_size.height / 2;
-            draw_text(program_name_position, world->program_name, font, black);
-            
-            draw_scrollable_text(scrollable_program_text);
-        }
-        
-        ShortString code_label;
-        copy_cstring_to_short_string("code", &code_label);
-        
-        Size2d size_code_button = {50, 50};
-        Pos2d position_code_button = {};
-        position_code_button.x = global_input.screen.width - size_code_button.width - 20;
-        position_code_button.y = 20;
-
-        b32 code_button_is_pressed = do_button(position_code_button, size_code_button, &code_label, world->show_code, &global_input);
-
-        if (code_button_is_pressed)
-        {
-            world->show_code = !world->show_code;
-            update_window_dimensions(world, &input->screen);
-            b32 center_only_horizontally = true;
-            center_root_element(world, center_only_horizontally);
-        }
-            
         // Button for toggling showing help rectangles
+        /*
         {
             Size2d size_button = {50, 50};
             Pos2d position_button = {};
@@ -819,6 +842,7 @@ extern "C" {
                 flowifier->show_help_rectangles = !flowifier->show_help_rectangles;
             }
         }
+        */
         
         // do_memory_usage(memory, input, &world->verbose_memory_usage);
         // do_frame_timing(&global_input, &world->verbose_frame_times);
