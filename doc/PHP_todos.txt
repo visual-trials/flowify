@@ -16,7 +16,9 @@ Scalar_MagicConst_Method        -
 Scalar_MagicConst_Namespace     -
 Scalar_MagicConst_Trait         -
 Scalar_String                   TODO
-Scalar_Encapsed                 - (these is constant text separated by '<<<' )
+Scalar_Encapsed                 -  (is this used for quoted strings (like here: https://fossies.org/linux/ariadne/vendor/nikic/php-parser/test/code/parser/scalar/encapsedString.test) 
+                                    and/or this is constant text separated by '<<<' )
+Scalar_EncapsedStringPart       - See Scalar_Encapsed (examples in link)
 Scalar_LNumber                  OK
 Scalar_DNumber                  TODO
 Expr_Assign                     OK (TODO: identifier connection when appropiate)
