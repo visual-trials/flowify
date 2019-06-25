@@ -91,13 +91,15 @@ Expr_Include                    -
 Expr_List                       ? (allow multiple return statements?)
 Expr_Error                      ?
 Expr_Variable                   OK1
+
 Expr_Array                      -
 Expr_ArrayItem                  -?
-Expr_ArrayDimFetch              -?
+Expr_ArrayDimFetch              - (this is used for fetch elements of an array ( https://fossies.org/linux/ariadne/vendor/nikic/php-parser/test/code/parser/scalar/encapsedString.test )
 Expr_ConstFetch                 -?
 Expr_ClassConstFetch            -
 Expr_PropertyFetch              -
 Expr_StaticPropertyFetch        -
+
 Expr_ShellExec                  -
 Expr_Closure                    -
 Expr_ClosureUse                 -

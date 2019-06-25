@@ -64,7 +64,7 @@ enum FlowElementType
     FlowElement_Hidden,         // TODO: using this to signify the contents of a function we don't know it's implementation of
     FlowElement_Assignment,
     FlowElement_AssignmentOperator,
-    FlowElement_ArrayAccess,
+    FlowElement_ArrayAccess,    // TODO: this is called Expr_ArrayDimFetch in the parser. We should probably use 'Fetch' here too
     FlowElement_UnaryPreOperation,
     FlowElement_UnaryPostOperation,
     FlowElement_UnaryOperator,
