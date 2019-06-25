@@ -148,21 +148,13 @@ struct FlowElement
     
     b32 is_statement;
     
-    // These 5 FlowElements represent a parental and sibling "hierarchy" (mostly used for "looping" through all elements)
+    // These 6 FlowElements represent a parental and sibling "hierarchy" (mostly used for "looping" through all elements)
     FlowElement * first_child;
     FlowElement * last_child;
     i32 nr_of_children;
     FlowElement * parent;
-    
     FlowElement * next_sibling;
     FlowElement * previous_sibling;
-    
-    // These 4 FlowElements represent the control-flow between elements (first 2 are only used by non-split and non-join and non-composite elements, e.g. "pure rectangle elements")
-    FlowElement * next_in_flow;
-    FlowElement * previous_in_flow;
-    
-    FlowElement * first_in_flow;  // helper, for example: the if-start if first_in_flow of the if-element (so the statement before the if knows it should "connect" with the first_in_flow of the if-statment element)
-    FlowElement * last_in_flow; // helper, for example: the if-end if last_in_flow of the if-element
     
     // This FlowElement represents a chained-list of all functions
     FlowElement * next_function; // TODO: we should probably not store this in FlowElement
@@ -475,11 +467,6 @@ FlowElement * new_element(Flowifier * flowifier, Node * ast_node, FlowElementTyp
     new_flow_element->next_sibling = 0;
     new_flow_element->previous_sibling = 0;
     
-    new_flow_element->next_in_flow = 0;
-    new_flow_element->previous_in_flow = 0;
-    new_flow_element->first_in_flow = 0;
-    new_flow_element->last_in_flow = 0;
-    
     new_flow_element->next_function = 0;
     
     new_flow_element->rect.position.x = 0;
@@ -672,14 +659,6 @@ void generate_element_detail(FlowElement * element, DynamicString * detail_text)
     
     append_element_pointer_detail("next_sibling", element->next_sibling, detail_text);
     append_element_pointer_detail("previous_sibling", element->previous_sibling, detail_text);
-    append_newline(detail_text);
-    
-    append_element_pointer_detail("next_in_flow", element->next_in_flow, detail_text);
-    append_element_pointer_detail("previous_in_flow", element->previous_in_flow, detail_text);
-    append_newline(detail_text);
-    
-    append_element_pointer_detail("first_in_flow", element->first_in_flow, detail_text);
-    append_element_pointer_detail("last_in_flow", element->last_in_flow, detail_text, false);
 }
 
 i32 dump_element_tree(FlowElement * element, DynamicString * dump_text, i32 dump_line_index = 0, i32 depth = 0)

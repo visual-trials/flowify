@@ -197,8 +197,6 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * keyword_element = flow_element->first_child;
         FlowElement * cond_expression_element = keyword_element->next_sibling;
         
-        // FIXME: this is already draw in the if-element: draw_straight_element(flowifier, flow_element, flow_element->previous_in_flow, flow_element->next_in_flow, false);
-        
         push_rectangle_element(flowifier, keyword_element, expression_style, false, true);
         // FIXME: Either pass expression_depth here, or set this in FlowElement during flowification!
         draw_elements(flowifier, cond_expression_element);
@@ -325,7 +323,6 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * if_join_element = if_else_element->next_sibling;
 
         // TODO: we  draw the if-cond in a way so that the side-lines are drawn AND the if-cond-expression is drawn
-        // FIXME: what should we put here as next element? Maybe a rect from the left-top of the 'else' to the right-top of the 'then'?
         push_straight_element(flowifier, if_cond_element);
         draw_elements(flowifier, if_cond_element);
 
@@ -398,8 +395,7 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         DrawableLane * body_lane_end = 0;
         DrawableLane * end_for_lane = push_lane(renderer, lane_style);
         
-        // TODO: we  draw the if-cond in a way so that the side-lines are drawn AND the if-cond-expression is drawn
-        // FIXME: this element is in between a join and split, so what to do with the previous_in_flow and next_in_flow?
+        // TODO: we draw the if-cond in a way so that the side-lines are drawn AND the if-cond-expression is drawn
         flowifier->current_lane = cond_lane;
         push_straight_element(flowifier, for_cond_element);
         draw_elements(flowifier, for_cond_element);
@@ -476,7 +472,6 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         FlowElement * foreach_passdown_element = foreach_passleft_element->next_sibling;
         FlowElement * foreach_done_element = foreach_passdown_element->next_sibling;
 
-        // FIXME: what should be the last element?
         push_straight_element(flowifier, foreach_init_element);
         
         DrawableLane * foreach_lane = flowifier->current_lane;
@@ -487,7 +482,6 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         DrawableLane * end_foreach_lane = push_lane(renderer, lane_style);
         
         // TODO: we  draw the if-cond in a way so that the side-lines are drawn AND the if-cond-expression is drawn
-        // FIXME: this element is in between a join and split, so what to do with the previous_in_flow and next_in_flow?
         flowifier->current_lane = cond_lane;
         push_straight_element(flowifier, foreach_cond_element);
         draw_elements(flowifier, foreach_cond_element);
@@ -566,8 +560,6 @@ void draw_elements(Flowifier * flowifier, FlowElement * flow_element)
         {
             push_straight_element(flowifier, function_call_element);
             
-            // FIXME: We should add a Stmt_Expr element to all statements instead (and give it margins only for function-calls!)
-            //        Other statements (previous_in_flow and next_in_flow) can then also correctly connect with that element!
             i32 bending_radius = flowifier->lane_style.corner_radius;
             rect.position.x += bending_radius;
             rect.position.y += bending_radius;

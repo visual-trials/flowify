@@ -53,8 +53,6 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node, 
             add_child_element(right_side_expression_element, assignment_expression_element);
             
             new_expression_element = assignment_expression_element;
-            // TODO: new_expression_element->first_in_flow ?= right_side_expression_element->first_in_flow;
-            // TODO: new_expression_element->last_in_flow ?= right_side_expression_element->last_in_flow;
         }
         else if (expression_node->type == Node_Expr_PreInc ||
                  expression_node->type == Node_Expr_PreDec)
@@ -158,7 +156,7 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node, 
             // Function
             
             // FIXME: we should CLONE the function element, since this INSTANCE will be placed somewhere else
-            //        and connected to (its previous_in_flow and next_in_flow will be) different elements compared
+            //        and connected to (its previous_sibling, next_sibling and parent will be) different elements compared
             //        to another call of the same function!
             //log("Trying to find function");
             //log(function_call_node->identifier);
@@ -169,11 +167,6 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node, 
                 // Right now, a is always be collapsed by default
                 function_element->is_collapsed = true;
 
-                // TODO: we do not connect first and last statements in a body, with statements in a next or previous body anymore. 
-                //       So first_in_flow and last_in_flow are probably deprecated!
-                //function_call_element->first_in_flow = function_element->first_in_flow;
-                //function_call_element->last_in_flow = function_element->last_in_flow;
-                
                 Node * function_node = function_element->ast_node;
                 Node * function_parameters_node = function_node->first_child;
                 
@@ -182,14 +175,6 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node, 
                 FlowElement * parameters_element = flowify_parameters(flowifier, function_call_arguments_node, function_parameters_node);
                 
                 add_child_element(parameters_element, function_call_element);
-                
-                // We need to "attach" the flow from the eind of the paramter-assignments to the start of the function-body
-                if (parameters_element->last_child && function_element->first_in_flow)
-                {
-                    parameters_element->last_child->next_in_flow = function_element->first_in_flow;
-                    function_element->first_in_flow->previous_in_flow = parameters_element->last_child;
-                }
-                
                 add_child_element(function_element, function_call_element);
             }
             else
@@ -203,11 +188,6 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node, 
                 
                 // Right now, a hidden function is always be collapsed by default
                 hidden_function_element->is_collapsed = true;
-
-                // TODO: we do not connect first and last statements in a body, with statements in a next or previous body anymore. 
-                //       So first_in_flow and last_in_flow are probably deprecated!
-                //function_call_element->first_in_flow = hidden_function_element;
-                //function_call_element->last_in_flow = hidden_function_element;
             }
             
             new_expression_element = function_call_element;
@@ -254,16 +234,6 @@ FlowElement * flowify_expression(Flowifier * flowifier, Node * expression_node, 
         log("ERROR: expression node is null!!");
     }
     
-    // FIXME: HACK. We want to do this properly for each expression type
-    if (!new_expression_element->first_in_flow)
-    {
-        new_expression_element->first_in_flow = new_expression_element;
-    }
-    if (!new_expression_element->last_in_flow)
-    {
-        new_expression_element->last_in_flow = new_expression_element;
-    }
-    
     new_expression_element->is_statement = is_statement;
     
     return new_expression_element;
@@ -279,7 +249,6 @@ FlowElement * flowify_child_expression_or_passthrough(Flowifier * flowifier, Nod
     else
     {
         FlowElement * passthrough_element = new_element(flowifier, 0, FlowElement_PassThrough);
-        // TODO: whould we set first_in_flow and last_in_flow?
         return passthrough_element;
     }
 }
@@ -294,9 +263,6 @@ void flowify_child_statements_or_passthrough(Flowifier * flowifier, Node * body_
     {
         FlowElement * body_passthrough_element = new_element(flowifier, 0, FlowElement_PassThrough);
         add_child_element(body_passthrough_element, body_element);
-        
-        body_element->first_in_flow = body_passthrough_element;
-        body_element->last_in_flow = body_passthrough_element;
     }
 }
 
@@ -352,15 +318,7 @@ FlowElement * flowify_parameters(Flowifier * flowifier, Node * function_call_arg
             
             add_child_element(assignment_expression_element, parameters_element);
             
-            
-            // We set the last_in_flow of the previous assignment to be flowing towards the first_in_flow of the current assignment
-            if (previous_assignment_element)
-            {
-                previous_assignment_element->next_in_flow = assignment_expression_element;
-                assignment_expression_element->previous_in_flow = previous_assignment_element;
-            }
             previous_assignment_element = assignment_expression_element;
-            
             
             function_call_argument_node = function_call_argument_node->next_sibling;
             function_parameter_node = function_parameter_node->next_sibling;
@@ -385,9 +343,6 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         FlowElement * new_expression_element = flowify_expression(flowifier, expression_node, is_statement);
         
         new_statement_element = new_expression_element;
-        new_statement_element->first_in_flow = new_expression_element->first_in_flow;
-        new_statement_element->last_in_flow = new_expression_element->last_in_flow;
-        
     }
     else if (statement_node->type == Node_Stmt_If)
     {
@@ -421,9 +376,6 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         add_child_element(if_then_element, if_element);
         add_child_element(if_else_element, if_element);
         add_child_element(if_join_element, if_element);
-        
-        if_element->first_in_flow = if_cond_element;
-        if_element->last_in_flow = if_join_element;
         
         new_statement_element = if_element;
     }
@@ -480,9 +432,6 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         add_child_element(for_passleft_element, for_element);
         add_child_element(for_passdown_element, for_element);
         add_child_element(for_done_element, for_element);
-        
-        for_element->first_in_flow = for_init_element;
-        for_element->last_in_flow = for_done_element;
         
         new_statement_element = for_element;
     }
@@ -553,9 +502,6 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         add_child_element(foreach_passdown_element, foreach_element);
         add_child_element(foreach_done_element, foreach_element);
         
-        foreach_element->first_in_flow = foreach_init_element;
-        foreach_element->last_in_flow = foreach_done_element;
-        
         new_statement_element = foreach_element;
     }
     else if (statement_node->type == Node_Stmt_Return)
@@ -576,9 +522,6 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
             add_child_element(new_expression_element, return_element);
         }
         
-        return_element->first_in_flow = return_element;
-        return_element->last_in_flow = return_element;
-        
         new_statement_element = return_element;
     }
     else if (statement_node->type == Node_Stmt_Break)
@@ -587,9 +530,6 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         
         // TODO: flowify break statement
         
-        break_element->first_in_flow = break_element;
-        break_element->last_in_flow = break_element;
-        
         new_statement_element = break_element;
     }
     else if (statement_node->type == Node_Stmt_Continue)
@@ -597,9 +537,6 @@ FlowElement * flowify_statement(Flowifier * flowifier, Node * statement_node)
         FlowElement * continue_element = new_element(flowifier, statement_node, FlowElement_Continue);
         
         // TODO: flowify continue statement
-        
-        continue_element->first_in_flow = continue_element;
-        continue_element->last_in_flow = continue_element;
         
         new_statement_element = continue_element;
     }
@@ -620,12 +557,6 @@ void flowify_function(Flowifier * flowifier, Node * function_node)
     flowify_statements(flowifier, function_body_element);
     
     add_child_element(function_body_element, function_element);
-    
-    // TODO: we might want to say that the first_in_flow of a function is actually the first statement element in the function?
-    // Note that flowify_statements(...) (see above) already set first_in_flow and last_in_flow (to the first and last statement 
-    // in the body resp.) of the function_body_element.
-    function_element->first_in_flow = function_body_element->first_in_flow;
-    function_element->last_in_flow = function_body_element->last_in_flow;
 }
 
 void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
@@ -634,8 +565,6 @@ void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
     
     Node * statement_node = parent_node->first_child;
     FlowElement * previous_statement_element = 0;
-    parent_element->first_in_flow = parent_element;
-    parent_element->last_in_flow = parent_element;
     if (statement_node) // There are statements (in the parent)
     {
         do // Loop through all statements (in the parent)
@@ -648,24 +577,8 @@ void flowify_statements(Flowifier * flowifier, FlowElement * parent_element)
             {
                 FlowElement * new_statement_element = flowify_statement(flowifier, statement_node);
                     
-                if (!parent_element->first_child)
-                {
-                    // The first element is found, we assume its also the first_in_flow
-                    parent_element->first_in_flow = new_statement_element->first_in_flow;
-                }
-                
                 add_child_element(new_statement_element, parent_element);
                 
-                // We have found another child so we assume its also the last_in_flow
-                parent_element->last_in_flow = new_statement_element->last_in_flow;
-                
-                // We set the last_in_flow of the previous child to be flowing towards the first_in_flow of the current child
-                if (previous_statement_element)
-                {
-                    previous_statement_element->last_in_flow->next_in_flow = new_statement_element->first_in_flow;
-                    new_statement_element->first_in_flow->previous_in_flow = previous_statement_element->last_in_flow;
-                }
-                    
                 previous_statement_element = new_statement_element;
             }
         }
