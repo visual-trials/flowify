@@ -131,6 +131,19 @@ void layout_elements(Flowifier * flowifier, FlowElement * flow_element)
         return;
     }
     
+    // @Refactor: FlowElement_Lane
+    // @Refactor: FlowElement_Splitter (conditional)
+    // @Refactor: FlowElement_Joiner
+    // @Refactor: FlowElement_Statement (or this simply a Container?) always inside a Lane?
+    // @Refactor: FlowElement_Container (like expression inside expression, Variable inside Variable: e.g. ArrayFetched) This in itself can be a Statement, inside a Lane
+    // @Refactor: FlowElement_Variable
+    // @Refactor: FlowElement_Scalar
+    
+    // @Refactor: DataFlow_Replaced (when a variable is replaced, the old variable is connected with the new variable with this connection)
+    // @Refactor: DataFlow_Use (which can be used for Assigning)
+    // @Refactor: DataFlow_Split
+    // @Refactor: DataFlow_Join
+    
     
     if (flow_element->type == FlowElement_Hidden)
     {
