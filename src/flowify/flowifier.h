@@ -167,14 +167,6 @@ struct FlowElement
     Rect2d rect;
     Rect2d rect_abs;
     
-    // TODO: i32 scale;
-    
-    // TODO: Pos2d left_top_absolute_position;
-    // TODO: Pos2d bottom_right_absolute_position;
-    // TODO: i32 absolute_scale;
-    
-    // HitShape * hit_box;               or is this part of the shape(s)???
-    
     HighlightedLinePart highlighted_line_part; // This is for highlighting in the dump
 };
 
