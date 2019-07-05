@@ -22,6 +22,7 @@ https://flowify.io/
 | Upload source file or download source from url | ![green] ![yellow] ![grey] ![grey] ![grey] |
 | Include other files, detect/use autoloader (build context) | ![grey] ![grey] ![grey] ![grey] ![grey] |
 | Support multiple languages | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Diverse and meaningful examples | |
 
 ### Parsing of language elements
 
