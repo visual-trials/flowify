@@ -10,6 +10,7 @@ https://flowify.io/
 
 ## Features to implement
 
+[green]: /web/img/green_bar.png
 [red]: /web/img/red_bar.png
 [grey]: /web/img/grey_bar.png
 
@@ -23,7 +24,7 @@ https://flowify.io/
 
 | Feature | Progress |
 | ------- | -------:|
-| Control statements | ![alt text](https://raw.githubusercontent.com/visual-trials/flowify/master/web/img/red_bar.png) |
+| Control statements | ![green] ![green] ![red] ![grey] ![grey] |
 | Expressions      |  ![red] ![red] ![red] ![grey] ![grey] |
 | Declarations |  ![grey] ![grey] ![grey] ![grey] ![grey] |
 | Assignments |  ![alt text](web/img/red_bar.png) |
