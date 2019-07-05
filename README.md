@@ -23,7 +23,7 @@ https://flowify.io/
 | Include other files, detect/use autoloader (build context) | ![grey] ![grey] ![grey] ![grey] ![grey] |
 | Support multiple languages | ![grey] ![grey] ![grey] ![grey] ![grey] |
 
-### Parsing more language elements
+### Parsing of language elements
 
 | Feature | Progress |
 | ------- | -------:|
@@ -58,7 +58,7 @@ https://flowify.io/
 - Re-assignment dataflow
 - Dataflow join and splits
 
-### Saving / loading manually entered 
+### Saving / loading manually entered data
 
 - Using AST-identifier to store node-specific data
 - Recovering based on diff from previous source
@@ -88,8 +88,10 @@ https://flowify.io/
 - Text follows flow (partial function) vs. flow follows text (full file-text)
 - Text scroller, cursor, editor
 
-### Debugging
+### Debugging / utils
 
+- Memory management
+- Render pipeline
 - Introspection into visual elements (flow and text)
 
 ### Future
