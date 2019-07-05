@@ -10,74 +10,6 @@ https://flowify.io/
 
 ## Features to implement
 
-<style type="text/css">
-
-$red-common: #D1132A;
-$green-common: #2CAC87;
-$green-light-common: #C1C625;
-$green-alt-common: #9EC232;
-$gold-common: #EBA75C;
-$charcoal-common: #3A3F42;
-$charcoal-alt: #43484D;
-$orange-common: #E4590F;
-$yellow-common: #FFCD0F;
-$yellow-light-common: #EACB16;
-
-.container {
-   max-width: 60em;
-   margin: 0 auto;
-}
-.progress-segment {
-  display: flex;
-  margin-bottom: 4em;
-}
-
-.item {
-  width: 100%;
-  background-color: lightgray;
-  margin-right: 2px;
-  height: 8px;
-
-  &:first-child {
-    border-top-left-radius: 3px;
-    border-bottom-left-radius: 3px;
-  }
-
-  &:last-child {
-    border-top-right-radius: 3px;
-    border-bottom-right-radius: 3px;
-  }
-
-  &.red-common {
-    background: $red-common !important;
-  }
-
-  &.gold-common {
-    background: $gold-common !important;
-  }
-
-  &.orange-common {
-    background: $orange-common !important;
-  }
-
-  &.yellow-common {
-    background: $yellow-common !important;
-  }
-
-  &.yellow-light-common {
-    background: $yellow-light-common !important;
-  }
-
-  &.green-light-common {
-    background: $green-light-common !important;
-  }
-
-  &.green-common {
-    background: $green-alt-common !important;
-  }
-}
-</style>
-
 ### File handling, multiple files, namespaces, context
 
 - Upload source file or download source from url 
@@ -86,30 +18,16 @@ $yellow-light-common: #EACB16;
 
 ### Parsing more language elements
 
-<table>
-    <tr>
-        <td>Control statements</td>
-        <td><div class="progress-segment">
-            <div class="item red-common"></div>
-            <div class="item orange-common"></div>
-            <div class="item gold-common"></div>
-            <div class="item yellow-common"></div>
-            <div class="item yellow-light-common"></div>
-            <div class="item green-light-common"></div>
-            <div class="item green-common"></div>
-          </div>
-      </td>
-    </tr>
-</table>
-
-- Control statements
-- Expressions
-- Declarations
-- Assignments
-- Variables, Scalars
-- Functions
-- Classes, properties, methods, inheritance, traits
-- Interfaces, namespaces
+| Feature | Progress |
+| ------- | -------:|
+| Control statements | ![alt text](https://raw.githubusercontent.com/visual-trials/flowify/master/web/img/red_bar.png) |
+| Expressions      |  ![alt text](/web/img/red_bar.png) |
+| Declarations |  ![alt text](web/img/red_bar.png) |
+| Assignments |  ![alt text](web/img/red_bar.png) |
+| Variables, Scalars |  ![alt text](web/img/red_bar.png) |
+| Functions |  ![alt text](web/img/red_bar.png) |
+| Classes, properties, methods, inheritance, traits |  ![alt text](web/img/red_bar.png) |
+| Interfaces, namespaces |  ![alt text](web/img/red_bar.png) |
 
 ### Control and dataflow analysis
 
