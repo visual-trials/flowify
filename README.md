@@ -11,6 +11,7 @@ https://flowify.io/
 ## Features to implement
 
 [red]: /web/img/red_bar.png
+[grey]: /web/img/grey_bar.png
 
 ### File handling, multiple files, namespaces, context
 
@@ -23,8 +24,8 @@ https://flowify.io/
 | Feature | Progress |
 | ------- | -------:|
 | Control statements | ![alt text](https://raw.githubusercontent.com/visual-trials/flowify/master/web/img/red_bar.png) |
-| Expressions      |  ![red] ![red] ![red] ![red] ![red] |
-| Declarations |  ![alt text](web/img/red_bar.png) |
+| Expressions      |  ![red] ![red] ![red] ![grey] ![grey] |
+| Declarations |  ![grey] ![grey] ![grey] ![grey] ![grey] |
 | Assignments |  ![alt text](web/img/red_bar.png) |
 | Variables, Scalars |  ![alt text](web/img/red_bar.png) |
 | Functions |  ![alt text](web/img/red_bar.png) |
