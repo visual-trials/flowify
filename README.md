@@ -17,9 +17,11 @@ https://flowify.io/
 
 ### File handling, multiple files, namespaces, context
 
-- Upload source file or download source from url 
-- Include other files, detect/use autoloader (build context)
-- Support multiple languages
+| Feature | Progress |
+| ------- | -------:|
+| Upload source file or download source from url | ![green] ![yellow] ![grey] ![grey] ![grey] |
+| Include other files, detect/use autoloader (build context) | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Support multiple languages | ![grey] ![grey] ![grey] ![grey] ![grey] |
 
 ### Parsing more language elements
 
@@ -28,11 +30,11 @@ https://flowify.io/
 | Control statements | ![green] ![green] ![yellow] ![grey] ![grey] |
 | Expressions      |  ![green] ![green] ![grey] ![grey] ![grey] |
 | Declarations |  ![red] ![grey] ![grey] ![grey] ![grey] |
-| Assignments |  ![alt text](web/img/red_bar.png) |
-| Variables, Scalars |  ![alt text](web/img/red_bar.png) |
-| Functions |  ![alt text](web/img/red_bar.png) |
-| Classes, properties, methods, inheritance, traits |  ![alt text](web/img/red_bar.png) |
-| Interfaces, namespaces |  ![alt text](web/img/red_bar.png) |
+| Assignments |  ![green] ![green] ![yellow] ![grey] ![grey] |
+| Variables, Scalars |  ![green] ![green] ![green] ![green] ![grey] |
+| Functions |  ![green] ![green] ![green] ![grey] ![grey] |
+| Classes, properties, methods, inheritance, traits |  ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Interfaces, namespaces |  ![grey] ![grey] ![grey] ![grey] ![grey] |
 
 ### Control and dataflow analysis
 
