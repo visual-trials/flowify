@@ -10,6 +10,8 @@ https://flowify.io/
 
 ## Features to implement
 
+[red]: /web/img/red_bar.png
+
 ### File handling, multiple files, namespaces, context
 
 - Upload source file or download source from url 
@@ -21,7 +23,7 @@ https://flowify.io/
 | Feature | Progress |
 | ------- | -------:|
 | Control statements | ![alt text](https://raw.githubusercontent.com/visual-trials/flowify/master/web/img/red_bar.png) |
-| Expressions      |  ![alt text](/web/img/red_bar.png) |
+| Expressions      |  ![red] ![red] ![red] ![red] ![red] |
 | Declarations |  ![alt text](web/img/red_bar.png) |
 | Assignments |  ![alt text](web/img/red_bar.png) |
 | Variables, Scalars |  ![alt text](web/img/red_bar.png) |
