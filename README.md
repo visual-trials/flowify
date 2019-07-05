@@ -89,6 +89,7 @@ https://flowify.io/
 - Text follows flow (partial function) vs. flow follows text (full file-text)
 - Text scroller, cursor, editor
 - Syntax highlighting
+- Good use/division of screen space (and resolution)
 
 ### Debugging / utils
 
