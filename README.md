@@ -98,4 +98,5 @@ https://flowify.io/
 
 ### Future
 
-- Visual debugger and/or (re)play/simulation
+- Visual debugger
+- Record and (re)play/simulation
