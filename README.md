@@ -62,7 +62,7 @@ https://flowify.io/
 
 - Using AST-identifier to store node-specific data
 - Recovering based on diff from previous source
-- Editor for determining collapsing/expanding groups, flew ratios
+- Editor for determining collapsing/expanding groups, flex ratios
 
 ### Layout functions
 
@@ -87,6 +87,7 @@ https://flowify.io/
 - Expandable functions (corresponding with flow)
 - Text follows flow (partial function) vs. flow follows text (full file-text)
 - Text scroller, cursor, editor
+- Syntax highlighting
 
 ### Debugging / utils
 
