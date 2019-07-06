@@ -6,7 +6,15 @@ Flowify visualizes existing code.
 
 The goal is to do this in a way that it will give a clear overview and insight into a (unfamiliar) codebase.
 
+## Current state
+
+The latest version of Flowify is hosted here:
+
 https://flowify.io/
+
+Here is a recent screenshot: 
+
+![](/web/img/preview_flowify_shadow_clean.jpg)
 
 ## Features to implement
 
