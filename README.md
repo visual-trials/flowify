@@ -37,8 +37,18 @@ https://flowify.io/
 | Classes, properties, methods, inheritance, traits |  ![grey] ![grey] ![grey] ![grey] ![grey] |
 | Interfaces, namespaces |  ![grey] ![grey] ![grey] ![grey] ![grey] |
 
+### Saving / loading manually entered data
+
+| Feature | Progress |
+| ------- | -------:|
+| Using AST-identifier to store node-specific data | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Recovering based on diff from previous source | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Editor for determining collapsing/expanding groups, flex ratios | ![grey] ![grey] ![grey] ![grey] ![grey] |
+
 ### Control and dataflow analysis
 
+| Feature | Progress |
+| ------- | -------:|
 | Symmetric control elements (if, while, do, for, foreach) | ![grey] ![grey] ![grey] ![grey] ![grey] |
 | Asymmetric control elements (return, throw, break, continue) | ![grey] ![grey] ![grey] ![grey] ![grey] |
 | Variable/function scope | ![grey] ![grey] ![grey] ![grey] ![grey] |
@@ -48,6 +58,8 @@ https://flowify.io/
 
 ### Types of visual elements and connections
 
+| Feature | Progress |
+| ------- | -------:|
 | Lanes: straight (with segments), splits, joins, loops, assymetric | ![grey] ![grey] ![grey] ![grey] ![grey] |
 | Boolean decider into splitter | ![grey] ![grey] ![grey] ![grey] ![grey] |
 | Containers (expressions and functions) | ![grey] ![grey] ![grey] ![grey] ![grey] |
@@ -59,14 +71,10 @@ https://flowify.io/
 | Re-assignment dataflow | ![grey] ![grey] ![grey] ![grey] ![grey] |
 | Dataflow join and splits | ![grey] ![grey] ![grey] ![grey] ![grey] |
 
-### Saving / loading manually entered data
-
-| Using AST-identifier to store node-specific data | ![grey] ![grey] ![grey] ![grey] ![grey] |
-| Recovering based on diff from previous source | ![grey] ![grey] ![grey] ![grey] ![grey] |
-| Editor for determining collapsing/expanding groups, flex ratios | ![grey] ![grey] ![grey] ![grey] ![grey] |
-
 ### Layout functions
 
+| Feature | Progress |
+| ------- | -------:|
 | If: splits and join | ![grey] ![grey] ![grey] ![grey] ![grey] |
 | For: (init), join, split, loop, (update), end | ![grey] ![grey] ![grey] ![grey] ![grey] |
 | Straight lane: segments, sub-lanes based on data-flow analysis | ![grey] ![grey] ![grey] ![grey] ![grey] |
@@ -76,6 +84,8 @@ https://flowify.io/
 
 ### Zooming/expanding
 
+| Feature | Progress |
+| ------- | -------:|
 | Collapsing (function) elements together (as group) | ![grey] ![grey] ![grey] ![grey] ![grey] |
 | Scaling/straight zooming | ![grey] ![grey] ![grey] ![grey] ![grey] |
 | Sizing (with flex ratio) | ![grey] ![grey] ![grey] ![grey] ![grey] |
@@ -85,6 +95,8 @@ https://flowify.io/
 
 ### Corresponding textual representation
 
+| Feature | Progress |
+| ------- | -------:|
 | Expandable functions (corresponding with flow) | ![grey] ![grey] ![grey] ![grey] ![grey] |
 | Text follows flow (partial function) vs. flow follows text (full file-text) | ![grey] ![grey] ![grey] ![grey] ![grey] |
 | Text scroller, cursor, editor | ![grey] ![grey] ![grey] ![grey] ![grey] |
@@ -93,11 +105,15 @@ https://flowify.io/
 
 ### Debugging / utils
 
+| Feature | Progress |
+| ------- | -------:|
 | Memory management | ![grey] ![grey] ![grey] ![grey] ![grey] |
 | Render pipeline | ![grey] ![grey] ![grey] ![grey] ![grey] |
 | Introspection into visual elements (flow and text) | ![grey] ![grey] ![grey] ![grey] ![grey] |
 
 ### Future
 
+| Feature | Progress |
+| ------- | -------:|
 | Visual debugger | ![grey] ![grey] ![grey] ![grey] ![grey] |
 | Record and (re)play/simulation | ![grey] ![grey] ![grey] ![grey] ![grey] |
