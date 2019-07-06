@@ -39,65 +39,65 @@ https://flowify.io/
 
 ### Control and dataflow analysis
 
-- Symmetric control elements (if, while, do, for, foreach)
-- Asymmetric control elements (return, throw, break, continue)
-- Variable/function scope
-- Variable assignment
-- Variable/function-output usage
-- Dataflow join and splits
+| Symmetric control elements (if, while, do, for, foreach) | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Asymmetric control elements (return, throw, break, continue) | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Variable/function scope | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Variable assignment | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Variable/function-output usage | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Dataflow join and splits | ![grey] ![grey] ![grey] ![grey] ![grey] |
 
 ### Types of visual elements and connections
 
-- Lanes: straight (with segments), splits, joins, loops, assymetric
-- Boolean decider into splitter
-- Containers (expressions and functions)
-- Function arguments/parameters + to-return/returned
-- Variable identifiers on arrows
-- Icons for identification (shape = type, color = id)
-- Meaningful symbols for data-structures
-- Usage dataflow
-- Re-assignment dataflow
-- Dataflow join and splits
+| Lanes: straight (with segments), splits, joins, loops, assymetric | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Boolean decider into splitter | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Containers (expressions and functions) | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Function arguments/parameters + to-return/returned | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Variable identifiers on arrows | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Icons for identification (shape = type, color = id) | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Meaningful symbols for data-structures | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Usage dataflow | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Re-assignment dataflow | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Dataflow join and splits | ![grey] ![grey] ![grey] ![grey] ![grey] |
 
 ### Saving / loading manually entered data
 
-- Using AST-identifier to store node-specific data
-- Recovering based on diff from previous source
-- Editor for determining collapsing/expanding groups, flex ratios
+| Using AST-identifier to store node-specific data | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Recovering based on diff from previous source | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Editor for determining collapsing/expanding groups, flex ratios | ![grey] ![grey] ![grey] ![grey] ![grey] |
 
 ### Layout functions
 
-- If: splits and join
-- For: (init), join, split, loop, (update), end
-- Straight lane: segments, sub-lanes based on data-flow analysis
-- Recursive expressions/function calls (horizontal, vertical)
-- Overall function (overview), lagers of code/architecture
-- Routing/separated contol flow (jump to different lane and back)
+| If: splits and join | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| For: (init), join, split, loop, (update), end | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Straight lane: segments, sub-lanes based on data-flow analysis | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Recursive expressions/function calls (horizontal, vertical) | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Overall function (overview), lagers of code/architecture | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Routing/separated contol flow (jump to different lane and back) | ![grey] ![grey] ![grey] ![grey] ![grey] |
 
 ### Zooming/expanding
 
-- Collapsing (function) elements together (as group)
-- Scaling/straight zooming
-- Sizing (with flex ratio)
-- Text-overlay on multi-statements (manually written)
-- Layers of zoom (levels of detail)
-- Hover-over of identifiers
+| Collapsing (function) elements together (as group) | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Scaling/straight zooming | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Sizing (with flex ratio) | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Text-overlay on multi-statements (manually written) | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Layers of zoom (levels of detail) | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Hover-over of identifiers | ![grey] ![grey] ![grey] ![grey] ![grey] |
 
 ### Corresponding textual representation
 
-- Expandable functions (corresponding with flow)
-- Text follows flow (partial function) vs. flow follows text (full file-text)
-- Text scroller, cursor, editor
-- Syntax highlighting
-- Good use/division of screen space (and resolution)
+| Expandable functions (corresponding with flow) | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Text follows flow (partial function) vs. flow follows text (full file-text) | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Text scroller, cursor, editor | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Syntax highlighting | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Good use/division of screen space (and resolution) | ![grey] ![grey] ![grey] ![grey] ![grey] |
 
 ### Debugging / utils
 
-- Memory management
-- Render pipeline
-- Introspection into visual elements (flow and text)
+| Memory management | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Render pipeline | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Introspection into visual elements (flow and text) | ![grey] ![grey] ![grey] ![grey] ![grey] |
 
 ### Future
 
-- Visual debugger
-- Record and (re)play/simulation
+| Visual debugger | ![grey] ![grey] ![grey] ![grey] ![grey] |
+| Record and (re)play/simulation | ![grey] ![grey] ![grey] ![grey] ![grey] |
