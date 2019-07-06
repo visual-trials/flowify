@@ -71,7 +71,7 @@ https://flowify.io/
 - For: (init), join, split, loop, (update), end
 - Straight lane: segments, sub-lanes based on data-flow analysis
 - Recursive expressions/function calls (horizontal, vertical)
-- Overall function (overview)
+- Overall function (overview), lagers of code/architecture
 - Routing/separated contol flow (jump to different lane and back)
 
 ### Zooming/expanding
