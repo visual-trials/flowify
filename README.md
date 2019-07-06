@@ -2,7 +2,7 @@
 
 ## Goal
 
-Flowify is meant to visualize existing code.
+Flowify visualizes existing code.
 
 The goal is to do this in a way that it will give a clear overview and insight into a (unfamiliar) codebase.
 
