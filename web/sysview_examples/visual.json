@@ -1,0 +1,101 @@
+{
+    "connections": {
+        "1to2": {
+            "fromContainerIdentifier": "API1",
+            "identifier": "1to2",
+            "name": "My connection",
+            "toContainerIdentifier": "API2",
+            "type": "API2API"
+        },
+        "???": {
+            "type": "API2API",
+            "identifier": "???",
+            "name": "New connection",
+            "fromContainerIdentifier": "API1",
+            "toContainerIdentifier": "ExtraServer_1566322594344",
+            "stroke": {
+                "r": 0,
+                "g": 180,
+                "b": 200,
+                "a": 1
+            }
+        }
+    },
+    "containers": {
+        "API1": {
+            "identifier": "API1",
+            "name": "First API",
+            "parentContainerIdentifier": "FirstServer",
+            "localPosition": {
+                "x": 207,
+                "y": 38
+            },
+            "localScale": 1,
+            "localSize": {
+                "height": 50,
+                "width": 70
+            },
+            "type": "API"
+        },
+        "API2": {
+            "identifier": "API2",
+            "name": "Second API",
+            "parentContainerIdentifier": "SecondServer",
+            "localPosition": {
+                "x": 227.04463885662,
+                "y": 170.37713840392
+            },
+            "localScale": 0.5,
+            "localSize": {
+                "height": 72.42670875645,
+                "width": 112.54871576581
+            },
+            "type": "API"
+        },
+        "ExtraServer_1566322594344": {
+            "identifier": "ExtraServer_1566322594344",
+            "name": "My Extra Server",
+            "parentContainerIdentifier": "SecondServer",
+            "localPosition": {
+                "x": 153.24250161299,
+                "y": 56.020946272807
+            },
+            "localScale": 0.5,
+            "localSize": {
+                "height": 82.563072341285,
+                "width": 514.28686226441
+            },
+            "type": "API"
+        },
+        "FirstServer": {
+            "identifier": "FirstServer",
+            "name": "My First Server",
+            "parentContainerIdentifier": "root",
+            "localPosition": {
+                "x": 199.17391256842,
+                "y": 254.69644621717
+            },
+            "localScale": 1,
+            "localSize": {
+                "height": 226,
+                "width": 303
+            },
+            "type": "server"
+        },
+        "SecondServer": {
+            "identifier": "SecondServer",
+            "name": "My Second Server",
+            "parentContainerIdentifier": "root",
+            "localPosition": {
+                "x": 678.81031,
+                "y": 196.03611
+            },
+            "localScale": 1,
+            "localSize": {
+                "height": 292.78648380165,
+                "width": 521.25870049587
+            },
+            "type": "server"
+        }
+    }
+}

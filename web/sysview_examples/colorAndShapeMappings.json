@@ -1,0 +1,35 @@
+{
+    "containerTypeToContainerShapeAndColor" : {
+        "label" : { 
+            "shape" : "rectangle4points",
+            "stroke" : { "color": "transparent", "light": 0.0 },
+            "fill" : { "color": "transparent", "light": 0.0 }
+        },
+        "API" : { 
+            "shape" : "rectangle4points",
+            "stroke" : { "color": "blue", "light": 0.2 },
+            "fill" : { "color": "blue", "light": 0.5 }
+        },
+        "server": {
+            "shape" : "roundedRectangleManyConnections",
+            "stroke" : { "color": "blue", "light": 0.5 },
+            "fill" : { "color": "blue", "light": 0.9 }
+        },
+        "visualContainer": {
+            "shape" : "roundedRectangleManyConnections",
+            "stroke" : { "color": "blue", "light": 0.5 },
+            "fill" : { "color": "blue", "light": 0.9 }
+        },
+        "visualContainer-light": {
+            "shape" : "roundedRectangleManyConnections",
+            "stroke" : { "color": "blue", "light": 0.5 },
+            "fill" : { "color": "blue", "light": 0.7 }
+        }
+    },
+    "dataTypeToColor" : {
+        "salesOrders" : { 
+            "stroke" : { "color": "blue", "light": -0.5 },
+            "fill" : { "color": "blue", "light": 0.5 }
+        }
+    }
+}
