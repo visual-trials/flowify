@@ -339,9 +339,8 @@ extern "C" {
 
             // TODO: we should also re-generate the detail-string when the absolute position changes of the element
             // FIXME: turned off for now: if (old_selected_element_index != flowifier->interaction.selected_element_index)
-            /*
             {
-                FlowElement * newly_selected_flow_element = &flow_elements[flowifier->interaction.selected_element_index];
+                FlowElement * newly_selected_flow_element = (FlowElement *)get_item_by_index(&flowifier->flow_elements, flowifier->interaction.selected_element_index);
                 
                 init_scrollable_text(&world->scrollable_flowify_detail, &world->flowify_detail_window, false);
                 
@@ -351,7 +350,6 @@ extern "C" {
 
                 split_string_into_scrollable_lines(world->flowify_detail_text.string, &world->scrollable_flowify_detail);
             }
-            */
         }
         
         // Update world
@@ -608,11 +606,11 @@ extern "C" {
         draw_elements(flowifier, root_element);
         
         // FIXME: hack!
-        /*
         if (flowifier->interaction.selected_element_index)
         {
-            FlowElement * flow_elements = (FlowElement *)flowifier->flow_elements.items;
-            FlowElement * selected_flow_element = &flow_elements[flowifier->interaction.selected_element_index];
+            // FlowElement * flow_elements = (FlowElement *)flowifier->flow_elements.items;
+            // FlowElement * selected_flow_element = &flow_elements[flowifier->interaction.selected_element_index];
+            FlowElement * selected_flow_element = (FlowElement *)get_item_by_index(&flowifier->flow_elements, flowifier->interaction.selected_element_index);
             
             Rect2d detail_rect = {};
             
@@ -621,17 +619,16 @@ extern "C" {
             detail_rect.size.height = 644; // TODO: we should choose a different width here right?
             
             detail_rect.position.x += world->root_element->rect.size.width + 20;
-            // detail_rect.position.y = selected_flow_element->absolute_position.y + selected_flow_element->rect.size.height / 2 - detail_rect.size.height / 4;
+            detail_rect.position.y = selected_flow_element->rect_abs.position.y + selected_flow_element->rect.size.height / 2 - detail_rect.size.height / 4;
             
             draw_rounded_rectangle(detail_rect.position, detail_rect.size, flowifier->detail_style);
 
             // FIXME: update_scrollable_text should be called in update_frame!!
             world->flowify_detail_window.screen_rect = detail_rect;
-            // update_scrollable_text(&world->scrollable_flowify_detail, input);
+            update_scrollable_text(&world->scrollable_flowify_detail, input);
             
             draw_scrollable_text(&world->scrollable_flowify_detail);
         }
-        */
         
     }
     
